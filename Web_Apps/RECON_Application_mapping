@@ -39,9 +39,9 @@ disabled.
 Change the User-Agent header to identify difference in comportment (for
 example, the application may have a mobile version).
 Firefox addon that allows for quickly changing the browser's user agent string:
-`User Agent Switcher`  
+`User Agent Switcher`
 
-*Agents*  
+*Agents*
 ```
 # Browser
 Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0
@@ -97,13 +97,28 @@ Repeat the Search with the Omitted Results Included
 ```
 
 
-### Content Management System fingerprinting
+### Fingerprinting
 
-Determine the technologies in use:
+Determine the technologies in use on the Web Application (CMS, etc.).
 
-- Verbose HTTP headers
+###### Manual Fingerprinting
+
+Look for :
+- Verbose HTTP headers disclosing version numbers
+```
+Server
+X-powered-by
+```
+
+Google any unknown / non-standard headers to discover which technology may
+have issued them.
+Load balancers usually use non-standard and misspelled headers.
 - Default error pages
-- HTML source code comments and variable names
+- Pattern in HTML source code
+
+Test | test
+---- | ----
+conte
 - JavaScript files names
 
 Check for default content associated with the technologies found : automate the
@@ -128,11 +143,11 @@ Complete authentication forms if possible.
 Use the application root and any other path from already enumerated deemed fit
 as a starting point.
 
-*File extension*  
+*File extension*
 Determine file extension to use for the bruteforce (no extension +
 language extension).
 
-*Wordlists*  
+*Wordlists*
 Adapte the word list for the application context.
 Example: if all resources in start with a capital letter, the wordlist used in
 the bruteforce should be capitalized.
