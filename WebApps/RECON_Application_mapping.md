@@ -11,9 +11,9 @@ how it behaves.
 --------------------------------------------------------------------------------
 ### Manual browsing + passive spidering
 
-Browse the entire application in the normal way, visiting every link and URL,
-submitting every form, and proceeding through all multistep functions to
-completion.
+Browse the entire application in the normal way with BurpSuite active,
+visiting every link and URL, submitting every form, and proceeding through all
+multistep functions to completion.
 
 If the application uses authentication, and you have or can create a login
 account, use this to access the authenticated functionality.
@@ -36,7 +36,7 @@ disabled.
 
 ###### User-Agent
 Change the User-Agent header to identify difference in comportment (for
-example, the application may have a mobile version).
+example, the application may have a mobile version).  
 Firefox addon that allows for quickly changing the browser's user agent string:
 `User Agent Switcher`
 
@@ -110,9 +110,9 @@ X-powered-by
 X-Generator
 ```
 Google any unknown / non-standard headers to discover which technology may
-have issued them.
+have issued them.  
 Load balancers usually use non-standard and misspelled headers.
-
+[*See Server Exposure*](./RECON_Server_exposure.md).
 - Default error pages
 - Known Pattern in HTML source code / URL
 
@@ -120,8 +120,8 @@ CMS | Pattern
 ---- | ----
 WordPress | 'Powered by WordPress'
 OWAURL | /OWA/
-Joomla | /_layouts/*
-Drupal | /node/*<br/>/CHANGELOG.TXT<br/>/INSTALL.txt<br/>/MAINTAINERS.txt<br/>/LICENSE.txt<br/>...
+Joomla | /\_layouts/*
+Drupal | /node/\*<br/>/CHANGELOG.TXT<br/>/INSTALL.txt<br/>/MAINTAINERS.txt<br/>/LICENSE.txt<br/>...
 
 ###### Automated Fingerprinting
 
@@ -145,11 +145,11 @@ Complete authentication forms if possible.
 Use the application root and any other path from already enumerated deemed fit
 as a starting point.
 
-*File extension*
+*File extension*  
 Determine file extension to use for the bruteforce (no extension +
 language extension).
 
-*Wordlists*
+*Wordlists*  
 Adapte the word list for the application context.
 Example: if all resources in start with a capital letter, the wordlist used in
 the bruteforce should be capitalized.
