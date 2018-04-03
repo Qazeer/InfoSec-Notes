@@ -14,7 +14,7 @@ Summary of the vulnerabilities impacting web applications:
 | SSL/TLS configuration         | Use of an invalid certificate<br/> Supports of insecure encryption protocols or algorithms |
 | Third-party components        | Use of unsecure default configuration<br/> CVE & public exploits                        |
 | Client-side validation        | Absence of replicated checks server side     |
-| Authentication                | Username enumeration<br/> Weak password policy <br/> Absence of brute force protection mechanisms |
+| Authentication                | Username enumeration<br/> Weak password policy <br/> Absence of brute force protection mechanisms<br/> Desin flaws of auxiliary functionalities |
 | Session                       | Predictable tokens<br/> Insecure handling of tokens |
 | Access control                | Horizontal partitioning bypass<br/> Vertical privilege escalation |
 | Business logic                | Absence of business validation on data input<br/> Business flaw and vulnerability by design<br/> Absence of anti Cross Site Request Forgery token on core business functionality|
