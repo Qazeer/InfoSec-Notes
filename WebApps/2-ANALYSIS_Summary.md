@@ -9,7 +9,7 @@ Summary of the vulnerabilities impacting web applications:
 
 | Component                     | Possible vulnerabilities                     |
 |-------------------------------|----------------------------------------------|
-| HTTP stack                    | Information leakage through HTTP headers or error message<br/> Supports of unnecessary HTTP methods |
+| HTTP stack                    | Information leakage through HTTP headers or error message<br/> Supports of unnecessary HTTP methods<br/> HTTP headers misconfiguration |
 | Clear text communications     | Transmission of credentials and sensitive data<br/>Session hijacking |
 | SSL/TLS configuration         | Use of an invalid certificate<br/> Supports of insecure encryption protocols or algorithms |
 | Third-party components        | Use of unsecure default configuration<br/> CVE & public exploits                        |
