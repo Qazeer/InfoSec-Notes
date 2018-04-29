@@ -1,3 +1,0 @@
-# Android - Methodology
-
-### APK Analysis
