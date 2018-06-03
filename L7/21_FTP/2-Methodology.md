@@ -3,10 +3,14 @@
 ### RECON
 
 ###### Scan Nmap
-`nmap -A -p <PORT> <IP>`
+```bash
+nmap -A -p <PORT> <IP>
+```
 
 ###### Banner grabing
-`ftp <IP>`
+```bash
+ftp <IP>
+```
 
 ###### Anonymous logging
 The server may allow anonymous connections with the *anonymous* or *ftp*
@@ -22,3 +26,12 @@ patator ftp_login host=<IP> user=FILE0 password=FILE1 0=<wordlist_user> 1=<wordl
 ```
 
 ### POST EXPLOITATION
+Print file from FTP session:
+```bash
+get <FILE> -
+```
+
+Download every files from the FTP server:
+```bash
+wget --mirror ftp://<USER>:<PASSWORD>@<IP>:<PORT>
+```
