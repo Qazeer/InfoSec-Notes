@@ -50,9 +50,11 @@ interfaces and active connections of the host:
 |--|-----|------------|-----|
 
 
-### Physical access
+### Exploit
 
-### Misc
+###### Physical access
+
+###### Misc
 
 ###### File system exploration
 
@@ -60,10 +62,10 @@ interfaces and active connections of the host:
 
 ###### File transfer from the host
 
-### Unpatched system
+###### Unpatched system
 
 
-### System misconfigurations exploits
+###### System misconfigurations exploits
 
 ###### Unquoted services path
 
@@ -71,13 +73,13 @@ interfaces and active connections of the host:
 
 ###### AlwaysInstallElevated
 
-### Token Privileges abuse
+###### Token Privileges abuse
 
 Use the following command to retrieve the current user account token privileges:
 ```bash
 whoami /priv
 ```
-###### Vulnerable tokens
+*Vulnerable tokens*
 
 The following tokens can be exploited to gain SYSTEM access privileges:
 - SeImpersonatePrivilege
@@ -90,7 +92,7 @@ The following tokens can be exploited to gain SYSTEM access privileges:
 - SeTakeOwnershipPrivilege
 - SeDebugPrivilege
 
-###### Rotten Potato w/ Metasploit
+*Rotten Potato w/ Metasploit*
 
 RottenPotato can be used in combination with the Metasploit meterpreter
 incognito module to abuse the privileges above in order to elevate privilege to
@@ -115,4 +117,4 @@ meterpreter > list_tokens -u
 meterpreter > impersonate 'NT AUTHORITY\SYSTEM'
 ```
 
-###### LonelyPottato (RottenPotato w/o Metasploit)
+*LonelyPottato (RottenPotato w/o Metasploit)*
