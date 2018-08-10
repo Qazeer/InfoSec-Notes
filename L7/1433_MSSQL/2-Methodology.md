@@ -23,13 +23,23 @@ msf > use auxiliary/scanner/mssql/mssql_ping
 
 ### POST EXPLOITATION
 
+###### Access the database
+
+The sqsh CLI tool can be used to make queries to the database:
+```
+sqsh -U <USERNAME> -P <PASSWORD> -S <IP>:<PORT>
+```
+
+The DBeaver GUI tool can be used to simply access the database content without
+knowing the proper MSSQL syntax.
+
 ###### OS command execution
 On MSSQL server, operating system commands can be executed using the
 *xp_cmdshell* function.  
 The *xp_cmdshell* function is deactivated by default from SQL Server 2000 and
 upwards and needs to be activated.  
-The following query can be used to activate it given the account used has
-sufficient privilege (sysadmin):
+The following query can be used to activate it given the
+account used has sufficient privilege (sysadmin):
 ```SQL
 -- To allow advanced options to be changed.  
 EXEC sp_configure 'show advanced options', 1;  
