@@ -123,6 +123,8 @@ Linux_Exploit_Suggester.pl
 
 ###### Files with the SUID Bit Set
 find / -user root -perm -4000 -ls 2>/dev/null
+
+find / -perm -4000 -type f -exec ls -la {} 2>/dev/null \;
 find / -type f -user root -perm -4000 -exec stat -c "%A %a %n" {} \; 2>/dev/null
 
 Files with the SGID Bit Set
