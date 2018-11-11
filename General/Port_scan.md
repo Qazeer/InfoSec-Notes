@@ -41,7 +41,7 @@ nmap -v -sU  -Pn -A -oA nmap_<FILENAME> <IP/FQDN>
 Host Discovery - Generate Live Hosts List:
 
 ```
-nmap -sn -T4 -oG Discovery.gnmap 192.168.56.0/24
+nmap -sn -T4 -oG Discovery.gnmap <RANGE/CIDR>
 grep "Status: Up" Discovery.gnmap | cut -f 2 -d ' ' > LiveHosts.txt
 ```
 
