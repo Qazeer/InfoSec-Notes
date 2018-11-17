@@ -122,7 +122,7 @@ echo bye >> ftp.txt
 ftp -v -n -s:ftp.txt
 ```
 
-In case of AV errors while trying binary, omit the exe extension.  
+In case of AV errors while trying to download a binary, omit the exe extension.  
 
 ###### TFTP
 
