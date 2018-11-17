@@ -50,24 +50,27 @@ List the shares available on the server from Linux using smbclient.
 If no credentials are provided, a null session will be attempted.
 
 ```
-smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] -L (-H HOST | --host-file FILE)  
-
-smbclient -L <HOST>
-smbclient -U <USER> -L <HOST>
-
 nmap --script smb-enum-shares.nse -p 445 <HOST>
 nmap -sU -sS --script smb-enum-shares.nse -p U:137,T:139 <HOST>
+
+smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] -L (-H HOST | --host-file FILE)  
+
+smbclient -U "" -N -L <HOST>
+smbclient -U <USER> -L <HOST>
 ```
 
-### Search files
+### List and search files
 
 List the shares available on the server from Linux using smbclient.  
 If no credentials are provided, a null session will be attempted.
 
 ```
+nmap -v -sT -p 445 --script smb-enum-shares,smb-ls <HOST>
+sudo nmap -v -sU -sS -p U:137,T:139 --script smb-enum-shares,smb-ls  <HOST>
+
 smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] -F <PATTERN> (-H HOST | --host-file FILE)  
 
-smbclient \\\\<HOST>\\<SHARE> -U <USER>
+smbclient -U <USER> \\\\<HOST>\\<SHARE>
 ```
 
 Smbmap can be used to download, upload or delete a file:
@@ -145,5 +148,5 @@ exploit.py [-h] -t <TARGET> -e <EXECUTABLE> -s <REMOTESHARE> -r <REMOTEPATH> [-u
 The patator tool can be used to brute force credentials on the service:
 
 ```
-patator smb_login host=<IP> user=FILE0 password=FILE1 0=<wordlist_user> 1=<wordlist_password> -x ignore:mesg='NT_STATUS_LOGON_FAILURE'
+patator smb_login host=<IP> user=FILE0 password=FILE1 0=<WORDLIST_USER> 1=<WORDLIST_PASSWORD> -x ignore:fgrep='NT_STATUS_LOGON_FAILURE'
 ```
