@@ -106,6 +106,8 @@ nmap -v -p 139,445 --script=vuln <TARGET>
 
 ### EternalBlue & SambaCry
 
+###### Detect vulnerability
+
 The Nmap *smb-vuln-ms17-010.nse* and *smb-vuln-cve-2017-7494* scripts attempt
 to detect if a SMBv1 server is vulnerable to the remote code execution
 vulnerability MS17-010, a.k.a. EternalBlue (vulnerability exploited by WannaCry
@@ -132,6 +134,10 @@ https://docs.microsoft.com/en-us/security-updates/securitybulletins/2017/ms17-01
 # SambaCry
 Samba 3.x after 3.5.0 and 4.x before 4.4.14, 4.5.x before 4.5.10, and 4.6.x before 4.6.4
 ```
+
+###### EternalBlue
+
+###### SambaCry
 
 The following exploit may be used to achieve RCE through the SambaCry
 vulnerability:
