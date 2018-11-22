@@ -50,8 +50,10 @@ List the shares available on the server from Linux using smbclient.
 If no credentials are provided, a null session will be attempted.
 
 ```
-nmap --script smb-enum-shares.nse -p 445 <HOST>
-nmap -sU -sS --script smb-enum-shares.nse -p U:137,T:139 <HOST>
+nmap -v -sT -p 139,445 --script smb-enum-shares.nse <HOST>
+nmap -v -sU -sT -p U:137,T:139,445 --script smb-enum-shares.nse <HOST>
+nmap -v -sT -p 139,445 <HOST> --script smb-enum-shares --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbpassword=<PASSWORD>
+nmap -v -sT -p 139,445 <HOST> --script smb-enum-shares --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbhash=<HASH>
 
 smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] -L (-H HOST | --host-file FILE)  
 
@@ -65,8 +67,10 @@ List the shares available on the server from Linux using smbclient.
 If no credentials are provided, a null session will be attempted.
 
 ```
-nmap -v -sT -p 445 --script smb-enum-shares,smb-ls <HOST>
-sudo nmap -v -sU -sS -p U:137,T:139 --script smb-enum-shares,smb-ls  <HOST>
+nmap -v -sT -p 139,445 <HOST> --script smb-enum-shares,smb-ls --script-args maxdepth=-1
+nmap -v -sT -p 139,445 <HOST> --script smb-ls --script-args share=<SHARE>,maxdepth=-1
+nmap -v -sT -p 139,445 <HOST> --script smb-enum-shares,smb-ls --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbpassword=<PASSWORD>,maxdepth=-1
+nmap -v -sT -p 139,445 <HOST> --script smb-enum-shares,smb-ls --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbhash=<HASH>,maxdepth=-1
 
 smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] -F <PATTERN> (-H HOST | --host-file FILE)  
 
