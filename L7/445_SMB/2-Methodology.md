@@ -50,24 +50,31 @@ List the shares available on the server from Linux using smbclient.
 If no credentials are provided, a null session will be attempted.
 
 ```
+nmap -v -sT -p 139,445 --script smb-enum-shares.nse <HOST>
+nmap -v -sU -sT -p U:137,T:139,445 --script smb-enum-shares.nse <HOST>
+nmap -v -sT -p 139,445 <HOST> --script smb-enum-shares --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbpassword=<PASSWORD>
+nmap -v -sT -p 139,445 <HOST> --script smb-enum-shares --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbhash=<HASH>
+
 smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] -L (-H HOST | --host-file FILE)  
 
-smbclient -L <HOST>
+smbclient -U "" -N -L <HOST>
 smbclient -U <USER> -L <HOST>
-
-nmap --script smb-enum-shares.nse -p 445 <HOST>
-nmap -sU -sS --script smb-enum-shares.nse -p U:137,T:139 <HOST>
 ```
 
-### Search files
+### List and search files
 
 List the shares available on the server from Linux using smbclient.  
 If no credentials are provided, a null session will be attempted.
 
 ```
+nmap -v -sT -p 139,445 <HOST> --script smb-enum-shares,smb-ls --script-args maxdepth=-1
+nmap -v -sT -p 139,445 <HOST> --script smb-ls --script-args share=<SHARE>,maxdepth=-1
+nmap -v -sT -p 139,445 <HOST> --script smb-enum-shares,smb-ls --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbpassword=<PASSWORD>,maxdepth=-1
+nmap -v -sT -p 139,445 <HOST> --script smb-enum-shares,smb-ls --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbhash=<HASH>,maxdepth=-1
+
 smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] -F <PATTERN> (-H HOST | --host-file FILE)  
 
-smbclient \\\\<HOST>\\<SHARE> -U <USER>
+smbclient -U <USER> \\\\<HOST>\\<SHARE>
 ```
 
 Smbmap can be used to download, upload or delete a file:
@@ -99,6 +106,8 @@ nmap -v -p 139,445 --script=vuln <TARGET>
 
 ### EternalBlue & SambaCry
 
+###### Detect vulnerability
+
 The Nmap *smb-vuln-ms17-010.nse* and *smb-vuln-cve-2017-7494* scripts attempt
 to detect if a SMBv1 server is vulnerable to the remote code execution
 vulnerability MS17-010, a.k.a. EternalBlue (vulnerability exploited by WannaCry
@@ -126,6 +135,10 @@ https://docs.microsoft.com/en-us/security-updates/securitybulletins/2017/ms17-01
 Samba 3.x after 3.5.0 and 4.x before 4.4.14, 4.5.x before 4.5.10, and 4.6.x before 4.6.4
 ```
 
+###### EternalBlue
+
+###### SambaCry
+
 The following exploit may be used to achieve RCE through the SambaCry
 vulnerability:
 
@@ -145,5 +158,5 @@ exploit.py [-h] -t <TARGET> -e <EXECUTABLE> -s <REMOTESHARE> -r <REMOTEPATH> [-u
 The patator tool can be used to brute force credentials on the service:
 
 ```
-patator smb_login host=<IP> user=FILE0 password=FILE1 0=<wordlist_user> 1=<wordlist_password> -x ignore:mesg='NT_STATUS_LOGON_FAILURE'
+patator smb_login host=<IP> user=FILE0 password=FILE1 0=<WORDLIST_USER> 1=<WORDLIST_PASSWORD> -x ignore:fgrep='NT_STATUS_LOGON_FAILURE'
 ```
