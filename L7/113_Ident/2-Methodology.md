@@ -11,7 +11,8 @@ privileges.
 
 ### Network scan
 
-Nmap can be used to detect exposed Ident services:
+Nmap automatically query the Ident service, if exposed on the host, during
+ports scan and specify the user running the service with "auth-owners".
 
 ```
 nmap -v -p 113 -A <HOSTS>
@@ -19,7 +20,7 @@ nmap -v -p 113 -A <HOSTS>
 
 ### Ident query
 
-The python script identi.py can be used to query the Ident service:
+The python script identi.py can be used to manually query the Ident service:
 
 ```
 identi.py [-h] [-q QUERY_PORT [QUERY_PORT ...]] [-p PORT] [-a] [-v] <HOST>
