@@ -5,7 +5,7 @@
 Nmap and nbtscan can be used to scan the network for SMB services:
 
 ```
-nmap -v -p 139,445 -oA nmap_smb <RANGE/CIDR>
+nmap -v -p 139,445 -A -oA nmap_smb <RANGE/CIDR>
 nbtscan -r <RANGE>
 ```
 

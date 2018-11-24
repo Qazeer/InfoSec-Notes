@@ -1,5 +1,11 @@
 # Linux - Local Privilege Escalation
 
+The following notes assumes that a low privilege shell could be obtained on the
+target. Some privilege techniques detailed rely on a fully TTY shell.  
+
+To leverage a shell from a Remote Code Execution (RCE) vulnerability please
+refer to the [General] Shells note.
+
 ### Enumeration
 
 ###### Enumeration scripts
@@ -8,8 +14,11 @@ Most of the enumeration process detailed below can be automated using
 scripts.
 
 *Personal preference: LinEnum.sh + BeRoot.py
-(embeds linux-exploit-suggester.sh) > LinEnum.sh + linux-exploit-suggester.sh*
-*> others*
+(if python available; Embeds linux-exploit-suggester.sh) > LinEnum.sh +
+linux-exploit-suggester.sh > others*
+
+To upload the scripts on the target, please refer to the [General] File transfer
+note.  
 
 The **LinEnum.sh** script enumerates the system configuration using more than
 65 (OS & kernel information, home directories, sudo acces, SUID/GUID files,
@@ -218,3 +227,18 @@ find / -type f -user root -perm -6000 -exec stat -c "%A %a %n" {} \; 2>/dev/null
 ###### Exploit SUID/GUID files
 
 ### Kernel exploit
+
+### Post-Exploit
+
+###### SSH keys exfiltration
+
+The metasploit module post/multi/gather/ssh_creds will collect the contents of
+all users' .ssh directories on the targeted machine. Additionally,
+known_hosts and authorized_keys and any other files are also downloaded.
+
+```
+msf > use post/multi/gather/ssh_creds
+```
+
+Lateral movement through SSH brute force is possible using private SSH keys,
+refer to the [L7] SSH note.
