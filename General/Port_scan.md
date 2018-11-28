@@ -1,4 +1,4 @@
-# Ports scanning - Methodology
+# Ports and services scanning - Methodology
 
 ### Nmap
 
@@ -17,11 +17,13 @@ includes an advanced GUI and results viewer (Zenmap), a flexible data transfer,
 redirection, and debugging tool (Ncat), a utility for comparing scan results
 (Ndiff), and a packet generation and response analysis tool (Nping).
 
-##### Usage
+###### Usage
 
-nmap [Scan Type(s)] [Options] {target specification}
+```
+nmap [Scan Type(s)] [Options] (<IP> | <FQDN> | <CIDR> | <RANGE>)
+```
 
-##### Single host scanning
+###### Single host scanning
 
 To scan a single host:
 
@@ -32,20 +34,27 @@ nmap -v -sT -Pn -A -p- <IP/FQDN>
 nmap -v -sS -Pn -A -oA nmap_<FILENAME> -p- <IP/FQDN>
 
 # UDP - Top 1000
-nmap -v -sU  -Pn -A <IP/FQDN>
-nmap -v -sU  -Pn -A -oA nmap_<FILENAME> <IP/FQDN>
+nmap -v -sU -Pn -A <IP/FQDN>
+nmap -v -sU -Pn -A -oA nmap_<FILENAME> <IP/FQDN>
+
+# Script engine
+# For more information about the nmap scripts to use for a given service refer to the service note (L7/<SERVICE>)
+nmap -v -sT -Pn -p <SERVICE_PORT> --script=vuln <IP/FQDN>
 ```
 
-##### Network scanning
+###### Network scanning
 
-Host Discovery - Generate Live Hosts List:
+*Host Discovery*
+
+Generate a live hosts list trough a nmap ping sweep (ARP ping if on same subnet,
+ICMP echo and TCP packets on ports 80 and 443 otherwise)
 
 ```
 nmap -sn -T4 -oG Discovery.gnmap <RANGE/CIDR>
 grep "Status: Up" Discovery.gnmap | cut -f 2 -d ' ' > LiveHosts.txt
 ```
 
-Port Discovery:
+*Port Discovery*
 
 ```
 # Most Common Ports
@@ -57,14 +66,21 @@ nmap -sS -T4 -Pn -A -p- -oN FullTCP -iL LiveHosts.txt
 nmap -sU -T4 -Pn -A -p- -oN FullUDP -iL LiveHosts.txt
 ```
 
-Print results:
+*Print results*
 
 ```
 grep "open" FullTCP | cut -f 1 -d ' ' | sort -nu | cut -f 1 -d '/' |xargs | sed 's/ /,/g'|awk '{print "T:"$0}'
 grep "open" FullUDP | cut -f 1 -d ' ' | sort -nu | cut -f 1 -d '/' |xargs | sed 's/ /,/g'|awk '{print "U:"$0}'
 ```
 
-##### Scan Types
+*Specific service vulnerabilites*
+
+```
+nmap -v -sT -Pn -p <SERVICE_PORT> -oA <FILEOUT> --script=vuln <RANGE/CIDR>
+nmap -v -sT -Pn -p <SERVICE_PORT> -oA <FILEOUT> --script=vuln -iL LiveHosts.txt
+```
+
+###### Scan Types
 
 -sS : TCP SYN scan
 
@@ -105,7 +121,7 @@ non-stateful firewalls and packet filtering routers.
 
 Reference : https://nmap.org/book/idlescan.html
 
-##### Target Specification
+###### Target Specification
 
 Nmap supports multiple way to specify a target host :
 
@@ -114,96 +130,107 @@ Nmap supports multiple way to specify a target host :
 - CIDR-style : 192.168.0.0/24
 - Input file : -iL <inputfilename>
 
-#####  Usefull Options
+######  Usefull Options
 
+```
 -p <port ranges> : scan specified ports
 
-Individual port numbers, comma separated list of ports or hyphen separated
-range can be used.
-When scanning a combination of protocols, a particular protocol can be
-specified by preceding the port numbers by T: for TCP, U: for UDP.
-Ex: -p U:53,111,137, T:21-25,80,139,443,8080
+  Individual port numbers, comma separated list of ports or hyphen separated
+  range can be used.
+  When scanning a combination of protocols, a particular protocol can be
+  specified by preceding the port numbers by T: for TCP, U: for UDP.
+  Ex: -p U:53,111,137, T:21-25,80,139,443,8080
 
 -sn : No port scan (ping scan)
 
-Tells Nmap not to do a port scan after host discovery, and only print out the
-available hosts that responded to the host discovery probes.
+  Tells Nmap not to do a port scan after host discovery, and only print out the
+  available hosts that responded to the host discovery probes.
 
 -Pn : No ping
 
-By default, Nmap use a ping scan to determine if the host is up before starting
-the specified scan.
-Tells Nmap to skip the ping scan and directly start the specified scan.
+  By default, Nmap use a ping scan to determine if the host is up before starting
+  the specified scan.
+  Tells Nmap to skip the ping scan and directly start the specified scan.
 
 -n : No DNS resolution
 
-Tells Nmap to never do reverse DNS resolution on the active IP addresses it
-finds. Can slash scanning times.
+  Tells Nmap to never do reverse DNS resolution on the active IP addresses it
+  finds. Can slash scanning times.
 
 -PR : ARP Ping
 
-Use ARP request to conduct host discovery on LA-T4N network.
+  Use ARP request to conduct host discovery on LA-T4N network.
 
 -sV : Version detection
 
- 		Tells Nmap to try to determine the service protocol, the application name,
-the version number, hostname, device type and OS family of the target.
+ 	Tells Nmap to try to determine the service protocol, the application name,
+  the version number, hostname, device type and OS family of the target.
 
 -O : Enable OS detection)
 
-Tells Nmap to try to determine the OS and OS details of the target.
+  Tells Nmap to try to determine the OS and OS details of the target.
 
 -sC : script scanning
 
-Performs a script scan using the default set of scripts
+  Performs a script scan using the default set of scripts
 
 -A : Aggressive scan options
 
-Tells Nmap to perform OS detection (-O), version scanning (-sV), script
-scanning (-sC) and traceroute (--traceroute).
+  Tells Nmap to perform OS detection (-O), version scanning (-sV), script
+  scanning (-sC) and traceroute (--traceroute).
 
 -T paranoid/0 | sneaky/1 | polite/2 | normal/3 | aggressive/4 |
 insane/5 : timing template
  		
-Paranoid and Sneaky are for IDS evasion and are incredibly slow.  
-Polite mode slows down the scan to use less bandwidth and target machine
-resources. A Polite scan may be 10 times slower than a normal scan.  
-Normal mode is the default.  
-Aggressive mode speeds scans up by making the assumption that you are on a
-reasonably fast and reliable network.  
-Insane mode assumes that you are on an extraordinarily fast network or are
-willing to sacrifice some accuracy for speed.  
+  Paranoid and Sneaky are for IDS evasion and are incredibly slow.  
+  Polite mode slows down the scan to use less bandwidth and target machine
+  resources. A Polite scan may be 10 times slower than a normal scan.  
+  Normal mode is the default.  
+  Aggressive mode speeds scans up by making the assumption that you are on a
+  reasonably fast and reliable network.  
+  Insane mode assumes that you are on an extraordinarily fast network or are
+  willing to sacrifice some accuracy for speed.  
+```
 
-##### Nmap Scripting Engine (NSE)
+###### Nmap Scripting Engine (NSE)
 
 NSE scripts define a list of categories they belong to.
 Currently defined categories are auth, broadcast, brute, default. discovery,
 dos, exploit, external, fuzzer, intrusive, malware, safe, version, and vuln.
 
-NSE Options
+NSE Options:
 
+```
 --script <filename>|<category>|<directory>|<expression>[,...]
+```
 
 Runs a script scan using the comma-separated list of filenames, script
 categories, and directories.
 
+```
 nmap --script "http-\*"
+```
 
 Loads all scripts whose name starts with http-, such as http-auth and 
 http-open-proxy. The argument to --script had to be in quotes to protect the
 wildcard from the shell.
 
-
+```
 nmap --script "not intrusive"
+```
 
 Loads every script except for those in the intrusive category.
 
+```
 nmap --script "default or safe"
+```
 
 This is functionally equivalent to nmap --script "default,safe". It loads all
 scripts that are in the default category or the safe category or both.
 
---script-args <n1>=<v1>,<n2>={<n3>=<v3>},<n4>={<v4>,<v5>}
+```
+--script-args <n1=<v1>,<n2>={<n3>=<v3>},<n4>={<v4>,<v5>}
+```
 
 Lets you provide arguments to NSE scripts.
 Arguments are a comma-separated list of name=value pairs.
@@ -214,37 +241,44 @@ The online NSE Documentation Portal at https://nmap.org/nsedoc/ lists the
 arguments that each script accepts, including any library arguments that may
 influence the script.
 
+```
 --script-args-file <filename>
+```
 
 Lets you load arguments to NSE scripts from a file.
 Any arguments on the command line supersede ones in the file. 
 
-
+```
 --script-help <filename>|<category>|<directory>|<expression>|all[,...]
+```
 
 Shows help about scripts.
 Can be used to list all scripts in a given category/directory/exprossion. 
 
+```
 --script-updatedb
+```
 
 This option updates the script database found in scripts/script.db 
 
-##### Proxies
+###### Proxies
 
-Use Proxychains to scan through a proxy. Supported proxies types : http,
-socks4 and socks5.
+Use Proxychains to scan through a proxy.  
+Supported proxies types : http, socks4 and socks5.
 
-HTTP/socks4 can can do only TCP :
+HTTP/socks4 can only be used to conduct TCP scan:
 
-- ICMP ping can not be done to see if a host is alive, since ICMP is not TCP. Use -Pn.
-- Never perform DNS resolution to prevent DNS leaks. Use -n.
+  - ICMP ping can not be performed. Use -Pn.
+  - Never perform DNS resolution to prevent DNS leaks. Use -n.
+  - RAW/PACKET or UDP sockets cannot be redirected through these kind of proxies
+    as they are designed to relay full TCP connections only.   
+  - OS fingerprinting based on features of the IP stack is not possible.
+  - TCP connect scan (-sT) and service fingerprint on TCP (-sV) can be proxyfied.
 
-- RAW/PACKET or UDP sockets cannot be redirected through these kind of proxies as they are designed to relay full TCP connections only.   
+To use nmap through Proxychains:
 
-- OS fingerprinting based on features of the IP stack is not possible
-
-
-- TCP connect scan (-sT) and service fingerprint on TCP (-sV) can be proxyfied.
-
-Edit /etc/proxychains.conf
-Start the scan using proxychains nmap -sT -n -Pn -sV ...
+```
+Edit /etc/proxychains.conf  
+# Start the scan using Proxychains
+proxychains nmap -sT -n -Pn -sV ...
+```
