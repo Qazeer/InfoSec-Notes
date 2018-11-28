@@ -32,6 +32,26 @@ impacket-smbserver <SHARE_NAME> <SHARE_PATH>
 impacket-smbserver <SHARE_NAME> `pwd`
 ```
 
+###### Windows GUI shares
+
+On Windows, the graphical interface can be used to share a specific folder over
+the network. Sharing a folder requires Administrator or SYSTEM privileges.
+
+Note that the final access permissions for a shared resource are determined by
+considering both the NTFS permissions and the sharing protocol permissions, and
+then applying the more restrictive permissions. Thus, it is possible to grant
+"Everyone" full access permission when configuring the share permissions.
+
+```
+# Share permissions
+Right click folder -> Properties -> Sharing -> Share -> Everyone
+
+# NTFS permissions - Needs to be applied to the folder and its files
+Right click folder -> Properties -> Security -> Edit -> Add
+  -> From this location -> <DOMAIN>
+  -> Enter the object names to select -> <USERNAME> (-> Check Names)
+```
+
 ###### FTP
 
 ```
