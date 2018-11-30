@@ -1,8 +1,20 @@
 # SMB - Methodology
 
+### Overview
+
+In a Windows environment, the Server Message Block (SMB) protocol is used to
+share folders and files between computers.  
+
+Sensible information can be stored in shares accessible to unauthenticated
+users (NULL session or GUEST).
+
+The SMB protocol has also been vulnerable to critical vulnerabilities, such as
+MS17-010, allowing for privileged system command execution.  
+
 ### Network scan
 
-Nmap and nbtscan can be used to scan the network for SMB services:
+Nmap and nbtscan can be used to scan the network for SMB services and exposed
+shares:
 
 ```
 nmap -v -p 139,445 -A -oA nmap_smb <RANGE/CIDR>
@@ -61,6 +73,9 @@ nmap -v -sT -p 139,445 <HOST> --script smb-enum-shares --script-args smbdomain=<
 # If no username provided, null session assumed
 smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] (-H HOST | --host-file FILE)  
 
+crackmapexec <TARGET> -d <DOMAIN> -u <USERNAME> -p <PASSWORD> --shares
+crackmapexec <TARGET> -d <DOMAIN> -u <USERNAME> -H <HASH> --shares
+
 msf > use auxiliary/scanner/smb/smb_enumshares
 
 smbclient -U "" -N -L \\<NETBIOS_NAME>
@@ -85,6 +100,9 @@ nmap -v -sT -p 139,445 <HOST> --script smb-enum-shares,smb-ls --script-args smbd
 smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] -R <SHARE> (-H HOST | --host-file FILE)  
 smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] -F <PATTERN> (-H HOST | --host-file FILE)  
 
+crackmapexec <TARGET> -d <DOMAIN> -u <USERNAME> -p <PASSWORD> -shares <SHARE> --spider
+crackmapexec <TARGET> -d <DOMAIN> -u <USERNAME> -H <HASH> -shares <SHARE> --spider
+
 msf > use auxiliary/scanner/smb/smb_enumshares
 set ShowFiles true
 set SpiderShares true
@@ -98,7 +116,7 @@ smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] --download/--upload/--delete
 msf > use auxiliary/admin/smb/download_file
 ```
 
-### smbclient
+###### smbclient
 
 The Linux smbclient CLI tool can be used to interact with the a SMB or SAMBA
 share:
@@ -135,7 +153,7 @@ lcd '<PATH_LOCAL_DIR'
 mput / mget *
 ```
 
-### Mount shares
+###### Mount shares
 
 The share may also be mounted using the Linux mount utility tool (replacement
   of smbmount):
@@ -147,6 +165,28 @@ The share may also be mounted using the Linux mount utility tool (replacement
 
 mount -t cifs //<HOST>//<SHARE> /mnt/<FOLDER> -o rw,guest,vers=1.0
 mount -t cifs //<HOST>//<SHARE> /mnt/<FOLDER> -o rw,username=<USER>,password=<PASSWORD>,vers=1.0
+```
+
+From Windows:
+
+```
+# NULL session
+net use <DRIVELETTER>: \\<HOSTNAME/IP>\<SHARE> "" /user:""
+net use <DRIVELETTER>: \\<HOSTNAME/IP>\<SHARE> /user:"<DOMAIN>\<USERNAME>"
+```
+
+###### Agent Ransack
+
+The Agent Ransack GUI file searching tool can be used to conduct grep like
+searches using the current Windows user identity and access rights.
+
+Both file names or content can be searched.
+
+The tool supports regex use, such as follow:
+
+```
+<KEYWORD1> OR <KEYWORD2>
+<KEYWORD1> AND <KEYWORD2>
 ```
 
 ### Authentication brute force
