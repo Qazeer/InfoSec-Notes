@@ -278,7 +278,9 @@ HTTP/socks4 can only be used to conduct TCP scan:
 To use nmap through Proxychains:
 
 ```
-Edit /etc/proxychains.conf  
+Edit the /etc/proxychains.conf to use the proxy  
+<http | socks4 | socks5> <IP> <PORT>
+
 # Start the scan using Proxychains
-proxychains nmap -sT -n -Pn -sV ...
+proxychains nmap -v -n -Pn -sT -A ...
 ```
