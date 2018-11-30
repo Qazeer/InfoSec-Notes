@@ -6,6 +6,9 @@ target. Some privilege techniques detailed rely on a fully TTY shell.
 To leverage a shell from a Remote Code Execution (RCE) vulnerability please
 refer to the [General] Shells note.
 
+“The more you look, the more you see.”  
+― Pirsig, Robert M., Zen and the Art of Motorcycle Maintenance
+
 ### Enumeration
 
 ###### Enumeration scripts
@@ -13,7 +16,7 @@ refer to the [General] Shells note.
 Most of the enumeration process detailed below can be automated using
 scripts.
 
-*Personal preference: .sh + BeRoot.py
+*Personal preference: LinEnum.sh + BeRoot.py
 (if python available; Embeds linux-exploit-suggester.sh) > LinEnum.sh +
 linux-exploit-suggester.sh (on remote box or locally) > others*
 
@@ -101,86 +104,6 @@ python linux-soft-exploit-suggester.py --file <PACKAGE_LIST> --db files_exploits
 | Logged in history from /var/log/lastlog | lastlog <br/> lastlog PIPE grep -v "Never" |
 | Users hashes – Privileged command | cat /etc/shadow <br/> (AIX Linux) cat /etc/security/passwd	|
 
-###### Home directories content
-
-The users home directories may contain sensible information such as config files
-or history files.    
-The following commands can be used to display the content of the users home
-directories:
-
-```bash
-# Home
-ls -lah /home/*
-ls -ahlR /home/
-find /home -type f -printf "%f\t%p\t%u\t%g\t%m\n" 2>/dev/null | column -t
-tree -pugfai /home
-
-# Histories
-cat ~/.bash_history
-cat ~/.nano_history
-```
-
-###### Installed packages and binaries
-
-The installed programs should be reviewed for potential known vulnerabilities.    
-To review the installed programs on the target:
-
-```bash
-dpkg -l
-apt list --installed
-rpm -qa
-ls -lah /usr/bin
-ls -lah /usr/sbin
-```
-
-###### Running process
-
-The running process
-###### Scheduled tasks
-
-Look for tasks running as root from script that you can modify:
-
-```bash
-crontab -l
-ls -alh /var/spool/cron
-ls -al /etc/ | grep cron
-cat /etc/cron*
-cat /var/spool/cron/crontabs/root
-```
-
-###### Compilers/languages installed/supported
-
-The supported languages may be leveraged to compile exploit against the
-operating system / kernel.  
-
-To find out which compilers / languages can be used:
-
-```bash
-# All-in-one
-find / \( -name "gcc" -or -name "g++" -or -name "clang" -or -name "python" -or -name "python2" -or -name "python3" -or -name "ruby" -or -name "perl" -or -name "php" \) -exec  ls -lah {} \;
-
-# C / C++
-find / -name gcc* 2>/dev/null
-find / -name g++* 2>/dev/null
-find / -name clang* 2>/dev/null
-
-# Python
-python --version
-find / -name python* 2>/dev/null
-
-# Ruby
-ruby --version
-find / -name ruby* 2>/dev/null
-
-# Perl
-perl --version
-find / -name perl* 2>/dev/null
-
-# PHP
-php --version
-find / -name php* 2>/dev/null
-```
-
 ###### Writable directories
 
 Being able to write files on the system is needed for scripting the enumeration
@@ -198,6 +121,155 @@ To find directories the current user can write into:
 ```
 find / -perm -2 -type d 2>/dev/null
 find / -type d \( -perm -g+w -or -perm -o+w \) -exec ls -lahd {} \; 2>/dev/null
+```
+
+###### Installed packages and binaries
+
+The installed programs should be reviewed for potential known vulnerabilities.    
+To review the installed programs on the target:
+
+```bash
+dpkg -l
+apt list --installed
+rpm -qa
+ls -lah /usr/bin
+ls -lah /usr/sbin
+```
+
+###### Running process and services
+
+The process and services running should be reviewed for known exploits, with
+a special attention given to the processes running under root privileges.
+The command line arguments used to start the process should be reviewed for
+sensible information.  
+
+The current processes can be listed using the ps Linux utility:
+
+```
+ps -aux
+ps -ef
+```
+
+###### Scheduled tasks
+
+Look for tasks running as root from script that you can modify:
+
+```bash
+crontab -l
+ls -alh /var/spool/cron
+ls -al /etc/ | grep cron
+cat /etc/cron*
+cat /var/spool/cron/crontabs/root
+```
+
+### File systems
+
+###### Mounted partitions and drives
+
+The following commands can be used to display all mounted file systems:
+
+```
+# Human readable
+df -aTh
+
+# Both equivalent
+mount
+cat /proc/mounts
+```
+
+###### Clear text passwords in files
+
+Search for clear text passwords stored in files. Use the keyword 'password'
+first and broaden the search if needed by searching for 'pass':
+
+```
+# Restrict the search to configuration files
+find / -name "*.conf" -print0 | xargs -0 grep -Hi "password"
+find / -name "*.conf" -print0 | xargs -0 grep -Hi "pass"
+
+# All files
+find / -type f -print0 | xargs -0 grep -Hi "pass"
+find / -type f -print0 | xargs -0 grep -Hi "password"
+```
+
+###### Users home directories content
+
+The users home directories may contain sensible information such as config files
+or history files.  
+The following commands can be used to display the content of the users home
+directories:
+
+```bash
+# Home
+ls -lahR /root
+ls -lahR /home
+find /home -type f -printf "%f\t%p\t%u\t%g\t%m\n" 2>/dev/null | column -t
+tree -pugfai /home
+
+# Histories
+find /home -name "*history*" -print -exec cat {} 2>/dev/null \;
+cat ~/.bash_history
+cat ~/.sh_history
+cat ~/.nano_history
+cat ~/.atftp_history
+cat ~/.mysql_history
+cat ~/.php_history
+```
+
+###### SSH private-keys and configurations
+
+```
+# id_rsa, id_dsa, authorized_keys, etc.
+ls -lah ~/.ssh/
+find /home -name "*id_rsa*" -print -exec cat {} 2>/dev/null \;
+find /home -name "*id_dsa*" -print -exec cat {} 2>/dev/null \;
+
+# ssh_config, sshd_config, ssh_host_rsa_key, ssh_host_dsa_key, etc.
+ls -lah /etc/ssh/
+```
+
+###### Services configuration
+
+The following commands can be used to list the configuration files present on
+the system.  
+The files in the /etc folder are more likely to be active
+configurations and should be reviewed first.
+
+```
+find /etc -name '*.conf' -exec ls -lah {} 2>/dev/null \;
+find / -name '*.conf' -exec ls -lah {} 2>/dev/null \;
+```
+
+###### Hidden files
+
+To list the hidden files present on the system:
+
+```
+find / -name ".*" -type f ! -path "/proc/*" ! -path "/sys/*" -exec ls -al {} \;
+```
+
+###### World-writeable and "nobody" files
+
+The following commands can be used to list the files that are world writeable or
+that do not have a owner:
+
+```
+# All world-writable files excluding /proc and /sys
+find / ! -path "*/proc/*" ! -path "/sys/*" -perm -2 -type f -exec ls -la {} 2>/dev/null
+
+# No owner files
+find / -xdev \( -nouser -o -nogroup \) -print
+```
+
+###### Others files of potential interest
+
+The following files and directories may contain interesting information:
+
+```
+/var/mail/
+/var/www/
+/var/log/
+/etc/httpd/logs/
 ```
 
 ### SUID/SGID Privileges Escalation
@@ -221,6 +293,9 @@ find / -type f -user root -perm -2000 -exec stat -c "%A %a %n" {} \; 2>/dev/null
 find / -user root -perm -6000 -ls 2>/dev/null
 find / -type f -user root -perm -6000 -exec stat -c "%A %a %n" {} \; 2>/dev/null
 ```
+
+Look for "GTFOBins" or any unusual binaries in the list of SUID/GUID files
+enumerated.
 
 ###### "GTFOBins"
 
@@ -295,19 +370,61 @@ The exploit sequence is as follow:
 
 3. Run the vulnerable SUID/SGID binary
 
-### Kernel exploit
+### Unpatched kernel and services
 
-### Post-Exploit
+###### Compilers/languages installed/supported
 
-###### SSH keys exfiltration
+The supported languages may be leveraged to compile exploit against the
+operating system / kernel and services.  
 
-The metasploit module post/multi/gather/ssh_creds will collect the contents of
-all users' .ssh directories on the targeted machine. Additionally,
-known_hosts and authorized_keys and any other files are also downloaded.
+To find out which compilers / languages can be used:
 
+```bash
+# All-in-one
+find / -type f \( -name "gcc" -or -name "g++" -or -name "clang" -or -name "python" -or -name "python2" -or -name "python3" -or -name "ruby" -or -name "perl" -or -name "php" \) -exec  ls -lah {} \; 2>/dev/null
+
+# C / C++
+find / -name gcc* 2>/dev/null
+find / -name g++* 2>/dev/null
+find / -name clang* 2>/dev/null
+
+# Python
+python --version
+find / -name python* 2>/dev/null
+
+# Ruby
+ruby --version
+find / -name ruby* 2>/dev/null
+
+# Perl
+perl --version
+find / -name perl* 2>/dev/null
+
+# PHP
+php --version
+find / -name php* 2>/dev/null
 ```
-msf > use post/multi/gather/ssh_creds
+
+If no compilers are available on the system, it is recommended to compile the
+exploit on a similar kernel and upload the binary to the target.
+
+###### OS and kernel versions
+
+###### Installed packages and binaries
+
+The installed programs should be reviewed for potential known vulnerabilities.    
+To review the installed programs on the target:
+
+```bash
+dpkg -l
+apt list --installed
+rpm -qa
+ls -lah /usr/bin
+ls -lah /usr/sbin
 ```
 
-Lateral movement through SSH brute force is possible using private SSH keys,
-refer to the [L7] SSH note.
+###### Exploits detection tools
+
+### Sudo
+
+### Cron jobs
