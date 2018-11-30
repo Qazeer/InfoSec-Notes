@@ -130,7 +130,7 @@ Nmap supports multiple way to specify a target host :
 - CIDR-style : 192.168.0.0/24
 - Input file : -iL <inputfilename>
 
-######  Usefull Options
+###### Useful Options
 
 ```
 -p <port ranges> : scan specified ports
