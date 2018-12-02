@@ -24,8 +24,8 @@ To upload the scripts on the target, please refer to the [General] File transfer
 note.  
 
 The **LinEnum.sh** script enumerates the system configuration using more than
-65 (OS & kernel information, home directories, sudo acces, SUID/GUID files,
-configuration files, etc.).
+65 checks (OS & kernel information, home directories, sudo acces, SUID/GUID
+files, configuration files, etc.).
 
 ```
 -t	Thorough tests (notably SUID/GUID files)
@@ -44,7 +44,10 @@ installed packages versions:
 
 ```
 (target box) $ uname -a
-(target bow) $ dpkg -l
+# Get packages list - Refer to the [General] File transfer note to transfer the file
+[Debian / Ubuntu] (target box) $ dpkg -l > <PACKAGE_LIST>
+[RedHat / CentOS  / Fedora ] (target box) $ rpm -qa > <PACKAGE_LIST>
+
 linux-exploit-suggester.sh --full --uname "<UNAME>" --pkglist-file <DPKGOUT_FILE>
 ```
 
@@ -79,12 +82,12 @@ packages and search for exploits, so an export of available exploits must be
 provided to the script:
 
 ```
-# Generate the exploit-db CSV list locally and upload it to the targeted box
+# Generate the exploit-db CSV list locally
 python linux-soft-exploit-suggester.py --update
 
-# Get package list
-debian/ubuntu: dpkg -l > <PACKAGE_LIST>
-redhat/centos: rpm -qa > <PACKAGE_LIST>
+# Get packages list - Refer to the [General] File transfer note to transfer the file
+[Debian / Ubuntu] (target box) $ dpkg -l > <PACKAGE_LIST>
+[RedHat / CentOS / Fedora ] (target box) $ rpm -qa > <PACKAGE_LIST>
 
 python linux-soft-exploit-suggester.py --file <PACKAGE_LIST> --db files_exploits.csv
 ```
@@ -274,7 +277,7 @@ The following files and directories may contain interesting information:
 
 ### SUID/SGID Privileges Escalation
 
-###### Find SUID/GUID files
+###### Find SUID/GUID files and directories
 
 The find CLI tool can be used to list the SUID/GUID binaries present on the
 system:
@@ -417,8 +420,12 @@ To review the installed programs on the target:
 
 ```bash
 dpkg -l
+dpkg -l <PACKAGE_NAME>
+
 apt list --installed
+
 rpm -qa
+
 ls -lah /usr/bin
 ls -lah /usr/sbin
 ```
