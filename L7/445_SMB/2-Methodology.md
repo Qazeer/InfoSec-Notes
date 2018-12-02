@@ -199,7 +199,7 @@ patator smb_login host=<HOST> user=FILE0 password=FILE1 0=<WORDLIST_USER> 1=<WOR
 
 ### Known vulnerabilities
 
-Nmap command can be used to check for the following exploits:
+Nmap can be used to check for the following exploits:
 
 ```
 smb-vuln-ms08-067
