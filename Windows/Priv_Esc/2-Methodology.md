@@ -89,7 +89,7 @@ password by updating the ntds.dit file.
 ###### utilman.exe
 
 The utilman utility tool can be launched at the login screen before
-authentication as NT AUTHORITY\SYSTEM. By using a Windows instalation CD/DVD,
+authentication as NT AUTHORITY\SYSTEM. By using a Windows installation CD/DVD,
 it is possible to replace the utilman.exe by cmd.exe to gain access to a CMD
 shell as SYSTEM without authentication.
 
