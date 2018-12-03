@@ -2,7 +2,9 @@ AD - Dump ntds_dit + MS14-068
 Android - Trad report into Note
 General - Cracking ZIP
 Linux - Priv esc + Post exploit
-Windows - Priv esc + Post exploit
+Windows - Priv esc
+Windows - Post exploit mimikittenz
+Windows - integrated https://www.exploit-db.com/docs/english/26000-windows-meterpreterless-post-exploitation.pdf
 WebApps - Session + injection + modern vulnerabilities
 L7 - SNMP
 L7 - Squid (HTB box)
