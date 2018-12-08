@@ -111,7 +111,6 @@ The procedure to do so is as follow:
   9. Change a user password (net user <USERNAME> <NEWPASSWORD>) or create a new
   user
 
-
 ### File system & registry
 
 ###### Clear text password in files
