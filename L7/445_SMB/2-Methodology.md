@@ -208,7 +208,7 @@ smb-vuln-ms10-061
 smb-vuln-ms17-010 / cve-2017-7494
 smb-vuln-regsvc-dos
 
-nmap -v -p 139,445 --script=vuln <HOST>
+nmap -v -p 139,445 --script=vuln <HOST | CIDR>
 ```
 
 ###### Symlink Directory Traversal
@@ -225,6 +225,10 @@ https://www.exploit-db.com/exploits/33599/
 
 ###### EternalBlue & SambaCry
 
+A remote code execution vulnerability exists in the way that the Microsoft
+Server Message Block 1.0 (SMBv1) server handles certain requests. Write access
+to the exposed share is required. Sucesfull exploitation result in a SYSTEM shell from an aut.
+
 *Detect vulnerability*
 
 The Nmap *smb-vuln-ms17-010.nse* and *smb-vuln-cve-2017-7494* scripts attempt
@@ -234,11 +238,11 @@ and Petya ransomware) or CVE-2017-7494 aka SambaCry.
 
 ```
 # EternalBlue
-nmap --script smb-vuln-ms17-010.nse -p 445 <HOST>
+nmap --script smb-vuln-ms17-010.nse -p 445 <HOST | CIDR>
 
 # SambaCry
-nmap --script smb-vuln-cve-2017-7494 -p 445 <HOST>
-nmap --script smb-vuln-cve-2017-7494 --script-args smb-vuln-cve-2017-7494.check-version -p445 <IP>
+nmap --script smb-vuln-cve-2017-7494 -p 445 <HOST | CIDR>
+nmap --script smb-vuln-cve-2017-7494 --script-args smb-vuln-cve-2017-7494.check-version -p445 <HOST | CIDR>
 ```
 
 If no share is available to unauthenticated users, the server may still be
@@ -256,10 +260,18 @@ Samba 3.x after 3.5.0 and 4.x before 4.4.14, 4.5.x before 4.5.10, and 4.6.x befo
 
 *EternalBlue*
 
+The following exploit may be used to achieve RCE through the EternalBlue
+vulnerability on Windows hosts:
+
+```
+# Windows 7 and Server 2008 R2 (x64) All Service Packs
+msf> use exploit/windows/smb/ms17_010_eternalblue
+```
+
 *SambaCry*
 
 The following exploit may be used to achieve RCE through the SambaCry
-vulnerability:
+vulnerability on Linux hosts:
 
 ```
 # Source

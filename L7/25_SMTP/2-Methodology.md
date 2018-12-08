@@ -11,7 +11,7 @@ The EXPN command is used to reveal the actual address of users aliases and lists
 The enumeration can be conducted manually using the telnet or netcat tools or
 automatically using metasploit, nmap or smtp-user-enum.
 
-#### Manual enumeration
+###### Manual enumeration
 
 The following commands can be used to check if the EXPN, VRFY and RCPT commands
 are available and to manually enumerate valid usernames and emails:
@@ -42,7 +42,7 @@ RCPT TO: <USERNAME>
 ---
 ```
 
-#### Automatic enumeration
+###### Automatic enumeration
 
 The smtp-user-enum can be used to automatically enumerate usernames:
 
@@ -59,7 +59,7 @@ for x in $(cat <USERFILE>); do echo VRFY $x | nc -nv -w 1 <TARGET> <PORT> 2>/dev
 The *smtp-enum-users* nmap script and the *auxiliary/scanner/smtp/smtp_enum*
 metasploit module can be used as well.
 
-### Open relay
+###### Open relay
 
 An SMTP server that works as an open relay, is a email server that does not
 verify if the user is authorised to send email from the specified email
@@ -72,7 +72,7 @@ This occurs when the mail relay can be used to do one of the following:
   - email from an external source address to an internal destination address ;
   - email from an internal source address to an internal destination address.
 
-#### Manual exploitation
+###### Manual exploitation
 
 the following commands can be used to mannually exploit an open relay SMTP
 server:
@@ -89,7 +89,7 @@ DATA
 If relaying is not permitted, the server should respond with an erorr message
 "Relaying denied".
 
-#### Automatic detection and exploitation
+###### Automatic detection and exploitation
 
 The *smtp-open-relay.nse* nmap script can be used to detect open relay.  
 
