@@ -1,5 +1,29 @@
 # Ports and services scanning - Methodology
 
+### Netcat
+
+If nmap is not installed on the system, netcat can be used to realize a basic
+port scan, without services version or operating system detection.
+
+Netcat port scan usage:
+
+```
+nc -znv -w 2 <HOSTNAME | IP> <PORT | PORT_RANGE>
+```
+
+Netcat can be used, in addition to the ping utility, on a compromised host to
+quickly enumerate accessible servers and their open ports on a isolated
+network.
+
+The following bash one-liner can be used to do a ping sweep and a port scan on
+the hosts responding to the echo ping request:
+
+```
+# Specifiy the IP range using thr prefix and seq number
+# For example: prefix="10.10.10" seq 255 to scan the range 10.10.10.0-255
+prefix="<X.X.X>" && for i in `seq <X>`; do ping -c 1 $prefix.$i &> /dev/null && echo "Scan host: $prefix.$i" && nc -zvn -w 2 $prefix.$i <PORT | PORT_RANGE> 2>&1 | grep "open" ; done
+```
+
 ### Nmap
 
 The great Nmap ("Network Mapper") tool is the most popular, versatile, and
@@ -283,4 +307,24 @@ Edit the /etc/proxychains.conf to use the proxy
 
 # Start the scan using Proxychains
 proxychains nmap -v -n -Pn -sT -A ...
+```
+
+### Metasploit
+
+The following Metasploit modules can be used to conduct a port scan:
+  - auxiliary/scanner/portscan/syn
+  - auxiliary/scanner/portscan/tcp
+  - auxiliary/scanner/portscan/ack
+  - auxiliary/scanner/portscan/ftpbounce
+  - auxiliary/scanner/portscan/xmas    
+
+The modules can be used directly or through a meterpreter session to use the
+compromised host as a pivot. For more information about pivoting from a
+compromised host, refer to the [General] Pivoting note.
+
+The port range default to 1-10000. To scan all possible ports use 0-65535.
+
+```
+msf> use auxiliary/scanner/portscan/tcp
+meterpreter> run auxiliary/scanner/portscan/tcp RHOSTS=<IP | CIDR> [PORTS=<PORT | PORTS_RANGE>]
 ```
