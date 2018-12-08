@@ -4,7 +4,10 @@ General - Cracking ZIP
 Linux - Priv esc + Post exploit
 Windows - Priv esc
 Windows - Post exploit mimikittenz
-Windows - integrated https://www.exploit-db.com/docs/english/26000-windows-meterpreterless-post-exploitation.pdf
+Windows - Post exploit mimikatz through meterpreter and cme
+Windows - Activate RDP
+Windows - Integrate https://www.exploit-db.com/docs/english/26000-windows-meterpreterless-post-exploitation.pdf
+Windows AD - Priv Esc + AD / Integrate https://fr.slideshare.net/rootedcon/carlos-garca-pentesting-active-directory
 WebApps - Session + injection + modern vulnerabilities
 L7 - SNMP
 L7 - Squid (HTB box)
