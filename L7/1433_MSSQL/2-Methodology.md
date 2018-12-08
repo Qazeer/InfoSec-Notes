@@ -39,6 +39,8 @@ The patator tool can be used as well to brute force credentials on the service:
 
 ```
 patator mssql_login host=<IP> user=FILE0 password=FILE1 0=<WORDLIST_USER> 1=<WORDLIST_PASSWORD> -x ignore:fgrep='Login failed for user'
+
+msf > use auxiliary/scanner/mssql/mssql_login
 ```
 
 ### Query the database
