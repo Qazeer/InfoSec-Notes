@@ -20,9 +20,14 @@ internal penetration test:
   1. Nessus scan on all ports testing for RCE
 
      ```
+     # Transfomr a list of servers hostnames / IP into a comma separated list
+     sed ':a;N;$!ba;s/\n/ /g' <FILE>
+     
      Advanced Scan
+     # Scan all 0-65535 ports
      Settings -> Discovery -> Scan type -> Port scan (all ports)
-     Plugins -> Only keep "Gain a shell remotely" enabled
+     # Scan for RCE vulnerabilities
+     Plugins -> Only keep "Backdoors", "Gain a shell remotely" and "Service detection" enabled
      ```
 
   2. Ping sweep with nmap
