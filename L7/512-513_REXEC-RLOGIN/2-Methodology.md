@@ -37,5 +37,5 @@ The rlogin CLI tool can be used to access a system:
 ```
 rlogin [-8ELKd] [-e char] [-i user] [-l user] [-p port] host
 
-rlogin -i root 172.26.124.34
+rlogin -i root <HOST | IP>
 ```
