@@ -1,4 +1,10 @@
-# Web applications - CMS - Ovidentia
+# Web applications - CMS Ovidentia
+
+Ovidentia is an open source CMS developed and maintained since 2001
+by the French company CANTICO.
+
+Ovidentia has a relatively low market share and is mostly used by French
+non-profit organizations and territorial communities and administrations.  
 
 ### Default credentials
 
