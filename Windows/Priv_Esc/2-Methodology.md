@@ -150,6 +150,8 @@ c:\unattend.xml
 dir c:\*vnc.ini /s /b
 dir c:\*ultravnc.ini /s /b
 dir c:\ /s /b | findstr /si *vnc.ini
+dir /s /b *tnsnames*
+dir /s /b *.ora*
 ```
 
 ###### Clear text password in registry
