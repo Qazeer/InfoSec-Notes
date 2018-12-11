@@ -1,5 +1,13 @@
 # MSSQL - Methodology
 
+### Network scan
+
+Nmap can be used to scan the network for exposed MSSQL databases:
+
+```
+nmap -v -p 1433 -A -oA nmap_smb <RANGE | CIDR>
+```
+
 ### Service recon
 
 The Nmap *ms-sql-info.nse* script attempts to determine configuration and

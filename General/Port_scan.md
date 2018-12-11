@@ -181,6 +181,10 @@ Nmap supports multiple way to specify a target host :
   Tells Nmap to never do reverse DNS resolution on the active IP addresses it
   finds. Can slash scanning times.
 
+--dns-servers <NAMESERVER>
+
+  Specify a nameserver for DNS resolution
+
 -PR : ARP Ping
 
   Use ARP request to conduct host discovery on LA-T4N network.

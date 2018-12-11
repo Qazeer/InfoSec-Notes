@@ -74,23 +74,25 @@ atftpd --daemon --port <PORT> <TFTPFOLDER>
 
 The following tools can be used to download file from a server client side.  
 
-File transfer is easier on Linux machines as wget, curl or netcat are often packaged
-with the operating system distribution.  
+File transfer is easier on Linux machines as wget, curl or netcat are often
+packaged with the operating system distribution.  
 
 On Windows machines, the process is usually not as straight forward.
 
 ###### wget
 
 ```bash
+wget <URL>
 wget http:/<IP>:<PORT>/<FILE>
-wget -O file http://<IP>:<PORT>t/<FILE>
+wget -O <OUTPUT_FILE> http://<IP>:<PORT>t/<FILE>
 wget -r --no-parent -nH --reject "index.html*" http://<IP>:<PORT>/<DIR>
 ```
 
 ###### curl
 
 ```bash
-curl http://<IP>:<PORT>/<FILE> > out.file
+curl <URL> > <OUTPUT_FILE>
+curl http://<IP>:<PORT>/<FILE> > <OUTPUT_FILE>
 curl -O http://<IP>:<PORT>/<FILE>
 ```
 
@@ -99,6 +101,15 @@ curl -O http://<IP>:<PORT>/<FILE>
 ```bash
 nc -l -p <PORT> > out.file
 nc -l -p <PORT> | tee out.file
+```
+
+###### fetch
+
+The FreeBSD built-in fetch can be used to retrieve a file by URL:
+
+```
+fetch <URL>
+fetch -o <OUTPUT_FILE> http://<IP>:<PORT>/<FILE>
 ```
 
 ###### Python
@@ -133,9 +144,10 @@ ftp -A <SERVERIP>
 Paste the following commands into a remote Windows shell and download files over FTP non-interactively (replace <USERNAME> by anonymous if using anonymous login):
 
 ```
+# Windows
 echo open <IP> <PORT> > ftp.txt
 echo USER <USERNAME> >> ftp.txt
-echo <PASSWORD> >> ftp.txt
+echo PASS <PASSWORD> >> ftp.txt
 echo bin >> ftp.txt
 echo GET <FILENAME> >> ftp.txt
 echo bye >> ftp.txt
