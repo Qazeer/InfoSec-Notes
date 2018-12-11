@@ -153,6 +153,21 @@ Connections to this server version are no longer supported
 
 ### Database privilege escalation
 
+Multiples Metasploit modules can be used to exploit Oracle vulnerabilities to
+elevate privileges from a low privileged user to SYSDBA on outdated Oracle
+Database Server.
+
+```
+# Oracle Database Server 10.1.0.5, 10.2.0.4, 11.1.0.7, and 11.2.0.1
+msf> use auxiliary/sqli/oracle/dbms_cdc_publish3
+
+# Up to Oracle Database Server 10.1.0.5.0
+msf> use auxiliary/sqli/oracle/lt_findricset_cursor
+
+# Older Oracle Database Server versions
+msf> use auxiliary/sqli/oracle/*
+```
+
 ### Query the database
 
 The XXX CLI tool can be used to make queries to the database:
@@ -165,3 +180,7 @@ The **DBeaver** GUI tool can be used to simply access the database content witho
 knowing the proper MSSQL syntax.
 
 ### OS access and commands execution
+
+```
+msf> use auxiliary/sqli/oracle/jvm_os_code_11g
+msf> use auxiliary/sqli/oracle/jvm_os_code_10g
