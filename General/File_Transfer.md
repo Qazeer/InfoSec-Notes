@@ -1,5 +1,8 @@
 # General - File Transfer
 
+On Linux, it is recommended to verify the integrity of the transferred file
+using the built-in `md5sum`.
+
 ### Server side
 
 The following tools can be used to host files server side.
@@ -110,6 +113,20 @@ The FreeBSD built-in fetch can be used to retrieve a file by URL:
 ```
 fetch <URL>
 fetch -o <OUTPUT_FILE> http://<IP>:<PORT>/<FILE>
+```
+
+###### echo & base64
+
+The Linux built-ins `echo` and `base64` can be used to easily transfer files on
+Linux system. Encode the file to be transferred using base64 server-side, copy
+it to the clipboard buffer, and decode it into a file client-side.   
+
+```
+# Server-side
+base64 -w 0 <FILE> | xclip -selection clipboard
+
+# Client-side
+echo '<COPIED>' | base64 --decode > <OUTPUT_FILE>
 ```
 
 ###### Python
