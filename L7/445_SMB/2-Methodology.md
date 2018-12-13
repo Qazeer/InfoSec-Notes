@@ -129,17 +129,32 @@ smbclient -U "" -N "\\\\<IP>\\<SHARE>"
 smbclient -U <USER> --pw-nt-hash ...
 ```
 
-The following commands can be used through the client (partial list):
+The following basic commands can be used through the client (partial list):
 
 ```
-cd [directory] - change the remote system directory
-lcd [directory] - change the local system directory
-ls - list the contents of the current directory on the remote system
-!ls - list the contents of the current directory on the local system
-allinfo <file> - show all available info on a file (create time, change time, etc.)
-put	<local name> [remote name] - upload a file to the remote system
-get	<remote name> [local name] - download a file from the remote system
-mput / mget - upload / download all the files matching the <mask>
+# Display the file to stdout
+get <REMOTE_FILE> -
+
+# Download a file from the remote system
+get	<REMOTE_FILE> [<LOCAL_FILE>]
+
+# Upload a file to the remote system
+put	<LOCAL_FILE> [<REMOTE_FILE>]
+
+# Change directory
+# Remote system directory
+cd <DIRECTORY>
+# Local system directory
+lcd <DIRECTORY>
+
+# Directory listing
+# Remote system directory
+ls <DIRECTORY>
+# Local system directory
+!ls <DIRECTORY>
+
+# Show all available info on a file (create time, change time, etc.)
+allinfo <FILE>
 ```
 
 To recursively upload / download a directory, use:
@@ -148,8 +163,8 @@ To recursively upload / download a directory, use:
 mask ""
 recurse ON
 prompt OFF
-cd '<PATH_REMOTE_DIR'
-lcd '<PATH_LOCAL_DIR'
+cd '<PATH_REMOTE_DIR>'
+lcd '<PATH_LOCAL_DIR>'
 mput / mget *
 ```
 
