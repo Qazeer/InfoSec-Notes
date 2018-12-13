@@ -8,7 +8,11 @@ port scan, without services version or operating system detection.
 Netcat port scan usage:
 
 ```
+# TCP
 nc -znv -w 2 <HOSTNAME | IP> <PORT | PORT_RANGE>
+
+# UDP
+nc -uznv -w 2 <HOSTNAME | IP> <PORT | PORT_RANGE>
 ```
 
 Netcat can be used, in addition to the ping utility, on a compromised host to
@@ -58,8 +62,8 @@ nmap -v -sT -Pn -A -p- <IP/FQDN>
 nmap -v -sS -Pn -A -oA nmap_<FILENAME> -p- <IP/FQDN>
 
 # UDP - Top 1000
-nmap -v -sU -Pn -A <IP/FQDN>
-nmap -v -sU -Pn -A -oA nmap_<FILENAME> <IP/FQDN>
+nmap -v -sU -Pn -sV <IP/FQDN>
+nmap -v -sU -Pn -sV -oA nmap_<FILENAME> <IP/FQDN>
 
 # Script engine
 # For more information about the nmap scripts to use for a given service refer to the service note (L7/<SERVICE>)
