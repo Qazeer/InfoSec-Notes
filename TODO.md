@@ -19,3 +19,4 @@ WebApps - Injection SQL MSSQL
 WebApps - Injection SQL Oracle
 WebApps - Injection SQL PSSQL
 WebApps - Session modern vulnerabilities
+Escape restriected shell - https://0xdf.gitlab.io/2018/12/15/htb-waldo.html
