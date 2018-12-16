@@ -59,8 +59,8 @@ The sqsh CLI tool can be used to make queries to the database:
 sqsh -U <USERNAME> -P <PASSWORD> -S <IP>:<PORT>
 ```
 
-The **DBeaver** GUI tool can be used to simply access the database content without
-knowing the proper MSSQL syntax.
+The **DBeaver** GUI tool can be used to simply access the database content
+without knowing the proper MSSQL syntax.
 
 ### Dump hashes
 
