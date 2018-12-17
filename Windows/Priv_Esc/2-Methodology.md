@@ -430,7 +430,7 @@ The C code above can be compiled on Linux using the  cross-compiler mingw (refer
 *Reverse shell*
 
 The service can be leveraged to start a privileged reverse shell. Refer to the
-General/Shells page (# Binary).  
+`[General] Shells - Binary` note.  
 
 *Service restart*
 
@@ -549,4 +549,4 @@ psexec.exe -accepteula -s -i -d cmd.exe
 ```
 
 If a meterpreter is being used, the **getsystem** command can be leveraged to
-achieve the same end.
+the same end.
