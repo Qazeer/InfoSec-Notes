@@ -336,3 +336,18 @@ The port range default to 1-10000. To scan all possible ports use 0-65535.
 msf> use auxiliary/scanner/portscan/tcp
 meterpreter> run auxiliary/scanner/portscan/tcp RHOSTS=<IP | CIDR> [PORTS=<PORT | PORTS_RANGE>]
 ```
+
+### PsExec & CrackMapExec
+
+A `PsExec` tool or `CrackMapExec` can be used to retrieve the locally exposed
+services through on a target through `netstat` if local Administrator Windows
+credentials could be obtained.
+
+For more information about the tools usage refer to the `[Active Directory]
+Credentials theft shuffle` note.
+
+```
+# -b requires local administrator privileges
+crackmapexec ... -x 'netstat -anob'
+crackmapexec ... -x 'netstat -anob | find "<PORT>"'
+```
