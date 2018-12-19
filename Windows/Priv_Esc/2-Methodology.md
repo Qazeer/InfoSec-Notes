@@ -115,14 +115,25 @@ The procedure to do so is as follow:
 
 ###### Clear text password in files
 
-Search for clear text passwords stored in files. Use the keyword 'password'
-first and broaden the search if needed by searching for 'pass':
+The builtin `findstr` and `dir` can be used to search for clear text passwords
+stored in files. The keyword 'password' shoudl be used first and the search
+broaden if needed by searching for 'pass'.
+
+The meterpreter `search` command can be used in place of `findstr` if a
+meterpreter shell is being used.
 
 ```
-# Search 'password' in all txt/xml/ini files
+# Meterpreter search command
+search -f <FILENAME>.<FILE_EXTENSION> <KEYWORD>
+search -f *.* <KEYWORD>
+
+# Search 'password' / 'pass' in all txt/xml/ini files
 findstr /si "password" *.txt
 findstr /si "password" *.xml
 findstr /si "password" *.ini
+findstr /si "pass" *.txt
+findstr /si "pass" *.xml
+findstr /si "pass" *.ini
 
 # Search 'password'/'pass' in all files
 findstr /spin "password" *.*
