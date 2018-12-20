@@ -1,4 +1,4 @@
-# Web Applications - NoSQL Injection - mongoDB
+# Web Applications - NoSQL Injection - MongoDB
 
 /!\ IMPORTANT /!\
 
