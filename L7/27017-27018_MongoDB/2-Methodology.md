@@ -94,11 +94,33 @@ graphical interface that can be used to start and follow the testing process.
 
 ### Database access
 
-The X CLI tool can be used to make queries to the database:
+The mongo CLI shell is an interactive JavaScript interface that can be used to
+query and update data as well as perform administrative operations on MongoDB
+databases.
 
 ```
-sqsh -U <USERNAME> -P <PASSWORD> -S <IP>:<PORT>
+# Specifying --password without the user’s password, will make the shell prompt for the password
+mongo --username <USERNAME> --password --authenticationDatabase <DATABASE> --host <HOST> --port <PORT>
+
+mongo mongodb://<USERNAME>:<PASSWORD>@<HOST>:<PORT>/<DATABASE>?authSource=<AUTH_DATABASE>
 ```
+
+The supported mongo shell commands are:
+
+  - `db` display the current database
+  - `show dbs`, equivalent to `db.adminCommand( { listDatabases: 1 } )`, list
+    the available databases, results conditionned by the authentication enforced
+    and the current user access rights  
+  - `use <DATABSE>` switch to the specified database
+  - `db.getCollectionNames()`
+  - `db.getCollection("<COLLECTION_NAME").find({}).limit(50)`
+For more information about the MongoDB operations syntax, refer to the official
+documentation: `https://docs.mongodb.com/manual/crud/`.
+
+Multiple GUI tools can be used to access a MongoDB database with out the need to
+know the mongo NoSQL syntax. The `Studio 3T` (previously known as `MongoChef`)
+provides a complete and an intuitive user-friendly graphical interface through
+a standalone executable.
 
 ### NoSQL injection
 
@@ -110,6 +132,13 @@ possibilities through a NoSQL injection are limited.
 For a detailed methodology to conduct NoSQL injection against MongoDB, refer
 to the `[WebApps] NoSQL injections - MongoDB` note.
 
-### Compromised system to databse access
+### Compromised system to database access
 
-A compromised system can be 
+If an access to the underlying operating system hosting the MongoDB service
+could be obtained, it is possible to modify the MongoDB configuration to access
+the database with out knowledge of the database users.
+
+To add a superuser to the database:
+
+  - Stop the MongoDB service `sudo service mongod stop`
+  - Edit the MongoDB configuration file `mongodb.conf` 
