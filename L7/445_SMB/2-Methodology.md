@@ -6,14 +6,14 @@ In a Windows environment, the Server Message Block (SMB) protocol is used to
 share folders and files between computers.  
 
 Sensible information can be stored in shares accessible to unauthenticated
-users (NULL session or GUEST).
+users (NULL or GUEST session).
 
 The SMB protocol has also been vulnerable to critical vulnerabilities, such as
 MS17-010, allowing for privileged system command execution.  
 
 ### Network scan
 
-Nmap and nbtscan can be used to scan the network for SMB services and exposed
+`nmap` and `nbtscan` can be used to scan the network for SMB services and exposed
 shares:
 
 ```
@@ -23,7 +23,7 @@ nbtscan -r <RANGE>
 
 ### Basic recon
 
-The Nmap *smb-os-discovery.nse* script attempts to determine the operating
+The `nmap` `smb-os-discovery.nse` script attempts to determine the operating
 system, computer name, domain, workgroup, and current time over the SMB
 protocol.
 
@@ -42,44 +42,46 @@ This Microsoft feature existed in SMB1 by default and was later restricted in
 subsequent versions of SMB.  
 
 To detect and retrieve information about the machine through a null session,
-the enum4linux Perl script can be used:
+the `enum4linux` Perl as well as the `smbmap` scripts can be used. `enum4linux`
+being outdated, `smbmap` is recommended as the go to tool.
 
 ```
+smbmap -H <HOST>
 enum4linux <HOST>
 ```
 
-Combine network scan and null session enumeration:
+The following quick bash script can be used to combine a network scan and null
+session enumeration:
 
 ```
 nbtscan -s ' ' <RANGE> | cut -d ' ' -f 1 | while read -r line ; do
-  enum4linux $line > enum4linux_$line.txt
+  smbmap -H $line > smbmap_$line.txt
 done
 ```
 
 ### List accessible shares
 
-List the shares available on the server from Linux using smbclient.  
+Multiples tools can, and should, be used to list the shares available on the
+targeted server. Different tools may held different results depending of the
+system targeted.
+
 If no credentials are provided, a null session will be attempted.  
 
-Try ALL (nmap, smbmap, metasploit and smbclient) of them as they may held
-different results depending of the system.   
-
 ```
+# If no username provided, null session assumed
+smbmap [-d <DOMAIN>] [-u <USERNAME>] [-p <PASSWORD | HASH>] (-H <HOST> | --host-file <FILE>)  
+
 nmap -v -sT -p 139,445 --script smb-enum-shares.nse <HOST>
 nmap -v -sU -sT -p U:137,T:139,445 --script smb-enum-shares.nse <HOST>
 nmap -v -sT -p 139,445 <HOST> --script smb-enum-shares --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbpassword=<PASSWORD>
 nmap -v -sT -p 139,445 <HOST> --script smb-enum-shares --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbhash=<HASH>
-
-# If no username provided, null session assumed
-smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] (-H HOST | --host-file FILE)  
 
 crackmapexec <TARGET> -d <DOMAIN> -u <USERNAME> -p <PASSWORD> --shares
 crackmapexec <TARGET> -d <DOMAIN> -u <USERNAME> -H <HASH> --shares
 
 msf > use auxiliary/scanner/smb/smb_enumshares
 
-smbclient -U "" -N -L \\<NETBIOS_NAME>
-smbclient -U "" -N -L \\<IP>
+smbclient -U "" -N -L \\<NETBIOS_NAME | IP>
 # Some Windows servers do not support IP only and require the NetBIOS name too
 smbclient -U "" -N -L \\<NETBIOS_NAME> -I <IP>
 # To authenticate as USERNAME. --pw-nt-hash to specify an NT hash instead of a cleartext password
@@ -88,17 +90,22 @@ smbclient -U <USERNAME> [--pw-nt-hash] ...
 
 ### List and search files
 
-List the shares available on the server from Linux using smbclient.  
+Similarly as for shares listing, multiples tools can be used to access an
+exposed share.  
+
+`smbmap` provides files searching capabilities and automatic download of files
+matching the search criteria.
+
 If no credentials are provided, a null session will be attempted.
 
 ```
+smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] -R <SHARE> (-H HOST | --host-file FILE)  
+smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] -F <PATTERN> (-H HOST | --host-file FILE)  
+
 nmap -v -sT -p 139,445 <HOST> --script smb-enum-shares,smb-ls --script-args maxdepth=-1
 nmap -v -sT -p 139,445 <HOST> --script smb-ls --script-args share=<SHARE>,maxdepth=-1
 nmap -v -sT -p 139,445 <HOST> --script smb-enum-shares,smb-ls --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbpassword=<PASSWORD>,maxdepth=-1
 nmap -v -sT -p 139,445 <HOST> --script smb-enum-shares,smb-ls --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbhash=<HASH>,maxdepth=-1
-
-smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] -R <SHARE> (-H HOST | --host-file FILE)  
-smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] -F <PATTERN> (-H HOST | --host-file FILE)  
 
 crackmapexec <TARGET> -d <DOMAIN> -u <USERNAME> -p <PASSWORD> -shares <SHARE> --spider
 crackmapexec <TARGET> -d <DOMAIN> -u <USERNAME> -H <HASH> -shares <SHARE> --spider
@@ -108,7 +115,7 @@ set ShowFiles true
 set SpiderShares true
 ```
 
-Smbmap or metasploit can be used to download, upload or delete a file:
+`smbmap` or `metasploit` can be used to download, upload or delete a file:
 
 ```
 smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] --download/--upload/--delete <PATH> (-H HOST | --host-file FILE)
@@ -118,7 +125,7 @@ msf > use auxiliary/admin/smb/download_file
 
 ###### smbclient
 
-The Linux smbclient CLI tool can be used to interact with the a SMB or SAMBA
+The Linux `smbclient` CLI tool can be used to interact with the a SMB or SAMBA
 share:
 
 ```
@@ -170,8 +177,8 @@ mput / mget *
 
 ###### Mount shares
 
-The share may also be mounted using the Linux mount utility tool (replacement
-  of smbmount):
+The share may also be mounted using the Linux `mount` utility tool (replacement
+of smbmount):
 
 ```
 # ro for read only and rw for read & write
@@ -182,7 +189,7 @@ mount -t cifs //<HOST>//<SHARE> /mnt/<FOLDER> -o rw,guest,vers=1.0
 mount -t cifs //<HOST>//<SHARE> /mnt/<FOLDER> -o rw,username=<USER>,password=<PASSWORD>,vers=1.0
 ```
 
-From Windows:
+From a Windows system, the `net` bultin can be used:
 
 ```
 # NULL session
@@ -192,7 +199,7 @@ net use <DRIVELETTER>: \\<HOSTNAME/IP>\<SHARE> /user:"<DOMAIN>\<USERNAME>"
 
 ###### Agent Ransack
 
-The Agent Ransack GUI file searching tool can be used to conduct grep like
+The `Agent Ransack` GUI file searching tool can be used to conduct `grep` like
 searches using the current Windows user identity and access rights.
 
 Both file names or content can be searched.
@@ -206,7 +213,7 @@ The tool supports regex use, such as follow:
 
 ### Authentication brute force
 
-The patator tool can be used to brute force credentials on the service:
+The `patator` tool can be used to brute force credentials on the service:
 
 ```
 patator smb_login host=<HOST> user=FILE0 password=FILE1 0=<WORDLIST_USER> 1=<WORDLIST_PASSWORD> -x ignore:fgrep='NT_STATUS_LOGON_FAILURE'
@@ -214,7 +221,7 @@ patator smb_login host=<HOST> user=FILE0 password=FILE1 0=<WORDLIST_USER> 1=<WOR
 
 ### Known vulnerabilities
 
-Nmap can be used to check for the following exploits:
+`nmap` can be used to check for the following exploits:
 
 ```
 smb-vuln-ms08-067
@@ -232,7 +239,7 @@ Prerequisites:
   - Samba before 3.3.11, 3.4.x before 3.4.6, and 3.5.x before 3.5.0rc3
   - A writable share
 
-Use the metasploit module auxiliary/admin/smb/samba_symlink_traversal to
+Use the `metasploit` module `auxiliary/admin/smb/samba_symlink_traversal` to
 exploit a directory traversal flaw and create a directory that will link to
 the root filesystem.
 
@@ -242,11 +249,12 @@ https://www.exploit-db.com/exploits/33599/
 
 A remote code execution vulnerability exists in the way that the Microsoft
 Server Message Block 1.0 (SMBv1) server handles certain requests. Write access
-to the exposed share is required. Sucesfull exploitation result in a SYSTEM shell from an aut.
+to the exposed share is required. Successful exploitation result in a SYSTEM
+shell from an authenticated access.
 
 *Detect vulnerability*
 
-The Nmap *smb-vuln-ms17-010.nse* and *smb-vuln-cve-2017-7494* scripts attempt
+The `nmap` `smb-vuln-ms17-010.nse` and `smb-vuln-cve-2017-7494` scripts attempt
 to detect if a SMBv1 server is vulnerable to the remote code execution
 vulnerability MS17-010, a.k.a. EternalBlue (vulnerability exploited by WannaCry
 and Petya ransomware) or CVE-2017-7494 aka SambaCry.
