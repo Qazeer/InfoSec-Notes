@@ -5,6 +5,7 @@ General - Cracking ZIP
 L7 - SNMP
 L7 - Squid (HTB box)
 L7 - Oracle DB to system commands
+L7 - SMB cme null session
 Linux - Priv esc + Post exploit
 Windows - Priv esc
 Windows - Post exploit mimikittenz
@@ -20,3 +21,4 @@ WebApps - Injection SQL Oracle
 WebApps - Injection SQL PSSQL
 WebApps - Session modern vulnerabilities
 Escape restriected shell - https://0xdf.gitlab.io/2018/12/15/htb-waldo.html
+Format - replace -A by -sV -sC
