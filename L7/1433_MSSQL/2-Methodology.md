@@ -5,7 +5,7 @@
 Nmap can be used to scan the network for exposed MSSQL databases:
 
 ```
-nmap -v -p 1433 -A -oA nmap_smb <RANGE | CIDR>
+nmap -v -p 1433 -sV -sC -oA nmap_smb <RANGE | CIDR>
 ```
 
 ### Service recon
