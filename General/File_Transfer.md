@@ -1,4 +1,4 @@
-# General - File Transfer
+# General - File transfer
 
 On Linux, it is recommended to verify the integrity of the transferred file
 using the built-in `md5sum`.
