@@ -114,6 +114,7 @@ The supported mongo shell commands are:
   - `use <DATABSE>` switch to the specified database
   - `db.getCollectionNames()`
   - `db.getCollection("<COLLECTION_NAME").find({}).limit(50)`
+
 For more information about the MongoDB operations syntax, refer to the official
 documentation: `https://docs.mongodb.com/manual/crud/`.
 
@@ -141,4 +142,4 @@ the database with out knowledge of the database users.
 To add a superuser to the database:
 
   - Stop the MongoDB service `sudo service mongod stop`
-  - Edit the MongoDB configuration file `mongodb.conf` 
+  - Edit the MongoDB configuration file `mongodb.conf`
