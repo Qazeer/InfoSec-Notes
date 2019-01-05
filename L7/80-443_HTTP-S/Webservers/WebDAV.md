@@ -41,6 +41,23 @@ The added verbs include:
 nmap -v -sV -sC -oA nmap_WebDAV -p 80,443  <HOST | RANGE | CIDR>
 ```
 
+The `Metasploit` module `auxiliary/scanner/http/webdav_scanner` can be used to
+detect webservers with WebDAV enabled on a single IP or a CIDR identifier.
+
+```
+msf > use auxiliary/scanner/http/webdav_scanner
+```
+
+### WebDAV content browsing
+
+While a browser may be used to manually browse the content of a WebDAV
+webserver, the `Metasploit` module
+`auxiliary/scanner/http/webdav_website_content` can be used to automatically
+enumerate the accessible files.
+```
+msf > use auxiliary/scanner/http/webdav_website_content
+```
+
 ### WebDAV client
 
 The `DAV Explorer` utility (`dave` on Linux systems) can be used to interact
@@ -82,7 +99,9 @@ dave <URL>
 dave -u <USERNAME> -p <PASSWORD> <URL>
 ```
 
-### Automated files upload tests with davtest
+### Remote Code Execution through files upload
+
+###### Automated files upload tests with davtest
 
 The `davtest` Perl script can be used to automatically detect if files of
 various types can be upload on a WebDAV server.
@@ -92,13 +111,65 @@ The script attempts to:
    - PUT test files of various programming languages
    - PUT files with .txt extension then MOVE them to executable file types      
 
-`davtest` can also be used to upload a specific file on a WebDAV server.
-
 Usage:
 
 ```
 davtest -url <URL>
+```
+
+###### Files upload
+
+`davtest` can also be used to upload a specific file on a WebDAV server:
+
+```
 davtest -url <URL> -directory <UPLOAD_DIR> -uploadfile <LOCAL_FILE_PATH> --uploadloc <REMOTE_FILE_NAME>                                
 ```
 
-# Windows 2k3 R2
+###### Metasploit payload deploying
+
+If `asp` files can be uploaded, the `Metasploit` module
+`exploit/windows/iis/iis_webdav_upload_asp` can be used to automatically
+deploy a `Metasploit` payload.
+
+```
+msf > use exploit/windows/iis/iis_webdav_upload_asp
+```
+
+###### Windows 2003 R2 WebDAV filter bypass
+
+On Windows 2003 R2, the policy filter restricting the uploaded files types can
+be bypassed. This bypass can be used to execute files on the webserver even if
+the upload of such files is restricted. The only pre requisite being able to
+upload file of any type.
+
+To exploit the filter bypass:
+
+  - Generate an executable that will be executed by the webserver, such as a
+    reverse shell (Refer to the `[General] Shells` note)
+  - Rename the executable to a file type that can be uploaded, for example
+    `.txt`
+  - Upload the file using the `dave` or `davetest` tools
+  - Rename the file on the server using `dave`
+
+  ```
+  mv <FILE> <FILENAME>.<EXECUTABLE_EXTENSION>;.<UPLOADABLE_EXTENSION>
+
+  # For example, txt uploadable file for asp executable
+  mv file.txt file.asp;.txt
+  ```
+
+  - Browse to the renamed file for execution
+
+### Known vulnerabilities
+
+###### Microsoft IIS WebDav ScStoragePathFromUrl Overflow - CVE-2017-7269
+
+A buffer overflow in the ScStoragePathFromUrl function in the WebDAV service
+in Internet Information Services (IIS) 6.0 in Microsoft Windows Server 2003 R2
+can be leveraged to execute arbitrary code.
+
+A `Metasploit` module is available for the exploit:
+
+```
+msf > use exploit/windows/iis/iis_webdav_scstoragepathfromurl
+```
