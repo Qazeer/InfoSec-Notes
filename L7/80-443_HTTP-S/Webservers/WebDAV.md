@@ -45,7 +45,7 @@ The `Metasploit` module `auxiliary/scanner/http/webdav_scanner` can be used to
 detect webservers with WebDAV enabled on a single IP or a CIDR identifier.
 
 ```
-msf > use auxiliary/scanner/http/webdav_scanner
+msf> use auxiliary/scanner/http/webdav_scanner
 ```
 
 ### WebDAV content browsing
@@ -55,7 +55,7 @@ webserver, the `Metasploit` module
 `auxiliary/scanner/http/webdav_website_content` can be used to automatically
 enumerate the accessible files.
 ```
-msf > use auxiliary/scanner/http/webdav_website_content
+msf> use auxiliary/scanner/http/webdav_website_content
 ```
 
 ### WebDAV client
@@ -131,8 +131,12 @@ If `asp` files can be uploaded, the `Metasploit` module
 `exploit/windows/iis/iis_webdav_upload_asp` can be used to automatically
 deploy a `Metasploit` payload.
 
+The module will firstly try to directly upload an `asp` executable and, if the
+upload is not permitted, try to upload a `txt` file and move / copy it to an
+`asp` executable.   
+
 ```
-msf > use exploit/windows/iis/iis_webdav_upload_asp
+msf> use exploit/windows/iis/iis_webdav_upload_asp
 ```
 
 ###### Windows 2003 R2 WebDAV filter bypass
@@ -171,5 +175,5 @@ can be leveraged to execute arbitrary code.
 A `Metasploit` module is available for the exploit:
 
 ```
-msf > use exploit/windows/iis/iis_webdav_scstoragepathfromurl
+msf> use exploit/windows/iis/iis_webdav_scstoragepathfromurl
 ```
