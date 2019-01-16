@@ -36,7 +36,7 @@ A web shell is a script written in the supported language of the targeted web
 server to be uploaded and executed by the web service. It provides a mean to
 execute system commands on the target.
 
-A collection of web shells for various languages is accessible on GitHub:
+A collection of web shells for various languages is accessible on `GitHub`:
 
 ```
 https://github.com/xl7dev/WebShell
@@ -45,7 +45,7 @@ https://github.com/xl7dev/WebShell
 https://github.com/Qazeer/WebShell
 ```
 
-Kali Linux also comes with a collection of web shell, located in:
+Kali Linux also comes with a *smaller* collection of web shell, located in:
 
 ```
 /usr/share/webshells
