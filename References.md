@@ -12,5 +12,7 @@ https://waycool.tech/coldfusion-data-source-decryption/
 ###### WebApps - File upload
 
 https://www.owasp.org/index.php/Unrestricted_File_Upload
+https://fr.slideshare.net/HackIT-ukraine/15-technique-to-exploit-file-upload-pages-ebrahim-hegazy
 http://www.securityidiots.com/Web-Pentest/hacking-website-by-shell-uploading.html
 https://www.exploit-db.com/docs/english/45074-file-upload-restrictions-bypass.pdf
+https://labs.detectify.com/2014/05/20/the-lesser-known-pitfalls-of-allowing-file-uploads-on-your-website/
