@@ -141,10 +141,10 @@ msf> use exploit/windows/iis/iis_webdav_upload_asp
 
 ###### Windows 2003 R2 WebDAV filter bypass
 
-On Windows 2003 R2, the policy filter restricting the uploaded files types can
-be bypassed. This bypass can be used to execute files on the webserver even if
-the upload of such files is restricted. The only pre requisite being able to
-upload file of any type.
+On IIS 6 (Windows 2003 and 2003 R2), the policy filter restricting the uploaded
+files types can be bypassed. This bypass can be used to execute files on the
+webserver even if the upload of such files is restricted. The only pre
+requisite is being able to upload file of any type.
 
 To exploit the filter bypass:
 
