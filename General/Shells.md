@@ -17,10 +17,10 @@ but ICMP packets are received from the target, a firewall may be in deployed.
 Listen to ICMP traffic on host:
 
 ```bash
-tcpdump -i <interface> icmp
+tcpdump -i <INTERFACE> icmp
 ```
 
-On target, make ICMP "echo" requests using ping in **background** to prevent
+On target, make ICMP `echo` requests using ping in **background** to prevent
 shell lose in case of blocked ping:
 
 ```bash

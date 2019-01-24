@@ -89,8 +89,8 @@ The tools presented below require valid WordPress administrator credentials.
 
 ###### Metasploit
 
-The Metasploit module `exploit/unix/webapp/wp_admin_shell_upload` can be used
-to generate a plugin packed with a Metasploit payload and upload it to the
+The `Metasploit` module `exploit/unix/webapp/wp_admin_shell_upload` can be used
+to generate a plugin packed with a `Metasploit` payload and upload it to the
 WordPress server.
 
 ```
@@ -99,7 +99,7 @@ msf> use exploit/unix/webapp/wp_admin_shell_upload
 
 ###### WPForce Yertle
 
-Part of the WPForce suite of Wordpress attack tools, Yertle is a WordPress
+Part of the `WPForce` suite of Wordpress attack tools, `Yertle` is a WordPress
 post-exploitation python script.
 
 The following modules are implemented:
