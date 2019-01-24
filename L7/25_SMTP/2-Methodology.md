@@ -2,19 +2,20 @@
 
 ### User Enumeration
 
-The EXPN, VRFY and RCPT commands can be used, if they have not been disabled,
-to enumerate valid username.  
+The `EXPN`, `VRFY` and `RCPT` commands can be used, if they have not been
+disabled, to enumerate valid username.  
 
-The EXPN command is used to reveal the actual address of users aliases and lists
- of email. The VRFY command can confirm the existance of names of valid users.
+The `EXPN` command is used to reveal the actual address of users aliases and
+lists of email. The `VRFY` command can confirm the existence of names of valid
+users.
 
-The enumeration can be conducted manually using the telnet or netcat tools or
-automatically using metasploit, nmap or smtp-user-enum.
+The enumeration can be conducted manually using the `telnet` or `netcat`
+utilities or automatically using `Metasploit`, `nmap` or `smtp-user-enum`.
 
 ###### Manual enumeration
 
-The following commands can be used to check if the EXPN, VRFY and RCPT commands
-are available and to manually enumerate valid usernames and emails:
+The following commands can be used to check if the `EXPN`, `VRFY` and `RCPT`
+commands are available and to manually enumerate valid usernames and emails:
 
 ```
 telnet/nc <IP> <PORT>
@@ -44,22 +45,23 @@ RCPT TO: <USERNAME>
 
 ###### Automatic enumeration
 
-The smtp-user-enum can be used to automatically enumerate usernames:
+The `smtp-user-enum` can be used to automatically enumerate usernames:
 
 ```
 smtp-user-enum [-M EXPN/VRFY/RCPT ] ( -u username | -U file-of-usernames ) ( -t host | -T file-of-targets )
 ```
 
-Quick bash oneliner:
+The following bash one-liner may be used as well to automatically enumerate
+usernames:
 
 ```
 for x in $(cat <USERFILE>); do echo VRFY $x | nc -nv -w 1 <TARGET> <PORT> 2>/dev/null | grep ^’250’; done
 ```
 
-The *smtp-enum-users* nmap script and the *auxiliary/scanner/smtp/smtp_enum*
-metasploit module can be used as well.
+The `smtp-enum-users` `nmap` script and the `auxiliary/scanner/smtp/smtp_enum`
+`Metasploit` module can be used as well.
 
-###### Open relay
+### Open relay
 
 An SMTP server that works as an open relay, is a email server that does not
 verify if the user is authorised to send email from the specified email
@@ -74,24 +76,44 @@ This occurs when the mail relay can be used to do one of the following:
 
 ###### Manual exploitation
 
-the following commands can be used to mannually exploit an open relay SMTP
+the following commands can be used to manually exploit an open relay SMTP
 server:
 
 ```
 telnet/nc <IP> <PORT>
 HELO
-MAIL FROM:user@mydom.com
+# HELO <DOMAIN>
+MAIL FROM:<USERNAME>@<CURRENT_DOMAIN>
 RCPT TO:user@otherdom.com
 DATA
 .
 ```
 
-If relaying is not permitted, the server should respond with an erorr message
+If relaying is not permitted, the server should respond with an error message
 "Relaying denied".
 
 ###### Automatic detection and exploitation
 
-The *smtp-open-relay.nse* nmap script can be used to detect open relay.  
+The `smtp-open-relay.nse` `nmap` script can be used to detect open relay.  
 
-The *scanner/smtp/smtp_relay* metasploit module can be used to exploit a
+The `scanner/smtp/smtp_relay` `Metasploit` module can be used to exploit a
 misconfigured server.
+
+### SMTP client
+
+The `telnet` or `netcat` utilities can be used to send mail through a SMTP
+service:
+
+```
+telnet/nc <IP> <PORT>
+HELO <DOMAIN>
+334 VXNlcm5hbWU6
+<BASE64_USERNAME>
+334 UGFzc3dvcmQ6
+<BASE64_PASSWORD>
+235 authenticated.
+MAIL FROM:<USERNAME>@<DOMAIN>
+RCPT TO:<USERNAME>@<DOMAIN>
+<DATA>
+.
+```
