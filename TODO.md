@@ -8,7 +8,7 @@ L7 - Oracle DB to system commands
 L7 - SMB cme null session
 L7 - LDAP htb fulcrum
 Linux - Priv esc + Post exploit
-Windows - Priv esc
+Windows - Priv esc scheduled tasks
 Windows - Post exploit mimikittenz
 Windows - Activate RDP
 Windows - Integrate https://www.exploit-db.com/docs/english/26000-windows-meterpreterless-post-exploitation.pdf
