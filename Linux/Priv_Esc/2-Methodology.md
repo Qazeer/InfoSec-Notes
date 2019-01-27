@@ -4,7 +4,7 @@ The following note assumes that a low privilege shell could be obtained on the
 target. Some privilege techniques detailed rely on a fully TTY shell.  
 
 To leverage a shell from a Remote Code Execution (RCE) vulnerability please
-refer to the [General] Shells note.
+refer to the `[General] Shells` note.
 
 “The more you look, the more you see.”  
 ― Pirsig, Robert M., Zen and the Art of Motorcycle Maintenance
@@ -47,8 +47,7 @@ find / -type d \( -perm -g+w -or -perm -o+w \) -exec ls -lahd {} \; 2>/dev/null
 
 ###### Enumeration scripts
 
-Most of the enumeration process detailed below can be automated using
-scripts.
+Most of the enumeration process detailed below can be automated using scripts.
 
 *Personal preference: LinEnum.sh + BeRoot.py
 (if python available; Embeds linux-exploit-suggester.sh) > LinEnum.sh +

