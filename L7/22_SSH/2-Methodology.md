@@ -71,13 +71,16 @@ debug1: Skipping ssh-dss key ... - not in PubkeyAcceptedKeyTypes
 
 ###### Password & keyboard interactive authentication
 
-The patator Python script can be used to brute force credentials through the
-password and keyboard interactive authentication methods:
+The `patator` Python script or the `Metasploit` module
+`auxiliary/scanner/ssh/ssh_login` can be used to brute force credentials
+through the password and keyboard interactive authentication methods:
 
 ```
 # auth_type: auth type to use <password|keyboard-interactive>
 patator ssh_login host=<HOST> user=<USERNAME> password=<PASSWORD> -x ignore:mesg='Authentication failed.'
 patator ssh_login host=<HOST> user=FILE0 password=FILE1 0=<WORDLIST_USER> 1=<WORDLIST_PASSWORD> -x ignore:mesg='Authentication failed.'
+
+msf> auxiliary/scanner/ssh/ssh_login
 ```
 
 ###### Public keys authentication
