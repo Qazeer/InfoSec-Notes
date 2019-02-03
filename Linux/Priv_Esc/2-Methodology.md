@@ -125,18 +125,6 @@ python linux-soft-exploit-suggester.py --update
 python linux-soft-exploit-suggester.py --file <PACKAGE_LIST> --db files_exploits.csv
 ```
 
-###### Scheduled tasks
-
-Look for tasks running as root from script that you can modify:
-
-```bash
-crontab -l
-ls -alh /var/spool/cron
-ls -al /etc/ | grep cron
-cat /etc/cron*
-cat /var/spool/cron/crontabs/root
-```
-
 ### File systems
 
 ###### Mounted partitions and drives
@@ -497,6 +485,17 @@ sh$ /tmp/suid
 
 ### Sudo
 
-### Cron jobs
+### Cron jobs and Scheduled tasks
+
+Look for tasks running as root from script that you can modify:
+
+```bash
+crontab -l
+ls -alh /var/spool/cron
+ls -al /etc/ | grep cron
+cat /etc/cron*
+cat /var/spool/cron/crontabs/root
+```
+
 
 ### Root write access
