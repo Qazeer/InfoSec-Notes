@@ -1,5 +1,9 @@
 # References
 
+### File transfer
+
+https://github.com/frizb/Windows-Privilege-Escalation
+
 ### WebApps
 
 ###### ColdFusion
@@ -16,3 +20,9 @@ https://fr.slideshare.net/HackIT-ukraine/15-technique-to-exploit-file-upload-pag
 http://www.securityidiots.com/Web-Pentest/hacking-website-by-shell-uploading.html
 https://www.exploit-db.com/docs/english/45074-file-upload-restrictions-bypass.pdf
 https://labs.detectify.com/2014/05/20/the-lesser-known-pitfalls-of-allowing-file-uploads-on-your-website/
+
+### NTLM relay
+
+https://byt3bl33d3r.github.io/practical-guide-to-ntlm-relaying-in-2017-aka-getting-a-foothold-in-under-5-minutes.html
+https://www.sternsecurity.com/blog/local-network-attacks-llmnr-and-nbt-ns-poisoning
+https://pen-testing.sans.org/blog/2013/04/25/smb-relay-demystified-and-ntlmv2-pwnage-with-python

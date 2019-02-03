@@ -10,15 +10,20 @@ L7 - LDAP htb fulcrum
 Linux - Priv esc + Post exploit
 Windows - Priv esc scheduled tasks
 Windows - Post exploit mimikittenz
+Windows - Post exploit https://github.com/samratashok/nishang/blob/master/Gather/Get-WebCredentials.ps1
 Windows - Activate RDP
 Windows - Integrate https://www.exploit-db.com/docs/english/26000-windows-meterpreterless-post-exploitation.pdf
 Windows AD - Priv Esc + AD / Integrate https://fr.slideshare.net/rootedcon/carlos-garca-pentesting-active-directory
 WebApps - Session
 WebApps - Injection NoSQL NoSQLMap
 WebApps - Injection SQL MySQL
-WebApps - Injection SQL MSSQL
+WebApps - Injection SQL MSSQL https://www.exploit-db.com/papers/12975
 WebApps - Injection SQL Oracle
 WebApps - Injection SQL PSSQL
 WebApps - Session modern vulnerabilities
-Escape restriected shell - https://0xdf.gitlab.io/2018/12/15/htb-waldo.html
+Escape restricted shell - https://0xdf.gitlab.io/2018/12/15/htb-waldo.html
 Format - replace -A by -sV -sC
+Windows - https://github.com/M4ximuss/Powerless
+Windows - https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md
+File transfer - certutil.exe + VBS
+Shells - Ebowla
