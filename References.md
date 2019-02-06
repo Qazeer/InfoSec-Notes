@@ -26,3 +26,13 @@ https://labs.detectify.com/2014/05/20/the-lesser-known-pitfalls-of-allowing-file
 https://byt3bl33d3r.github.io/practical-guide-to-ntlm-relaying-in-2017-aka-getting-a-foothold-in-under-5-minutes.html
 https://www.sternsecurity.com/blog/local-network-attacks-llmnr-and-nbt-ns-poisoning
 https://pen-testing.sans.org/blog/2013/04/25/smb-relay-demystified-and-ntlmv2-pwnage-with-python
+
+### Windows
+
+https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md
+
+###### Priv esc - WSL
+
+http://www.alex-ionescu.com/publications/BlueHat/bluehat2016.pdf
+https://recon.cx/2018/brussels/resources/slides/RECON-BRX-2018-Linux-Vulnerabilities_Windows-Exploits--Escalating-Privileges-with-WSL.pdf
+https://resources.infosecinstitute.com/windows-subsystem-linux/#gref
