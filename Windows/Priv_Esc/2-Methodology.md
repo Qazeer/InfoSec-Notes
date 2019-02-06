@@ -245,6 +245,8 @@ encoded passwords and should be reviewed:
 %WINDIR%\Microsoft.NET\Framework64\v4.0.30319\Config\web.config
 %SystemDrive%\inetpub\wwwroot\web.config
 %AllUsersProfile%\Application Data\McAfee\Common Framework\SiteList.xml
+%HOMEPATH%\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu<...>\LocalState\rootfs\etc\passwd
+%HOMEPATH%\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu<...>\LocalState\rootfs\etc\shadow
 
 dir c:\*vnc.ini /s /b
 dir c:\*ultravnc.ini /s /b
@@ -343,6 +345,9 @@ The following files may contains sensible information:
 ```
 # PowerShell commands history
 %userprofile%\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt
+
+# WSL directory - For more information refer to Windows Subsystem for Linux (WSL) below
+%HOMEPATH%\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu<...>
 ```
 
 ### Unpatched system
@@ -812,9 +817,26 @@ psexec.exe -accepteula -s -i -d cmd.exe
 If a `meterpreter` shell is being used, the `getsystem` command can be
 leveraged to the same end.
 
-### TODO
-
 ### Scheduled tasks
+
+### Windows Subsystem for Linux (WSL)
+
+Windows Subsystem for Linux
+Introduced in Windows 10
+Lets you execute Linux binaries natively on Windows
+
+###### File system
+
+###### Backdoor
+
+*bashrc*
+
+*Planified tasks*
+
+
+
+
+### TODO
 
 ### Process and installed programs
 
