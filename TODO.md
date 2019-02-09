@@ -8,7 +8,7 @@ L7 - Oracle DB to system commands
 L7 - SMB cme null session
 L7 - LDAP htb fulcrum
 Linux - Priv esc + Post exploit
-Windows - Priv esc scheduled tasks
+Windows - Priv esc https://labs.mwrinfosecurity.com/assets/1089/original/Windows_Services_-_All_roads_lead_to_SYSTEM-1.1-oct15.pdf
 Windows - Post exploit mimikittenz
 Windows - Post exploit https://github.com/samratashok/nishang/blob/master/Gather/Get-WebCredentials.ps1
 Windows - Activate RDP

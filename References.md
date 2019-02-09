@@ -30,6 +30,7 @@ https://pen-testing.sans.org/blog/2013/04/25/smb-relay-demystified-and-ntlmv2-pw
 ### Windows
 
 https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md
+https://sushant747.gitbooks.io/total-oscp-guide/privilege_escalation_windows.html
 
 ###### Priv esc - WSL
 
