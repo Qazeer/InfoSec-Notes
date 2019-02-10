@@ -37,3 +37,10 @@ https://sushant747.gitbooks.io/total-oscp-guide/privilege_escalation_windows.htm
 http://www.alex-ionescu.com/publications/BlueHat/bluehat2016.pdf
 https://recon.cx/2018/brussels/resources/slides/RECON-BRX-2018-Linux-Vulnerabilities_Windows-Exploits--Escalating-Privileges-with-WSL.pdf
 https://resources.infosecinstitute.com/windows-subsystem-linux/#gref
+
+### L7
+
+###### memcached
+
+https://lzone.de/cheat-sheet/memcached
+https://stackoverflow.com/questions/19560150/get-all-keys-set-in-memcached
