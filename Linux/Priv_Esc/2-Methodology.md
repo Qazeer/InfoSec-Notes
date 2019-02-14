@@ -497,5 +497,13 @@ cat /etc/cron*
 cat /var/spool/cron/crontabs/root
 ```
 
+### Python library hijacking
+
+List the Python import libraries folders:
+
+```
+python -c 'import sys; print sys.path'
+python -c 'import sys; print "\n".join(sys.path)' | xargs ls -ld
+```
 
 ### Root write access
