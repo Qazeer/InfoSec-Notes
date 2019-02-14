@@ -27,3 +27,5 @@ Windows - https://github.com/M4ximuss/Powerless
 Windows - https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md
 File transfer - certutil.exe + VBS
 Shells - Ebowla
+Linux - init.d + python
+L7 5985 - Windows Remote Management (WinRM)
