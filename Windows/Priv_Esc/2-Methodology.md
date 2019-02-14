@@ -899,8 +899,8 @@ Lets you execute Linux binaries natively on Windows
 
 ### Credentials re-use
 
-To use another user credentials, psexec can be used to start a cmd shell or
-start a reverse shell:
+To use another user credentials, `psexec` can be used to start a local or
+reverse shell:
 
 ```
 # Use the -s option if the user provided is member of the administrators group
