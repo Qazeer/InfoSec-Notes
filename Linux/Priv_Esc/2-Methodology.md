@@ -491,7 +491,8 @@ Look for tasks running as root from script that you can modify:
 
 ```bash
 crontab -l
-ls -alh /var/spool/cron
+ls -lah /var/spool/cron
+ls -lahR /var/spool/cron
 ls -al /etc/ | grep cron
 cat /etc/cron*
 cat /var/spool/cron/crontabs/root
