@@ -1,13 +1,14 @@
+Linux - Priv Esc - sudo + init.d + cron
+L7 - SNMP
+L7 - Squid (HTB box)
+L7 - Printers
+L7 5985 - Windows Remote Management (WinRM)
 AD - Dump ntds_dit + MS14-068
 AD - (basic) https://hackingandsecurity.blogspot.com/2017/07/attack-methods-for-gaining-domain-admin.html
 Android - Trad report into Note
 General - Cracking ZIP
-L7 - SNMP
-L7 - Squid (HTB box)
 L7 - Oracle DB to system commands
-L7 - SMB cme null session
 L7 - LDAP htb fulcrum
-Linux - Priv esc + Post exploit
 Windows - Priv esc https://labs.mwrinfosecurity.com/assets/1089/original/Windows_Services_-_All_roads_lead_to_SYSTEM-1.1-oct15.pdf
 Windows - Post exploit mimikittenz
 Windows - Post exploit https://github.com/samratashok/nishang/blob/master/Gather/Get-WebCredentials.ps1
@@ -25,7 +26,4 @@ Escape restricted shell - https://0xdf.gitlab.io/2018/12/15/htb-waldo.html
 Format - replace -A by -sV -sC
 Windows - https://github.com/M4ximuss/Powerless
 Windows - https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md
-File transfer - certutil.exe + VBS
 Shells - Ebowla
-Linux - init.d + python
-L7 5985 - Windows Remote Management (WinRM)
