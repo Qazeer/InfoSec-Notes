@@ -71,6 +71,7 @@ If no credentials are provided, a null session will be attempted.
 # If no username provided, null session assumed
 smbmap [-d <DOMAIN>] [-u <USERNAME>] [-p <PASSWORD | HASH>] (-H <HOST> | --host-file <FILE>)  
 
+# nmap smb-enum-shares script will attempt to retrieve the file system path of the share
 nmap -v -sT -p 139,445 --script smb-enum-shares.nse <HOST>
 nmap -v -sU -sT -p U:137,T:139,445 --script smb-enum-shares.nse <HOST>
 nmap -v -sT -p 139,445 <HOST> --script smb-enum-shares --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbpassword=<PASSWORD>
