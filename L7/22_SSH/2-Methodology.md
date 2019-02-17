@@ -13,10 +13,16 @@ nmap -v -p 22 -A -oA nmap_smb <RANGE/CIDR>
 The OpenSSH service for all versions < 7.7 is vulnerable to username
 enumeration.
 
+The Python script `sshUsernameEnumExploit` as well as the `Metasploit` module
+`auxiliary/scanner/ssh/ssh_enumusers` can be used to validate the presence of
+a system user:
+
 ```
 # [--threads THREADS] - Default to 5. If more than 10 are used, the OpenSSH service often gets overwhelmed
 # [--outputFile OUTPUTFILE] [--outputFormat {list,json,csv}]
 sshUsernameEnumExploit.py [--port PORT]  (--username <USERNAME> | --userList <USERLIST>) <HOST>
+
+msf> use auxiliary/scanner/ssh/ssh_enumusers
 ```
 
 ### Supported authentication methods
