@@ -17,7 +17,7 @@ MS17-010, allowing for privileged system command execution.
 shares:
 
 ```
-nmap -v -p 139,445 -A -oA nmap_smb <RANGE | CIDR>
+nmap -v -p 445 -sV -sC -oA nmap_smb <RANGE | CIDR>
 nbtscan -r <RANGE>
 ```
 
@@ -66,6 +66,10 @@ targeted server. Different tools may held different results depending of the
 system targeted.
 
 If no credentials are provided, a null session will be attempted.  
+
+Note that the following tools may be able to retrieve different results. It is
+not unusual to be able to list the shares using one tool while the others could
+not retrieve the same information.    
 
 ```
 # If no username provided, null session assumed
