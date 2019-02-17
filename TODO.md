@@ -6,7 +6,6 @@ L7 5985 - Windows Remote Management (WinRM)
 AD - Dump ntds_dit + MS14-068
 AD - (basic) https://hackingandsecurity.blogspot.com/2017/07/attack-methods-for-gaining-domain-admin.html
 Android - Trad report into Note
-General - Cracking ZIP
 L7 - Oracle DB to system commands
 L7 - LDAP htb fulcrum
 Windows - Priv esc https://labs.mwrinfosecurity.com/assets/1089/original/Windows_Services_-_All_roads_lead_to_SYSTEM-1.1-oct15.pdf
