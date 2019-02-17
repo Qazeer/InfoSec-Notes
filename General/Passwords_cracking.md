@@ -160,3 +160,39 @@ The passwords can then be extracted from the Firefox / Thunderbird profile:
 ```bash
 python firefox_decrypt/firefox_decrypt.py <PATH_TO_PROFILE>
 ```
+
+###### ZIP and RAR protected archives
+
+The Linux utilities `zip2john` and `rar2john`, packaged with the `John the
+Ripper Jumbo` community version, can be used to extract the hash of the
+password protecting the archive.
+
+```
+zip2john <ZIP_FILE> > <ZIP_HASH_FILE>
+rar2john <RAR_FILE> > <RAR_HASH_FILE>
+```
+
+`Jumbo john` can then be used to crack the extracted hash.
+
+```
+# Detected hash type should be "PKZIP [32/64]"
+john --wordlist=<WORDLIST> <ZIP_HASH_FILE>
+john --wordlist=<WORDLIST> <RAR_HASH_FILE>
+```
+
+The Linux utility `fcrackzip` may be used as well and works directly on the ZIP
+archive.
+
+```
+# -u (–use-unzip): use unzip to weed out wrong passwords
+# -D and -p: use dictionary with the specified wordlist
+fcrackzip -u -D -p <WORDLIST> <ZIP_FILE>
+```
+
+###### Password protected PDF
+
+The Linux utility `pdfcrack` can be used to crack password protecting PDF files.
+
+```
+pdfcrack -w <WORDLIST> -f <PDF_FILE>
+```
