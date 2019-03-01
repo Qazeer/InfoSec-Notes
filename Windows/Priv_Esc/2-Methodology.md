@@ -335,6 +335,8 @@ To display only hidden files, the following command can be used:
 dir /s /ah /b
 dir C:\ /s /ah /b
 
+# PowerShell
+ls -r
 Get-Childitem -Recurse -Hidden
 ```
 
