@@ -40,7 +40,7 @@ Most of the enumeration process detailed below can be automated using scripts.
 
 *Personal preference: PowerSploit's `PowerUp.ps1` `Invoke-PrivescAudit` /
 `Invoke-AllChecks` + enjoiz's `privesc.bat` or `privesc.ps1` + off-target
-`windows-exploit-suggester`*
+`Windows Exploit Suggester - Next Generation`*
 
 To upload the scripts on the target, please refer to the [General] File transfer
 note.
@@ -101,10 +101,10 @@ privesc.bat "<USER_GROUP_1>" ["<USER_GROUP_N"]
 privesc.bat "Everyone Users" "Authenticated Users"
 ```   
 
-The **windows-exploit-suggester** script compares a targets patch levels against
-the Microsoft vulnerability database in order to detect potential missing
-patches on the target. Refer to the "Unpatched system" section below for a
-detailed usage guide of the script.  
+The **Windows Exploit Suggester - Next Generation** script compares a targets
+patch levels against the Microsoft vulnerability database in order to detect
+potential missing patches on the target. Refer to the "Unpatched system"
+section below for a detailed usage guide of the script.  
 
 ### Physical access privileges escalation
 
@@ -367,7 +367,27 @@ Automatically compare the system patch level to public known exploits:
 
 ###### Exploits detection tools
 
-*Windows Exploit Suggester*
+*Windows Exploit Suggester - Next Generation (WES-NG)*
+
+-- Replace Windows-Exploit-Suggester --
+
+The `WES-NG` Python script compares a target patch level, retrieved using
+`systeminfo`, and the Microsoft vulnerability database in order to detect
+potential missing patches on the target.
+
+```
+wes.py --update
+
+wes.py <SYSTEMINFO_FILE>
+```
+
+*Windows-Exploit-Suggester*
+
+-- Outdated : Microsoft replaced the Microsoft Security Bulletin Data Excel
+file, on which Windows-Exploit-Suggester is fully dependent, by the MSRC API.
+The Microsoft Security Bulletin Data Excel file has not been updated since Q1
+2017, so later operating systems and vulnerabilities can no longer be
+assessed --
 
 The `windows-exploit-suggester` script compares a targets patch levels against
 the Microsoft vulnerability database in order to detect potential missing
@@ -383,11 +403,11 @@ from Microsoft with the --update flag, and saves it as an Excel spreadsheet.
 ```
 # python windows-exploit-suggester.py --update
 
-python /opt/priv_esc/windows/windows-exploit-suggester.py --database <XLS> --systeminfo <SYSTEMINFO>
+python /opt/priv_esc/windows/windows-exploit-suggester.py --database <XLS> --systeminfo <SYSTEMINFO_FILE>
 ```
 
 If the `systeminfo` command reveals 'File 1' as the output for the hotfixes,
-the output of `wmic qfe list full` shoudl be used instead using the --hotfixes
+the output of `wmic qfe list full` should be used instead using the --hotfixes
 flag, along with the `systeminfo`:
 
 ```
