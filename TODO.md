@@ -27,3 +27,4 @@ Windows - https://github.com/M4ximuss/Powerless
 Windows - https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md
 Shells - Ebowla
 Tunneling - https://github.com/sensepost/reGeorg
+? - powershell.exe -win hidden -Ep ByPass $r = [Text.Encoding]::ASCII.GetString([Convert]::FromBase64String('')); iex $r;

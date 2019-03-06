@@ -44,3 +44,7 @@ https://resources.infosecinstitute.com/windows-subsystem-linux/#gref
 
 https://lzone.de/cheat-sheet/memcached
 https://stackoverflow.com/questions/19560150/get-all-keys-set-in-memcached
+
+### Reverse
+
+https://reverseengineering.stackexchange.com/questions/1935/how-to-handle-stripped-binaries-with-gdb-no-source-no-symbols-and-gdb-only-sho
