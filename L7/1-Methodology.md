@@ -22,7 +22,7 @@ internal penetration test:
      ```
      # Transfomr a list of servers hostnames / IP into a comma separated list
      sed ':a;N;$!ba;s/\n/ /g' <FILE>
-     
+
      Advanced Scan
      # Scan all 0-65535 ports
      Settings -> Discovery -> Scan type -> Port scan (all ports)
@@ -33,7 +33,7 @@ internal penetration test:
   2. Ping sweep with nmap
 
      ```
-     IP="IP" && SUB="MASK"
+     IP="<IP>" && SUB="<MASK>"
      nmap -v -sn -oG "ping_sweep_$IP-$SUB.gnmap" "$IP/$SUB"
      grep Up ping_sweep_$IP-$SUB.gnmap | cut -d ' ' -f 2 | tee "ping_sweep_$IP-$SUB.txt"
      ```
