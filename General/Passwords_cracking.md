@@ -196,3 +196,14 @@ The Linux utility `pdfcrack` can be used to crack password protecting PDF files.
 ```
 pdfcrack -w <WORDLIST> -f <PDF_FILE>
 ```
+
+###### Linux Unified Key Setup (LUKS)
+
+`hashcat` and `bruteforce-luks` can be used to crack LUKS encrypted disks:
+
+```
+dd if=<DISK | FILE> of=tmp_luks_header bs=512 count=4097
+# dd if=<DISK | FILE> of=tmp_luks_header bs=1M count=10
+hashcat --force -m 14600 -a 0 -w 3 tmp_luks_header <WORDLIST>
+bruteforce-luks -t 4 -f <WORDLIST> tmp_luks_header
+```
