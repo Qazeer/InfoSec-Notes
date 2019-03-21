@@ -134,6 +134,10 @@ clipboard buffer, and decode it into a file client-side.
 # Server-side (Linux)
 base64 -w 0 <FILE> | xclip -selection clipboard
 
+# Server-side (Windows). Newlines can be trimmed on Linux using sed.
+certutil -encode <FILE> tmp_file_base64.txt
+sed ':a;N;$!ba;s/\n//g' file
+
 # Client-side - Linux
 echo '<BASE64_FILECONTENT>' | base64 --decode > <OUTPUT_FILE>
 

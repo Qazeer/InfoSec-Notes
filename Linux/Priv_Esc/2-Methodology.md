@@ -441,6 +441,7 @@ ps -ef | grep root
 
 # Listening services
 netstat -antup
+ss -twurp
 ```
 
 ###### MySQL
