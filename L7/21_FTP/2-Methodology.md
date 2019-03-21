@@ -21,6 +21,13 @@ encrypts the content, FTP is often secured with **SSL/TLS (FTPS)**.
 SSH File Transfer Protocol (SFTP) is sometimes also used instead;
 it is technologically different.
 
+For file transfers or directory listings, FTP opens additional TCP connections
+on dynamic ports. In active mode the client creates a local listener and let
+the server know about its IP:Port using the PORT command and the server then
+connects to the clients port (usually from port 20 on the server side).
+In passive mode the server opens the port and let the client know where it
+listens in response to the clients PASV command.
+
 ### Network scan
 
 Nmap can be used to detect open FTP service and conduct basic recon scan:  
@@ -84,4 +91,7 @@ Download every files from the FTP server:
 ```
 wget --mirror ftp://anonymous:nopass@<IP>:<PORT>
 wget --mirror ftp://<USER>:<PASSWORD>@<IP>:<PORT>
+
+# Can be used for ftp connections failing after PASV to disable passive mode
+wget --no-passive --no-parent --mirror ftp://<USER>:<PASSWORD>@<IP>:<PORT>
 ```
