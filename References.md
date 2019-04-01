@@ -1,5 +1,11 @@
 # References
 
+### AD
+
+###### Kerberoasting
+
+https://www.harmj0y.net/blog/redteaming/kerberoasting-revisited/
+
 ### File transfer
 
 https://github.com/frizb/Windows-Privilege-Escalation
