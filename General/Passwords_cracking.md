@@ -207,3 +207,11 @@ dd if=<DISK | FILE> of=tmp_luks_header bs=512 count=4097
 hashcat --force -m 14600 -a 0 -w 3 tmp_luks_header <WORDLIST>
 bruteforce-luks -t 4 -f <WORDLIST> tmp_luks_header
 ```
+
+Once the password is retrieved, the Linux utility `cryptsetup` can be used to
+create a device that can be mounted:
+
+```
+cryptsetup  open --type luks <LUKS_FILE> <DEVICE_NAME>
+mount /dev/mapper/<DEVICE_NAME> /mnt
+```
