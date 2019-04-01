@@ -33,8 +33,13 @@ internal penetration test:
   2. Ping sweep with nmap
 
      ```
+     # IP & range
      IP="<IP>" && SUB="<MASK>"
      nmap -v -sn -oG "ping_sweep_$IP-$SUB.gnmap" "$IP/$SUB"
+
+     # From file
+     nmap -v -sn -oG "<EXPORT_NAME>.gnmap" -iL <FILENAME>
+
      grep Up ping_sweep_$IP-$SUB.gnmap | cut -d ' ' -f 2 | tee "ping_sweep_$IP-$SUB.txt"
      ```
 
