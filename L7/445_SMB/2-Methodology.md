@@ -122,12 +122,15 @@ set ShowFiles true
 set SpiderShares true
 ```
 
-`smbmap` or `metasploit` can be used to download, upload or delete a file:
+`smbmap`, `metasploit` and `smbget` can be used to download, upload or delete a file:
 
 ```
 smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] --download/--upload/--delete <PATH> (-H HOSTNAME | IP | --host-file FILE)
 
 msf > use auxiliary/admin/smb/download_file
+
+smbget -a -R smb://<HOSTNAME | IP>/<SHARE>
+smbget -w <WORKGROUP | DOMAIN> -U <USERNAME> -R smb://<HOSTNAME | IP>/<SHARE>
 ```
 
 ###### smbclient
