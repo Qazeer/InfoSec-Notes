@@ -2,10 +2,10 @@
 
 ### Netcat
 
-If nmap is not installed on the system, netcat can be used to realize a basic
-port scan, without services version or operating system detection.
+If `nmap` is not installed on the system, `netcat` can be used to realize a
+basic port scan, without services version or operating system detection.
 
-Netcat port scan usage:
+`netcat` port scan usage:
 
 ```
 # TCP
@@ -15,8 +15,8 @@ nc -znv -w 2 <HOSTNAME | IP> <PORT | PORT_RANGE>
 nc -uznv -w 2 <HOSTNAME | IP> <PORT | PORT_RANGE>
 ```
 
-Netcat can be used, in addition to the ping utility, on a compromised host to
-quickly enumerate accessible servers and their open ports on a isolated
+`netcat` can be used, in addition to the `ping` utility, on a compromised host
+to quickly enumerate accessible servers and their open ports on a isolated
 network.
 
 The following bash one-liner can be used to do a ping sweep and a port scan on

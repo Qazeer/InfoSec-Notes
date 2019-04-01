@@ -3,6 +3,9 @@
 On Linux, it is recommended to verify the integrity of the transferred file
 using the built-in `md5sum`.
 
+On Windows, the PowerShell cmdlet `Get-FileHash -Algorithm MD5` can be used to
+compute the MD5 file's hash.
+
 ### Server side
 
 The following tools can be used to host files server side.
@@ -162,6 +165,9 @@ perl -le "use File::Fetch; my $ff = File::Fetch->new(uri => 'http://<IP>:<PORT>/
 ```
 
 ###### [Windows] Powershell
+
+The PowerShell cmdlets `Invoke-WebRequest`, `DownloadFile` and `New-PSDrive`
+can be used to download files from a remote web service or SMB share.
 
 ```powershell
 Invoke-WebRequest -Uri <URL> -OutFile <OUTPUT_FILE>
