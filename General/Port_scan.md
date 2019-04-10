@@ -1,6 +1,25 @@
 # Ports and services scanning - Methodology
 
-### Netcat
+--------------------------------------------------------------------------------
+
+###### Single host fast ports and services scan
+
+```
+target="<HOSTNAME | IP>"
+
+# TCP
+masscan --open -p1-65535 $target --rate=1000 > raw_masscan_output.txt
+ports=$(cut -d ' ' -f 4 raw_masscan_output.txt | awk -F "/" '{print $1}' | sort -n | tr '\n' ',' | sed 's/,$//')
+nmap -v -Pn -sV -sC -oA $target-TCP -p $ports $target
+
+# UDP
+masscan --open -pU:1-65535 $target --rate=1000 > raw_masscan_output.txt
+ports=$(cut -d ' ' -f 4 raw_masscan_output.txt | awk -F "/" '{print $1}' | sort -n | tr '\n' ',' | sed 's/,$//')
+nmap -v -Pn -sV -sC -oA $target-UDP -p $ports $target
+```
+--------------------------------------------------------------------------------
+
+### Basic ports scan with Netcat
 
 If `nmap` is not installed on the system, `netcat` can be used to realize a
 basic port scan, without services version or operating system detection.
@@ -28,9 +47,25 @@ the hosts responding to the echo ping request:
 prefix="<X.X.X>" && for i in `seq <X>`; do ping -c 1 $prefix.$i &> /dev/null && echo "Scan host: $prefix.$i" && nc -zvn -w 2 $prefix.$i <PORT | PORT_RANGE> 2>&1 | grep "open" ; done
 ```
 
-### Nmap
+### Asynchronous and stateless ports scan
 
-The great Nmap ("Network Mapper") tool is the most popular, versatile, and
+The tools `ZMap`, `MASSCAN` and `Unicornscan` can be used to
+scan range . For instance, `masscan` can scan the all the IPv4’s
+of the Internet in less than 6 minutes.
+
+`MASSCAN` uses a default rate of 100 packets/second and supports
+`nmap` like options.
+
+```
+# Supports nmap's XML or grepable (gnmap) output file format  
+masscan --rate 10000 --open [-oL <FILENAME.mscan> | -oX <FILENAME.xml> | -oG <FILENAME.gmap>] -p <PORT | PORT_RANGE | 0-65535> <CIDR | RANGE>
+
+grep <PORT> <FILENAME.gmap> | cut -d ' ' -f '2'
+```
+
+### Ports and services scan with Nmap
+
+The `nmap` ("Network Mapper") tool is the most popular, versatile, and
 robust port scanners to date.  
 It has been actively developed for over a decade, and has numerous features
 beyond port scanning.
@@ -293,9 +328,16 @@ Can be used to list all scripts in a given category/directory/exprossion. 
 
 This option updates the script database found in scripts/script.db 
 
-###### Proxies
+### Pivot scans through compromised hosts
 
-Use Proxychains to scan through a proxy.  
+###### Netcat
+
+As described above, `netcat` can be used to conduct a basic ports scan from a
+compromised host.
+
+###### Proychains
+
+Use `Proxychains` to scan through a proxy.  
 Supported proxies types : http, socks4 and socks5.
 
 HTTP/socks4 can only be used to conduct TCP scan:
@@ -307,7 +349,7 @@ HTTP/socks4 can only be used to conduct TCP scan:
   - OS fingerprinting based on features of the IP stack is not possible.
   - TCP connect scan (-sT) and service fingerprint on TCP (-sV) can be proxyfied.
 
-To use nmap through Proxychains:
+For exemple, to use `nmap` through `Proxychains`:
 
 ```
 Edit the /etc/proxychains.conf to use the proxy  
@@ -317,20 +359,23 @@ Edit the /etc/proxychains.conf to use the proxy
 proxychains nmap -v -n -Pn -sT -A ...
 ```
 
-### Metasploit
+###### Metasploit
 
-The following Metasploit modules can be used to conduct a port scan:
+The following `Metasploit` modules can be used to conduct a port
+scan:
   - auxiliary/scanner/portscan/syn
   - auxiliary/scanner/portscan/tcp
   - auxiliary/scanner/portscan/ack
   - auxiliary/scanner/portscan/ftpbounce
   - auxiliary/scanner/portscan/xmas    
 
-The modules can be used directly or through a meterpreter session to use the
-compromised host as a pivot. For more information about pivoting from a
-compromised host, refer to the [General] Pivoting note.
+The modules can be used directly or through a meterpreter session
+to use the compromised host as a pivot. For more information
+about pivoting from a compromised host, refer to the [General]
+Pivoting note.
 
-The port range default to 1-10000. To scan all possible ports use 0-65535.
+The port range default to 1-10000. To scan all possible ports use
+0-65535.
 
 ```
 msf> use auxiliary/scanner/portscan/tcp
@@ -339,12 +384,12 @@ meterpreter> run auxiliary/scanner/portscan/tcp RHOSTS=<IP | CIDR> [PORTS=<PORT 
 
 ### PsExec & CrackMapExec
 
-A `PsExec` tool or `CrackMapExec` can be used to retrieve the locally exposed
-services through on a target through `netstat` if local Administrator Windows
-credentials could be obtained.
+A `PsExec` tool or `CrackMapExec` can be used to retrieve the
+locally exposed services on a target through `netstat` if local
+Administrator Windows credentials could be obtained.
 
-For more information about the tools usage refer to the `[Active Directory]
-Credentials theft shuffle` note.
+For more information about the tools usage refer to the
+`[Active Directory] Credentials theft shuffle` note.
 
 ```
 # -b requires local administrator privileges
