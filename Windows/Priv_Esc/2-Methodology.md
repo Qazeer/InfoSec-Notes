@@ -20,7 +20,7 @@ current system:
 |--|-----|------------|-----|
 | **OS details**  | systeminfo | [environment]::OSVersion.Version |  |
 | **OS Architecture** | echo %PROCESSOR_ARCHITECTURE% |  [Environment]::Is64BitOperatingSystem | wmic os get osarchitecture |
-| **Hostname**  | hostname | $env:ComputerName<br/>(Get-WmiObject Win32_ComputerSystem).Name ||
+| **Hostname**  | hostname | $env:ComputerName<br/> $env:computername.$env:userdnsdomain <br/> (Get-WmiObject Win32_ComputerSystem).Name ||
 | **Curent Domain** | echo %userdomain% | $env:UserDomain<br/>(Get-WmiObject Win32_ComputerSystem).Domain ||
 | **Curent User**  | whoami /all<br/>net user %username%  | $env:UserName<br/>(Get-WmiObject Win32_ComputerSystem).UserName | |
 | **Local users**  | net users<br/>net users <USERNAME\> |  | wmic USERACCOUNT list full |
