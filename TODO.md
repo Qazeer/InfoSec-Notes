@@ -30,3 +30,5 @@ Tunneling - https://github.com/sensepost/reGeorg
 ? - powershell.exe -win hidden -Ep ByPass $r = [Text.Encoding]::ASCII.GetString([Convert]::FromBase64String('')); iex $r;
 AD - Password spraying LDAP open / null bind to retrieve usernames list
 L7 - Methodology better initial ports scan + integrate bruteforce tool
+Windows Priv Esc - identify binaries
+Get-ChildItem C:\ -recurse -file |ForEach-Object {if($_ -match '.+?exe$') {Get-AuthenticodeSignature $_.fullname}} | where {$_.IsOSBinary} |ForEach-Object { write-host $_ }
