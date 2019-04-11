@@ -29,7 +29,7 @@ The framework supports multiples architectures (i386, x86-64, ARM, etc.),
 file formats (PE, PE+, ELF, Mach-O, etc.) and operating systems (Windows,
 GNU/Linux, OS X, etc.).
 
-The `rabin2` utility can be used to retrive information and protection
+The `rabin2` utility can be used to retrieve information and protection
 mechanisms of a binary:
 
 ```
@@ -50,7 +50,7 @@ The strings in the binary can be printed and searched into using `izz`:
 The visual mode can entered by using the `v` command and quitted using the `q`
 command. In visual mode, the `p` command can be used to switch between display
 mode.
-  
+
 
 ### GDB
 
@@ -92,7 +92,7 @@ x/5i $pc
 
 ### OllyDbg
 
-OllyDbg is a GUI 32-bit assembler level analysing debugger for Microsoft
+`OllyDbg` is a GUI 32-bit assembler level analyzing debugger for Microsoft
 Windows.
 
 The `Search for -> All referenced strings` functionality allows to retrieve all
