@@ -392,6 +392,11 @@ uploading to a website. Because of these properties, ADS may be used by users
 or applications to store sensible information and the eventual ADS present on
 the system should be reviewed.
 
+DOS and PowerShell built-ins as well as `streams.exe` from the Sysinternals
+suite and tools from
+http://www.flexhex.com/docs/articles/alternate-streams.phtml can be used to
+operate with ADS.
+
 Note that the PowerShell cmdlets presented below are only available starting
 from `PowerShell 3`.
 
