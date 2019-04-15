@@ -114,9 +114,22 @@ On Windows machines, the process is usually not as straight forward but
 multiples methods can still be used. Transferring the `netcat` utility may
 simplify the subsequent files transfer.  
 
+###### LOLBINS
+
 The most reliable tools and methods are presented below. For a more exhaustive
 list of tools that can be used to transfer files on and off a Windows machine,
 refer to `https://lolbas-project.github.io/#/download`.
+
+To following commands can be used to retrieve the list of binaries present on
+the host.
+
+```
+# Windows
+Get-ChildItem C:\ -recurse -file | ForEach-Object { if ($_ -match '.+?exe$') { write-host "$($_.Name),$($_.FullName)" }}
+
+# Linux
+find / -type f -executable -exec sh -c "file -i '{}' | grep -q 'x-executable; charset=binary'" \; -print
+```
 
 ###### [Linux / Windows] echo & base64 encoding
 
@@ -132,7 +145,7 @@ base64 -w 0 <FILE> | xclip -selection clipboard
 
 # Server-side (Windows). Newlines can be trimmed on Linux using sed.
 certutil -encode <FILE> tmp_file_base64.txt
-sed ':a;N;$!ba;s/\n//g' file
+sed ':a;N;$!ba;s/\n//g' <FILE>
 
 # Client-side - Linux
 echo '<BASE64_FILECONTENT>' | base64 --decode > <OUTPUT_FILE>
