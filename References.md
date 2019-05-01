@@ -27,6 +27,10 @@ http://www.securityidiots.com/Web-Pentest/hacking-website-by-shell-uploading.htm
 https://www.exploit-db.com/docs/english/45074-file-upload-restrictions-bypass.pdf
 https://labs.detectify.com/2014/05/20/the-lesser-known-pitfalls-of-allowing-file-uploads-on-your-website/
 
+####### WebApps - SQLi - SQLite
+
+http://atta.cked.me/home/sqlite3injectioncheatsheet
+
 ### NTLM relay
 
 https://byt3bl33d3r.github.io/practical-guide-to-ntlm-relaying-in-2017-aka-getting-a-foothold-in-under-5-minutes.html
@@ -59,3 +63,10 @@ https://stackoverflow.com/questions/19560150/get-all-keys-set-in-memcached
 ### Reverse
 
 https://reverseengineering.stackexchange.com/questions/1935/how-to-handle-stripped-binaries-with-gdb-no-source-no-symbols-and-gdb-only-sho
+
+### Passwords cracking
+
+###### mRemoteNG
+
+http://cosine-security.blogspot.com/2011/06/stealing-password-from-mremote.html
+https://robszar.wordpress.com/2012/08/07/view-mremote-passwords-4/
