@@ -19,7 +19,9 @@ nmap -v -Pn -sV -sC -oA $target-UDP -p $ports $target
 ```
 --------------------------------------------------------------------------------
 
-### Basic ports scan with Netcat
+### Basic ports scan
+
+###### Netcat
 
 If `nmap` is not installed on the system, `netcat` can be used to realize a
 basic port scan, without services version or operating system detection.
@@ -28,7 +30,7 @@ basic port scan, without services version or operating system detection.
 
 ```
 # TCP
-nc -znv -w 2 <HOSTNAME | IP> <PORT | PORT_RANGE>
+  nc -znv -w 2 <HOSTNAME | IP> <PORT | PORT_RANGE>
 
 # UDP
 nc -uznv -w 2 <HOSTNAME | IP> <PORT | PORT_RANGE>
@@ -47,11 +49,37 @@ the hosts responding to the echo ping request:
 prefix="<X.X.X>" && for i in `seq <X>`; do ping -c 1 $prefix.$i &> /dev/null && echo "Scan host: $prefix.$i" && nc -zvn -w 2 $prefix.$i <PORT | PORT_RANGE> 2>&1 | grep "open" ; done
 ```
 
+###### PowerShell
+
+PowerShell can be used to conduct a *very slow* basic ports scan using the
+`Net.Sockets.TcpClient` or `Test-Netconnection` built-ins.
+
+Note that for each and every inaccessible ports `Test-NetConnection` will
+perform an ICMP echo request (ping) to the targeted host, tremendously
+slowing down the ports scanning process.
+
+```
+# Single host
+1..65355 | % { echo ((new-object Net.Sockets.TcpClient).Connect("<IP>",$_)) "[OPEN] Port $_" } 2>$null
+$WarningPreference = 'SilentlyContinue'; foreach ($port in 1..65355) { Test-NetConnection -Port $port <IP> | Where { $_.TcpTestSucceeded -eq $True } | Ft RemoteAddress,RemotePort }
+
+# Range /24
+1..255 | % { $ip = <X.X.X.$_>; 1..65355 | % { echo ((new-object Net.Sockets.TcpClient).Connect("$x",$_)) "[OPEN] Port $ip:$_"} 2>$null }
+$WarningPreference = 'SilentlyContinue'; foreach ($sub in 1..255) { $ip = <X.X.X.$sub>; foreach ($port in 1..65355) { Test-NetConnection -Port $port $ip | Where { $_.TcpTestSucceeded -eq $True } | Ft RemoteAddress,RemotePort } }
+
+# From file
+Get-Content <FILE_PATH> | ForEach-Object { foreach ($port in 1..65355) { echo ((new-object Net.Sockets.TcpClient).Connect("$_",$port)) "[OPEN] Port $_ : $port"}} 2>$null
+$WarningPreference = 'SilentlyContinue'; Get-Content <FILE_PATH> | ForEach-Object { foreach ($port in 1..65355) {  Test-NetConnection -Port $port $_ | Where { $_.TcpTestSucceeded -eq $True } | Ft RemoteAddress,RemotePort }}
+
+# Comma separated list
+"<LIST_IP>".Split(",") | ForEach { foreach ($port in 1..65355) { echo ((new-object Net.Sockets.TcpClient).Connect("$_",$port)) "[OPEN] Port $_ : $port"}} 2>$null
+```
+
 ### Asynchronous and stateless ports scan
 
-The tools `ZMap`, `MASSCAN` and `Unicornscan` can be used to
-scan range . For instance, `masscan` can scan the all the IPv4’s
-of the Internet in less than 6 minutes.
+The tools `ZMap`, `MASSCAN` and `Unicornscan` can be used to quickly scan
+massive IP ranges. For instance, `MASSCAN` can scan the all the IPv4’s of the
+Internet in less than 6 minutes.
 
 `MASSCAN` uses a default rate of 100 packets/second and supports
 `nmap` like options.
@@ -70,15 +98,14 @@ robust port scanners to date.
 It has been actively developed for over a decade, and has numerous features
 beyond port scanning.
 
-Nmap uses raw IP packets to determine what hosts are available on the network,
+`nmap` uses raw IP packets to determine what hosts are available on the network,
 what services (application name and version) those hosts are offering, what
 operating systems (and OS versions) they are running, what type of packet
 filters/firewalls are in use, and dozens of other characteristics.
 
-In addition to the classic command-line Nmap executable, the Nmap suite
-includes an advanced GUI and results viewer (Zenmap), a flexible data transfer,
-redirection, and debugging tool (Ncat), a utility for comparing scan results
-(Ndiff), and a packet generation and response analysis tool (Nping).
+In addition to the classic command-line `nmap` executable, the `nmap` suite
+includes an advanced GUI and results viewer (`Zenmap`), a flexible data
+transfer, redirection, and debugging tool (`Ncat`), a utility for comparing scan results (`Ndiff`), and a packet generation and response analysis tool (`Nping`).
 
 ###### Usage
 
@@ -109,8 +136,8 @@ nmap -v -sT -Pn -p <SERVICE_PORT> --script=vuln <IP/FQDN>
 
 *Host Discovery*
 
-Generate a live hosts list trough a nmap ping sweep (ARP ping if on same subnet,
-ICMP echo and TCP packets on ports 80 and 443 otherwise)
+Generate a live hosts list trough a `nmap` ping sweep (ARP ping if on same
+subnet, ICMP echo and TCP packets on ports 80 and 443 otherwise).
 
 ```
 nmap -sn -T4 -oG Discovery.gnmap <RANGE/CIDR>
@@ -186,7 +213,7 @@ Reference : https://nmap.org/book/idlescan.html
 
 ###### Target Specification
 
-Nmap supports multiple way to specify a target host :
+`nmap` supports multiple way to specify a target host :
 
 - IP address or hostname : 192.168.15.15 / www.google.com
 - IP range : 192.168.0.*
@@ -262,8 +289,21 @@ insane/5 : timing template
 ###### Nmap Scripting Engine (NSE)
 
 NSE scripts define a list of categories they belong to.
-Currently defined categories are auth, broadcast, brute, default. discovery,
-dos, exploit, external, fuzzer, intrusive, malware, safe, version, and vuln.
+Currently defined categories are:
+ - auth
+ - broadcast
+ - brute
+ - default
+ - discovery
+ - dos
+ - exploit
+ - external
+ - fuzzer
+ - intrusive
+ - malware
+ - safe
+ - version
+ - vuln
 
 NSE Options:
 
@@ -292,7 +332,7 @@ Loads every script except for those in the intrusive category.
 nmap --script "default or safe"
 ```
 
-This is functionally equivalent to nmap --script "default,safe". It loads all
+This is functionally equivalent to `nmap --script "default,safe"`. It loads all
 scripts that are in the default category or the safe category or both.
 
 ```
@@ -347,9 +387,10 @@ HTTP/socks4 can only be used to conduct TCP scan:
   - RAW/PACKET or UDP sockets cannot be redirected through these kind of proxies
     as they are designed to relay full TCP connections only.   
   - OS fingerprinting based on features of the IP stack is not possible.
-  - TCP connect scan (-sT) and service fingerprint on TCP (-sV) can be proxyfied.
+  - TCP connect scan (-sT) and service fingerprint on TCP (-sV) can be
+    proxyfied.
 
-For exemple, to use `nmap` through `Proxychains`:
+For example, to use `nmap` through `Proxychains`:
 
 ```
 Edit the /etc/proxychains.conf to use the proxy  
@@ -369,7 +410,7 @@ scan:
   - auxiliary/scanner/portscan/ftpbounce
   - auxiliary/scanner/portscan/xmas    
 
-The modules can be used directly or through a meterpreter session
+The modules can be used directly or through a `meterpreter` session
 to use the compromised host as a pivot. For more information
 about pivoting from a compromised host, refer to the [General]
 Pivoting note.
@@ -393,6 +434,14 @@ For more information about the tools usage refer to the
 
 ```
 # -b requires local administrator privileges
-crackmapexec ... -x 'netstat -anob'
-crackmapexec ... -x 'netstat -anob | find "<PORT>"'
+crackmapexec [...] -x 'netstat -anob'
+crackmapexec [...] -x 'netstat -anob | find "<PORT>"'
 ```
+
+### Advanced port scanner
+
+`Advanced port scanner` is a Windows GUI multithreaded ports and services
+scanner that can be both installed and used in standalone mode.
+
+The tool provides easy access to the main identified services (HTTP, HTTPS, SSH,
+RDP, SMB, etc.) by starting the associated Windows built-ins.
