@@ -411,6 +411,7 @@ streams.exe -accepteula <FILE_NAME>
 # Retrieve ADS content
 more < <FILE_NAME>:<ADS_NAME>
 Get-Content <FILE_NAME> -stream <ADS_NAME>
+LS.exe <FILE_NAME>
 
 # Write ADS content
 echo "<INPUT>" > <FILE_NAME>:<ADS_NAME>
