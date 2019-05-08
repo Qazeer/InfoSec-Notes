@@ -10,10 +10,35 @@ compute the MD5 file's hash.
 
 The following tools can be used to host files server side.
 
-###### [Linux / Windows] Python - Web Server
+###### [Linux / Windows] Python
+
+The `SimpleHTTPServer` Python module can be used to quickly start an HTTP
+server from the CLI.
+
+The module is however limited : the listening interfaces can not be specified
+and no SSL/TLS layer is natively supported.
 
 ```python
 python -m SimpleHTTPServer <PORT>
+```
+
+###### [Linux / Windows] Node
+
+The `http-server` Node module can be used to setup an HTTP server from the CLI.
+
+The module supports different configuration options and can be used to listen
+on a specific IP address as well as enabling SSL/TLS and CORS.
+
+The `http-server-with-auth` Node module additionally provides a basic HTTP
+authentication mechanism.
+
+```
+# npm install -g http-server
+# npm install -g http-server-with-auth
+
+http-server -a <IP> -p <PORT> --cors
+http-server -a <IP> -p <PORT> --cors --ssl --cert <PATH_CERT> --key <PATH_PRIV_KEY>
+http-server -a <IP> -p <PORT> --cors --usernmae <USERNAME> --password <PASSWORD>
 ```
 
 ###### [Linux] curl

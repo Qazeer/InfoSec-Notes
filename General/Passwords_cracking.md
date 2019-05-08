@@ -215,3 +215,26 @@ create a device that can be mounted:
 cryptsetup  open --type luks <LUKS_FILE> <DEVICE_NAME>
 mount /dev/mapper/<DEVICE_NAME> /mnt
 ```
+
+###### mRemoteNG
+
+`mRemoteNG` is an open source multi-protocol remote connections manager. The
+connections information, including usernames and passwords, are stored
+encrypted in `confCons.xml` files.
+
+On older versions of `mRemoteNG`, the passwords were encrypted in AES-128-CBC
+using the md5 of `mR3m` as the secret key and storing the IV in the 16 first
+bytes of the passwords hash.
+
+The clear-text passwords can be retrieved on all `mRemoteNG` versions directly
+through the GUI application by creating an external tool:
+
+```
+Tools -> External Tools -> New External Tool
+  Display Name: Print password
+  Filename: cmd
+  Arguments: /k echo %password%
+
+After the confCons.xml is loaded, the created external tool can be used to retrieve the passwords
+Connections -> <CONNECTION> -> External Tools -> Print pasword
+```
