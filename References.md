@@ -31,6 +31,14 @@ https://labs.detectify.com/2014/05/20/the-lesser-known-pitfalls-of-allowing-file
 
 http://atta.cked.me/home/sqlite3injectioncheatsheet
 
+###### WebApps - LFI
+
+https://www.rcesecurity.com/2017/08/from-lfi-to-rce-via-php-sessions/
+https://www.hackingarticles.in/smtp-log-poisioning-through-lfi-to-remote-code-exceution/
+https://liberty-shell.com/sec/2018/05/19/poisoning/
+https://medium.com/bugbountywriteup/bugbounty-journey-from-lfi-to-rce-how-a69afe5a0899
+https://insomniasec.com/downloads/publications/LFI%20With%20PHPInfo%20Assistance.pdf
+
 ### NTLM relay
 
 https://byt3bl33d3r.github.io/practical-guide-to-ntlm-relaying-in-2017-aka-getting-a-foothold-in-under-5-minutes.html
@@ -70,3 +78,9 @@ https://reverseengineering.stackexchange.com/questions/1935/how-to-handle-stripp
 
 http://cosine-security.blogspot.com/2011/06/stealing-password-from-mremote.html
 https://robszar.wordpress.com/2012/08/07/view-mremote-passwords-4/
+
+### Linux
+
+###### Priv Esc - Process
+
+proc man page
