@@ -135,7 +135,7 @@ The following commands can be used to display all mounted file systems:
 # Human readable
 df -aTh
 
-# Both equivalent
+# Both equivalent, provides the mount options of the file systems
 mount
 cat /proc/mounts
 ```
@@ -424,26 +424,96 @@ transfer` note.
 
 ### Processes and services
 
+The processes running should be reviewed for known exploits, with
+a special attention given to the processes running under root privileges.
+The command line arguments used to start the process should be
+reviewed for sensible information. Additionally, a deeper analyze of non
+standard processes should be conducted with particular attention given to
+processes running as root.
+
 ###### Enumerate running processes and services
 
-The processes and services running should be reviewed for known exploits, with
-a special attention given to the processes running under root privileges.
-The command line arguments used to start the process should be reviewed for
-sensible information.  
+By default on Linux, all processes can be listed by unprivileged and non owner
+users. However, the system can be hardened in order to limit processes listing
+to self owned processes. This configuration is made through the mount option
+`hidepid` on the `proc` file system. The following values can be defined for the
+attribute:
+  - `hidepid=0` (default), all world-readable `/proc/<PID>/*` files, meaning
+  every process can be listed and potentially sensible information retrieved ;
+  - `hidepid=1`, directories entry in the `proc` file system (`PID` folders)
+  can be listed but files and subdirectories accessed may not accessed, except
+  for owned processes ;
+  - `hidepid=2`, As for mode 1, but in addition the `/proc/<PID>` directories
+  belonging to other  users  become  invisible. This doesn't hide the fact that
+  a process with a specific PID value exists (it can be learned by other means,
+  for  example, by `kill -0 $PID`), but it hides a process's UID and GID,
+  which could otherwise be learned by employing `stat` on a `/proc/<PID>`
+  directory. If configured, this option greatly limit the information available
+  and notably makes it impossible to determine if processes are started by
+  privileged users.
+
+Additionally, the mount option `gid` specifies  the  ID of a group whose
+members are authorized to learn process information otherwise prohibited by
+`hidepid`. In other words, users in this group behave as though the `proc`
+file system was mounted with `hidepid=0`.
 
 The current processes can be listed using the `ps` Linux utility:
 
 ```
-# Processes - equivalent ouput between -aux / -ef
-ps -aux
-ps -ef  
-ps -aux | grep root
-ps -ef | grep root
+# Depending on the ps utility version either a or e may be used to include processes belonging to other users
+ps aux
+
+# Includes environment variable, verbose
+ps auxeww  
+
+ps aux | grep root
+ps ef | grep root
 
 # Listening services
 netstat -antup
 ss -twurp
 ```
+
+The information retrieved by the Linux `ps` utility can also be accessed
+manually directly in the process directory:
+  - `/proc/<PID>/status`: provides meta-data information such as the process
+  umask, running state, PID, PID of the parent process if any, and real and
+  effective UIDs of the process owner.  
+  - `/proc/<PID>/cmdline`: contains the complete command line arguments for the
+  process, unless the process is a zombie.
+  - `/proc/<PID>/environ`: contains the initial environment defined when the
+  process was started.
+
+###### Process snooping
+
+Process snooping as an unprivileged user consists in monitoring the processes,
+and especially the short lived processes, being run on the system. Process
+snooping draws its interest from the fact that sensible information can be
+visible in the `proc` file system (such as the CLI arguments and other
+information identified above) as long as a process is running and disappears
+once the process comes to an halt.
+
+While process snooping can be done through an infinite loop scanning of the
+`proc` file system for creation of new PID subdirectories, a more stealthier and
+resource-efficient approach is to rely on the `inotify` API to get notified
+whenever files are created, modified, deleted, accessed in `/usr` (libraries),
+`/tmp`, `/var` (log files), etc.
+
+This method is implemented by the `pspy` Go tool. Pre-built statically compiled
+32 and 64 bits binaries can be retrieved on GitHub.
+By default, `pspy` monitors the following directories: `/usr`, `/tmp`, `/etc`,
+`/home`, `/var`, and `/opt`. Additional directories can be specified using the
+`-r` option.
+
+```
+# -p: enables printing commands to stdout
+# -f: enables printing file system events to stdout
+# -c: print events in different colors. Red for new processes, green for new Inotify events
+# -i: interval in milliseconds between procfs scans
+
+pspy64 -pfc -i 1000
+```     
+
 
 ###### MySQL
 
@@ -556,3 +626,5 @@ For more Python reverse shell payloads, refer to the `[General] Shells` note.
 ### Root write access
 
 /bin/echo "friend    ALL=(ALL:ALL) ALL" > /etc/sudoers
+
+https://github.com/DominicBreuker/pspy
