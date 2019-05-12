@@ -626,5 +626,3 @@ For more Python reverse shell payloads, refer to the `[General] Shells` note.
 ### Root write access
 
 /bin/echo "friend    ALL=(ALL:ALL) ALL" > /etc/sudoers
-
-https://github.com/DominicBreuker/pspy
