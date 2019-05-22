@@ -198,8 +198,8 @@ ls -lah /etc/ssh/
 
 The following commands can be used to list the configuration files present on
 the system.  
-The files in the /etc folder are more likely to be active
-configurations and should be reviewed first.
+The files in the `/etc` folder are more likely to be active configurations and
+should be reviewed first.
 
 ```
 find /etc -name '*.conf' -exec ls -lah {} 2>/dev/null \;
@@ -236,6 +236,12 @@ The following files and directories may contain interesting information:
 /var/www/
 /var/log/
 /etc/httpd/logs/
+
+# Files owned by the compromised user
+find / -user "<USERNAME>" -name "*" 2>/dev/null
+
+# Files accessible to a specific group the compromised user is a member of
+find / -group "<GROUP_NAME>" -name "*" 2>/dev/null
 ```
 
 ### SUID/SGID Privileges Escalation
