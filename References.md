@@ -31,9 +31,26 @@ http://www.securityidiots.com/Web-Pentest/hacking-website-by-shell-uploading.htm
 https://www.exploit-db.com/docs/english/45074-file-upload-restrictions-bypass.pdf
 https://labs.detectify.com/2014/05/20/the-lesser-known-pitfalls-of-allowing-file-uploads-on-your-website/
 
-####### WebApps - SQLi - SQLite
+####### WebApps - SQLi
+
+https://sqlwiki.netspi.com
+https://www.slideshare.net/inquis/advanced-sql-injection-to-operating-system-full-control-whitepaper-4633857
+
+*SQLite*
 
 http://atta.cked.me/home/sqlite3injectioncheatsheet
+
+*MSSQL*
+
+https://www.gracefulsecurity.com/sql-injection-cheat-sheet-mssql/
+https://www.asafety.fr/mssql-injection-cheat-sheet
+http://pentestmonkey.net/cheat-sheet/sql-injection/mssql-sql-injection-cheat-sheet
+https://www.netsparker.com/blog/web-security/sql-injection-cheat-sheet
+
+*sqlmap*
+
+https://github.com/sqlmapproject/sqlmap/wiki/Usage
+https://forum.bugcrowd.com/t/sqlmap-tamper-scripts-sql-injection-and-waf-bypass/423
 
 ###### WebApps - LFI
 
