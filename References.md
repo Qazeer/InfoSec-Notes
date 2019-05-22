@@ -2,6 +2,10 @@
 
 ### AD
 
+###### Credentials reuse
+
+https://stackoverflow.com/questions/18113651/powershell-remoting-policy-does-not-allow-the-delegation-of-user-credentials
+
 ###### Kerberoasting
 
 https://www.harmj0y.net/blog/redteaming/kerberoasting-revisited/
