@@ -9,8 +9,8 @@ interoperate.
 
 `WinRM` can be used to perform various management tasks remotely, including,
 but not limited to, running batch and `PowerShell` commands or scripts.
-Communication are performed over `HTTP`, port TCP 5985, or `HTTPS`, port TCP
-5986.
+Communications are performed over `HTTP`, port TCP `5985`, or `HTTPS`, port TCP
+`5986`.
 
 `WinRM` supports multiples authentication mechanisms:
 
