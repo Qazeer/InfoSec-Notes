@@ -32,3 +32,5 @@ AD - Password spraying LDAP open / null bind to retrieve usernames list
 L7 - Methodology better initial ports scan + integrate bruteforce tool
 Windows Priv Esc - identify binaries
 Get-ChildItem C:\ -recurse -file |ForEach-Object {if($_ -match '.+?exe$') {Get-AuthenticodeSignature $_.fullname}} | where {$_.IsOSBinary} |ForEach-Object { write-host $_ }
+WebApps - XSS - https://rastating.github.io/xss-chef/
+https://gist.github.com/HarmJ0y/fe676e3ceba74f22a28bd1b121182db7

