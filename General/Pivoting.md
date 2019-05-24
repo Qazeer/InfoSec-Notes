@@ -1,13 +1,8 @@
 # Pivoting
 
-### Tunneling and port forwarding
+### Pivoted ports scanning
 
-### SSH port forwarding
-
-Refer to the `[L7] SSH - Methodology ` note for information on how to tunnel
-through SSH.
-
-### Ping + netcat
+###### Ping + netcat
 
 The ping and `netcat` utilities can be used to quickly enumerate accessible
 servers and their open ports from a compromised host.
@@ -18,9 +13,7 @@ as standalone binaries.
 Refer to the [General] Port scan note for Bash one-liner to conduct a ping sweep
 and port scan on responding hosts.  
 
-### Meterpreter
-
-###### Port scan
+###### Meterpreter - port scan
 
 The `metasploit` modules in `auxiliary/scanner/portscan` can be used to scan
 ports through a `meterpreter` session:
@@ -31,7 +24,16 @@ run auxiliary/scanner/portscan/syn RHOSTS=<IP | CIDR> PORTS=<PORT | PORT_RANGE>
 run auxiliary/scanner/portscan/tcp RHOSTS=<IP | CIDR> PORTS=<PORT | PORT_RANGE>
 ```
 
-###### Unitary port forwarding
+### Tunneling and port forwarding
+
+###### SSH port forwarding
+
+Refer to the `[L7] SSH - Methodology ` note for information on how to tunnel
+through SSH.
+
+`SSH` can be used to conduct unitary and dynamic ports forwarding.
+
+###### Meterpreter - port forwarding
 
 The *portfwd* command from within the `meterpreter` shell can be used to forward
 TCP connections through the compromised machine.
@@ -54,8 +56,12 @@ portfw delete -i <INDEX>
 portfw flush
 ```
 
-###### Route forwarding
+###### [Windows] netsh
 
-*Metasploit module*
+The following commands can be used:
 
-*Nmap*
+```
+# Display current configured port forwarding rule
+netsh interface portproxy show all
+
+```

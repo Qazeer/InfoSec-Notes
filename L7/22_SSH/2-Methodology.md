@@ -143,11 +143,12 @@ port forwarding and dynamic port forwarding.
 
 ###### Local port forwarding
 
-In local port forwarding, a port on the local system is routed to a port on a
-remote server through the SSH service. For example, a compromised Internet
-facing server exposing a SSH service could be used to route traffic to the
-SMB ports of internal servers to conduct `PsExec` like connections directly from
-the attacking system without the need to deploy tools on the compromised server.
+In local port forwarding, a port on the local system (attacking machine) is
+routed to a port on a remote server through the SSH service of a compromised
+host. For example, a compromised Internet facing server exposing a SSH service
+could be used to route traffic to the SMB ports of internal servers to conduct
+`PsExec` like connections directly from the attacking system without the need
+to deploy tools on the compromised server.
 
 The following command can be used to configure a local port forwarding:
 
