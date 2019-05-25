@@ -5,6 +5,7 @@
 ###### Credentials reuse
 
 https://stackoverflow.com/questions/18113651/powershell-remoting-policy-does-not-allow-the-delegation-of-user-credentials
+https://www.pdq.com/blog/secure-password-with-powershell-encrypting-credentials-part-1/
 
 ###### Kerberoasting
 
