@@ -242,6 +242,9 @@ find / -user "<USERNAME>" -name "*" 2>/dev/null
 
 # Files accessible to a specific group the compromised user is a member of
 find / -group "<GROUP_NAME>" -name "*" 2>/dev/null
+
+# Files added / modified between the specified dates (YYYY-MM-DD). Can be used to detect custom content added on the box after installation.
+find / -newermt "<START-DATE>" ! -newermt '<END-DATE>' 2>/dev/null
 ```
 
 ### SUID/SGID Privileges Escalation
