@@ -21,32 +21,44 @@ nmap -v -Pn -sV -sC -oA $target-UDP -p $ports $target
 
 ### Basic ports scan
 
-###### Netcat
+###### ping + netcat
 
-If `nmap` is not installed on the system, `netcat` can be used to realize a
-basic port scan, without services version or operating system detection.
+The `ping` and `netcat` utilities can be used to quickly enumerate accessible
+servers and their open ports from a compromised host. Both utilities can be
+uploaded, if not already available on the compromised host, as standalone
+binaries. Note that some statically linked version of `netcat` may be detected
+as malicious agent by anti-viral solutions.
 
-`netcat` port scan usage:
+The following one-liners can be used to conduct an ICMP echo sweep using the
+built-in `ping` utility:
+
+```
+# Linux
+# /16
+prefix="<X.X>" && for i in {0..254}; do echo $prefix.$i/24; for j in {1..254}; do sh -c "ping -c 1 $prefix.$i.$j | grep \"icmp\" &" ; done; done
+# /24
+prefix="<X.X.X>" && for i in {0..254}; do sh -c "ping -c 1 $prefix.$i | grep \"icmp\" &" ; done
+```
+
+`netcat` can be used to conduct a basic `TCP` or `UDP` ports scan, with no
+banner grabbing or version probing:
 
 ```
 # TCP
-  nc -znv -w 2 <HOSTNAME | IP> <PORT | PORT_RANGE>
+nc -znv -w 2 <HOSTNAME | IP> <PORT | PORT_RANGE>
 
 # UDP
 nc -uznv -w 2 <HOSTNAME | IP> <PORT | PORT_RANGE>
 ```
 
-`netcat` can be used, in addition to the `ping` utility, on a compromised host
-to quickly enumerate accessible servers and their open ports on a isolated
-network.
-
-The following bash one-liner can be used to do a ping sweep and a port scan on
-the hosts responding to the echo ping request:
+Combining `ping` and `netcat`, the following bash one-liners can be used to do
+a `ping` sweep followed by a basic port scan using `netcat` on the hosts
+responding to the ICMP echo requests:
 
 ```
 # Specifiy the IP range using thr prefix and seq number
-# For example: prefix="10.10.10" seq 255 to scan the range 10.10.10.0-255
-prefix="<X.X.X>" && for i in `seq <X>`; do ping -c 1 $prefix.$i &> /dev/null && echo "Scan host: $prefix.$i" && nc -zvn -w 2 $prefix.$i <PORT | PORT_RANGE> 2>&1 | grep "open" ; done
+# For example: specify prefix="10.10.10" and seq 255 to scan the range 10.10.10.0-255
+prefix="<X.X.X>" && for i in `seq <SUBNET | 255>`; do ping -c 1 $prefix.$i &> /dev/null && echo "Scan host: $prefix.$i" && nc -zvn -w 2 $prefix.$i <PORT | PORT_RANGE> 2>&1 | grep "open" ; done
 ```
 
 ###### PowerShell
@@ -404,22 +416,23 @@ proxychains nmap -v -n -Pn -sT -A ...
 
 The following `Metasploit` modules can be used to conduct a port
 scan:
-  - auxiliary/scanner/portscan/syn
-  - auxiliary/scanner/portscan/tcp
-  - auxiliary/scanner/portscan/ack
-  - auxiliary/scanner/portscan/ftpbounce
-  - auxiliary/scanner/portscan/xmas    
+  - `auxiliary/scanner/portscan/syn`
+  - `auxiliary/scanner/portscan/tcp`
+  - `auxiliary/scanner/portscan/ack`
+  - `auxiliary/scanner/portscan/ftpbounce`
+  - `auxiliary/scanner/portscan/xmas`
+
+The port range default to `1-10000`. To scan all possible ports use `0-65535`.
 
 The modules can be used directly or through a `meterpreter` session
-to use the compromised host as a pivot. For more information
-about pivoting from a compromised host, refer to the [General]
-Pivoting note.
-
-The port range default to 1-10000. To scan all possible ports use
-0-65535.
+to use the compromised host as a pivot.
 
 ```
+# Direct use
 msf> use auxiliary/scanner/portscan/tcp
+
+# Pivoting from a meterpreter session
+meterpreter> run auxiliary/scanner/portscan/syn RHOSTS=<IP | CIDR> [PORTS=<PORT | PORTS_RANGE>]
 meterpreter> run auxiliary/scanner/portscan/tcp RHOSTS=<IP | CIDR> [PORTS=<PORT | PORTS_RANGE>]
 ```
 
