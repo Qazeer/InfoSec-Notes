@@ -576,6 +576,8 @@ Look for tasks running as root from script that you can modify:
 
 ```bash
 crontab -l
+crontab -u <USERNAME> -l
+
 ls -lah /var/spool/cron
 ls -lahR /var/spool/cron
 ls -al /etc/ | grep cron
@@ -635,3 +637,7 @@ For more Python reverse shell payloads, refer to the `[General] Shells` note.
 ### Root write access
 
 /bin/echo "friend    ALL=(ALL:ALL) ALL" > /etc/sudoers
+
+### Capabilities
+
+https://medium.com/@int0x33/day-44-linux-capabilities-privilege-escalation-via-openssl-with-selinux-enabled-and-enforced-74d2bec02099

