@@ -49,7 +49,10 @@ an SSH service:
 ssh -nNT -L <LOCAL_PORT>:<TARGET_HOSTNAME | TARGET_IP>:<TARGET_REMOTE_PORT> <USERNAME>@<SSH_HOSTNAME | SSH_IP>
 ```
 
-Note: local port forwarding can be used to access locally (localhost) exposed
+Once the above command is completed, the specified target port will be
+accessible locally on the attacking machine at the `<LOCAL_PORT>`.
+
+Note: local port forwarding can be used to access locally (`localhost`) exposed
 services on the SSH server.
 
 ###### Remote port forwarding
@@ -154,3 +157,5 @@ netsh interface portproxy show all
 # Configure a local port forwarding
 netsh interface portproxy add v4tov4 listenaddress=<LHOST> listenport=<LPORT>  connectaddress=<RHOST> connectport=<RPORT>
 ```
+
+### [Linux] iptables
