@@ -106,3 +106,8 @@ https://robszar.wordpress.com/2012/08/07/view-mremote-passwords-4/
 ###### Priv Esc - Process
 
 proc man page
+
+###### Post Exploit
+
+https://en.wikibooks.org/wiki/OpenSSH/Cookbook/Multiplexing
+https://xorl.wordpress.com/2018/02/04/ssh-hijacking-for-lateral-movement/
