@@ -211,7 +211,7 @@ find / -name '*.conf' -exec ls -lah {} 2>/dev/null \;
 To list the hidden files present on the system:
 
 ```
-find / -name ".*" -type f ! -path "/proc/*" ! -path "/sys/*" -exec ls -al {} \;
+find / -name ".*" -type f ! -path "/proc/*" ! -path "/sys/*" -exec ls -lah {} \; 2>/dev/null
 ```
 
 ###### World-writeable and "nobody" files
@@ -221,7 +221,7 @@ that do not have a owner:
 
 ```
 # All world-writable files excluding /proc and /sys
-find / ! -path "*/proc/*" ! -path "/sys/*" -perm -2 -type f -exec ls -la {} 2>/dev/null
+find / ! -path "*/proc/*" ! -path "/sys/*" -perm -2 -type f -exec ls -lah {} \; 2>/dev/null
 
 # No owner files
 find / -xdev \( -nouser -o -nogroup \) -print
@@ -240,11 +240,16 @@ The following files and directories may contain interesting information:
 # Files owned by the compromised user
 find / -user "<USERNAME>" -name "*" 2>/dev/null
 
+# Files readable by the current user
+find / -readable -type f 2>/dev/null
+
 # Files accessible to a specific group the compromised user is a member of
 find / -group "<GROUP_NAME>" -name "*" 2>/dev/null
 
 # Files added / modified between the specified dates (YYYY-MM-DD). Can be used to detect custom content added on the box after installation.
+find / -newermt "<START-DATE>" ! -newermt '<END-DATE>' -type f 2>/dev/null
 find / -newermt "<START-DATE>" ! -newermt '<END-DATE>' 2>/dev/null
+find / -newermt "<START-DATE>" ! -newermt '<END-DATE>' -exec ls -lah {} \; 2>/dev/null
 ```
 
 ### SUID/SGID Privileges Escalation
