@@ -91,6 +91,9 @@ On MSSQL server, operating system commands can be executed using the
 *xp_cmdshell* function. The *xp_cmdshell* function is deactivated by default
 from SQL Server 2000 and upwards and needs to be activated.  
 
+Note that the Windows process spawned by `xp_cmdshell` has the same security
+rights as the SQL Server service account running the service.
+
 The following query can be used to manually activate it given the account used
 has sufficient privilege (sysadmin):
 

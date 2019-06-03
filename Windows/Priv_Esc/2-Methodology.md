@@ -354,6 +354,27 @@ netsh wlan show profiles
 netsh wlan show profile name="<WIFI_NAME>" key=clear
 ```
 
+###### Passwords in Windows event logs
+
+If the compromised user can read Windows events logs, by being a member
+of the `Event Log Readers` notably, and the command-line auditing feature is
+enabled, the logs should be reviewed for sensible information.
+
+```
+# Check if command-line auditing is enabled - may return false-negative
+reg query HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\Audit /v ProcessCreationIncludeCmdLine_Enabled
+
+# List available Windows event logs type and number of entries
+Get-EventLog -List
+
+Get-EventLog -LogName <System | Security | ...> | Select -Property * -ExpandProperty Message
+
+wevtutil qe <System | Security | ...> /f:text /rd:true
+
+# specifying an host allows to specify an user to run the query as
+wevtutil qe <System | Security | ...> /r:<127.0.0.1 | HOSTNAME | IP> /u:<WORKGROUP | DOMAIN>\<USERNAME> /p:<* | PASSWORD> /f:text /rd:true
+```
+
 ###### Hidden files
 
 To display only hidden files, the following command can be used:

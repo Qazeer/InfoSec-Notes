@@ -198,8 +198,8 @@ ls -lah /etc/ssh/
 
 The following commands can be used to list the configuration files present on
 the system.  
-The files in the /etc folder are more likely to be active
-configurations and should be reviewed first.
+The files in the `/etc` folder are more likely to be active configurations and
+should be reviewed first.
 
 ```
 find /etc -name '*.conf' -exec ls -lah {} 2>/dev/null \;
@@ -211,7 +211,7 @@ find / -name '*.conf' -exec ls -lah {} 2>/dev/null \;
 To list the hidden files present on the system:
 
 ```
-find / -name ".*" -type f ! -path "/proc/*" ! -path "/sys/*" -exec ls -al {} \;
+find / -name ".*" -type f ! -path "/proc/*" ! -path "/sys/*" -exec ls -lah {} \; 2>/dev/null
 ```
 
 ###### World-writeable and "nobody" files
@@ -221,7 +221,7 @@ that do not have a owner:
 
 ```
 # All world-writable files excluding /proc and /sys
-find / ! -path "*/proc/*" ! -path "/sys/*" -perm -2 -type f -exec ls -la {} 2>/dev/null
+find / ! -path "*/proc/*" ! -path "/sys/*" -perm -2 -type f -exec ls -lah {} \; 2>/dev/null
 
 # No owner files
 find / -xdev \( -nouser -o -nogroup \) -print
@@ -236,6 +236,20 @@ The following files and directories may contain interesting information:
 /var/www/
 /var/log/
 /etc/httpd/logs/
+
+# Files owned by the compromised user
+find / -user "<USERNAME>" -name "*" 2>/dev/null
+
+# Files readable by the current user
+find / -readable -type f 2>/dev/null
+
+# Files accessible to a specific group the compromised user is a member of
+find / -group "<GROUP_NAME>" -name "*" 2>/dev/null
+
+# Files added / modified between the specified dates (YYYY-MM-DD). Can be used to detect custom content added on the box after installation.
+find / -newermt "<START-DATE>" ! -newermt '<END-DATE>' -type f 2>/dev/null
+find / -newermt "<START-DATE>" ! -newermt '<END-DATE>' 2>/dev/null
+find / -newermt "<START-DATE>" ! -newermt '<END-DATE>' -exec ls -lah {} \; 2>/dev/null
 ```
 
 ### SUID/SGID Privileges Escalation
@@ -567,6 +581,8 @@ Look for tasks running as root from script that you can modify:
 
 ```bash
 crontab -l
+crontab -u <USERNAME> -l
+
 ls -lah /var/spool/cron
 ls -lahR /var/spool/cron
 ls -al /etc/ | grep cron
@@ -626,3 +642,7 @@ For more Python reverse shell payloads, refer to the `[General] Shells` note.
 ### Root write access
 
 /bin/echo "friend    ALL=(ALL:ALL) ALL" > /etc/sudoers
+
+### Capabilities
+
+https://medium.com/@int0x33/day-44-linux-capabilities-privilege-escalation-via-openssl-with-selinux-enabled-and-enforced-74d2bec02099
