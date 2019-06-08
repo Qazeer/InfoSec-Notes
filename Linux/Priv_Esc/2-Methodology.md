@@ -48,17 +48,20 @@ find / -type d \( -perm -g+w -or -perm -o+w \) -exec ls -lahd {} \; 2>/dev/null
 ###### Enumeration scripts
 
 Most of the enumeration process detailed below can be automated using scripts.
+To upload the scripts on the target, please refer to the `[General] File
+transfer` note.  
 
-*Personal preference: LinEnum.sh + BeRoot.py
-(if python available; Embeds linux-exploit-suggester.sh) > LinEnum.sh +
-linux-exploit-suggester.sh (on remote box or locally) > others*
+Personal preference:
+  1. `lse.sh` + `LinEnum.sh` + `linux-exploit-suggester.sh` (with kernel and
+     packages checks, run off target)
+  2. `linux-exploit-suggester-2.pl` + `linux-soft-exploit-suggester`
 
-To upload the scripts on the target, please refer to the [General] File transfer
-note.  
+*Recommended scripts*
 
-The **LinEnum.sh** script enumerates the system configuration using more than
-65 checks (OS & kernel information, home directories, sudo acces, SUID/GUID
-files, configuration files, etc.).
+The `LinEnum.sh` and `linux-smart-enumeration` are maintained scripts that
+enumerate the system configuration using more than 65 checks (OS & kernel
+information, home directories, sudo acces, SUID/GUID files, configuration
+files, etc.).
 
 ```
 -t	Thorough tests (notably SUID/GUID files)
@@ -66,14 +69,18 @@ files, configuration files, etc.).
 [-k	Keyword to grep in enumerated configuration files]
 
 LinEnum.sh -t -k 'pass' -r <PATH/FILENAME>
+
+lse -l2
 ```
 
-The **linux-exploit-suggester.sh** script runs privilege escalation checks to
-recommend kernel and packages privilege escalation exploits.  
-Script needs Bash in version 4.0 or newer. The linux-exploit-suggester.sh
-is maintained.  
-The script can be used off the targeted box, by gathering the OS, Kernel and
-installed packages versions:
+The `linux-exploit-suggester.sh` and `linux-exploit-suggester-2.pl` (evolution
+of `linux-exploit-suggester.pl`) are maintained scripts that check for publicly
+known vulnerabilities and exploits in the Linux kernel and installed packages of
+the target.
+
+The `linux-exploit-suggester.sh` script require `Bash` to be in version 4.0 or
+higher. The script can be used off the targeted box, by gathering the OS,
+Kernel and installed packages versions.
 
 ```
 (target box) $ uname -a
@@ -87,30 +94,14 @@ linux-exploit-suggester.sh --full --uname "<UNAME>" --pkglist-file <DPKGOUT_FILE
 Or directly on the targeted box:
 
 ```
-/linux-exploit-suggester.sh --full
+linux-exploit-suggester.sh --full
+
+linux-exploit-suggester.pl
 ```
 
-The **BeRoot.py** script enumerates common misconfigurations, with a bit more
-advanced checks (GTFOBins, NFS Root Squashing, etc.) details than LinEnum.sh.
-Embeds linux-exploit-suggester to give an overview of potential CVE that
-affect the kernel.
-
-```
-TODO
-```
-
-The **Linuxprivchecker.py** script enumerates the system configuration and,
-its true added value, runs privilege escalation checks to recommend kernel
-privilege escalation exploits.  
-The linux-exploit-suggester.py is not maintained.
-
-```
-python Linuxprivchecker.py
-```
-
-The **linux-soft-exploit-suggester** finds exploits for vulnerable packages in
+The `linux-soft-exploit-suggester` finds exploits for vulnerable packages in
 a Linux system. It focuses on software packages instead of Kernel
-vulnerabilities. It uses the exploit-db database to evaluate the security of
+vulnerabilities. It uses the `exploit-db` database to evaluate the security of
 packages and search for exploits, so an export of available exploits must be
 provided to the script:
 
@@ -123,6 +114,26 @@ python linux-soft-exploit-suggester.py --update
 [RedHat / CentOS / Fedora ] (target box) $ rpm -qa > <PACKAGE_LIST>
 
 python linux-soft-exploit-suggester.py --file <PACKAGE_LIST> --db files_exploits.csv
+```
+
+*Worth mentioning scripts*
+
+The `BeRoot.py` script enumerates common misconfigurations, with a bit more
+advanced checks (GTFOBins, NFS Root Squashing, etc.) details than `LinEnum.sh`.
+It additionally, embeds `linux-exploit-suggester` to give an overview of
+potential CVE that affect the kernel.
+
+However, `BeRoot.py` requires `Python` to be installed on the target and is not
+practical to use.
+
+*Outdated scripts*
+
+The `Linuxprivchecker.py` script enumerates the system configuration and runs
+ privilege escalation checks to recommend kernel privilege escalation exploits.  
+**The linux-exploit-suggester.py is not maintained anymore.**
+
+```
+python Linuxprivchecker.py
 ```
 
 ### File systems
