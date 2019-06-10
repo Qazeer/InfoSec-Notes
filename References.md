@@ -103,9 +103,17 @@ https://robszar.wordpress.com/2012/08/07/view-mremote-passwords-4/
 
 ### Linux
 
+###### Priv Esc - groups
+
+https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=299007
+
 ###### Priv Esc - Process
 
 proc man page
+
+###### Priv Esc - drivers mmap
+
+https://unix.stackexchange.com/questions/47208/what-is-the-difference-between-kernel-drivers-and-kernel-modules
 
 ###### Post Exploit
 
