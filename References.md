@@ -6,6 +6,7 @@
 
 https://stackoverflow.com/questions/18113651/powershell-remoting-policy-does-not-allow-the-delegation-of-user-credentials
 https://www.pdq.com/blog/secure-password-with-powershell-encrypting-credentials-part-1/
+https://blog.ropnop.com/using-credentials-to-own-windows-boxes-part-3-wmi-and-winrm/
 
 ###### Kerberoasting
 
