@@ -463,7 +463,7 @@ A TTY shell may be needed for an exploit to work and is required to make use of
 `sudo`. It is recommended to upgrade any shell obtained to TTY before
 attempting privileges escalation techniques.
 
-```
+```bash
 /bin/sh -i
 /bin/bash -i
 echo os.system('/bin/bash')
