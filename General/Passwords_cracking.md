@@ -197,6 +197,22 @@ The Linux utility `pdfcrack` can be used to crack password protecting PDF files.
 pdfcrack -w <WORDLIST> -f <PDF_FILE>
 ```
 
+###### Encrypted SSH private keys
+
+The Linux utilities `ssh2john`, packaged with the `John the Ripper Jumbo`
+community version, can be used to convert an encrypted SSH private key to a
+crackable hash by `john`.
+
+```
+ssh2john <SSH_PRIVKEY_ENC_FILE> > <SSH_HASH_FILE>
+```
+
+`Jumbo john` can then be used to crack the extracted hash.
+
+```
+john --wordlist=<WORDLIST> <SSH_HASH_FILE>
+```
+
 ###### Linux Unified Key Setup (LUKS)
 
 `hashcat` and `bruteforce-luks` can be used to crack LUKS encrypted disks:

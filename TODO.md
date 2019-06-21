@@ -35,3 +35,8 @@ Get-ChildItem C:\ -recurse -file |ForEach-Object {if($_ -match '.+?exe$') {Get-A
 WebApps - XSS - https://rastating.github.io/xss-chef/
 https://gist.github.com/HarmJ0y/fe676e3ceba74f22a28bd1b121182db7
 Windows - Post Exploit - Bypass Windows Credentials Guard
+AD - golden ticket mimikatz
+AD - user session hunting
+AD - trusts
+AD - DCSync & DCShadow
+AD - MS14-068
