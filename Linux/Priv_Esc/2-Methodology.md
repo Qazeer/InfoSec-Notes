@@ -361,6 +361,12 @@ The exploit sequence is as follow:
 
 3. Run the vulnerable SUID/SGID binary
 
+```
+TODO
+The secure_path value, if set, will be used as PATH environment variable for the commands you run using sudo.
+```
+
+
 ### Linux groups
 
 The membership of the compromised user to one of the groups listed below may,
