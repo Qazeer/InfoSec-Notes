@@ -34,6 +34,34 @@ python -c 'import os;  os.popen("ping -n 2 <IP> &");"
 [c for c in ().__class__.__base__.__subclasses__() if c.__name__ == 'catch_warnings'][0]()._module.__builtins__['__import__']('os').popen('ping -n 2 <IP>').read()
 ```
 
+###### Windows firewall rules
+
+The Windows firewall rules configured can be listed using the `netsh` `DOS`
+utility and the `Get-NetFirewallRule` `PowerShell` cmdlet.
+
+By default, three separate listings are present: `Domain profile` settings,
+`private profile` settings and `public profile` settings. A different profile
+can be applied to each network adapter. The `Domain profile` is applied if the
+machine is joined to an Active Directory domain while the `private profile` is
+applied if the network is identified by the user as a private network.
+Otherwise and by default, the `public profile` is applied.
+
+Windows blocks inbound connections and allows outbound connections for all
+profiles by default.
+
+```
+# Show the profile applied to each network adapter
+netsh advfirewall monitor show currentprofile
+
+# Windows Firewall state for all profile (Public / Domain / Private)
+netsh advfirewall show allprofiles
+Get-NetFirewallProfile
+
+# Show all rules for the given profile
+netsh advfirewall firewall show rule profile=<public | private | domain | any | ...> name=all
+Get-NetFirewallProfile -Name <Public | Private | Domain | * | ...> | Get-NetFirewallRule
+```
+
 ### Web shells
 
 A web shell is a script written in the supported language of the targeted web
