@@ -102,6 +102,19 @@ https://reverseengineering.stackexchange.com/questions/1935/how-to-handle-stripp
 http://cosine-security.blogspot.com/2011/06/stealing-password-from-mremote.html
 https://robszar.wordpress.com/2012/08/07/view-mremote-passwords-4/
 
+###### MSSQL
+
+https://hackingandsecurity.blogspot.com/2018/09/abusing-sql-server-trusts-in-windows.html
+https://alamot.github.io/mssql_shell/
+https://blog.netspi.com/get-sql-server-sysadmin-privileges-local-admin-powerupsql/
+https://docs.microsoft.com/fr-fr/sql/relational-databases/security/authentication-access/server-level-roles?view=sql-server-2017
+https://docs.microsoft.com/fr-fr/sql/relational-databases/security/authentication-access/database-level-roles?view=sql-server-2017
+https://dba.stackexchange.com/questions/199440/why-securityadmin-does-not-have-enough-permission
+https://blog.netspi.com/get-sql-server-sysadmin-privileges-local-admin-powerupsql/
+https://docs.microsoft.com/fr-fr/dotnet/framework/data/adonet/sql/customizing-permissions-with-impersonation-in-sql-server
+https://blog.netspi.com/hacking-sql-server-stored-procedures-part-2-user-impersonation/
+https://sqlity.net/en/1701/the-trustworthy-database-property-explained-part-2/
+
 ### Linux
 
 ###### Priv Esc - groups
