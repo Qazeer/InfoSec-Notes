@@ -40,3 +40,4 @@ AD - user session hunting
 AD - trusts
 AD - DCSync & DCShadow
 AD - MS14-068
+Linux - https://book.hacktricks.xyz/linux-unix/privilege-escalation/
