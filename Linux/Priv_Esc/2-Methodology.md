@@ -255,8 +255,10 @@ find / -user "<USERNAME>" -name "*" 2>/dev/null
 find / -readable -type f 2>/dev/null
 
 # Files accessible to a specific group the compromised user is a member of
-find / -group "<GROUP_NAME>" -name "*" -exec ls -ld {} \; 2>/dev/null | grep -v "total"
+find / -group "<GROUP_NAME>" -name "*" -exec ls -ld {} \; 2>/dev/null
+
 # Files added / modified between the specified dates (YYYY-MM-DD). Can be used to detect custom content added on the box after installation.
+find / ! -path "/proc/*" ! -path "/sys/*" -newermt "<START-DATE>" ! -newermt '<END-DATE>' -type f 2>/dev/null
 find / -newermt "<START-DATE>" ! -newermt '<END-DATE>' -type f 2>/dev/null
 find / -newermt "<START-DATE>" ! -newermt '<END-DATE>' 2>/dev/null
 find / -newermt "<START-DATE>" ! -newermt '<END-DATE>' -exec ls -lah {} \; 2>/dev/null
@@ -366,7 +368,6 @@ TODO
 The secure_path value, if set, will be used as PATH environment variable for the commands you run using sudo.
 ```
 
-
 ### Linux groups
 
 The membership of the compromised user to one of the groups listed below may,
@@ -396,7 +397,7 @@ the system operability and attain a certain level of covertness, the legitimate
 binary can be called at the end of the script.
 
 For example, the following commands can be used to hijack the specified binary
-and add the compromised user to the `sudoers` whenever root makes use the
+and add the compromised user to the `sudoers` whenever root makes use of the
 binary:
 
 ```bash

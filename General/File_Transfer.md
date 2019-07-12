@@ -167,7 +167,7 @@ certutil -decode tmp_file_base64.txt <OUTPUT_FILE>
 
 ```bash
 wget <URL>
-wget http:/<IP>:<PORT>/<FILE>
+wget http://<IP>:<PORT>/<FILE>
 wget -O <OUTPUT_FILE> http://<IP>:<PORT>t/<FILE>
 wget -r --no-parent -nH --reject "index.html*" http://<IP>:<PORT>/<DIR>
 ```
