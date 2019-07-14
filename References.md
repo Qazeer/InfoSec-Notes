@@ -25,6 +25,11 @@ https://jumpespjump.blogspot.com/2014/03/attacking-adobe-coldfusion.html
 http://www.pwnag3.com/2013/04/coldfusion-for-pentesters-part-2.html
 https://waycool.tech/coldfusion-data-source-decryption/
 
+###### WebApps - LDAP injections
+
+http://www.ldapexplorer.com/en/manual/109010000-ldap-filter-syntax.htm
+https://www.blackhat.com/presentations/bh-europe-08/Alonso-Parada/Whitepaper/bh-eu-08-alonso-parada-WP.pdf
+
 ###### WebApps - File upload
 
 https://www.owasp.org/index.php/Unrestricted_File_Upload
