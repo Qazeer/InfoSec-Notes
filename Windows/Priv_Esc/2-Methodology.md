@@ -9,9 +9,7 @@ refer to the `[General] Shells` note.
 “The more you look, the more you see.”  
 ― Pirsig, Robert M., Zen and the Art of Motorcycle Maintenance
 
-### Enumeration
-
-###### Basic enumeration
+### Basic enumeration
 
 The following commands can be used to grasp a better understanding of the
 current system:
@@ -33,7 +31,7 @@ current system:
 | **Writable directories** | dir /a-rd /s /b | | |
 | **Writable files** | dir /a-r-d /s /b | | | |
 
-###### Enumeration scripts
+### Enumeration scripts
 
 Most of the enumeration process detailed below can be automated using scripts.
 
@@ -58,9 +56,9 @@ meterpreter> powershell_import <POWERUP_PS1_FILE_PATH>
 meterpreter> powershell_execute <Invoke-CMD>
 ```
 
-*PowerSploit's PowerUp*
+###### PowerSploit's PowerUp
 
-The **PowerSploit's PowerUp** `Invoke-PrivescAudit` / `Invoke-AllChecks` and
+The PowerSploit's PowerUp `Invoke-PrivescAudit` / `Invoke-AllChecks` and
 enjoiz's `privesc.bat` or `privesc.ps1`scripts run a number of configuration
 checks:
   - Clear text passwords in files or registry  
@@ -86,13 +84,13 @@ Invoke-AllChecks
 Invoke-PrivescAudit
 ```
 
-*enjoiz privesc.bat / privesc.ps1*
+###### enjoiz privesc.bat / privesc.ps1
 
-Both the batch and PowerShell versions of the enjoiz privilege escalation script
-require `accesschk.exe` to present on the targeted machine (on the script
-directory). The script takes one or multiple user group(s) as parameter to
-test the configuration for. To retrieve the user groups of the compromised user,
-the Windows built-in `whoami /groups` can be used.
+Both the batch and PowerShell versions of the `enjoiz` privilege escalation
+script require `accesschk.exe` to present on the targeted machine (on the
+script directory). The script takes one or multiple user group(s) as parameter
+to test the configuration for. To retrieve the user groups of the compromised
+user, the Windows built-in `whoami /groups` can be used.
 
 ```
 privesc.bat "<USER_GROUP_1>" ["<USER_GROUP_N"]
@@ -100,10 +98,28 @@ privesc.bat "<USER_GROUP_1>" ["<USER_GROUP_N"]
 privesc.bat "Everyone Users" "Authenticated Users"
 ```   
 
-The **Windows Exploit Suggester - Next Generation** script compares a targets
-patch levels against the Microsoft vulnerability database in order to detect
-potential missing patches on the target. Refer to the "Unpatched system"
-section below for a detailed usage guide of the script.  
+###### Windows Exploit Suggester - Next Generation
+
+The `WES-NG` script compares a targets patch levels against the Microsoft
+vulnerability database in order to detect potential missing patches on the
+target. Refer to the `Unpatched system` section below for a detailed usage
+guide of the script.  
+
+###### Seatbelt
+
+`Seatbelt` is a C# tool that can be used to enumerate a number of security
+mechanisms of the target such as the PowerShell restrictions, audit
+and Windows Event Forwarding settings, registered antivirus, firewall
+rules, installed patches and last reboot events, etc.
+
+`Seatbelt` can also be used to gather interesting user data such as saved RDP
+connections files and putty SSH host keys, AWS/Google/Azure cloud credential
+files, browsers bookmarks and histories, etc.   
+
+```
+# Conduct system + user checks, with fully detailed results
+SeatBelt.exe all full
+```
 
 ### Physical access privileges escalation
 
