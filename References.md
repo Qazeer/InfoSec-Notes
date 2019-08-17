@@ -12,6 +12,15 @@ https://blog.ropnop.com/using-credentials-to-own-windows-boxes-part-3-wmi-and-wi
 
 https://www.harmj0y.net/blog/redteaming/kerberoasting-revisited/
 
+###### DACLs / ACEs exploit
+
+https://www.specterops.io/assets/resources/an_ace_up_the_sleeve.pdf
+https://wald0.com/?p=112
+https://blog.fox-it.com/2018/04/26/escalating-privileges-with-acls-in-active-directory/
+https://ired.team/offensive-security-experiments/active-directory-kerberos-abuse/abusing-active-directory-acls-aces
+https://www.ssi.gouv.fr/uploads/IMG/pdf/Audit_des_permissions_en_environnement_Active_Directory_article.pdf
+https://www.blackhat.com/docs/us-17/wednesday/us-17-Robbins-An-ACE-Up-The-Sleeve-Designing-Active-Directory-DACL-Backdoors-wp.pdf
+
 ### File transfer
 
 https://github.com/frizb/Windows-Privilege-Escalation
