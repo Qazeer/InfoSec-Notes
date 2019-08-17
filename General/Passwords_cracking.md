@@ -100,6 +100,7 @@ Hashcat usage:
 ```
 # Supported hash types, with a hash example
 # -m 500 for md5crypt
+# https://hashcat.net/wiki/doku.php?id=example_hashes
 hashcat --example-hashes
 
 hashcat [options] <HASH | HASH_FILE> [<WORDLIST | MASK>]
