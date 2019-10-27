@@ -196,6 +196,10 @@ of smbmount):
 
 mount -t cifs //<HOSTNAME | IP>//<SHARE> /mnt/<FOLDER> -o rw,guest,vers=1.0
 mount -t cifs //<HOSTNAME | IP>//<SHARE> /mnt/<FOLDER> -o rw,username=<USER>,password=<PASSWORD>,vers=1.0
+
+# In case of error: "mount error(112): Host is down", SMBv2 must be used
+mount -t cifs //<HOSTNAME | IP>//<SHARE> /mnt/<FOLDER> -o rw,user=Guest,vers=2.0
+mount -t cifs //<HOSTNAME | IP>//<SHARE> /mnt/<FOLDER> -o rw,user=<USER>,password=<PASSWORD>,vers=2.0
 ```
 
 From a Windows system, the `net` bultin can be used:
