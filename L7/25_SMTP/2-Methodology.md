@@ -101,6 +101,8 @@ misconfigured server.
 
 ### SMTP client
 
+###### Manual sender
+
 The `telnet` or `netcat` utilities can be used to send mail through a SMTP
 service:
 
@@ -116,4 +118,13 @@ MAIL FROM:<USERNAME>@<DOMAIN>
 RCPT TO:<USERNAME>@<DOMAIN>
 <DATA>
 .
+```
+
+###### Automated sender
+
+The `sendemail` utility can be used to send emails, optionally with file
+attachment(s), through an exposed SMTP service:
+
+```
+sendemail -t <RCPT_EMAIL> -f <FROM_EMAIL> -u '<MAIL_SUBJECT>' -m '<MAIL_BODY>' -s <SMTP_SERVER>[:<SMTP_PORT> [-a <FILE> [<FILE2> ...]]
 ```
