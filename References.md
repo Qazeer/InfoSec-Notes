@@ -107,6 +107,10 @@ https://ldapwiki.com/wiki/ANONYMOUS%20SASL%20Mechanism
 https://ldap.com/the-ldap-search-operation/
 https://docs.oracle.com/cd/E19476-01/821-0506/ldapsearch-examples.html
 
+###### SMB
+
+https://www.petri.com/how-to-get-ntfs-file-permissions-using-powershell
+
 ###### memcached
 
 https://lzone.de/cheat-sheet/memcached

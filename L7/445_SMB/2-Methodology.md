@@ -95,6 +95,43 @@ smbclient -U "" -N -L \\<HOSTNAME> -I <IP>
 smbclient -U <USERNAME> [--pw-nt-hash] ...
 ```
 
+###### Retrieve share files or directories ACL
+
+The Windows `icals` and the Linux `smbcacls` utilities as well as the
+PowerShell cmdlet `Get-Acl` can be used to retrieve the detailed ACL of
+shared files and directories.
+
+Note that `smbcacls` follows the same options input as `smbclient`.
+
+Unitary file / directory ACL retrieval:
+
+```
+smbcacls -N "\\\\<HOSTNAME | IP>\\<SHARE>" <FILE | DIRECTORY>
+smbcacls -U <USERNAME> [--pw-nt-hash] "\\\\<HOSTNAME | IP>\\<SHARE>" <FILE | DIRECTORY>
+
+# runas /user:Guest /Netonly powershell.exe
+icacls "\\<HOSTNAME | IP>\<SHARE>\<FILE | DIRECTORY>"
+```
+
+The following one-liner can be used on a Linux system to retrieve the ACL of a
+mounted share:
+
+```
+# Files and directories in the specified directory
+for i in $(/bin/ls /mnt/<LOCAL_MOUNT_POINT>/<DIRECTORY>); do echo "\n$i"; smbcacls -N "\\\\<HOSTNAME>\\<SHARE>\\<DIRECTORY>" $i 2>/dev/null; done
+
+# Recursively retrieve the ACL of all files and directories in the specified directory
+cd /mnt/<LOCAL_MOUNT_POINT>/<DIRECTORY>
+for i in $(/usr/bin/find *); do echo "\n$i"; smbcacls -N "\\\\<HOSTNAME>\\<SHARE>\\<DIRECTORY>" $i; done
+```
+
+The following PowerShell one-liner can be used to recursively retrieve the ACL
+of all files and directories in a share:
+
+```
+Get-ChildItem "\\"\\<HOSTNAME | IP>\<SHARE>" -Recurse | Get-ACL | Select-Object Path, Owner, AccessToString, Group | Format-List
+```
+
 ### List and search files
 
 Similarly as for shares listing, multiples tools can be used to access an
