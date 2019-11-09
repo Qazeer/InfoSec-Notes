@@ -48,3 +48,24 @@ the CSV:
 ```
 q -d '|' -H -O "SELECT FN_FileName,FilePath,FileSizeBytes,SI_FilePermission,SI_CTime,SI_ATime,SI_MTime,SI_RTime,FN_CTime,FN_ATime,FN_MTime,FN_RTime FROM <MFT_CSV_PATH> WHERE SI_CTime >= '<YYYY-MM-DD HH:mm:SS.0000000>' AND SI_CTime < '<<YYYY-MM-DD HH:mm:SS.9999999>' ORDER BY SI_CTime"
 ```
+
+###### PowerShell PowerForensics Get-ForensicFileRecord
+
+The PowerShell cmdlet `Get-ForensicFileRecord` of the `PowerForensics` suite
+parses the `$MFT` file and returns an array of FileRecord entries. By default,
+`Get-ForensicFileRecord` will parse the `$MFT` file on the C:\ drive.
+
+`Get-ForensicFileRecord` can be used to retrieve record for a specified file.
+
+```
+# Deploy the PowerShell PowerForensics module
+.\PowerForensics.psd1
+
+Get-ForensicFileRecord | Out-File <OUTPUT_FILE>
+Get-ForensicFileRecord -VolumeName <NTFS_VOLUME> | Out-File <OUTPUT_FILE>
+Get-ForensicFileRecord -MftPath <EXPORTED_MFT_PATH> | Out-File <OUTPUT_FILE>
+
+Get-ForensicFileRecord -Path <FILE_TO_GET_RECORD_OF>
+```
+
+### UsnJrnl
