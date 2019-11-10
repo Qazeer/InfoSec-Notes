@@ -704,21 +704,22 @@ In Windows NT operating systems, a Windows service is a computer program that
 operates in the background, similarly in concept to a Unix daemon.
 
 A Windows service must conform to the interface rules and protocols of the
-Service Control Manager, the component responsible for managing Windows
-services. Windows services can be configured to start with the operating system,
-manually or when an event occur.
+`Service Control Manager`, the component responsible for managing Windows
+services. Windows services can be configured to start with the operating
+system, manually or when an event occur.
 
 Vulnerabilities in a service configuration could be exploited to execute code
 under the privileges of the user starting the service, often
 NT AUTHORITY\SYSTEM.
 
-###### Services enumeration
+###### Windows services enumeration
 
 The Windows built-ins `sc` and `wmic` can be used to enumerate the services configured on
 the target system:
 
 ```
 # List services
+Get-WmiObject -Class win32_service | Select-Object Name, DisplayName, PathName, StartName, StartMode, State, TotalSessions, Description
 wmic service list config
 sc query
 
@@ -728,8 +729,6 @@ sc qc <SERVICE_NAME>
 # Service status / extended status
 sc query <SERVICE_NAME>
 sc queryex <SERVICE_NAME>
-
-Get-WmiObject -Class win32_service -Property Name,PathName
 ```
 
 ###### Weak services permissions
