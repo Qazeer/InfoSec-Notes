@@ -1,4 +1,4 @@
-# AutoStart Extensibility Point (ASEP)
+malicious# AutoStart Extensibility Point (ASEP)
 
 ### Sysinternals' Autoruns
 
@@ -289,3 +289,30 @@ ForEach ($NameSpace in "root\subscription","root\default") { Get-WMIObject -Name
 ForEach ($NameSpace in "root\subscription","root\default") { Get-WMIObject -Namespace $Namespace -Query "SELECT * FROM __EventConsumer" }
 ForEach ($NameSpace in "root\subscription","root\default") { Get-WMIObject -Namespace $Namespace -Query "SELECT * FROM __FilterToConsumerBinding" }
 ```
+
+### Legitimate startup PE hooking
+
+One of the most covert technique to implement persistence on a system is
+through the hooking of a legitimate `Portable Executable (PE)` (executable and
+DLL) that normally starts up after boot time or whenever an user logs in.  
+
+For example, malicious code can be injected into a legitimate binary using a
+PE infector such as `Shellter`. If done correctly, the injection will not alter
+the normal functioning of the legitimate binary and is likely to evade
+anti-virus detection. For even more stealthiness, the injection can be
+conducted in a DLL loaded by a legitimate program, as loaded DLL are not
+enumerated by the `Sysinternals`' `Autoruns` utility. An actually loaded DLL
+can be modified or the path of a loaded DLL may be hijacked.
+
+While PE injection invalidates the digital signature of the file, many
+legitimates PE are not digitally signed, or are signed by an unrecognized
+authority, and verifications of digital signatures are bound to raise an
+important volume of false-positives.
+
+Detecting PE hooking is a **difficult and fallible process**. An analysis of
+the NTFS partition's `$MFT` and `$UsnJrnl` entries can give information about
+the creation and modification of legitimate PE on the system. Refer to the
+`DFIR - Filesystem history` note for more information. Additionally, if the
+malware strain could be retrieved, a reverse engineering of its functionalities
+may permit the identification of `Indice of Compromise (IoC)` for later
+detection.         
