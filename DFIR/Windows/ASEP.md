@@ -18,7 +18,8 @@ files signed by known editors. The files appearing in yellow are usually
 missing and the files appearing in red are usually not digitally signed or
 not by a known editor.
 
-`Autoruns` DOES NOT check the loaded DLL, so   
+Note that `Autoruns` **DOES NOT check the loaded DLL** by the programs that are
+run from ASEP.   
 
 ###### CLI AutorunsC
 
@@ -39,7 +40,76 @@ Autorunsc.exe -a * -c -v -m -s -h
 Autorunsc.exe -a * -c -v -m -s -h -z <PARTITION_DRIVE_LETTER>
 ```
 
-### Scheduled tasks
+### ASEP registries keys
+
+Windows runs keys and services are registries entries that run whenever the
+system is booted or a specific user logs in. The ASEP
+`HKEY_LOCAL_MACHINE (HKLM)` keys are run every time the system is started while
+ASEP `HKEY_CURRENT_USER (HKCU)` keys are only executed when the user associated
+with the keys logs on to the system. Indeed, each user with a configured
+profile has an associated `HKCU\<USERNAME>` sub key, which contains the
+registries keys of the user.
+
+Each entry is composed of a key and an associated value that may contain a
+program, and the program arguments if any, to be run.
+
+The most commons ASEP keys can be automatically checked using the
+`SysInternals`' GUI `Autoruns` and CLI `AutorunsC` utilities. The `RECmd` CLI
+utility can also be used to access a predefined list of ASEP registries keys.
+The `RegistryASEPs.reb` enumerate a comprehensive list of nearly ASEP 500
+registry keys and 400 values. The results of `RECmd` can be analyzed using
+`Timeline Explorer`.
+
+```
+RECmd.exe -d <NTFS_VOLUME | FOLDER_CONTAINING_REGISTRY_HIVES> --bn .\BatchExamples\RegistryASEPs.reb --csv <OUTPUT_FOLDER>
+```
+
+The following run keys are commonly used for persistence:  
+
+```
+HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce
+HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnceEx
+HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunServices
+HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunServicesOnce
+HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Shell
+HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon
+HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\Notify
+HKLM\SOFTWARE\Policies\Microsoft\Windows\System\Scripts\Startup
+HKLM\SOFTWARE\Policies\Microsoft\Windows\System\Scripts\Logon
+HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\Shell
+HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\Userinit
+HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\Taskman
+HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows\Appinit_Dlls
+HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\SharedTaskScheduler
+HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run
+HKLM\SOFTWARE\Microsoft\Active Setup\Installed Components
+HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\ShellServiceObjectDelayLoad
+HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Browser Helper Objects
+HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\ShellExecuteHooks
+HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Approved
+HKLM\SOFTWARE\Microsoft\Internet Explorer\Toolbar
+HKLM\System\CurrentControlSet\Services
+
+HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce
+HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnceEx
+HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\RunServices
+HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\RunServicesOnce
+HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Shell
+HKCU\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon
+HKCU\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\Notify
+HKCU\SOFTWARE\Policies\Microsoft\Windows\System\Scripts\Startup
+HKCU\SOFTWARE\Policies\Microsoft\Windows\System\Scripts\Logon
+HKCU\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\Shell
+HKCU\SOFTWARE\Microsoft\Active Setup\Installed Components
+HKCU\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows\Load
+HKCU\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows\Run
+HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ShellServiceObjectDelayLoad
+HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run
+```
+
+### Windows scheduled tasks
 
 ```
 # Verbose - includes task name, task to run, status, hostname & logon mode, last run time, running user, periodicity, etc.
@@ -98,60 +168,54 @@ function Export-ScheduledTasksToCsv {
 }
 ```
 
-### ASEP registries
+### Windows services
 
-https://digital-forensics.sans.org/blog/2019/05/07/malware-persistence-recmd
+In Windows NT operating systems, a Windows service is a computer program that
+operates in the background, similarly in concept to a Unix daemon.
 
-Common:
+A Windows service must conform to the interface rules and protocols of the
+`Service Control Manager (SCM)`, the component responsible for managing Windows
+services. Windows services can be configured to start with the operating
+system, manually or when an event occur.
 
-```
-HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
-HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnceEx
-HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce
-HKLM\System\CurrentControlSet\Services
-HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\Notify
-HKLM\System\CurrentControlSet\Services\WinSock2\Parameters\Protocol_Catalog9
-HKCU\SOFTWARE\Policies\Microsoft\Windows\System\Scripts\Startup
-HKLM\SOFTWARE\Policies\Microsoft\Windows\System\Scripts\Startup
-HKCU\Software\Policies\Microsoft\Windows\System\Scripts\Logon
-HKLM\Software\Policies\Microsoft\Windows\System\Scripts\Logon
-HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\Userinit
-HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows\Appinit_Dlls
-HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\System\Shell
-HKCU\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\Shell
-HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\Shell
-HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\Shell
-HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\Taskman
-HKLM\SOFTWARE\Microsoft\Active Setup\Installed Components
-HKCU\SOFTWARE\Microsoft\Active Setup\Installed Components
-HKCU\Software\Microsoft\Windows NT\CurrentVersion\Windows\Load
-HKCU\Software\Microsoft\Windows NT\CurrentVersion\Windows\Run
-HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run
-HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\SharedTaskScheduler
-HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\ShellServiceObjectDelayLoad
-HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\ShellServiceObjectDelayLoad
-HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run
-HKCU\Software\Microsoft\Windows\CurrentVersion\Run
-HKCU\Software\Microsoft\Windows\CurrentVersion\RunOnce
-HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\Browser Helper Objects
-HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\ShellExecuteHooks
-HKLM\Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Approved
-HKLM\Software\Microsoft\Internet Explorer\Toolbar
-```
+Note that services are stored in the registry key
+`HKLM\SYSTEM\CurrentControlSet\Services`, listed as an ASEP run key in the
+`ASEP registries keys` section.
 
-### WMI
+The `Services` tab of the `Sysinternals`' `Autoruns` utility can be used to
+detect and delete service-related persistence. Information about the configured
+services can also be retrieved using `WMI`:
 
 ```
-Get-WMIObject -Namespace root\Subscription -Class __EventFilter
+Get-WmiObject -Class win32_service | Select-Object Name, DisplayName, PathName, StartName, StartMode, State, TotalSessions, Description
 
-Get-WMIObject -Namespace root\Subscription -Class __EventConsumer
-
-Get-WMIObject -Namespace root\Subscription -Class __FilterToConsumerBinding
+wmic service list config
 ```
 
+### WMI event subscriptions
 
-C:\Windows\System32\randomnumber\
-C:\Windows\System32\tasks\randomname
-C:\Windows\[randomname]
-C:\users[myusers]\appdata\roaming[random]
-%appdata%\Roaming\Microsoft\Windows\Start Menu\Programs\Startup [Randomname].LNK. file in the startup folder
+`Windows Management Instrumentation (WMI)` allows, through
+`Event Subscription`, to maintain persistence on a Windows system. Permanent
+`WMI` event subscriptions can be configured to persist across reboots.
+
+Permanent event subscriptions are composed of:
+  - An `event filter`, which is the event of interest that will trigger the
+  consumer. Such event can be, for example, a logon success or system startup.
+  - An `event consumer`, which is the action to perform upon trigger of the
+  event filter. Five Consumer classes are available, the
+  `ActiveScriptEventConsumer` and `CommandLineEventConsumer` classes allowing,
+  respectively, for the execution of a predefined script or an arbitrary
+  program, in the local system context.
+  - A `filter to consumer binding` which is the registration mechanism binding
+  an event filter to an event consumer.
+
+The `WMI` tab of the `Sysinternals`' `Autoruns` utility can be used to detect
+and delete WMI-related persistence. The WMI event subscriptions can also be
+enumerated with the PowerShell cmdlet `Get-WMIObject`:
+
+```
+# From PowerShell forensic framework Kansa
+ForEach ($NameSpace in "root\subscription","root\default") { Get-WMIObject -Namespace $Namespace -Query "SELECT * FROM __EventFilter" }
+ForEach ($NameSpace in "root\subscription","root\default") { Get-WMIObject -Namespace $Namespace -Query "SELECT * FROM __EventConsumer" }
+ForEach ($NameSpace in "root\subscription","root\default") { Get-WMIObject -Namespace $Namespace -Query "SELECT * FROM __FilterToConsumerBinding" }
+```
