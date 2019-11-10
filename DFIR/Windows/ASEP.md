@@ -40,6 +40,67 @@ Autorunsc.exe -a * -c -v -m -s -h
 Autorunsc.exe -a * -c -v -m -s -h -z <PARTITION_DRIVE_LETTER>
 ```
 
+### Windows startup folders
+
+The Windows startup folders contains shortcut links (`.lnk`) that will be
+executed upon any user log in (`All Users` start up folder) or when the
+associated user logs in (`Current Users` start up folders).
+
+```
+# All Users startup folder
+C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup
+
+# Current Users startup folders
+C:\Users\<USERNAME>\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
+```
+
+The `Everything` tab of the `Sysinternals`' `Autoruns` utility can be used to
+enumerate the programs starting through Windows startup folders. The
+following PowerShell script may be used as well.
+
+Usage:
+
+```
+. .\Get-StartupFoldersLnkTargets.ps1
+
+Get-StartupFoldersLnkTargets
+```
+
+```
+<#
+    .SYNOPSIS
+        Get all the starting programs through start up folders  
+
+    .DESCRIPTION
+      Enumerate all the startup folders lnk using Get-ChildItem and retrieve the lnk targets  
+
+    .EXAMPLE
+        Get-StartupFoldersLnk
+#>
+
+function Get-StartupFoldersLnkTargets {
+    $Shell = New-Object -ComObject WScript.Shell
+
+    Get-ChildItem -Force "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup\*.lnk" | ForEach-Object {
+        [pscustomobject]@{
+            LnkFullPath = $_.FullName
+            LnkTarget = $Shell.CreateShortcut($_).TargetPath
+        }
+    }
+
+
+    $Usernames = get-childitem C:\Users | Select-Object -ExpandProperty  Name
+    foreach ($Username in $Usernames) {			
+	    Get-ChildItem -ErrorAction SilentlyContinue -Force "C:\Users\$Username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\*.lnk" | ForEach-Object {
+            [pscustomobject]@{
+                LnkFullPath = $_.FullName
+                LnkTarget = $Shell.CreateShortcut($_).TargetPath
+            }
+        }
+    }
+}
+```
+
 ### ASEP registries keys
 
 Windows runs keys and services are registries entries that run whenever the
@@ -111,6 +172,15 @@ HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run
 
 ### Windows scheduled tasks
 
+Scheduled tasks are used to automatically perform a task on the system whenever
+the criteria associated to the scheduled task occurs. The scheduled tasks can
+either be run at a defined time, on repeat at set intervals, or when a specific
+event occurs, such as the system boot.
+
+The `Scheduled Tasks` tab of the `Sysinternals`' `Autoruns` utility can be used
+to enumerate the programs starting through Windows scheduled taks. The
+following DOS and PowerShell utilities may be used as well.
+
 ```
 # Verbose - includes task name, task to run, status, hostname & logon mode, last run time, running user, periodicity, etc.
 schtasks /query /fo LIST /v
@@ -138,10 +208,10 @@ function Export-ScheduledTasksToCsv {
 
     <#
     .SYNOPSIS
-    Export the configured scheduled tasks to a csv using Get-ScheduledTask and Get-ScheduledTaskInfo
+      Export the configured scheduled tasks to a csv using Get-ScheduledTask and Get-ScheduledTaskInfo
 
     .PARAMETER OutCsv
-    File to export the CSV
+      File to export the CSV
 
     #>
 

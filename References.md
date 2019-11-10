@@ -175,9 +175,10 @@ https://digital-forensics.sans.org/media/dfir_poster_2014.pdf
 
 ###### ASEP
 
+http://www.fuzzysecurity.com/tutorials/19.html
 https://digital-forensics.sans.org/blog/2019/04/29/offline-autoruns-revisited
 
 ###### Filesystem history
 
 http://forensicinsight.org/wp-content/uploads/2013/07/F-INSIGHT-Advanced-UsnJrnl-Forensics-English.pdf
-https://countuponsecurity.com/2017/05/25/digital-forensics-ntfs-change-journal/ 
+https://countuponsecurity.com/2017/05/25/digital-forensics-ntfs-change-journal/
