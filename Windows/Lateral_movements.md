@@ -220,7 +220,11 @@ Note that:
 
 ###### WMI
 
-Windows Management Instrumentation
+The `Windows Management Instrumentation (WMI)`  
+
+`WMI` rely on two protocols when used over the network: `DCOM` (by default) and
+`WinRM`. DCOM establishes an initial connection over TCP port 135 and any
+subsequent data is then exchanged over a randomly selected TCP port.
 
 ```
 WMIC /NODE:<HOSTNAME | IP> COMPUTERSYSTEM GET USERNAME

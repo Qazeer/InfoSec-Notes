@@ -192,3 +192,4 @@ https://support.microsoft.com/en-us/help/251192/how-to-create-a-windows-service-
 https://posts.specterops.io/offensive-lateral-movement-1744ae62b14f
 https://docs.microsoft.com/fr-fr/windows/win32/winrm/portal
 https://docs.microsoft.com/fr-fr/windows/win32/wmisdk/wmi-start-page
+https://www.blackhat.com/docs/us-15/materials/us-15-Graeber-Abusing-Windows-Management-Instrumentation-WMI-To-Build-A-Persistent%20Asynchronous-And-Fileless-Backdoor-wp.pdf
