@@ -3,9 +3,9 @@
 ### Overview
 
 Windows Remote Management (`WinRM`) is the Microsoft implementation of
-WS-Management Protocol, a standard Simple Object Access Protocol (`SOAP`)-based,
-protocol that allows hardware and operating systems, from different vendors, to
-interoperate.
+WS-Management Protocol, a standard Simple Object Access Protocol
+(`SOAP`)-based, protocol that allows hardware and operating systems, from
+different vendors, to interoperate.
 
 `WinRM` can be used to perform various management tasks remotely, including,
 but not limited to, running batch and `PowerShell` commands or scripts.
@@ -61,4 +61,4 @@ msf> use auxiliary/scanner/winrm/winrm_login
 ### Remote commands execution
 
 To execute commands through `WinRM` using known credentials, refer to the
-`Active Directory - Credentials theft shuffle` note.
+`Windows - Lateral movements` note.

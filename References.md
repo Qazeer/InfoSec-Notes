@@ -182,3 +182,13 @@ https://digital-forensics.sans.org/blog/2019/04/29/offline-autoruns-revisited
 
 http://forensicinsight.org/wp-content/uploads/2013/07/F-INSIGHT-Advanced-UsnJrnl-Forensics-English.pdf
 https://countuponsecurity.com/2017/05/25/digital-forensics-ntfs-change-journal/
+
+### Windows
+
+###### Lateral movements
+
+https://ss64.com/nt/sc.html
+https://support.microsoft.com/en-us/help/251192/how-to-create-a-windows-service-by-using-sc-exe
+https://posts.specterops.io/offensive-lateral-movement-1744ae62b14f
+https://docs.microsoft.com/fr-fr/windows/win32/winrm/portal
+https://docs.microsoft.com/fr-fr/windows/win32/wmisdk/wmi-start-page
