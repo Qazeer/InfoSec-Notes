@@ -1,4 +1,4 @@
-determine# Windows - Local Privilege Escalation
+# Windows - Local privilege escalation
 
 The following note assumes that a low privilege shell could be obtained on the
 target.
@@ -710,7 +710,7 @@ system, manually or when an event occur.
 
 Vulnerabilities in a service configuration could be exploited to execute code
 under the privileges of the user starting the service, often
-NT AUTHORITY\SYSTEM.
+`NT AUTHORITY\SYSTEM`.
 
 ###### Windows services enumeration
 
