@@ -23,6 +23,10 @@ https://ired.team/offensive-security-experiments/active-directory-kerberos-abuse
 https://www.ssi.gouv.fr/uploads/IMG/pdf/Audit_des_permissions_en_environnement_Active_Directory_article.pdf
 https://www.blackhat.com/docs/us-17/wednesday/us-17-Robbins-An-ACE-Up-The-Sleeve-Designing-Active-Directory-DACL-Backdoors-wp.pdf
 
+###### Passwords spraying
+
+https://social.technet.microsoft.com/Forums/ie/en-US/79978325-549e-42b3-a532-1e26775982bf/how-to-reset-badpwdcount-value?forum=winserverDS
+
 ### File transfer
 
 https://github.com/frizb/Windows-Privilege-Escalation
@@ -195,3 +199,10 @@ https://posts.specterops.io/offensive-lateral-movement-1744ae62b14f
 https://docs.microsoft.com/fr-fr/windows/win32/winrm/portal
 https://docs.microsoft.com/fr-fr/windows/win32/wmisdk/wmi-start-page
 https://www.blackhat.com/docs/us-15/materials/us-15-Graeber-Abusing-Windows-Management-Instrumentation-WMI-To-Build-A-Persistent%20Asynchronous-And-Fileless-Backdoor-wp.pdf
+
+###### Post exploitation
+
+https://docs.microsoft.com/en-us/windows/security/identity-protection/credential-guard/credential-guard-manage
+https://blogs.technet.microsoft.com/ash/2016/03/02/windows-10-device-guard-and-credential-guard-demystified/
+https://medium.com/@markmotig/some-ways-to-dump-lsass-exe-c4a75fdc49bf
+https://yungchou.wordpress.com/2016/03/14/an-introduction-of-windows-10-credential-guard/
