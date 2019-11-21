@@ -144,4 +144,6 @@ nmap -v -Pn -sV -sC -oA "<OUTPUTNAME>" -p $ports -iL <FILENAME>
      ```
      ```
 
+  X. RDP BlueKeep
+  
   X. Review Nessus RCE scan results
