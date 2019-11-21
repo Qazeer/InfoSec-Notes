@@ -111,6 +111,24 @@ nmap -v -Pn -sV -sC -oA "<OUTPUTNAME>" -p $ports -iL <FILENAME>
      Plugins -> Only keep "Backdoors", "Gain a shell remotely" and "Service detection" enabled
      ```
 
+  x. Alternatively or in addition, the `Sn1per Community Edition` automated
+  scanner can be used as well.
+
+  The `NUKE` mode will launch a full audit of multiple hosts specified in text
+  file including:
+    - full ports scan
+    - sub-domains brute force and `DNS` zone transfers
+    - anonymous `FTP` / `LDAP` access, `SMB` NULL sessions and `SNMP` community
+    strings
+    - Web scan using `WPScan`, `Arachni` and `Nikto` for all detected web
+    services
+
+  ```
+  sniper --update
+
+  sniper -f <TARGETS_FILE> nuke
+  ```
+
   X. SMB RCE vulnerabilities, notably EternalBlue & SambaCry, detection and
      exploitation
 
@@ -145,5 +163,5 @@ nmap -v -Pn -sV -sC -oA "<OUTPUTNAME>" -p $ports -iL <FILENAME>
      ```
 
   X. RDP BlueKeep
-  
+
   X. Review Nessus RCE scan results
