@@ -259,6 +259,7 @@ The following events could be indicator of persistence on the system:
 | Security | 4722 | `A user account enabled`, logged both for local SAM accounts and domain accounts and is always logged after a Security event `4720 - user account creation`. |
 | Security | 4723 | `An attempt was made to change an account's password`. Logged both for local SAM accounts and domain accounts when an user attempts to change his/her own password. This event is logged only if the user entered his/her correct password and reported as a failure if his/her new password fails to meet the password policy. Includes the SID, domain, username and `Logon ID` of the user that performed the password change. |
 | Security | 4724 | `An attempt was made to reset an accounts password`. Logged both for local SAM accounts and domain accounts when an user attempts to change another user password. This event is logged only if the user correct password is specified, the user attempting the password reset as the necessary permissions to do so, and reported as a failure if his/her new password fails to meet the password policy. Includes the SID, domain, username and `Logon ID` of the user that performed the password change. |
+| Security | 4670 | `Permissions on an object were changed`. This event generates when the permissions for an object are changed
 | Security | 4738 | `A user account was changed`. Logged both for local SAM accounts and domain accounts when an user object attributes are modified. The old and new value for the updated attribute is logged. If all attributes are marked as "-", an update on a attribute that is not listed in the event log or a modification on the user DACL object has occurred. The `AD - Exploiting DACL` note can be consulted for more information on exploitable DACL on user principal object.<br/> In addition to a potential modification on the user object DACL, this event can be used to detect the following persistence means:<br/>  - addition of SID in the `SID History` of an user<br/>  - disabling of Kerberos `Require Preauth` to make the account vulnerable to `ASREPRoast`.<br/>  |
 | Security | 4732 | `A member was added to a security-enabled local group`. Logged on domain controllers for Active Directory domain local groups and member computer for local SAM groups. |
 | System   | 7030 | `Basic Service Operations`. Occurs when a service is configured as an interactive, which is not supported since Windows Vista and Windows Server 2008 (du to security risks posed by interactive services). |
@@ -266,6 +267,6 @@ The following events could be indicator of persistence on the system:
 | System   | 7040 | Service start type was changed |  
 | System   | 1056 | DHCP server oddities |
 
-### ELK integration
+TODO 4670 and 4662
 
-TODO
+### ELK integration
