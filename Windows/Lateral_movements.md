@@ -220,11 +220,17 @@ Note that:
 
 ###### WMI
 
-The `Windows Management Instrumentation (WMI)`  
+The `Windows Management Instrumentation (WMI)` is a Microsoft suite of tools
+used to retrieve management data and manage Windows assets both locally and
+over the network.  
 
 `WMI` rely on two protocols when used over the network: `DCOM` (by default) and
 `WinRM`. DCOM establishes an initial connection over TCP port 135 and any
 subsequent data is then exchanged over a randomly selected TCP port.
+
+`WMI` is divided in a collection of predefined classes. The `Win32_Process`
+class can be used to start a process and the `Win32_Product` class can be used
+to install an MSI installer package, both locally and remotely.
 
 ```
 WMIC /NODE:<HOSTNAME | IP> COMPUTERSYSTEM GET USERNAME
