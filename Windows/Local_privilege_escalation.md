@@ -9,7 +9,7 @@ refer to the `[General] Shells` note.
 “The more you look, the more you see.”  
 ― Pirsig, Robert M., Zen and the Art of Motorcycle Maintenance
 
-### Basic enumeration
+### Basic enumeration 
 
 The following commands can be used to grasp a better understanding of the
 current system:
@@ -1109,15 +1109,15 @@ whoami /priv | findstr /i /C:"SeImpersonatePrivilege" /C:"SeAssignPrimaryPrivile
 ```
 
 The following tokens can be exploited to gain SYSTEM access privileges:
-- SeImpersonatePrivilege
-- SeAssignPrimaryPrivilege
-- SeTcbPrivilege
-- SeBackupPrivilege
-- SeRestorePrivilege
-- SeCreateTokenPrivilege
-- SeLoadDriverPrivilege
-- SeTakeOwnershipPrivilege
-- SeDebugPrivilege
+- `SeImpersonatePrivilege`
+- `SeAssignPrimaryPrivilege`
+- `SeTcbPrivilege`
+- `SeBackupPrivilege`
+- `SeRestorePrivilege`
+- `SeCreateTokenPrivilege`
+- `SeLoadDriverPrivilege`
+- `SeTakeOwnershipPrivilege`
+- `SeDebugPrivilege`
 
 ###### Juicy Potato
 
