@@ -27,6 +27,20 @@ https://www.blackhat.com/docs/us-17/wednesday/us-17-Robbins-An-ACE-Up-The-Sleeve
 
 https://social.technet.microsoft.com/Forums/ie/en-US/79978325-549e-42b3-a532-1e26775982bf/how-to-reset-badpwdcount-value?forum=winserverDS
 
+###### ACL
+
+https://docs.microsoft.com/en-us/windows/win32/secauthz/access-control-lists
+
+###### GPO users rights / GPO exploitation
+
+https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-xp/bb457125(v=technet.10)?redirectedfrom=MSDN
+https://adsecurity.org/?p=3658
+https://wald0.com/?p=179
+https://www.harmj0y.net/blog/redteaming/abusing-gpo-permissions/
+https://www.ssi.gouv.fr/uploads/IMG/pdf/Lucas_Bouillot_et_Emmanuel_Gras_-_Chemins_de_controle_Active_Directory.pdf
+https://labs.f-secure.com/tools/sharpgpoabuse
+https://blogs.technet.microsoft.com/musings_of_a_technical_tam/2012/02/15/group-policy-basics-part-2-understanding-which-gpos-to-apply/
+
 ### File transfer
 
 https://github.com/frizb/Windows-Privilege-Escalation
