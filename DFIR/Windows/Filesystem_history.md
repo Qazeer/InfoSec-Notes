@@ -27,11 +27,13 @@ SANS `Windows Forensic Analysis` poster:
 
 ###### Mft2Csv
 
-The `Mft2Csv` tool can parse, decode and log information from the MFT to a CSV
 file. It supports getting the `$MFT` from a variety of sources and notably:
+The `Mft2Csv` tool can parse, decode and log information from the MFT to a CSV
   - a raw/dd image of disk or partition
   - an extracted `$MFT` file
   - a live host
+
+Note that `Mft2Csv` can only output in one format at a time.
 
 ```
 # Get machine time zone
@@ -60,6 +62,7 @@ parses the `$MFT` file and returns an array of FileRecord entries. By default,
 ```
 # Deploy the PowerShell PowerForensics module
 .\PowerForensics.psd1
+Import-Module .\PowerForensics.psd1
 
 Get-ForensicFileRecord | Out-File <OUTPUT_FILE>
 Get-ForensicFileRecord -VolumeName <NTFS_VOLUME> | Out-File <OUTPUT_FILE>

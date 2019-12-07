@@ -1,4 +1,4 @@
-malicious# AutoStart Extensibility Point (ASEP)
+# AutoStart Extensibility Point (ASEP)
 
 ### Sysinternals' Autoruns
 

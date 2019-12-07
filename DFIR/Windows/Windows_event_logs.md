@@ -247,6 +247,18 @@ Artifact : Task Scheduler Event Log(since win7)
 
   -> Error message / Host Application
 
+### Lateral movements
+
+Windows Security Log Event ID 4648
+`4648: A logon was attempted using explicit credentials`
+Logged on client. Includes information about the target server:
+`Target Server Name` (hostname or IP) and `Additional Information` of the
+service requested.
+
+Windows Security Log Event ID 4624
+`4624: An account was successfully logged on`
+Logged on server. Includes information about the logon type.
+
 ###### Persistence mechanisms
 
 Location: victim `Security` and `System` hives.
@@ -264,9 +276,14 @@ The following events could be indicator of persistence on the system:
 | Security | 4732 | `A member was added to a security-enabled local group`. Logged on domain controllers for Active Directory domain local groups and member computer for local SAM groups. |
 | System   | 7030 | `Basic Service Operations`. Occurs when a service is configured as an interactive, which is not supported since Windows Vista and Windows Server 2008 (du to security risks posed by interactive services). |
 | System   | 7045,4697 | `A service was installed in the system`. |
+| System   | 7035, 7036 | `The <SERVICE_NAME> service was successfully sent a <start/stop> control.` and `The <SERVICE_NAME> service entered the <running/stopped> state.` A run / stop signal is sent then the service is effectively started / stopped. |
+| Security | 4697 | `A service was installed in the system` from Windows Server 2016 and Windows 10 |
 | System   | 7040 | Service start type was changed |  
 | System   | 1056 | DHCP server oddities |
 
 TODO 4670 and 4662
+
+Windows Security Log Event ID 4657: A registry value was modified
+this event will only be logged if the key's audit policy is enabled for Set Value permission for the appropriate user or a group in the user is a member.
 
 ### ELK integration
