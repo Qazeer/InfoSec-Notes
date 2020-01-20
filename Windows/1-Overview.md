@@ -26,3 +26,25 @@ Releases:
 | 6.2 | 9200 | Windows 8 <br/> Windows Server 2012 |
 | **6.3** | **9600** | Windows 8.1 <br/> **Windows Server 2012 R2** |
 | **10.0** | 10240 (TH1) / 10586 (TH2) <br/> 14393 (RS1) / 15063 (RS2) / 16299 (RS3) / 17134 (RS4) / 17763 (RS5) | Windows 10 <br/> Windows Server 2016 |
+
+---------------------------------------------------------------------------------------------------------------------------
+
+### SRP: Protecting Windows Folder in Windows 10
+List of Windows writable path :
+```
+C:\Windows\tracing
+C:\Windows\Registration\CRMLog
+C:\Windows\System32\FxsTmp
+C:\Windows\System32\com\dmp
+C:\Windows\System32\spool\PRINTERS
+C:\Windows\System32\spool\SERVERS
+C:\Windows\System32\drivers\color
+C:\Windows\System32\Tasks
+C:\Windows\SysWOW64\FxsTmp
+C:\Windows\SysWOW64\com\dmp
+C:\Windows\SysWOW64\Tasks
+C:\Windows\Tasks
+C:\Windows\Temp
+```
+
+[Source](https://malwaretips.com/threads/srp-protecting-windows-folder-in-windows-10.80283/)
