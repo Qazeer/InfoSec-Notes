@@ -57,12 +57,42 @@ xfreerdp /u:<USERNAME> /d:<DOMAIN> /pth:<HASH> /v:<HOST | IP>
 
 ### Known vulnerabilities
 
-Nmap and metasploit can be used to check for the following exploits:
+`nmap` can be used to check for the CVE-2012-0002 / MS12-020 exploit.
+The `Metasploit`'s `auxiliary/scanner/rdp/cve_2019_0708_bluekeep` module and `rdpscan` can be used to scan for BlueKeep CVE-2019-0708
 
 ```
+# BlueKeep CVE-2019-0708
+msf> use auxiliary/scanner/rdp/cve_2019_0708_bluekeep
+# set RHOSTS file:<PATH>
+# set THREADS <THREADS_NUMBER>
+
+rdpscan.exe --file E:\Keolis\1-Wales\1-Pentest\hosts\IP.txt
+
 # CVE-2012-0002 / MS12-020
 nmap -v -p 3389 --script rdp-vuln-ms12-020 <HOST>
 msf> use auxiliary/scanner/rdp/ms12_020_check
+```
+
+###### BlueKeep CVE-2019-0708
+
+An heap corruption can occur in the RDP protocol that allows for arbitrary code
+execution at the system level pre-authentication.
+
+Microsoft identified the following Windows versions as vulnerable:
+  - Windows XP
+  - Windows Vista
+  - Windows 7
+  - Windows Server 2003
+  - Windows Server 2008
+  - Windows Server 2008 R2
+
+Windows versions newer than Windows 7 and Windows Server 2012 are not vulnerable.
+
+The `Metasploit` module `exploit/windows/rdp/cve_2019_0708_bluekeep_rce` can be
+used to exploit the vulnerability. Note that the exploit is not yet polished.
+
+```
+msf> use exploit/windows/rdp/cve_2019_0708_bluekeep_rce
 ```
 
 ###### CVE-2012-0002 / MS12-020

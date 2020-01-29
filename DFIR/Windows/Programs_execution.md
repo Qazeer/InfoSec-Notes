@@ -13,6 +13,37 @@ PECmd -d <DIRECTORY>
 PECmd -f <PF_FILE>
 ```
 
+### Application Compatibility Cache (Shimcache)
+
+Tracks the executables file name, file size, last modified time,
+and in Windows XP the last update time.
+
+Location
+`HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\AppCompatibility\AppCompatCache`
+or `HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\AppCompatCache\AppCompatCache`.
+
+The "LastModifiedTime" corresponds to a `$Standard_Information` "Last Modified"
+time.
+
+https://www.fireeye.com/blog/threat-research/2015/06/caching_out_the_val.html
+
+```
+# Deploy the PowerShell PowerForensics module
+.\PowerForensics.psd1
+Import-Module .\PowerForensics.psd1
+
+Get-ForensicShimcache | Out-File <OUTPUT_FILE>
+
+# Live
+AppCompatCacheParser.exe -t --csv <OUTPUT_FOLDER>
+# From hive
+AppCompatCacheParser.exe -t -h <SYSTEM_HIVE_FILE> --csv <OUTPUT_FOLDER>
+
+python ShimCacheParser.py --local -o <OUTPUT_FILE>
+python ShimCacheParser.py --hive <SYSTEM_HIVE_FILE> -o <OUTPUT_FILE>
+python ShimCacheParser.py --reg <REG_FILE> -o <OUTPUT_FILE>
+```
+
 ### Amcache
 
 ProgramDataUpdater (a task associated with the Application
@@ -31,6 +62,7 @@ https://www.ssi.gouv.fr/uploads/2019/01/anssi-coriin_2019-amcache_investigation.
 ```
 # Deploy the PowerShell PowerForensics module
 .\PowerForensics.psd1
+Import-Module .\PowerForensics.psd1
 
 # Default to C:\Windows\AppCompat\Programs\Amcache.hve
 Get-ForensicAmcache | Out-File <OUTPUT_FILE>
@@ -39,32 +71,8 @@ Get-ForensicAmcache -HivePath <EXPORTED_HIVE_PATH> | Out-File <OUTPUT_FILE>
 AmcacheParser.exe -f "<HIVE_PATH>" -i on --csv <OUTPUTDIR_PATH>
 ```
 
-### Shimcache
+### RecentFilecache
 
-Tracks the executables file name, file size, last modified time,
-and in Windows XP the last update time.
+RecentFilecache.bcf
 
-Location
-`HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\AppCompatibility\AppCompatCache`
-or `HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\AppCompatCache\AppCompatCache`.
-
-The "LastModifiedTime" corresponds to a `$Standard_Information` "Last Modified"
-time.
-
-https://www.fireeye.com/blog/threat-research/2015/06/caching_out_the_val.html
-
-```
-# Deploy the PowerShell PowerForensics module
-.\PowerForensics.psd1
-
-Get-ForensicShimcache | Out-File <OUTPUT_FILE>
-
-# Live
-AppCompatCacheParser.exe -s <OUTPUT_FOLDER>
-# From hive
-AppCompatCacheParser.exe -s <OUTPUT_FOLDER> -h <SYSTEM_HIVE>
-
-python ShimCacheParser.py --local -o <OUTPUT_FILE>
-python ShimCacheParser.py --hive <SYSTEM_HIVE> -o <OUTPUT_FILE>
-python ShimCacheParser.py --reg <REG_FILE> -o <OUTPUT_FILE>
-```
+Only Windows 7 and Windows Server 2008 R2.

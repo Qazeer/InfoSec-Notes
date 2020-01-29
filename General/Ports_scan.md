@@ -87,6 +87,18 @@ $WarningPreference = 'SilentlyContinue'; Get-Content <FILE_PATH> | ForEach-Objec
 "<LIST_IP>".Split(",") | ForEach { foreach ($port in 1..65355) { echo ((new-object Net.Sockets.TcpClient).Connect("$_",$port)) "[OPEN] Port $_ : $port"}} 2>$null
 ```
 
+The cmdlet `Invoke-Portscan`, supporting  `nmap`-like arguments, can be used:
+
+```
+Invoke-Portscan -TopPorts 1000 -Hosts "<IP> | <FQDN> | <CIDR> | <RANGE> | <COMMA_LIST_HOSTNAMES" -oA "<FILEOUT>"
+Invoke-Portscan -p- -Hosts "<IP> | <FQDN> | <CIDR> | <RANGE> | <COMMA_LIST_HOSTNAMES" -oA "<FILEOUT>"
+Invoke-Portscan -f -noProgressMeter -quiet -Pn -p- -iL "<HOSTNAMES_FILE | IP_FILE>" -oA "<FILEOUT>"
+
+# AD enrolled computers into ports scan
+Get-NetComputer -ComputerName "*" | Out-File -Force -FilePath "<OUTFILE_HOSTNAMES>"
+Invoke-Portscan -f -noProgressMeter -quiet -Pn -p "<COMMA_LIST_PORTS>" -iL "<OUTFILE_HOSTNAMES>" -oA "<FILEOUT>"
+```
+
 ### Asynchronous and stateless ports scan
 
 The tools `ZMap`, `MASSCAN` and `Unicornscan` can be used to quickly scan

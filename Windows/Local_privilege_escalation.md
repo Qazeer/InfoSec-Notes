@@ -1,4 +1,4 @@
-determine# Windows - Local Privilege Escalation
+# Windows - Local privilege escalation
 
 The following note assumes that a low privilege shell could be obtained on the
 target.
@@ -9,7 +9,7 @@ refer to the `[General] Shells` note.
 “The more you look, the more you see.”  
 ― Pirsig, Robert M., Zen and the Art of Motorcycle Maintenance
 
-### Basic enumeration
+### Basic enumeration 
 
 The following commands can be used to grasp a better understanding of the
 current system:
@@ -710,7 +710,7 @@ system, manually or when an event occur.
 
 Vulnerabilities in a service configuration could be exploited to execute code
 under the privileges of the user starting the service, often
-NT AUTHORITY\SYSTEM.
+`NT AUTHORITY\SYSTEM`.
 
 ###### Windows services enumeration
 
@@ -1109,15 +1109,15 @@ whoami /priv | findstr /i /C:"SeImpersonatePrivilege" /C:"SeAssignPrimaryPrivile
 ```
 
 The following tokens can be exploited to gain SYSTEM access privileges:
-- SeImpersonatePrivilege
-- SeAssignPrimaryPrivilege
-- SeTcbPrivilege
-- SeBackupPrivilege
-- SeRestorePrivilege
-- SeCreateTokenPrivilege
-- SeLoadDriverPrivilege
-- SeTakeOwnershipPrivilege
-- SeDebugPrivilege
+- `SeImpersonatePrivilege`
+- `SeAssignPrimaryPrivilege`
+- `SeTcbPrivilege`
+- `SeBackupPrivilege`
+- `SeRestorePrivilege`
+- `SeCreateTokenPrivilege`
+- `SeLoadDriverPrivilege`
+- `SeTakeOwnershipPrivilege`
+- `SeDebugPrivilege`
 
 ###### Juicy Potato
 

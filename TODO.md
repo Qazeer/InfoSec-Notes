@@ -41,3 +41,5 @@ AD - trusts
 AD - DCSync & DCShadow
 AD - MS14-068
 Linux - https://book.hacktricks.xyz/linux-unix/privilege-escalation/
+
+https://www.tarlogic.com/en/blog/abusing-seloaddriverprivilege-for-privilege-escalation/

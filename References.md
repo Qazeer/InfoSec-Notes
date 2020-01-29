@@ -7,10 +7,12 @@
 https://stackoverflow.com/questions/18113651/powershell-remoting-policy-does-not-allow-the-delegation-of-user-credentials
 https://www.pdq.com/blog/secure-password-with-powershell-encrypting-credentials-part-1/
 https://blog.ropnop.com/using-credentials-to-own-windows-boxes-part-3-wmi-and-winrm/
+https://powersploit.readthedocs.io/en/latest/Recon/Find-DomainUserLocation/
 
 ###### Kerberoasting
 
 https://www.harmj0y.net/blog/redteaming/kerberoasting-revisited/
+https://github.com/GhostPack/Rubeus/blob/master/README.md
 
 ###### AS_REP roasting
 
@@ -27,6 +29,24 @@ https://blog.fox-it.com/2018/04/26/escalating-privileges-with-acls-in-active-dir
 https://ired.team/offensive-security-experiments/active-directory-kerberos-abuse/abusing-active-directory-acls-aces
 https://www.ssi.gouv.fr/uploads/IMG/pdf/Audit_des_permissions_en_environnement_Active_Directory_article.pdf
 https://www.blackhat.com/docs/us-17/wednesday/us-17-Robbins-An-ACE-Up-The-Sleeve-Designing-Active-Directory-DACL-Backdoors-wp.pdf
+
+###### Passwords spraying
+
+https://social.technet.microsoft.com/Forums/ie/en-US/79978325-549e-42b3-a532-1e26775982bf/how-to-reset-badpwdcount-value?forum=winserverDS
+
+###### ACL
+
+https://docs.microsoft.com/en-us/windows/win32/secauthz/access-control-lists
+
+###### GPO users rights / GPO exploitation
+
+https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-xp/bb457125(v=technet.10)?redirectedfrom=MSDN
+https://adsecurity.org/?p=3658
+https://wald0.com/?p=179
+https://www.harmj0y.net/blog/redteaming/abusing-gpo-permissions/
+https://www.ssi.gouv.fr/uploads/IMG/pdf/Lucas_Bouillot_et_Emmanuel_Gras_-_Chemins_de_controle_Active_Directory.pdf
+https://labs.f-secure.com/tools/sharpgpoabuse
+https://blogs.technet.microsoft.com/musings_of_a_technical_tam/2012/02/15/group-policy-basics-part-2-understanding-which-gpos-to-apply/
 
 ### File transfer
 
@@ -189,3 +209,21 @@ https://digital-forensics.sans.org/blog/2019/04/29/offline-autoruns-revisited
 
 http://forensicinsight.org/wp-content/uploads/2013/07/F-INSIGHT-Advanced-UsnJrnl-Forensics-English.pdf
 https://countuponsecurity.com/2017/05/25/digital-forensics-ntfs-change-journal/
+
+### Windows
+
+###### Lateral movements
+
+https://ss64.com/nt/sc.html
+https://support.microsoft.com/en-us/help/251192/how-to-create-a-windows-service-by-using-sc-exe
+https://posts.specterops.io/offensive-lateral-movement-1744ae62b14f
+https://docs.microsoft.com/fr-fr/windows/win32/winrm/portal
+https://docs.microsoft.com/fr-fr/windows/win32/wmisdk/wmi-start-page
+https://www.blackhat.com/docs/us-15/materials/us-15-Graeber-Abusing-Windows-Management-Instrumentation-WMI-To-Build-A-Persistent%20Asynchronous-And-Fileless-Backdoor-wp.pdf
+
+###### Post exploitation
+
+https://docs.microsoft.com/en-us/windows/security/identity-protection/credential-guard/credential-guard-manage
+https://blogs.technet.microsoft.com/ash/2016/03/02/windows-10-device-guard-and-credential-guard-demystified/
+https://medium.com/@markmotig/some-ways-to-dump-lsass-exe-c4a75fdc49bf
+https://yungchou.wordpress.com/2016/03/14/an-introduction-of-windows-10-credential-guard/
