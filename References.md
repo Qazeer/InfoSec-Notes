@@ -12,6 +12,13 @@ https://blog.ropnop.com/using-credentials-to-own-windows-boxes-part-3-wmi-and-wi
 
 https://www.harmj0y.net/blog/redteaming/kerberoasting-revisited/
 
+###### AS_REP roasting
+
+https://www.harmj0y.net/blog/activedirectory/roasting-as-reps/
+https://tools.ietf.org/html/rfc4120#page-60
+https://beta.hackndo.com/kerberos-asrep-roasting/
+https://adsecurity.org/?p=227
+
 ###### DACLs / ACEs exploit
 
 https://www.specterops.io/assets/resources/an_ace_up_the_sleeve.pdf
