@@ -9,7 +9,7 @@ refer to the `[General] Shells` note.
 “The more you look, the more you see.”  
 ― Pirsig, Robert M., Zen and the Art of Motorcycle Maintenance
 
-### Basic enumeration 
+### Basic enumeration
 
 The following commands can be used to grasp a better understanding of the
 current system:
@@ -504,7 +504,7 @@ the host:
 
 | DOS | Powershell | WMI |
 |-----|------------|-----|
-| systeminfo<br/> Check content of C:\Windows\SoftwareDistribution\Download<br/>type C:\Windows\WindowsUpdate.log | Get-HotFix | wmic qfe get HotFixID,InstalledOn,Description |
+| systeminfo<br/> Check content of C:\Windows\SoftwareDistribution\Download<br/>type C:\Windows\WindowsUpdate.log | Get-HotFix<br/> Get-WindowsUpdateLog | wmic qfe get HotFixID,InstalledOn,Description |
 
 Automatically compare the system patch level to public known exploits:
 
