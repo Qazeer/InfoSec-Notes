@@ -59,8 +59,12 @@ https://www.fireeye.com/blog/threat-research/2015/06/caching_out_the_val.html
 
 Get-ForensicShimcache | Out-File <OUTPUT_FILE>
 
+# Live
+AppCompatCacheParser.exe -s <OUTPUT_FOLDER>
+# From hive
+AppCompatCacheParser.exe -s <OUTPUT_FOLDER> -h <SYSTEM_HIVE>
 
 python ShimCacheParser.py --local -o <OUTPUT_FILE>
-python ShimCacheParser.py --hive <HIVE_FILE> -o <OUTPUT_FILE>
+python ShimCacheParser.py --hive <SYSTEM_HIVE> -o <OUTPUT_FILE>
 python ShimCacheParser.py --reg <REG_FILE> -o <OUTPUT_FILE>
 ```
