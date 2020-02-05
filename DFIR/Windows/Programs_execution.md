@@ -37,7 +37,7 @@ Get-ForensicShimcache | Out-File <OUTPUT_FILE>
 # Live
 AppCompatCacheParser.exe -t --csv <OUTPUT_FOLDER>
 # From hive
-AppCompatCacheParser.exe -t -h <SYSTEM_HIVE_FILE> --csv <OUTPUT_FOLDER>
+AppCompatCacheParser.exe -t -f <SYSTEM_HIVE_FILE> --csv <OUTPUT_FOLDER>
 
 python ShimCacheParser.py --local -o <OUTPUT_FILE>
 python ShimCacheParser.py --hive <SYSTEM_HIVE_FILE> -o <OUTPUT_FILE>

