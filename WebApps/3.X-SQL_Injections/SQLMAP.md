@@ -170,8 +170,8 @@ The following options can be used to dump one or multiples databases content:
 | `--start=<LIMIT_START>` | First dump table entry to retrieve |
 | `--stop=<LIMIT_STOP>` | Last dump table entry to retrieve |
 
-For intance, the following `sqlmap` commands can be used to enumerate the
-databases content and retrive data:
+For instance, the following `sqlmap` commands can be used to enumerate the
+databases content and retrieve data:
 
 ```
 # Retrieve all tables in all databases, excluding the DBMS system databases
@@ -188,7 +188,7 @@ sqlmap --eta --dump-all --exclude-sysdbs [...]
 
 Switch and options: `--search <[ -D <DB_NAME> | -T <TABLE_NAME> | -C <COLUMN_NAME> ]>`.
 
-This functionaly can be used to identify tables or columns containing sensible
+This functionally can be used to identify tables or columns containing sensible
 information such as application level usernames or passwords.
 
 The `--search` switch option needs to be used in conjunction with one of the
@@ -249,7 +249,7 @@ specify the local file to upload and its destination path on the target system.
 Note that, if the account responsible of the DBMS service has sufficient
 privileges on the file system, an SQL injection could be used to upload a
 webshell in an accessible website folder to achieve remote commands execution.
-The website foder can either be guessed through a brute force attack or leaked
+The website folder can either be guessed through a brute force attack or leaked
 by verbose error messages on the web application.    
 
 ###### Commands execution
