@@ -212,6 +212,13 @@ https://countuponsecurity.com/2017/05/25/digital-forensics-ntfs-change-journal/
 
 ### Windows
 
+###### Bypass AppLocker
+
+http://docshare02.docshare.tips/files/17344/173447840.pdf
+https://github.com/api0cradle/UltimateAppLockerByPassList
+https://hinchley.net/articles/an-approach-for-managing-microsoft-applocker-policies/
+https://posts.specterops.io/lateral-movement-scm-and-dll-hijacking-primer-d2f61e8ab992
+
 ###### Lateral movements
 
 https://ss64.com/nt/sc.html
@@ -227,3 +234,4 @@ https://docs.microsoft.com/en-us/windows/security/identity-protection/credential
 https://blogs.technet.microsoft.com/ash/2016/03/02/windows-10-device-guard-and-credential-guard-demystified/
 https://medium.com/@markmotig/some-ways-to-dump-lsass-exe-c4a75fdc49bf
 https://yungchou.wordpress.com/2016/03/14/an-introduction-of-windows-10-credential-guard/
+https://github.com/Hackndo/lsassy/wiki
