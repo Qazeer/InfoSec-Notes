@@ -127,6 +127,10 @@ https://resources.infosecinstitute.com/windows-subsystem-linux/#gref
 
 ### L7
 
+###### DNS
+
+https://medium.com/iocscan/how-dnssec-works-9c652257be0
+
 ###### LDAP
 
 https://ldap.com/dit-and-the-ldap-root-dse/
