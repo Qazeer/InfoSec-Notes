@@ -78,16 +78,21 @@ Get-WinEvent -FilterHashtable @{Path="<HIVE_PATH>"; data="<STRING | LIST_STRINGs
 Get-WinEvent -Computer <HOSTNAME | IP> -Credential <PSCredential> -FilterHashtable @{Path="<HIVE_PATH>"; data="<STRING | LIST_STRINGs>"} | Fl
 ```
 
-###### Convert Windows evtx to text format
+###### Convert Windows evtx to text / csv format
 
 The Python utilities suite `python-evtx` can be used to parse and export to a
-text format Windows event log hives. It can notably be used to take
-advantage of Linux utilities such as `grep` and `awk`.
+text format Windows event log hives. The `EvtxECmd` utility can also be used to
+parse Windows event log hives into a CSV format.
+
+It can notably be used to take advantage of Linux utilities such as `grep` and
+`awk`.
 
 ```
 # apt-get install python-evtx
-
 evtx_dump.py <EVTX> > <DUMP_FILE>
+
+EvtxECmd.exe [-f '<FILE>' | -d '<DIRECTORY>'] --inc <LIST_EVENT_IDs> --csv '<OUTPUT_DIRECTORY_CSV>'
+EvtxECmd.exe [-f '<FILE>' | -d '<DIRECTORY>'] --exc <LIST_EVENT_IDs> --csv '<OUTPUT_DIRECTORY_CSV>'
 ```
 
 ### Export Windows event logs
