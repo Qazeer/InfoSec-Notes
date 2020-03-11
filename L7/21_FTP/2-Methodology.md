@@ -36,7 +36,7 @@ Nmap can be used to detect open FTP service and conduct basic recon scan:
 nmap -v -sS -A -p 21 <HOST>
 ```
 
-### Anonymous logging
+### Anonymous login
 
 The server may allow anonymous connections with the *anonymous* or *ftp*
 accounts. No password is required to connect as an anonymous. Some FTP services

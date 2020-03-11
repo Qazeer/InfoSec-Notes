@@ -114,6 +114,10 @@ https://pen-testing.sans.org/blog/2013/04/25/smb-relay-demystified-and-ntlmv2-pw
 https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md
 https://sushant747.gitbooks.io/total-oscp-guide/privilege_escalation_windows.html
 
+https://ired.team/offensive-security/defense-evasion/av-bypass-with-metasploit-templates
+https://www.elastic.co/fr/blog/ten-process-injection-techniques-technical-survey-common-and-trending-process
+https://i.blackhat.com/USA-19/Thursday/us-19-Kotler-Process-Injection-Techniques-Gotta-Catch-Them-All-wp.pdf
+
 ###### Services
 
 https://docs.microsoft.com/fr-fr/windows/desktop/SecAuthZ/ace-strings
