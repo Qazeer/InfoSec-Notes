@@ -23,7 +23,7 @@ thus not directly implicable to the OSCP exam.
 In case an AD account is provided for the internal penetration test, AD queries
 can be used to quickly enumerate the, most-likely Windows, systems.     
 
-Note that the IP retrived may not be up to date or may even correspond to an non
+Note that the IP retrieved may not be up to date or may even correspond to an non
 accessible IP form another network interface.
 
 ```
@@ -51,8 +51,8 @@ cut -d ',' -f 2 hosts.csv > IP.txt
 
 ### Ports and services scan
 
-`masscan`'s ports scan speed can be combined with `nmap`services detection
-probes to faslty conduct a large network scan.
+`masscan`'s ports scan speed can be combined with `nmap`'s services detection
+probes to rapidly conduct a large network scan.
 
 ###### Ports scan
 

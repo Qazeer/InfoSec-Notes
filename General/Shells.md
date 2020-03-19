@@ -580,7 +580,7 @@ The commands to start a metasploit handler are as follows:
 ```
 # msfconsole -q
 
-msf> use exploit multi/handler
+msf> use multi/handler
 
 # Set the payload being executed on the target
 msf> set payload <PAYLOAD>

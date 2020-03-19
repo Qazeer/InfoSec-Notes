@@ -29,6 +29,9 @@ https://blog.fox-it.com/2018/04/26/escalating-privileges-with-acls-in-active-dir
 https://ired.team/offensive-security-experiments/active-directory-kerberos-abuse/abusing-active-directory-acls-aces
 https://www.ssi.gouv.fr/uploads/IMG/pdf/Audit_des_permissions_en_environnement_Active_Directory_article.pdf
 https://www.blackhat.com/docs/us-17/wednesday/us-17-Robbins-An-ACE-Up-The-Sleeve-Designing-Active-Directory-DACL-Backdoors-wp.pdf
+https://blog.fox-it.com/2018/04/26/escalating-privileges-with-acls-in-active-directory/
+https://dirkjanm.io/abusing-exchange-one-api-call-away-from-domain-admin/
+https://github.com/gdedrouas/Exchange-AD-Privesc
 
 ###### Passwords spraying
 
