@@ -51,6 +51,13 @@ https://www.ssi.gouv.fr/uploads/IMG/pdf/Lucas_Bouillot_et_Emmanuel_Gras_-_Chemin
 https://labs.f-secure.com/tools/sharpgpoabuse
 https://blogs.technet.microsoft.com/musings_of_a_technical_tam/2012/02/15/group-policy-basics-part-2-understanding-which-gpos-to-apply/
 
+###### BloodHound
+
+https://www.ernw.de/download/BloodHoundWorkshop/ERNW_DogWhispererHandbook.pdf#page=45&zoom=100,92,390
+https://beta.hackndo.com/bloodhound/
+https://hausec.com/2019/09/09/bloodhound-cypher-cheatsheet/
+https://neo4j.com/docs/cypher-manual/current/clauses/match/
+
 ### File transfer
 
 https://github.com/frizb/Windows-Privilege-Escalation
