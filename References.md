@@ -228,6 +228,13 @@ https://digital-forensics.sans.org/blog/2019/04/29/offline-autoruns-revisited
 http://forensicinsight.org/wp-content/uploads/2013/07/F-INSIGHT-Advanced-UsnJrnl-Forensics-English.pdf
 https://countuponsecurity.com/2017/05/25/digital-forensics-ntfs-change-journal/
 
+###### Memory
+
+https://github.com/volatilityfoundation/volatility/wiki/Command-Reference
+https://www.youtube.com/watch?v=BMFCdAGxVN4
+https://www.microsoftpressstore.com/articles/article.aspx?p=2233328&seqNum=4
+Learning Malware Analysis: Explore the concepts, tools, and techniques to analyze and investigate Windows malware (English Edition)
+
 ### Windows
 
 ###### Bypass AppLocker
