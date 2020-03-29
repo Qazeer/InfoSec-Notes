@@ -16,6 +16,7 @@ current system:
 
 |  | DOS | Powershell | WMI |
 |--|-----|------------|-----|
+| **Basic info** | net config workstation | | |
 | **OS details**  | systeminfo | [environment]::OSVersion.Version |  |
 | **OS Architecture** | echo %PROCESSOR_ARCHITECTURE% |  [Environment]::Is64BitOperatingSystem | wmic os get osarchitecture |
 | **Hostname**  | hostname | $env:ComputerName<br/> $env:computername.$env:userdnsdomain <br/> (Get-WmiObject Win32_ComputerSystem).Name ||
