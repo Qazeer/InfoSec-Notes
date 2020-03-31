@@ -57,7 +57,7 @@ For a more detailed modules documentation, the following official documentation
 can be consulted:
 
 ```
-https://github.com/volatilityfoundation/volatility/wiki/Command-Reference#kdbgscan
+https://github.com/volatilityfoundation/volatility/wiki/Command-Reference
 ```
 
 ###### Analysis process steps
@@ -79,7 +79,8 @@ volatility <PLUGIN>
 ###### Image identification
 
 The `imageinfo` and `kdbgscan` modules can be used to retrieve the image
-profile needed for further analysis of the image.
+profile needed for further analysis of the image. **It is recommended to
+retrieve the `Volatility` profile of the image using the `kdbgscan` module.**
 
 `imageinfo` will provide basic information on the image such as the operating
 system, service pack, and hardware architecture of the original system as well
@@ -100,7 +101,7 @@ volatility -f <MEMORY_DUMP_FILE> kdbgscan
 
 *Processes listing*
 
-The `pslist`, `pstree`, `psscan`, `psxview` modules may be used to list the
+The `pslist`, `pstree`, `psscan` and `psxview` modules may be used to list the
 processes in the memory of the system. **It is recommended to start the processes
 analysis using the `psxview` module as it integrates multiples techniques for
 `rootkit` detection.**
@@ -160,20 +161,52 @@ volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> psscan
 
 *DLLs listing*
 
-The `dlllist` module lists the loaded for each process or for the specified
-process.
+The `dlllist` and `ldrmodules` modules may be used to list the loaded DLLs
+in the memory of the system. **It is recommended to start the loaded DLLs
+analysis using the `ldrmodules` module as it integrates multiples techniques
+for rootkit detection.**
+
+The `dlllist` module lists the loaded DLLs, of all processes or for the
+specified process, by walking the list of `_LDR_DATA_TABLE_ENTRY` structures
+pointed to by each process `Process Environment Block (PEB)`'s
+`InLoadOrderModuleList` list entry. DLLs are automatically added to this list
+when a process calls the `LoadLibrary` function (or others derivatives) and
+aren't removed until the `FreeLibrary` function is called and the reference
+count of the DLL reaches zero.
+
+However, rootkit may hide DLLs by unlinking the DLLs from one or all of the
+linked lists of a process `PEB` (`InLoadOrderModuleList`,
+`InMemoryOrderModuleList` and `InInitializationOrderModuleList`). In which
+case, the `dlllist` module will not be able to identify the hidden DLL(s).
 
 ```
 volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> dlllist
+
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> dlllist -p <PID>
+
+# In order to display unlinked process loaded DLLs, the physical offset of the EPROCESS object must be specified
+# The offset can be retrieved using the psxview module
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> dlllist --offset=<PHYSICAL_OFFSET>
 ```
 
+The `ldrmodules` module parses the `Virtual Address Descriptor (VAD)` tree
+(referenced in a process `_EPROCESS` object's `VadRoot` attribute) of each,
+or of the specified, process in order to find `_FILE_OBJECT` structure. The
+base address and the full path on disk of memory mapped files can be
+cross-referenced with the process `PEB` DLL lists to find rogue unlinked
+DLL(s).        
+
+```
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> ldrmodules -v
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> ldrmodules -v -p <PID>
+```
 *Handles*
 
 `handles`
 
 *Process / DLL dump*
 
-`procdump` and `dlldump`
+`procdump`, `memdump` and `dlldump`
 
 *Commands usage*
 
