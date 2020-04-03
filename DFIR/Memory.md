@@ -168,7 +168,7 @@ for rootkit detection.**
 
 The `dlllist` module lists the loaded DLLs, of all processes or for the
 specified process, by walking the list of `_LDR_DATA_TABLE_ENTRY` structures
-pointed to by each process `Process Environment Block (PEB)`'s
+pointed to by each process `_EPROCESS`'s '`Process Environment Block (PEB)`
 `InLoadOrderModuleList` list entry. DLLs are automatically added to this list
 when a process calls the `LoadLibrary` function (or others derivatives) and
 aren't removed until the `FreeLibrary` function is called and the reference
@@ -186,7 +186,7 @@ volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> dlllist -p <PID
 
 # In order to display unlinked process loaded DLLs, the physical offset of the EPROCESS object must be specified
 # The offset can be retrieved using the psxview module
-volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> dlllist --offset=<PHYSICAL_OFFSET>
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> dlllist --offset=<EPROCESS_PHYSICAL_OFFSET>
 ```
 
 The `ldrmodules` module parses the `Virtual Address Descriptor (VAD)` tree
@@ -202,11 +202,82 @@ volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> ldrmodules -v -
 ```
 *Handles*
 
-`handles`
+The `handles` module display the open handles for all processes or for the
+specified process by walking the `HandleTableList` linked list of each process
+`_EPROCESS`'s `ObjectTable` (structure `HANDLE_TABLE`).  
 
-*Process / DLL dump*
+The handles can be of the following types:
+  - `File`
+  - `Directory`
+  - `Process`
+  - `Thread`
+  - `Key`
+  - `Token`
+  - `Mutant`
+  - `Event`
+  - `Port`
+  - `FilterCommunicationPort`
+  - `DebugObject`
+  - `WmiGuid`
+  - `Controller`
+  - `Profile`
+  - `Type`
+  - `Section`
+  - `SymbolicLink`
+  - `EventPair`
+  - `Desktop`
+  - `Timer`
+  - `WindowStation`
+  - `Driver`
+  - `KeyedEvent`
+  - `Device`
+  - `IoCompletion`
+  - `Adapter`
+  - `Job`
+  - `WaitablePort`
+  - `FilterConnectionPort`
+  - `Semaphore`
+  - `Callback`
 
-`procdump`, `memdump` and `dlldump`
+```
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> handles
+
+# Display the specified process open handles
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> handles -p <PID>
+
+# Display the open handles of the specified type
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> handles -t <HANDLE_TYPE | COMMA_SEPARATED_HANDLE_TYPE_LIST>
+```
+
+*Process(es) / DLL(s) dump*
+
+The `procdump` module can be used to reconstruct a process `Portable
+Executable (PE)` file from memory, as close as possible to the original file.
+The `memdump` module dump the process `PE` as well as all the process
+addressable address space. **The `procdump` module may be used to retrieve an
+executable for static or dynamic reverse engineering while the `memdump` module
+can be used to analyze the comportment of the process on the system (runtime
+variables, opened files, etc.)**
+
+The `procdump` module uses the process `Process Environment Block (PEB)`'s
+`ImageBaseAddress` to retrieve the `PE` file loaded in memory and automatically
+realign the memory sections (`.text`, `.data`, `.bss`, etc.).
+Additionally, `procdump` performs sanity checks on the `PE` header.
+
+Overly simplistically put, the `memdump` module dumps all the process' memory
+pages from the process pagec table, retrieved from the process' `_EPROCESS`
+`Process control block (Pcb)` (`_KPROCESS` structure) `DirectoryTableBase`.
+
+```
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> procdump -D <OUTPUT_DIR> -p <PID>
+
+# Disable sanity checks on PE header, which may be exploited by malware to prevent the dumping
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> procdump --unsafe -D <OUTPUT_DIR> -p <PID>
+
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> memdump -D <OUTPUT_DIR> -p <PID>
+```
+
+`dlldump`
 
 *Commands usage*
 
