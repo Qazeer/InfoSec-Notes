@@ -62,7 +62,21 @@ https://github.com/volatilityfoundation/volatility/wiki/Command-Reference
 
 ###### Analysis process steps
 
-TODO
+The memory analysis of a compromised system is dependent of the investigations
+context. For example, if a workstation is suspected to have been compromised
+from a phishing attack, extracting the `.pst` / `.ost` files, associated with
+`Outlook`, using the `filescan` and `dumpfiles` modules, for analysis may be
+a good first step.       
+
+The general, context-independent, steps below can be followed for investigating
+the memory of a system:
+  - Suspicious process hierarchy, such as `outlook.exe` or `iexplorer`
+  executing `cmd.exe` or `powershell.exe` process
+  - Identification of rogue / unlinked processes
+  - review of network artifacts, notably in correlation with known C2 IP
+  addresses
+  - TODO...
+
 
 ######  Usage
 
@@ -76,6 +90,7 @@ export VOLATILITY_LOCATION=file://<MEMORY_DUMP_FILE_PATH>
 export VOLATILITY_PROFILE=<PROFILE>
 volatility <PLUGIN>
 ```
+
 ###### Image identification
 
 The `imageinfo` and `kdbgscan` modules can be used to retrieve the image
@@ -87,7 +102,7 @@ system, service pack, and hardware architecture of the original system as well
 as the time the sample was collected and suggested `Volatility` profiles.      
 
 Contrary to `imageinfo`, `kdbgscan` is designed to positively identify the
-correct profile by scanning for KDBGHeader signatures linked to `Volatility`
+correct profile by scanning for `KDBGHeader` signatures linked to `Volatility`
 profiles.
 
 ```
@@ -198,6 +213,7 @@ DLL(s).
 
 ```
 volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> ldrmodules -v
+
 volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> ldrmodules -v -p <PID>
 ```
 *Handles*
@@ -265,8 +281,9 @@ realign the memory sections (`.text`, `.data`, `.bss`, etc.).
 Additionally, `procdump` performs sanity checks on the `PE` header.
 
 Overly simplistically put, the `memdump` module dumps all the process' memory
-pages from the process pagec table, retrieved from the process' `_EPROCESS`
-`Process control block (Pcb)` (`_KPROCESS` structure) `DirectoryTableBase`.
+pages from the process page table, retrieved from the process' `_EPROCESS`
+object `Process control block (Pcb)` (`_KPROCESS` structure)
+`DirectoryTableBase`.
 
 ```
 volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> procdump -D <OUTPUT_DIR> -p <PID>
@@ -277,12 +294,76 @@ volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> procdump --unsa
 volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> memdump -D <OUTPUT_DIR> -p <PID>
 ```
 
-`dlldump`
+The `dlldump` module reconstructs the DLL(s) from memory for all processes, a
+specified process, the base address of a DLL in memory or using a regular
+expression specifying the DLL(s) name.
 
-*Commands usage*
+The `dlldump` module lists the loaded DLLs using the same process as the
+`dlllist` module, and dumps the DLLs using each DLL base address `DllBase`,
+retrieved in the module entry from, each or the specified, process
+`Process Environment Block (PEB)`'s `InLoadOrderModuleList` list (list of
+`_LDR_DATA_TABLE_ENTRY` structures).
 
-`cmdscan` and `consoles`
+```
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> dlldump -D <OUTPUT_DIR>
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> dlldump -D <OUTPUT_DIR> --ignore-case --regex=<REGEX>
+
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> procdump -D <OUTPUT_DIR> -p <PID>
+
+# In order to dump unlinked process loaded DLLs, the physical offset of the EPROCESS object must be specified
+# The offset can be retrieved using the psxview module
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> procdump -D <OUTPUT_DIR> --offset=<EPROCESS_PHYSICAL_OFFSET>
+
+# In order to dump unlinked DLLs, the base address of the DLL must be specified
+# The DLL base address can be retrieved using the ldrmodules module
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> procdump -D <OUTPUT_DIR> --base <DLL_BASE_ADDRESS>
+```
 
 *Processes security context and privileges*
 
-`getsids` and `privs`
+The `getsids` and `privs` modules retrieve the `Security Identifiers (SID)` and
+the privileges associated with all or the specified process. Both modules parse
+the `Token` attribute (structure `EX_FAST_REF` referencing a `_TOKEN` object)
+of the process `_EPROCESS` object in order to retrieve, respectively
+the `SIDs` in the `UserAndGroups` attribute and the privileges in the
+`Privileges` attribute.
+
+The `UserAndGroups` attribute is an array of `_SID_AND_ATTRIBUTES` objects, of
+size `UserAndGroupCount`, containing a `SID` value (`_SID` structure) and the
+`SID` state in the `Attributes` flag.
+
+The `Privileges` attribute is an array of `_LUID_AND_ATTRIBUTES` objects, of
+size `PrivilegeCount`, containing a `LUID` value, representing a privilege, and
+the privilege state in the `Attributes` flag (combination of the following
+values `SE_PRIVILEGE_ENABLED`, `SE_PRIVILEGE_ENABLED_BY_DEFAULT`,
+`SE_PRIVILEGE_USED_FOR_ACCESS` and `SE_PRIVILEGE_REMOVED`).
+
+```
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> getsids
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> getsids -p <PID>
+
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> privs
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> privs -p <PID>
+
+# Display processes having the privilege(s) matching the regular expression
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> privs --regex="regex"
+
+# Display privileges that processes explicitly enabled (i.e. that were not enabled by default but are currently enabled).
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> privs --silent
+```
+
+###### Process command line arguments
+
+The `cmdline` module retrieves the command line argument(s) of all or the
+specified process, which are stored in each process `Process Environment
+Block (PEB)`'s `ProcessParameters` (`_RTL_USER_PROCESS_PARAMETERS` structure)
+`CommandLine` attribute. The command line is specified as an argument of the
+`CreateProcessA` function.
+
+Note that command line arguments as stored in memory in a process `PEB` may be
+maliciously altered.
+
+```
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> cmdline
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> cmdline -p <PID>
+```

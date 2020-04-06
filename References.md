@@ -234,6 +234,9 @@ https://github.com/volatilityfoundation/volatility/wiki/Command-Reference
 https://www.youtube.com/watch?v=BMFCdAGxVN4
 https://www.microsoftpressstore.com/articles/article.aspx?p=2233328&seqNum=4
 Learning Malware Analysis: Explore the concepts, tools, and techniques to analyze and investigate Windows malware (English Edition)
+https://www.aldeid.com/wiki/
+https://www.nirsoft.net/kernel_struct/vista/EPROCESS.html
+https://blog.scrt.ch/2010/11/22/manipulation-des-jetons-des-processus-sous-windows/
 
 ### Windows
 
