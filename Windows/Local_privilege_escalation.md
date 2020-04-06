@@ -31,6 +31,7 @@ current system:
 | **Mounted disks** | fsutil fsinfo drives | Get-PSDrive &#124; where {$_.Provider -like "Microsoft.PowerShell.Core\FileSystem"} | wmic volume get DriveLetter,FileSystem,Capacity |
 | **Writable directories** | dir /a-rd /s /b | | |
 | **Writable files** | dir /a-r-d /s /b | | | |
+| **Processes command line** | | | wmic process get Name,ProcessID,ExecutablePath <br/> (PS) gwmi win32_process &#124; select Name,Handle,CommandLine &#124; Format-List |
 
 ###### Installed .NET framework
 
