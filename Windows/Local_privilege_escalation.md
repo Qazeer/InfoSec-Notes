@@ -31,6 +31,7 @@ current system:
 | **Mounted disks** | fsutil fsinfo drives | Get-PSDrive &#124; where {$_.Provider -like "Microsoft.PowerShell.Core\FileSystem"} | wmic volume get DriveLetter,FileSystem,Capacity |
 | **Writable directories** | dir /a-rd /s /b | | |
 | **Writable files** | dir /a-r-d /s /b | | | |
+| **Processes** | tasklist /v | Get-Process &#124; Ft Name,Id | wmic process get Name,ProcessID <br/> (PS) Get-WmiObject -Query "Select * from Win32_Process" | where {$_.Name -notlike "svchost*"} &#124; Select Name, Handle, @{Label="Owner";Expression={$_.GetOwner().User}} &#124; ft -AutoSize |
 | **Processes command line** | | | wmic process get Name,ProcessID,ExecutablePath <br/> (PS) gwmi win32_process &#124; select Name,Handle,CommandLine &#124; Format-List |
 
 ###### Installed .NET framework
@@ -67,6 +68,142 @@ Get-Item "Accessibility.dll" | fl
 $file = Get-Item "Accessibility.dll"
 [System.Diagnostics.FileVersionInfo]::GetVersionInfo($file).FileVersion
 ```
+
+### Defense and supervision
+
+Before attempting a local privilege escalation, notably in a covert scenario,
+establishing a precise vision on the system security defense and supervision
+mechanisms may help evade detection.  
+
+###### Antivirus product
+
+The `Windows Security Center` is a Windows component which, among other
+features, keep track of the antivirus products installed on the system and
+their status (monitoring mode and antivirus signatures update status). The
+`Security Center` consolidates the `Windows Defender` status as well as third
+party antivirus solutions by:
+  - searching for registry keys and files provided to Microsoft by the
+  antivirus software manufacturers
+  - exposing a WMI provider on which antivirus software manufacturers can
+  report their product status
+
+Note that some `Endpoint Detection and Response (EDR)` solutions may not be
+registered in the `SecurityCenter` and can only be detected by listing the
+running processes or configured services.
+
+```
+# SecurityCenter: Windows 2000, Windows Server 2003, Windows XP, and older
+# SecurityCenter2: Windows Vista, Windows Server 2008, or newer
+
+WMIC /Node:localhost /Namespace:\rootSecurityCenter2 Path AntiVirusProduct Get displayName,productState,timestamp /Format:List
+Get-WmiObject -Namespace root\SecurityCenter2 -Class AntiVirusProduct | Ft displayName,productState,timestamp
+```
+
+The `productState` property can be parsed and converted to a human readable
+format using the following PowerShell code snippet:
+
+```bash
+$productState = "<PRODUCT_STATE>"
+
+$hex = [Convert]::ToString($productState, 16).PadLeft(6,'0')
+
+$WSC_SECURITY_PRODUCT_STATE = $hex.Substring(2,2)
+$WSC_SECURITY_SIGNATURE_STATUS = $hex.Substring(4,2)
+
+$RealTimeProtectionStatus = switch ($WSC_SECURITY_PRODUCT_STATE) {
+  "00" {"OFF"}
+  "01" {"EXPIRED"}
+  "10" {"ON"}
+  "11" {"SNOOZED"}
+  default {"UNKNOWN"}
+}
+
+$DefinitionStatus = switch ($WSC_SECURITY_SIGNATURE_STATUS) {
+  "00" {"UP_TO_DATE"}
+  "10" {"OUT_OF_DATE"}
+  default {"UNKNOWN"}
+}
+
+Write-Host "Real time protection status:" $RealTimeProtectionStatus
+Write-Host "Signature update status:" $DefinitionStatus
+```
+
+###### Audit policies
+
+The configured audit policies can be retrieved within the registry.
+
+In particular, whether or not the command line is logged in process creation
+events (`Security` hive, `4688: A new process has been created`) is of
+importance, as a process command line arguments may yield information about a
+tool function, compromised accounts or C2 servers, and be very able for the
+blue team.
+
+```
+reg query "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\Audit"
+
+# "ProcessCreationIncludeCmdLine_Enabled: 0x1" = the command line is logged in process creation
+events
+reg query "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\Audit" /v ProcessCreationIncludeCmdLine_Enabled
+```
+
+###### Windows Event Forwarding
+
+`Windows Event Forwarding (WEF)` is a Microsoft Windows component that forwards
+the chosen event logs to a `Windows Event Collector (WEC)` server, for back up
+or security monitoring.
+
+The following registry key can be queried to retrieve information about a
+possible `WEF` subscription:  
+
+```
+reg query HKLM\Software\Policies\Microsoft\Windows\EventLog\EventForwarding\SubscriptionManager
+```
+
+###### AppLocker
+
+`AppLocker` is a Windows native feature, added in Windows 7 Enterprise, that
+allows, through the definition of rules, for the restriction and control of the
+files users can execute.
+
+The configured `AppLocker` rules are stored in multiple locations within the
+registry and can also be retrieved using the `Get-AppLockerPolicy` PowerShell
+cmdlet.
+
+Note that the `appidsvc` service must be running for `AppLocker` to be
+functional.
+
+```
+Get-AppLockerPolicy -Effective | Select-Object -ExpandProperty RuleCollections
+
+# Configured AppLocker rules, stored in XML format
+# The "EnforcementMode" subkey of each category (exe, scripts, MSI, Appx, DLL) corresponds to the enforcement status of the AppLocker rules of the category
+# "EnforcementMode: 0x0" = Audit only
+# "EnforcementMode: 0x1" = Enforce rules
+reg query HKLM\Software\Policies\Microsoft\Windows\SrpV2 /s
+
+# Mirror key
+reg query HKLM\SOFTWARE\Wow6432Node\Policies\Microsoft\Windows\SrpV2 /s
+
+HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Group Policy Objects\
+
+# AppLocker pushed down from a Group Policy Object (GPO), stored in XML format
+reg query HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Group Policy Objects\<GUID>Machine\Software\Policies\Microsoft\Windows\SrpV2
+
+sc.exe query appidsvc
+```
+
+Additionally, the presence and size of the event logs hive
+`Microsoft-Windows-AppLocker/EXE and DLL` can also be a good indicator of
+whether or not `AppLocker` is enabled. If the log file is not present or is
+empty (the evtx file has a size of 68 Ko / 69 632 bytes) then `AppLocker` may
+not have been enabled and configured on the system.  
+
+```
+dir C:\Windows\System32\winevt\Logs | findstr /i AppLocker
+```
+
+For more information about `AppLocker`, refer to the
+`Windows - Bypass AppLocker` note.
 
 ### Enumeration scripts
 

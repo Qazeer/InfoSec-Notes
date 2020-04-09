@@ -119,26 +119,6 @@ https://byt3bl33d3r.github.io/practical-guide-to-ntlm-relaying-in-2017-aka-getti
 https://www.sternsecurity.com/blog/local-network-attacks-llmnr-and-nbt-ns-poisoning
 https://pen-testing.sans.org/blog/2013/04/25/smb-relay-demystified-and-ntlmv2-pwnage-with-python
 
-### Windows
-
-https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md
-https://sushant747.gitbooks.io/total-oscp-guide/privilege_escalation_windows.html
-
-https://ired.team/offensive-security/defense-evasion/av-bypass-with-metasploit-templates
-https://www.elastic.co/fr/blog/ten-process-injection-techniques-technical-survey-common-and-trending-process
-https://i.blackhat.com/USA-19/Thursday/us-19-Kotler-Process-Injection-Techniques-Gotta-Catch-Them-All-wp.pdf
-
-###### Services
-
-https://docs.microsoft.com/fr-fr/windows/desktop/SecAuthZ/ace-strings
-https://blogs.msmvps.com/erikr/2007/09/26/set-permissions-on-a-specific-service-windows/
-
-###### Priv esc - WSL
-
-http://www.alex-ionescu.com/publications/BlueHat/bluehat2016.pdf
-https://recon.cx/2018/brussels/resources/slides/RECON-BRX-2018-Linux-Vulnerabilities_Windows-Exploits--Escalating-Privileges-with-WSL.pdf
-https://resources.infosecinstitute.com/windows-subsystem-linux/#gref
-
 ### L7
 
 ###### DNS
@@ -239,6 +219,22 @@ https://www.nirsoft.net/kernel_struct/vista/EPROCESS.html
 https://blog.scrt.ch/2010/11/22/manipulation-des-jetons-des-processus-sous-windows/
 
 ### Windows
+
+###### LPE
+
+https://stackoverflow.com/questions/1331887/detect-antivirus-on-windows-using-c-sharp
+https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md
+https://sushant747.gitbooks.io/total-oscp-guide/privilege_escalation_windows.html
+https://ired.team/offensive-security/defense-evasion/av-bypass-with-metasploit-templates
+https://www.elastic.co/fr/blog/ten-process-injection-techniques-technical-survey-common-and-trending-process
+https://i.blackhat.com/USA-19/Thursday/us-19-Kotler-Process-Injection-Techniques-Gotta-Catch-Them-All-wp.pdf
+https://book.hacktricks.xyz/windows/windows-local-privilege-escalation
+https://docs.microsoft.com/fr-fr/windows/desktop/SecAuthZ/ace-strings
+https://blogs.msmvps.com/erikr/2007/09/26/set-permissions-on-a-specific-service-windows/
+http://www.alex-ionescu.com/publications/BlueHat/bluehat2016.pdf
+https://recon.cx/2018/brussels/resources/slides/RECON-BRX-2018-Linux-Vulnerabilities_Windows-Exploits--Escalating-Privileges-with-WSL.pdf
+https://resources.infosecinstitute.com/windows-subsystem-linux/#gref
+https://mspscripts.com/get-installed-antivirus-information-2/
 
 ###### Bypass AppLocker
 
