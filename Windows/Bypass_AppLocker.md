@@ -32,6 +32,8 @@ An AppLocker rule is defined for an user or group, identified by the
 filesystem paths, publishers for digitally signed files or files hashes.  
 
 ```
+Get-WinEvent -LogName "Microsoft-Windows-AppLocker/EXE and DLL"
+
 Get-AppLockerPolicy -Effective | Select-Object -ExpandProperty RuleCollections
 ```
 
