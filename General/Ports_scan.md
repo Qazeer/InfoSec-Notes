@@ -129,7 +129,9 @@ filters/firewalls are in use, and dozens of other characteristics.
 
 In addition to the classic command-line `nmap` executable, the `nmap` suite
 includes an advanced GUI and results viewer (`Zenmap`), a flexible data
-transfer, redirection, and debugging tool (`Ncat`), a utility for comparing scan results (`Ndiff`), and a packet generation and response analysis tool (`Nping`).
+transfer, redirection, and debugging tool (`Ncat`), a utility for comparing
+scan results (`Ndiff`), and a packet generation and response analysis tool
+(`Nping`).
 
 ###### Usage
 
