@@ -1,5 +1,80 @@
 # Forensics - Windows - Windows event logs
 
+### Export Windows event logs
+
+The entirety of the `C:\Windows\System32\winevt\Logs` directory can be copied
+to export all the Windows event logs EVTX hives. The event logs can also be
+exported through the Windows GUI `Event Viewer (eventvwr.msc)` application and
+the CLI `wevtutil` utilities. The PowerShell cmdlet `Get-WinEvent` does not
+provide a way to export logs in the EVTX format.
+
+To be able to view some event logs, notably the `Security` event logs, the
+`Manage auditing and security log (SeSecurityPrivilege)` right is required.
+Note that this right also grant the ability to clear the event logs.
+Additionally, in order to remotely copy the `C:\Windows\System32\winevt\Logs`
+directory, Administrator privileges are required to access the `C$` share.
+
+The following commands can be used to unitary export a event logs hive in the
+`evtx` format:
+
+```
+wevtutil epl <LOGNAME> <LOCAL_PATH | REMOTE_PATH>\<FILENAME.evtx>
+wevtutil /r:<HOSTNAME | IP> /u:<DOMAIN | WORKGROUP>\<USERNAME> /p:<PASSWORD> epl <LOGNAME> <LOCAL_PATH | REMOTE_PATH>\<FILENAME.evtx>
+```
+
+The following batch script can be used to retrieve all Windows event logs from
+a remote specified target.
+
+Usage:
+
+```
+export_logs.bat "<HOSTNAME | IP>" "<OUTPUTDIR_PATH>"
+```
+
+```
+@echo off
+
+REM GetEventLogs.cmd by Malcolm McCaffery
+SETLOCAL ENABLEDELAYEDEXPANSION
+
+SET remotePC=%1
+SET OutputDir=%2
+
+IF "%remotePC%" EQU "" set remotePC=%computername%
+
+IF NOT EXIST %OutputDir% MD %OutputDir%
+
+pushd "%OutputDir%"
+
+echo Get Event Logs on System %remotePC%
+for /F "delims=\" %%i IN ('wevtutil el /r:%remotePC%') DO (
+echo Retreving Log %%i
+for /F "tokens=1,2 delims=/" %%j IN ("%%i") DO (
+   IF "%%k" EQU "" (
+    SET OUTPUTFILE=%computername%-%%j.evtx
+   ) ELSE (
+   SET OUTPUTFILE=%computername%-%%j-%%k.evtx
+   )
+)
+wevtutil epl "%%i" "!OUTPUTFILE!" /ow:true /r:%remotePC%
+)
+
+REM cleanup by deleting any empty event files…
+for /R %%i IN (*.evtx) DO (
+  echo Processing %%i
+  REM if file is 69,632 bytes or less then delete it – don't want empty files
+  IF %%~zi LEQ 69632 (
+    echo empty event file…deleting…
+    del "%%i" /q
+  )
+)
+
+popd
+echo.'
+echo Completed - events stored in %OutputDir%
+pause
+```
+
 ### List and query Windows event logs
 
 ###### GUI event logs viewers
@@ -95,79 +170,24 @@ EvtxECmd.exe [-f '<FILE>' | -d '<DIRECTORY>'] --inc <LIST_EVENT_IDs> --csv '<OUT
 EvtxECmd.exe [-f '<FILE>' | -d '<DIRECTORY>'] --exc <LIST_EVENT_IDs> --csv '<OUTPUT_DIRECTORY_CSV>'
 ```
 
-### Export Windows event logs
+###### CSV searching
 
-The entirety of the `C:\Windows\System32\winevt\Logs` directory can be copied
-to export all the Windows event logs EVTX hives. The event logs can also be
-exported through the Windows GUI `Event Viewer (eventvwr.msc)` application and
-the CLI `wevtutil` utilities. The PowerShell cmdlet `Get-WinEvent` does not
-provide a way to export logs in the EVTX format.
-
-To be able to view some event logs, notably the `Security` event logs, the
-`Manage auditing and security log (SeSecurityPrivilege)` right is required.
-Note that this right also grant the ability to clear the event logs.
-Additionally, in order to remotely copy the `C:\Windows\System32\winevt\Logs`
-directory, Administrator privileges are required to access the `c$` share.
-
-The following commands can be used to unitary export a event logs hive in the
-`evtx` format:
+The Linux `sort` utility can be used to sort CSV fields:
 
 ```
-wevtutil epl <LOGNAME> <LOCAL_PATH | REMOTE_PATH>\<FILENAME.evtx>
-wevtutil /r:<HOSTNAME | IP> /u:<DOMAIN | WORKGROUP>\<USERNAME> /p:<PASSWORD> epl <LOGNAME> <LOCAL_PATH | REMOTE_PATH>\<FILENAME.evtx>
-```
-
-The following batch script can be used to retrieve all Windows event logs from
-a remote specified target.
-
-Usage:
+sort --field-separator='<DELIMITER>' --key=<COLUMN_NUMBER | COMMA_LIST_COLUMN_NUMBERS> <CSV_FILE>
 
 ```
-export_logs.bat "<HOSTNAME | IP>" "<OUTPUTDIR_PATH>"
-```
+
+`q` is a command line tool that allows direct execution of SQL-like queries on
+CSV files.
 
 ```
-@echo off
+# -H: indicate that the CSV file has an header
+q -H -d '<DELIMITER>' "<SQL_STATEMENT>"
 
-REM GetEventLogs.cmd by Malcolm McCaffery
-SETLOCAL ENABLEDELAYEDEXPANSION
-
-SET remotePC=%1
-SET OutputDir=%2
-
-IF "%remotePC%" EQU "" set remotePC=%computername%
-
-IF NOT EXIST %OutputDir% MD %OutputDir%
-
-pushd "%OutputDir%"
-
-echo Get Event Logs on System %remotePC%
-for /F "delims=\" %%i IN ('wevtutil el /r:%remotePC%') DO (
-echo Retreving Log %%i
-for /F "tokens=1,2 delims=/" %%j IN ("%%i") DO (
-   IF "%%k" EQU "" (
-    SET OUTPUTFILE=%computername%-%%j.evtx
-   ) ELSE (
-   SET OUTPUTFILE=%computername%-%%j-%%k.evtx
-   )
-)
-wevtutil epl "%%i" "!OUTPUTFILE!" /ow:true /r:%remotePC%
-)
-
-REM cleanup by deleting any empty event files…
-for /R %%i IN (*.evtx) DO (
-  echo Processing %%i
-  REM if file is 69,632 bytes or less then delete it – don't want empty files
-  IF %%~zi LEQ 69632 (
-    echo empty event file…deleting…
-    del "%%i" /q
-  )
-)
-
-popd
-echo.'
-echo Completed - events stored in %OutputDir%
-pause
+# Query example
+q -d "," -H "SELECT TimeCreated,EventId,Provider,Channel,Computer,UserId,MapDescription,ChunkNumber,UserName,RemoteHost,PayloadData1 FROM <CSV_FILE> WHERE TimeCreated LIKE '2020-04-07%' AND (Provider='Microsoft-Windows-Security-Auditing' OR Provider='Microsoft-Windows-TaskScheduler' OR Provider='Microsoft-Windows-TerminalServices-RemoteConnectionManager')"
 ```
 
 ### Windows Event ID
@@ -251,6 +271,29 @@ Artifact : Task Scheduler Event Log(since win7)
   Event ID 4100 (Executing Pipeline)
 
   -> Error message / Host Application
+
+  Windows PowerShell event log entries indicating the start and stop of PowerShell activity:
+○ Event ID 400 (“Engine state is changed from None to Available”), upon the start of any local or remote PowerShell activity.
+○ Event ID 600 referencing “WSMan” (e.g. “Provider WSMan Is Started”), indicating the onset of PowerShell remoting activity on both source and destination systems.
+○ Event ID 403 (“Engine state is changed from Available to Stopped”), upon the end of the PowerShell activity.
+
+System event log entries indicating a configuration change to the Windows Remote Management service:
+○ Event ID 7040 “The start type of the Windows Remote Management (WS-Management) service was changed from [disabled / demand start] to auto start.” – recorded when PowerShell remoting is enabled.
+○ Event ID 10148 (“The WinRM service is listening for WS-Management requests”) – recorded upon reboot on systems where remoting has been enabled.
+
+WinRM Operational event log entries indicating authentication prior to PowerShell remoting on an accessed system:
+○ Event ID 169 (“User [DOMAIN\Account] authenticated successfully using [authentication_protocol]”)
+
+Security event log entries indicating the execution of the PowerShell console or interpreter:
+○ Event ID 4688 (“A new process has been created”) – includes account name, domain, and executable name in the event message.
+
+AppLocker event log entries recording the local execution of PowerShell scripts. We recommend enabling AppLocker in audit mode across an environment for this specific purpose. Upon script execution in audit mode, the AppLocker MSI and Script Event Log may record:
+○ Event ID 8006 (“[script_path] was allowed to run but would have been prevented from running if the AppLocker policy were enforced”)
+○ Event ID 8005 (“[script_path] was allowed to run”).
+
+https://www.powershellmagazine.com/2014/07/16/investigating-powershell-attacks/
+https://nsfocusglobal.com/Attack-and-Defense-Around-PowerShell-Event-Logging
+https://www.blackhat.com/docs/us-14/materials/us-14-Kazanciyan-Investigating-Powershell-Attacks.pdf
 
 ### Lateral movements
 
