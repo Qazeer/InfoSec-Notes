@@ -111,6 +111,9 @@ complete tunneling of full IP and ports range. The `autoroute` command from
 within the `meterpreter` shell can be used to forward TCP connections through a
 compromised machine.
 
+### Cobalt Strike
+
+
 ### Web TCP tunnel
 
 `reGeorg` and `ABPTTS` can be used to act as socks proxies and tunnel TCP
