@@ -198,6 +198,14 @@ https://ponderthebits.com/2018/02/windows-rdp-related-event-logs-identification-
 https://docs.microsoft.com/fr-fr/windows/security/threat-protection/auditing/event-4624
 https://docs.microsoft.com/fr-fr/windows/security/threat-protection/auditing/event-4688
 https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventID=4688
+https://www.blackhat.com/docs/us-14/materials/us-14-Kazanciyan-Investigating-Powershell-Attacks.pdf
+https://www.jpcert.or.jp/english/pub/sr/20170612ac-ir_research_en.pdf
+http://jpcertcc.github.io/ToolAnalysisResultSheet/details/PowerSploit_Invoke-Mimikatz.htm
+https://www.eventsentry.com/blog/2018/01/powershell-p0wrh11-securing-powershell.html
+https://www.powershellmagazine.com/2014/07/16/investigating-powershell-attacks/
+https://nsfocusglobal.com/Attack-and-Defense-Around-PowerShell-Event-Logging
+https://static1.squarespace.com/static/552092d5e4b0661088167e5c/t/59c1814829f18782e24f1fe2/1505853768977/Windows+PowerShell+Logging+Cheat+Sheet+ver+Sept+2017+v2.1.pdf
+https://www.eventtracker.com/EventTracker/media/EventTracker/Files/support-docs/Integration-Guide-Windows-PowerShell.pdf
 
 ###### Programs execution
 
