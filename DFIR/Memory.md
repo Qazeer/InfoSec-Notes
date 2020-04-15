@@ -70,7 +70,7 @@ a good first step.
 
 The general, context-independent, steps below can be followed for investigating
 the memory of a system:
-  - Suspicious process hierarchy, such as `outlook.exe` or `iexplorer`
+  - Suspicious process hierarchy, such as `outlook.exe` or `iexplorer.exe`
   executing `cmd.exe` or `powershell.exe` process
   - Identification of rogue / unlinked processes
   - review of network artifacts, notably in correlation with known C2 IP

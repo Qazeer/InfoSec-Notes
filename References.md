@@ -186,6 +186,8 @@ https://xorl.wordpress.com/2018/02/04/ssh-hijacking-for-lateral-movement/
 
 ### DFIR
 
+https://www.blackhat.com/docs/us-14/materials/us-14-Kazanciyan-Investigating-Powershell-Attacks-WP.pdf
+
 ###### Windows event logs
 
 https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventID=*
@@ -193,8 +195,11 @@ https://www.manageengine.com/products/active-directory-audit/kb/windows-security
 https://docs.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4738
 https://repo.zenk-security.com/Forensic/A-forensic-analysis-of-apt-lateral-movement-in-windows-environment.pdf
 https://ponderthebits.com/2018/02/windows-rdp-related-event-logs-identification-tracking-and-investigation/
+https://docs.microsoft.com/fr-fr/windows/security/threat-protection/auditing/event-4624
+https://docs.microsoft.com/fr-fr/windows/security/threat-protection/auditing/event-4688
+https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventID=4688
 
-###### Processes
+###### Programs execution
 
 https://digital-forensics.sans.org/media/dfir_poster_2014.pdf
 
