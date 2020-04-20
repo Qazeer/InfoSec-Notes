@@ -29,6 +29,25 @@ routing all connections to their destination, and a utility such as
 `proxychains` will be used to redirect tools connections to the listening
 forwarding service proxy port.
 
+###### SOCKS proxy pivots
+
+`SOCKS` is an Internet protocol that performs at Layer 5 of the
+`Open Systems Interconnection model (OSI model)` and exchanges network packets
+between a client and a server through a proxy server. Practically, a `SOCKS`
+service proxies `TCP` / (in some case) `UDP` connections to an arbitrary IP
+address and can thus be used on a compromised system to route traffic from the
+C2 servers to internal hosts, effectively transforming the compromise system
+in a pivot.
+
+`SOCKS` proxies can only forward `TCP`, and, for the `socks5` proxy
+following the current `Request for comment (RFC)` specifications, `UDP`
+traffic.
+
+These restrictions may impose specific tuning of tools in order for an use
+through a `SOCKS` proxy. For instance, `nmap` should be used with the following
+options to run a ports / services scan through a `SOCKS` proxy:
+`nmap -n -Pn -sT [...]`.
+
 ### SSH
 
 SSH port forwarding is a mechanism that allows for connection tunneling
@@ -113,6 +132,58 @@ compromised machine.
 
 ### Cobalt Strike
 
+`Cobalt Strike` supports the following pivoting mechanisms:
+  - Pivot listeners
+  - Dynamic ports forwarding through a SOCKS proxy
+  - VPN access
+
+###### Pivot listeners
+
+`Cobalt Strike`'s `pivot listeners` are listeners started on compromised
+systems to chain beacons communication in an internal Information System (IS).
+The `pivot listener` will serve as a pass-through between further beacons and
+the C2 listeners in order to minimize the number of beacons connections to the
+C2 servers or compromise systems that couldn't otherwise reach the C2 servers.
+
+A pivot listener can be started on a beacon using the beacon built-in function
+`[beacon] -> Pivoting -> Listeners...`.
+
+As of now, `pivot listeners` can only be of type `windows\beacon_reverse_tcp`
+and do not support stager payloads.
+
+Note that the functionally does not automatically update the system host-based
+firewall configuration and a manual modification of the firewall rules may be
+necessary in order to allow inbound traffic on the listener port.
+
+###### SOCKS proxy
+
+A `SOCKS4` proxy service can be started on a beacon using the beacon built-in
+function `[beacon] -> Pivoting -> SOCKS Server` or through the beacon CLI using
+`socks <C2_LOCAL_SOCK_PORT>`.
+
+The actives `SOCKS4` proxies can be viewed and managed through the `View ->
+Proxy Pivots` interface. All the `SOCKS4` proxies running on a beacon can also
+be stopped directly through the beacon CLI using `socks <SOCK_PORT>`.
+
+Network traffic can be proxied through the `SOCKS` service started on the
+C2 server network interfaces by `Cobalt Strike` using `proxychains`:
+
+```
+# /etc/proxychains.conf
+[ProxyList]
+socks4 <127.0.0.1 | LOCAL_C2_INTERFACE> <LOCAL_SOCKS_PROXY_PORT>
+
+proxychains [...]
+```
+
+In `metasploit`, the
+`setg Proxies socks4:<127.0.0.1 | LOCAL_C2_INTERFACE>:<LOCAL_SOCKS_PROXY_PORT>`
+command can be used to tunnel modules through the `Cobalt Strike` `SOCKS`
+proxy.
+
+###### VPN access
+
+TODO
 
 ### Web TCP tunnel
 
@@ -134,7 +205,7 @@ a classical web shell.
 Once the page / package is deployed, `reGeorg` socks server can be started:
 
 ```
-python reGeorgSocksProxy.py -p <LPORT> -u <http | https>://<HOSTNAME | IP>/<PATH>/<tunnel.xx>
+python reGeorgSocksProxy.py -p <LOCAL_SOCKS_PROXY_PORT> -u <http | https>://<HOSTNAME | IP>/<PATH>/<tunnel.xx>
 ```
 
 `proxychains` can be used to easily redirect traffic a program traffic to
@@ -143,7 +214,7 @@ python reGeorgSocksProxy.py -p <LPORT> -u <http | https>://<HOSTNAME | IP>/<PATH
 ```
 # /etc/proxychains.conf
 [ProxyList]
-socks4 	127.0.0.1 <LPORT>
+socks4 <127.0.0.1 | LOCAL_C2_INTERFACE> <LOCAL_SOCKS_PROXY_PORT>
 
 proxychains [...]
 ```
