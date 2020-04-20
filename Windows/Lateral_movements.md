@@ -29,11 +29,16 @@ will be made using the user account specified.
 The `Start-Process` and `Start-Job` PowerShell cmdlets can be used to start a
 local process under the identify of another user.
 
+To run the specified process in an elevated security context through a
+interactive logon on a system with `User Account Control (UAC)` enabled, the
+`-Verb RunAs` parameter, for `Run as administrator`, can be specified.
+
 ```
 $secpasswd = ConvertTo-SecureString "<PASSWORD>" -AsPlainText -Force
 $creds = New-Object System.Management.Automation.PSCredential ("<DOMAIN>\<USERNAME>", $secpasswd)
 
 Start-Process <cmd.exe | powershell.exe | ...> -Credential $creds
+Start-Process <cmd.exe | powershell.exe | ...> -Credential $creds -Verb RunAs
 
 $ProcessJob = Start-Job -ScriptBlock { <POWERSHELL> } -Credential $creds
 Wait-Job $ProcessJob
