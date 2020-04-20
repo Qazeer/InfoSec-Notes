@@ -12,7 +12,7 @@ The following tools can be used to host files server side.
 
 ###### [Linux / Windows] Python
 
-The `SimpleHTTPServer` / `http.server` `Python` module can be used to quickly
+The `SimpleHTTPServer` / `http.server` `Python` modules can be used to quickly
 start an HTTP server from the CLI.
 
 The module is however limited : the listening interfaces can not be specified
@@ -22,6 +22,18 @@ and no SSL/TLS layer is natively supported.
 python2 -m SimpleHTTPServer <PORT>
 
 python3 -m http.server <PORT>
+```
+
+On Windows systems with out `Python` installed, the `WinSimpleHTTP` standalone
+binary can be used to start a the web server based on `Python`'s
+`SimpleHTTPServer` module.
+
+```
+# Pre-compiled binaries are available on GitHub
+pip install pyinstaller
+pyinstaller web.py --onefile
+
+web.exe <PORT>
 ```
 
 ###### [Linux / Windows] Node
