@@ -1,4 +1,4 @@
-# Ports and services scanning - Methodology
+deployment# Ports and services scanning - Methodology
 
 --------------------------------------------------------------------------------
 
@@ -465,10 +465,36 @@ crackmapexec [...] -x 'netstat -anob'
 crackmapexec [...] -x 'netstat -anob | find "<PORT>"'
 ```
 
-### Advanced port scanner
+### Graphical ports scanning utilities
+
+###### Advanced port scanner
 
 `Advanced port scanner` is a Windows GUI multithreaded ports and services
 scanner that can be both installed and used in standalone mode.
 
 The tool provides easy access to the main identified services (HTTP, HTTPS, SSH,
 RDP, SMB, etc.) by starting the associated Windows built-ins.
+
+###### netscan
+
+`SoftPerfect`'s `NetScan` is an advanced and light weight Windows GUI network
+scanner utility, available as a standalone binary. `NetScan` supports the
+`Windows 7` through `Windows 10`, and `Windows Server 2008 R2` through
+`Windows Server 2019` operating systems.
+
+Note that the free edition of `NetScan` can only be used to display a maximum
+of 10 devices.
+
+In addition to IPv4 and IPv6 hosts discovery and ports scanning, `NetScan`
+provides the following key features:
+  - Discovery of (hidden) network shares and integration with Windows built-in
+  network share explorer and drive mapping functionalities
+  - Sending of `Wake-on-LAN (WoL)` messages
+  - Discovery of `Dynamic Host Configuration Protocol (DHCP)` servers
+  - Automatic discovery of network interface IP range
+  - Remote execution of `SSH`, `PowerShell` and `VBScript` command execution   
+
+Cracked commercial editions of `NetScan` have been observed to be used in the
+wild by malicious actors, notably in ransomware attack scenarios, with the
+deployment of `NetScan` standalone binary on a compromised system to discover
+and map remote `C$` network shares.

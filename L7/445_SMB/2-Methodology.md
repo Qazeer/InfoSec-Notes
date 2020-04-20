@@ -95,6 +95,12 @@ smbclient -U "" -N -L \\<HOSTNAME> -I <IP>
 smbclient -U <USERNAME> [--pw-nt-hash] ...
 ```
 
+The `SoftPerfect`'s' `NetScan` Windows graphical network scanner utility can be
+used to conduct IPv4 and IPv6 hosts discovery and network shares enumeration.
+`NetScan` integrates with the Windows built-in network share explorer and drive
+mapping functionalities. For more information, refer to the
+`General - Ports scan` note.
+ 
 ###### Retrieve share files or directories ACL
 
 The Windows `icals` and the Linux `smbcacls` utilities as well as the
