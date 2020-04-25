@@ -10,7 +10,7 @@ they may be abused to leverage an unauthenticated RCE.
 Nmap can be used to scan the network for open rexec and rlogin services:
 
 ```
-nmap -v -p 512,513 -A <RANGE/CIDR>
+nmap -v -p 512,513 -A <RANGE | CIDR>
 ```
 
 ### Auth bruteforce

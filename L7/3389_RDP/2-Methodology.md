@@ -22,7 +22,7 @@ use of resources on the server from the load of the graphical login screen.
 Nmap can be used to scan the network for RDP services:
 
 ```
-nmap -v -p 3389 -A -oA nmap_rdp <RANGE/CIDR>
+nmap -v -p 3389 -A -oA nmap_rdp <RANGE | CIDR>
 ```
 
 ### RDP clients

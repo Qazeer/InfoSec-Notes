@@ -17,7 +17,7 @@ is the zero-length string and which contains, among others attributes, the
 `nmap` can be used to scan the network for LDAP services:
 
 ```
-nmap -v -p 389,636,3268,3269 -sV -sC -oA nmap_ldap <RANGE/CIDR>
+nmap -v -p 389,636,3268,3269 -sV -sC -oA nmap_ldap <RANGE | CIDR>
 ```
 
 The connection to the LDAP service can be tested using `curl`:

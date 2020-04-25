@@ -5,7 +5,7 @@
 Nmap can be used to scan the network for SSH services:
 
 ```
-nmap -v -p 22 -A -oA nmap_smb <RANGE/CIDR>
+nmap -v -p 22 -A -oA nmap_smb <IP | RANGE | CIDR>
 ```
 
 ### User enumeration (CVE-2018-15473)
@@ -132,3 +132,11 @@ disclosure, etc.):
 # Only take the base64 content of the public key in format PEM
 grep -rl <KEY> <FOLDER_RSA|FOLDER_DSA>
 ```
+
+### SSH clients
+
+###### [Windows] PuTTY
+
+`PuTTY` is a simple `SSH`, as well as `telnet`, `rlogin` and `serial`, client
+for Microsoft Windows, available as an installed program and a standalone
+binary.

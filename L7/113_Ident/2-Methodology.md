@@ -15,7 +15,7 @@ Nmap automatically query the Ident service, if exposed on the host, during
 ports scan and specify the user running the service with "auth-owners".
 
 ```
-nmap -v -p 113 -A <HOSTS>
+nmap -v -p 113 -A <IP | RANGE | CIDR>
 ```
 
 ### Ident query
