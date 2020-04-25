@@ -132,6 +132,23 @@ https://ldapwiki.com/wiki/ANONYMOUS%20SASL%20Mechanism
 https://ldap.com/the-ldap-search-operation/
 https://docs.oracle.com/cd/E19476-01/821-0506/ldapsearch-examples.html
 
+###### RPC
+
+https://pubs.opengroup.org/onlinepubs/9629399/chap2.htm
+Network Security Assessment: Know Your Network
+https://publications.opengroup.org/c706
+https://book.hacktricks.xyz/pentesting/135-penstesting-wrpc
+https://actes.sstic.org/SSTIC06/Dissection_RPC_Windows/SSTIC06-article-Pouvesle-Dissection_RPC_Windows.pdf
+http://etutorials.org/Networking/network+security+assessment/Chapter+9.+Assessing+Windows+Networking+Services/9.2+Microsoft+RPC+Services/
+https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/cca27429-5689-4a16-b2b4-9325d93e4ba2
+https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rpce/290c38b1-92fe-4229-91e6-4fc376610c15
+https://tools.ietf.org/html/rfc1831
+https://redmondmag.com/articles/2004/02/01/the-magic-of-rpc-over-http.aspx
+https://www.windows-security.org/windows-service/rpc-endpoint-mapper
+https://support.microsoft.com/en-us/help/832017/service-overview-and-network-port-requirements-for-windows
+https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/96952411-1d17-4fe4-879c-d5b48a264314
+https://kb.juniper.net/InfoCenter/index?page=content&id=KB12057&pmv=print&actp=&searchid=&type=currentpaging
+
 ###### SMB
 
 https://www.petri.com/how-to-get-ntfs-file-permissions-using-powershell

@@ -319,7 +319,7 @@ system. The configuration below allows delegation to any system.
 
 ```
 winrm quickconfig
-set-item wsman:localhost\client\trustedhosts -value *
+Set-Item WSMan:localhost\client\trustedhosts -value *
 Enable-WSManCredSSP -Role "Client" -DelegateComputer "*"
 
 Start gpedit.msc
