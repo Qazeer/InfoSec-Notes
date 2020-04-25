@@ -181,9 +181,16 @@ In `metasploit`, the
 command can be used to tunnel modules through the `Cobalt Strike` `SOCKS`
 proxy.
 
-###### VPN access
+###### CovertVPN pivoting
 
-TODO
+`This feature does not work on Windows 10 systems.`<br/>
+`Require Administrator privileges on the compromised system.`
+
+The `CovertVPN` feature deploy a network interface on a compromised system,
+through a running beacon, and bridge the newly deployed interface into the
+beacon specified network. to layer 2 . CovertVPN is a Windows client that provides
+  the Cobalt Strike host with a virtual interface on a target's network.
+  CovertVPN is able to relay raw frames over a TCP, UDP, or HTTP channel.
 
 ### Web TCP tunnel
 

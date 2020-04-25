@@ -166,7 +166,7 @@ Generate a live hosts list trough a `nmap` ping sweep (ARP ping if on same
 subnet, ICMP echo and TCP packets on ports 80 and 443 otherwise).
 
 ```
-nmap -sn -T4 -oG Discovery.gnmap <RANGE/CIDR>
+nmap -sn -T4 -oG Discovery.gnmap <RANGE | CIDR>
 grep "Status: Up" Discovery.gnmap | cut -f 2 -d ' ' > LiveHosts.txt
 ```
 
@@ -192,7 +192,7 @@ grep "open" FullUDP | cut -f 1 -d ' ' | sort -nu | cut -f 1 -d '/' |xargs | sed 
 *Specific service vulnerabilites*
 
 ```
-nmap -v -sT -Pn -p <SERVICE_PORT> -oA <FILEOUT> --script=vuln <RANGE/CIDR>
+nmap -v -sT -Pn -p <SERVICE_PORT> -oA <FILEOUT> --script=vuln <RANGE | CIDR>
 nmap -v -sT -Pn -p <SERVICE_PORT> -oA <FILEOUT> --script=vuln -iL LiveHosts.txt
 ```
 
