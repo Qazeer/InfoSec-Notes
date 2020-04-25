@@ -418,7 +418,7 @@ tftp -i <SERVERIP> GET <FILENAME>
 
 ###### [Linux] SCP
 
-The Linux `Secure Copy` utility can be used to transfer files over SSH and
+The Linux `Secure Copy` utility can be used to transfer files over `SSH` and
 can notably be used to retrieve and upload files from a compromised target
 exposing a SSH service.  
 
@@ -431,6 +431,20 @@ scp -i <KEY> <USERNAME>@<HOSTNAME | IP>:<DIRECTORY>/<FILENAME>
 scp <LOCAL_FILENAME> <USERNAME>@<HOSTNAME | IP>:<DIRECTORY>/<FILENAME>
 scp -i <KEY> <LOCAL_FILENAME> <USERNAME>@<HOSTNAME | IP>:<DIRECTORY>/<FILENAME>
 ```
+
+###### [Windows] WinSCP
+
+`WinSCP` is a file transfer graphical utility for Microsoft Windows, available
+as an installed program and a standalone binary. `WinSCP` support the following
+protocols / services:
+  - `FTP`
+  - `SFTP`
+  - `SCP`
+  - `WebDAV`
+  - Amazon `S3` buckets
+
+`WinSCP` supports key-based authentication using `PuTTY Private Key File
+(.pkf)` as well as `SSL` based private keys.
 
 ###### [Linux / Windows] Metasploit meterpreter
 
