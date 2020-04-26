@@ -20,9 +20,49 @@ The following word list can be used for passwords cracking:
 
 | Name | Entry count | Description |
 |------|-------------|-------------|
-| darkweb2017-top | 10/100/1000/10000 | Top X passwords |
-| rockyou.txt | 14 millions | Enough for any CTF purpose |
-| CrackStation’s 15GB | 1.5 billion | The most complete list to date |  
+| `darkweb2017-top` | 10/100/1000/10000 | Top X passwords. |
+| `rockyou.txt` | 14 millions | Usually considered sufficient for any CTF purpose, coupled if necessary with cracking rules. |
+| `CrackStation`’s 15GB | 1.5 billion | The publicly available most complete password wordlist to date. |  
+
+###### kwprocessor
+
+`kwprocessor` is a keyboard-walk generator utility, with configurable
+basechars, keymap and routes. Keyboard-walk sequences correspond to a sequence
+of juxtaposed keyboard keys, such as "qwerty" or "azerty" for example.
+
+The `basechars` characters list consist of every characters that will be used
+as a starting point for the keyboard-walking sequences. The `tiny.base` list
+includes very limited, `QWERTY` keyboard based, starting points: `1q!Q`. The
+`full.base` file provides a more comprehensive `basechars` list and its use is
+recommended.  
+
+The `keymap` correspond to a keyboard layout, representing the physical
+disposition of the keyboard keys. A `keymap` file should consist of 12 lines:
+4 complete physical keyboard lines, represented as of (`azertyuiop^$`), and
+if pressed in combination with the modifier keys `Shift` (`AZERTYUIOP¨£`) and
+`AltGr` (`€¤`). Various keymaps (`en-us`, `en-gb`, `fr`, `es`, `de`, `ru`,
+etc.) are provided on the `kwprocessor` GitHub.    
+
+The `route` corresponds to the patterns used to generate the keyboard-walking
+sequences. A `route` is composed of a sequence of number(s), each number
+representing the number of pressed keys in the same geographical directions
+(north, south, west and east by default, extendable to north-west, north-east,
+south-west, south-east and repeat in place). For example, the route `1`, for
+the `h` key starting point and with the default `kwprocessor` configuration,
+would generate the following words: `hn`, `hg`, `hj` and `hy`.<br/>
+For more information and explanation on `route`, refer to the `kwprocessor`
+GitHub documentation: `https://github.com/hashcat/kwprocessor`
+
+```
+# -s: include characters reachable by holding Shift. Default to false.
+# -a: include characters reachable by holding AltGr. Default to false.
+# -n: minimum allowed distance between keys. Default to 1.
+# -x: maximum allowed distance between keys. Default to 1.    
+# --keywalk-all: enable all --keywalk-* directions (keywalk-north, keywalk-south, keywalk-west, keywalk-east, keywalk-north-west, keywalk-north-east, keywalk-south-west, keywalk-south-east and keywalk-repeat).
+# Default keywalk routes are the cardinal geographic directions: north, south, west and east, with out repetition.
+
+kwp -s 1 -a 1 ./basechars/full.base <KEYBOARD_LAYOUT_FILE> <ROUTES> > <OUTPUT_FILE>
+```
 
 ### Hash types
 
@@ -43,19 +83,18 @@ for better performance and more complex attacks for serious needs.
 
 ###### John-the-Ripper & magnumripper John-the-Ripper
 
-John, also abbreviated JrT, is a password cracking tool, available notably on
-Linux and Windows and supporting a wide range of hashes type.
+`John`, also abbreviated `JrT`, is a password cracking tool, available notably
+on Linux and Windows and supporting a wide range of hashes type.
 
-The Jumbo version of John the Ripper is a community-enhanced version of John and
-can be found on the magnumripper GitHub repository. It noatably supports more
-hash types.
+The `Jumbo` version of `John the Ripper` is a community-enhanced version of
+`John` that can be found on the `magnumripper` `GitHub` repository. It notably
+supports more hash types.
 
-John will try to automatically detect the hash type of the provided hashes.
-
+`John` will try to automatically detect the hash type of the provided hashes.
 John stores the cracked passwords in a "pot" file, located in
 `~/.john/john.pot`.
 
-John-the-Ripper usage:
+`John-the-Ripper` usage:
 
 ```
 john [OPTIONS] [HASH_FILE]
@@ -70,23 +109,24 @@ cat ~/.john/john.pot
 john --wordlist=<WORDLIST> --format=<HASH_FORMAT> <HASH_FILE>
 ```
 
-###### Hashcat
+###### hashcat
 
-Hashcat is an advanced cracking tool that generally offer better performance
-than john and is considered to be the world's fastest password cracking tool.
+`hashcat` is an advanced cracking tool that generally offer better performance
+than `John` and is considered to be among the world's fastest password cracking
+tool.
 
-Multi-OS (Windows, Linux, etc.) and multi-platforms (CPU, GPU, etc.), hashcat
+Multi-OS (Windows, Linux, etc.) and multi-platforms (CPU, GPU, etc.), `hashcat`
 supports more than 200 different hash types.
 
-Moreover, hashcat introduced rule-based attack, which is one of the most
+Moreover, `hashcat` introduced rule-based attack, which is one of the most
 complicated of all the passwords cracking attack modes. The rule-based attack
 is like a programming language designed for password candidate generation. It
 has functions to modify, cut or extend words and has conditional operators.
 
-The "OneRuleToRuleThemAll" rule aggregate multiples rule sets with the aim of
-maximizing efficiency (success rates vs number of total candidates).
+The `OneRuleToRuleThemAll` rule aggregate multiples rule sets with the aim of
+maximizing efficiency (success rates versus number of total candidates).
 
-The following attack modes can be used, specified by the -a / --attack-mode
+The following attack modes can be used, specified by the `-a` / `--attack-mode`
 option:
   - 0: dictionary attack
   - 1: combinator attack, concatenating words from multiple wordlists
@@ -95,7 +135,7 @@ option:
   - 6/7: hybrid attack, combining wordlists+masks (mode 6) and masks+wordlists
     (mode 7)
 
-Hashcat usage:
+`hashcat` usage:
 
 ```
 # Supported hash types, with a hash example
@@ -128,8 +168,8 @@ hashcat -m <HASH_TYPE> -a 3 --increment --increment-min=4 -o <OUTPUT_FILE> <HASH
 
 ###### Firefox / Thunderbird stored passwords
 
-Firefox and Thunderbird save the password registered by the user in the user
-profile:
+`Firefox` and `Thunderbird` save the password registered by the user in the
+user profile:
 
 ```bash
 ~/.mozilla/firefox/$profile$.default/
@@ -143,10 +183,10 @@ Key3.db
 signons.sqlite3 / logins.json
 ```
 
-A master password can be set in either program and this affects key3.db. By
+A master password can be set in either program and this affects `key3.db`. By
 default no password is set.
 
-John-the-Ripper can be used to crack the master password:
+`John-the-Ripper` can be used to crack the master password:
 
 ```bash
 # First extract the master password hash
@@ -156,7 +196,7 @@ python mozilla2john.py key3.db > john_key3.hash
 john --show john_key3.hash
 ```
 
-The passwords can then be extracted from the Firefox / Thunderbird profile:
+The passwords can then be extracted from the `Firefox` / `Thunderbird` profile:
 
 ```bash
 python firefox_decrypt/firefox_decrypt.py <PATH_TO_PROFILE>
