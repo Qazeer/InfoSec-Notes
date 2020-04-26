@@ -164,6 +164,10 @@ https://reverseengineering.stackexchange.com/questions/1935/how-to-handle-stripp
 
 ### Passwords cracking
 
+###### kwprocessor
+
+https://github.com/hashcat/kwprocessor
+
 ###### mRemoteNG
 
 http://cosine-security.blogspot.com/2011/06/stealing-password-from-mremote.html
@@ -281,6 +285,10 @@ https://posts.specterops.io/offensive-lateral-movement-1744ae62b14f
 https://docs.microsoft.com/fr-fr/windows/win32/winrm/portal
 https://docs.microsoft.com/fr-fr/windows/win32/wmisdk/wmi-start-page
 https://www.blackhat.com/docs/us-15/materials/us-15-Graeber-Abusing-Windows-Management-Instrumentation-WMI-To-Build-A-Persistent%20Asynchronous-And-Fileless-Backdoor-wp.pdf
+https://blog.cobaltstrike.com/2017/05/23/cobalt-strike-3-8-whos-your-daddy/
+https://blog.cobaltstrike.com/2015/12/16/windows-access-tokens-and-alternate-credentials/
+https://blog.cobaltstrike.com/2015/05/21/how-to-pass-the-hash-with-mimikatz/
+https://docs.microsoft.com/en-us/windows/win32/secauthz/access-tokens
 
 ###### Post exploitation
 

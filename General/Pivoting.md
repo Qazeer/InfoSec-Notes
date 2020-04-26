@@ -186,11 +186,40 @@ proxy.
 `This feature does not work on Windows 10 systems.`<br/>
 `Require Administrator privileges on the compromised system.`
 
-The `CovertVPN` feature deploy a network interface on a compromised system,
-through a running beacon, and bridge the newly deployed interface into the
-beacon specified network. to layer 2 . CovertVPN is a Windows client that provides
-  the Cobalt Strike host with a virtual interface on a target's network.
-  CovertVPN is able to relay raw frames over a TCP, UDP, or HTTP channel.
+The `Cobalt Strike` `CovertVPN` feature is a layer 2 pivoting capability that
+deploy a network interface on the C2 server and bridge it, through a running
+beacon, to a compromised system network. While the traffic can be channeled
+over the `TCP`, `HTTP` and `ICMP` protocols, the use of the `UDP` protocol is
+recommended for performance optimization.
+
+A `CovertVPN` pivot can be started on a beacon using the beacon built-in
+function `[beacon] -> Pivoting -> Deploy VPN` or through the beacon CLI using
+`covertvpn <INTERFACE_NAME> <BEACON_IP_NETWORK>`. If the `Clone host MAC
+address` option is checked, the network interface deployed on the C2 server
+will have the same MAC address as the compromised system network interface.
+
+The actives `CovertVPN` pivots can be viewed and managed through the
+`Cobalt Strike -> VPN Interfaces` menu.
+
+Once up and running, the network interface on the C2 server will require
+further configuration, such as specifying an IP address, in order to reach the
+network it is attached to. This configuration may be done either automatically
+through the `Dynamic Host Configuration Protocol (DHCP)` protocol, if a `DHCP`
+server is reachable on the network, or manually.
+
+```
+# Verification of the presence of the CovertVPN network interface on the C2 server
+ifconfig <INTERFACE_NAME>
+
+# Automatic configuration of the CovertVPN network interface using the internal DHCP server
+dhclient <INTERFACE_NAME>
+
+# Manual setting of an IP address and default gateway, can be used if a DHCP server is not available or for a more covert approach
+# The beacon network interface information can be retrived using the "run ipconfig" command
+# Specifying a default gateway for the network interface is needed to reach systems outside of the (Virtual) Local Area Network ((V)LAN)  
+ifconfig <INTERFACE_NAME> <IP> netmask <255.255.255.0 | NETWORK_NETMASK> up
+ip route add default via <IP> dev <INTERFACE_NAME>
+```
 
 ### Web TCP tunnel
 
