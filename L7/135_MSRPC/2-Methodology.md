@@ -87,7 +87,7 @@ installed services.
 | `2F59A331-BF7D-48CB-9E5C-7C090D76E8B8` <br/> `5CA4A760-EBB1-11CF-8611-00A0245420ED` | `Terminal Server Service` <br/> `Terminal Services remote management` | `Terminal Server Service` (`termsrv.exe`) related interfaces, indicating that the terminal services have been deployed on the machine. |
 | `3F99B900-4D87-101B-99B7-AA0004007F07` | `MS-SQL-RPC` | `Microsoft SQL Server` related RPC interface. |
 | `82AD4280-036B-11CF-972C-00AA006887B0` | `Inetinfo`<br/>`MS-IIS-SMTP`<br/> | The `Internet Information Services (IIS)` `Inetinfo` interface, used to remotely manage `IIS` servers. |
-| `E3514235-4B06-11D1-AB04-00C04FC2DCD2` | `MS-DRSR` | `Microsoft Active Directory Replication Service`, used for Active Directory information replication between domain controllers. |
+| `E3514235-4B06-11D1-AB04-00C04FC2DCD2` <br/> `7C44D7D4-31D5-424C-BD5E-2B3E1F323D22` | `MS-DRSR` `DRSUAPI` <br/> `MS-DRSR` `DSAOP` | `Microsoft Active Directory Replication Service`, used for Active Directory information replication between domain controllers. |
 | `1A190310-BB9C-11CD-90F8-00AA00466520` | `MS-EXCHANGE-DATABASE` | The `Microsoft Exchange Database Service` interface, used for Exchange related operations. |
 | `D3FBB514-0E3B-11CB-8FAD-08002B1D29C3` <br/> `D6D70EF0-0E3B-11CB-ACC3-08002B1D29C3` <br/> `D6D70EF0-0E3B-11CB-ACC3-08002B1D29C4` | `RpcLocator` | The `RpcLocator` service interface. As the service is disabled by default on `Windows Server 2008` / `Windows Vista` machines, and later, the exposition of the `RpcLocator` interface may indicate that the machine is using an end-of-support Windows operating system. |
 

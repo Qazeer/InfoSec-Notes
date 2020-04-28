@@ -58,6 +58,18 @@ https://beta.hackndo.com/bloodhound/
 https://hausec.com/2019/09/09/bloodhound-cypher-cheatsheet/
 https://neo4j.com/docs/cypher-manual/current/clauses/match/
 
+###### ntds.dit dumping
+
+https://docs.microsoft.com/fr-fr/windows-server/storage/file-server/volume-shadow-copy-service
+https://github.com/giuliano108/SeBackupPrivilege/blob/master/README.md
+https://pure.security/dumping-windows-credentials/
+https://cqureacademy.com/cqure-labs/cqlabs-dsinternals-powershell-module
+https://www.dsinternals.com/en/dumping-ntds-dit-files-using-powershell/
+https://wiki.samba.org/index.php/DRSUAPI
+https://adsecurity.org/?p=1729
+https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-drsr/58f33216-d9f1-43bf-a183-87e3c899c410
+https://blog.stealthbits.com/what-is-dcsync-an-introduction/
+
 ### File transfer
 
 https://github.com/frizb/Windows-Privilege-Escalation
