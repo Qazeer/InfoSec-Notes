@@ -227,8 +227,7 @@ CME cheat sheet:
 # As of December 2018, no output to file file.
 # Use | tee <OUTPUT_FILE> to display standard output and stored result to a file
 
-# TARGETS can be IP(s), range(s), CIDR(s), hostname(s), FQDN(s) or file(s) containg a list of targets
-
+# TARGETS can be IP(s), range(s), CIDR(s), hostname(s), FQDN(s) or file(s) containing a list of targets
 crackmapexec <TARGETS> [-M <MODULE> [-o <MODULE_OPTION>]] (-d <DOMAIN> | --local-auth) -u <USERNAME | USERNAMES_FILE> (-p <PASSWORD | PASSWORDS_FILE> | -H <HASH>) [--sam] [-x <COMMAND> | -X <PS_COMMAND>]
 
 # SAM

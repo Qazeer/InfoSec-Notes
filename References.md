@@ -161,6 +161,13 @@ https://support.microsoft.com/en-us/help/832017/service-overview-and-network-por
 https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/96952411-1d17-4fe4-879c-d5b48a264314
 https://kb.juniper.net/InfoCenter/index?page=content&id=KB12057&pmv=print&actp=&searchid=&type=currentpaging
 
+###### NetBIOS
+
+https://www.itprotoday.com/compute-engines/knowing-angles-netbios-suffixes
+https://www.itprotoday.com/compute-engines/what-are-netbios-suffixes-16th-character
+Network Security Assessment: Know Your Network
+Windows NT TCP/IP Network Administration
+
 ###### SMB
 
 https://www.petri.com/how-to-get-ntfs-file-permissions-using-powershell
