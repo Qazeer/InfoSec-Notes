@@ -2,8 +2,8 @@
 
 ### Overview
 
-The **Microsoft Remote Procedure Call (MSRPC)** protocol is a modified and
-proprietary version of the **Remote Procedure Call (RPC)**. Similarly to the
+The `Microsoft Remote Procedure Call (MSRPC)` protocol is a modified and
+proprietary version of the `Remote Procedure Call (RPC)`. Similarly to the
 `RPC` protocol, the `MSRPC` protocol implements a client-server model, in order
 to allow one program, the `RCP` client, to interact with another program, the
 `RPC` server, alternatively denominated service. The client and server may be

