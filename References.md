@@ -308,6 +308,13 @@ https://blog.cobaltstrike.com/2017/05/23/cobalt-strike-3-8-whos-your-daddy/
 https://blog.cobaltstrike.com/2015/12/16/windows-access-tokens-and-alternate-credentials/
 https://blog.cobaltstrike.com/2015/05/21/how-to-pass-the-hash-with-mimikatz/
 https://docs.microsoft.com/en-us/windows/win32/secauthz/access-tokens
+http://woshub.com/powershell-remoting-via-winrm-for-non-admin-users/
+https://enigma0x3.net/2017/01/05/lateral-movement-using-the-mmc20-application-com-object/
+https://www.cybereason.com/blog/dcom-lateral-movement-techniques
+https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-dcom/4a893f3d-bd29-48cd-9f43-d9777a4415b0
+https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-dcom/ba4c4d80-ef81-49b4-848f-9714d72b5c01
+https://blog.varonis.fr/dcom-technologie-distributed-component-object-model/
+https://gallery.technet.microsoft.com/scriptcenter/89a5e3c2-0a1c-4471-b78c-136606cafdfb
 
 ###### Post exploitation
 
@@ -315,4 +322,5 @@ https://docs.microsoft.com/en-us/windows/security/identity-protection/credential
 https://blogs.technet.microsoft.com/ash/2016/03/02/windows-10-device-guard-and-credential-guard-demystified/
 https://medium.com/@markmotig/some-ways-to-dump-lsass-exe-c4a75fdc49bf
 https://yungchou.wordpress.com/2016/03/14/an-introduction-of-windows-10-credential-guard/
+https://outflank.nl/blog/2019/06/19/red-team-tactics-combining-direct-system-calls-and-srdi-to-bypass-av-edr/
 https://github.com/Hackndo/lsassy/wiki
