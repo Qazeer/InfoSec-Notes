@@ -286,12 +286,12 @@ find / -user root -perm -6000 -ls 2>/dev/null
 find / -type f -user root -perm -6000 -exec stat -c "%A %a %n" {} \; 2>/dev/null
 ```
 
-Look for "GTFOBins" or any unusual binaries in the list of SUID/GUID files
-enumerated.
+Look for `GTFOBins` or any unusual binaries in the list of `SUID` / `GUID`
+files enumerated.
 
 ###### "GTFOBins"
 
-The "GTFOBins" are binaries that can be used to bypass local security
+The `GTFOBins` are binaries that can be used to bypass local security
 restrictions and notably escape to shell.  
 
 The following binaries can be exploited to elevate privileges on the
@@ -319,14 +319,14 @@ https://gtfobins.github.io/
 
 ###### PATH exploit
 
-If a binary with the SUID/SGID bit set runs another binary with out
+If a binary with the `SUID` / `SGID` bit set runs another binary with out
 specifying its full path, it can be leveraged to escalate privileges on the
 system.  
 The vulnerability arise because the Linux operating system relies on the
 current user path environment variable to find the binary called and not the
-path of the owner of the SUID/SGID binary.
+path of the owner of the `SUID` / `SGID` binary.
 
-To detect that a SUID/SGID binary is calling others binaries with out
+To detect that a `SUID` / `SGID` binary is calling others binaries with out
 specifying their full path, the Linux strings tool can be used:
 
 ```
