@@ -11,7 +11,6 @@ All LDAP services must expose a special entry, called the `root DSE`, whose DN
 is the zero-length string and which contains, among others attributes, the
 `namingContexts` and the LDAP features supported by the LDAP service.
 
-
 ### Network scan
 
 `nmap` can be used to scan the network for LDAP services:
@@ -55,8 +54,9 @@ ldapsearch -x -h <HOSTNAME | IP> -p <PORT> [...]
 ldapsearch -x -H <ldap | ldaps>://<HOSTNAME | IP>:<PORT> [...]
 
 # Bind DN authentication
-ldapsearch -x -h <HOSTNAME | IP> -p <PORT> -D "CN=<USERNAME>,OU=<OU>[...],DC=AD,DC=COM" -w <PASSWORD> [...]
-ldapsearch -H <ldap | ldaps>://<HOSTNAME | IP>:<PORT> -D "CN=<USERNAME>,OU=<OU>[...],DC=AD,DC=COM" -w <PASSWORD> [...]
+# <ROOT>: base domain distinguished name, i.e "DC=AD,DC=COM" for example
+ldapsearch -x -h <HOSTNAME | IP> -p <PORT> -D "CN=<USERNAME>,OU=<OU>[...],<ROOT>" -w <PASSWORD> [...]
+ldapsearch -H <ldap | ldaps>://<HOSTNAME | IP>:<PORT> -D "CN=<USERNAME>,OU=<OU>[...],<ROOT>" -w <PASSWORD> [...]
 
 # Retrieves the namingContexts
 # The base scope option - specified using "-s base" - indicates that only the entries at the level specified by the base DN (and none of its child entries) should be considered   
