@@ -199,10 +199,11 @@ commands:
 | `lsaaddacctrights <SID> <RIGHT \| RIGHTS_LIST>` | `LSARPC` | Assign a privilege to a, domain or local, security principal on the machine. |
 | `lsaremoveacctrights <SID> <RIGHT \| RIGHTS_LIST>` | `LSARPC` | Remove a privilege to a, domain or local, security principal on the machine. |
 
-For a more automated approach, the `rpctools`' `walksam.exe` utility can be
-used to dump information about each user found in the SAM database, which will
-contain domain accounts information on a domain controller, local accounts
-information otherwise.
+For a more automated approach, the `rpctools`' `walksam.exe` Windows utility
+and the `impacket`'s `samrdump.py` Python script can be used to dump
+information about each user found in the SAM database, which will contain
+domain accounts information on a domain controller, local accounts information
+otherwise.
 
 ```
 # walksam.exe uses the current security context by default, and does provide a mechanism to specify an user
@@ -213,4 +214,7 @@ runas /NetOnly /user:"DO_NOT_MATTER" cmd.exe
 runas /NetOnly /user:"<WORKGROUP | DOMAIN>\<USERNAME>" cmd.exe
 
 walksam.exe <IP | HOSTNAME>
+
+python samrdump.py <IP | HOSTNAME>
+python samrdump.py [<DOMAIN>/]<USERNAME>:<PASSWORD>@<IP | HOSTNAME>
 ```

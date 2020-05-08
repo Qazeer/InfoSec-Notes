@@ -100,8 +100,8 @@ used to conduct IPv4 and IPv6 hosts discovery and network shares enumeration.
 `NetScan` integrates with the Windows built-in network share explorer and drive
 mapping functionalities. For more information, refer to the
 `General - Ports scan` note.
- 
-###### Retrieve share files or directories ACL
+
+###### Retrieve shared files or directories ACL
 
 The Windows `icals` and the Linux `smbcacls` utilities as well as the
 PowerShell cmdlet `Get-Acl` can be used to retrieve the detailed ACL of
@@ -138,7 +138,7 @@ of all files and directories in a share:
 Get-ChildItem "\\"\\<HOSTNAME | IP>\<SHARE>" -Recurse | Get-ACL | Select-Object Path, Owner, AccessToString, Group | Format-List
 ```
 
-### List and search files
+### List, search and download files
 
 Similarly as for shares listing, multiples tools can be used to access an
 exposed share.  
@@ -176,15 +176,18 @@ smbget -a -R smb://<HOSTNAME | IP>/<SHARE>
 smbget -w <WORKGROUP | DOMAIN> -U <USERNAME> -R smb://<HOSTNAME | IP>/<SHARE>
 ```
 
-###### smbclient
+###### Interactive smbclient
 
-The Linux `smbclient` CLI tool can be used to interact with the a SMB or SAMBA
-share:
+The Linux `smbclient` CLI tool can be used to interact with the a `SMB` or
+`SAMBA` share:
 
 ```
+# NULL bind
 smbclient -U "" -N "\\\\<HOSTNAME | IP>\\<SHARE>"
 
-# To authenticate as USERNAME. --pw-nt-hash to specify an NT hash instead of a cleartext password
+# To authenticate as USERNAME
+
+# --pw-nt-hash to specify an NT hash instead of a cleartext password
 smbclient -U <USER> --pw-nt-hash ...
 ```
 
@@ -216,15 +219,29 @@ ls <DIRECTORY>
 allinfo <FILE>
 ```
 
-To recursively upload / download a directory, use:
+###### recursive download of shared files
+
+The `smbget` and `smbclient` utilities on Linux and the `PowerShell`
+`Copy-Item` cmdlet on Windows can be used to recursively upload or download a
+network share directories and files.
 
 ```
+# Linux
+# Supports recursive download
+smbget --guest -n -R smb://<IP | HOSTNAME>/<SHARE>
+smbget [-w <DOMAIN>] -U <USERNAME[%<PASSWORD>]> smb://<IP | HOSTNAME>/<SHARE>
+
+# smbclient session - supports both recursive download and upload
 mask ""
 recurse ON
 prompt OFF
 cd '<PATH_REMOTE_DIR>'
 lcd '<PATH_LOCAL_DIR>'
 mput / mget *
+
+# Windows
+# Supports recursive download
+Copy-Item -Recurse -Force -Verbose -Path '\\<IP | HOSTNAME>\<SHARE>\' -Destination <OUTPUT_DIR>
 ```
 
 ###### Mount shares
