@@ -48,6 +48,23 @@ through a `SOCKS` proxy. For instance, `nmap` should be used with the following
 options to run a ports / services scan through a `SOCKS` proxy:
 `nmap -n -Pn -sT [...]`.
 
+Commands network traffic an be proxied through a `SOCKS` proxy service using
+`proxychains`:
+
+```
+# Specification of the SOCKS proxy address in /etc/proxychains.conf
+[ProxyList]
+socks4 <127.0.0.1 | IP> <SOCKS_PROXY_PORT>
+socks5 <127.0.0.1 | IP> <SOCKS_PROXY_PORT>
+
+# Execution of commands through proxychains
+proxychains [...]
+```
+
+In `metasploit`, the
+`setg Proxies socks4:<127.0.0.1 | IP>:<SOCKS_PROXY_PORT>`
+command can be used to tunnel modules through a `SOCKS` proxy.
+
 ### SSH
 
 SSH port forwarding is a mechanism that allows for connection tunneling
@@ -165,21 +182,9 @@ The actives `SOCKS4` proxies can be viewed and managed through the `View ->
 Proxy Pivots` interface. All the `SOCKS4` proxies running on a beacon can also
 be stopped directly through the beacon CLI using `socks <SOCK_PORT>`.
 
-Network traffic can be proxied through the `SOCKS` service started on the
-C2 server network interfaces by `Cobalt Strike` using `proxychains`:
-
-```
-# /etc/proxychains.conf
-[ProxyList]
-socks4 <127.0.0.1 | LOCAL_C2_INTERFACE> <LOCAL_SOCKS_PROXY_PORT>
-
-proxychains [...]
-```
-
-In `metasploit`, the
-`setg Proxies socks4:<127.0.0.1 | LOCAL_C2_INTERFACE>:<LOCAL_SOCKS_PROXY_PORT>`
-command can be used to tunnel modules through the `Cobalt Strike` `SOCKS`
-proxy.
+Refer to the `Overview - SOCKS proxy pivots` paragraph above for more
+information on how to make use of the `SOCKS` proxy, using `proxychains` or
+through `metasploit`.
 
 ###### CovertVPN pivoting
 
@@ -221,6 +226,72 @@ ifconfig <INTERFACE_NAME> <IP> netmask <255.255.255.0 | NETWORK_NETMASK> up
 ip route add default via <IP> dev <INTERFACE_NAME>
 ```
 
+### NPS
+
+`NPS` is a high-performance proxy server suite, analogous to a C2 framework,
+with cross-plateforms agents and a web management interface. It supports
+numerous network protocols: socks5, http proxy, tcp, udp, http(s), etc. `NPS`
+additionnally implements multiple extension functions, such as client
+authentication and network compression and encryption, and can display
+connected clients usage information (real-time bandwidth, total volume of data
+exchanged, etc.).
+
+Through an established connection of a client to the server, multiple proxies
+services can be started (both socks5 and HTTP proxies for a given client for
+example).
+
+Before use, the configuration file of `NPS`, in `/etc/nps/conf/nps.conf` on a
+default Linux installation, should be edited to securely restrict the access to
+the web management interface:  
+
+```
+# The default credentials are admin:123 with the web interface being exposed on all network interfaces
+web_username=<ADMIN>
+web_password=<PASSWORD>
+web_ip=127.0.0.1
+
+# If the web management interface must be reachable over the network, it is recommended to enforce the use of the SSL / TLS protocol
+web_open_ssl=true
+web_cert_file=<CERT_FULL_PATH>
+web_key_file=<KEY_FULL_PATH>
+```
+
+Server startup and initial client connection to the server:
+
+```
+# Server side
+
+nps start / restart
+
+# A client must first be configured through the web management interface in order to receive a client callback.
+URL of the web management inteface: http://127.0.0.1:8080 (by default).
+Client -> + Add -> Eventual configuration of client basic auth and network compression / encryption -> v Add
+
+The "Unique verify key" is needed for the client callback.
+The callback command may be copied directly (as displayed after clicking on the "+" sign in front of the client).
+
+# Client side
+
+# ./npc on Linux or npc.exe on Windows.
+./npc -server=<IP>:<8024 : SERVER_BRIDGE_PORT> -vkey=<UNIQUE_VERIFY_KEY> -type=tcp
+```
+
+Once a client has established a session with the server, the following pivoting
+functions can be configured through the web management interface:
+  - Unitary port forwarding using the `TCP` or `UDP` menus
+  - `HTTP` or `SOCKS5` proxies uising the `HTTP proxy` or `SOCKS 5` menus
+
+For instance, the procedure to deploy a `SOCKS5` proxy on the compromised
+system is as follow:
+
+```
+SOCKS 5 -> + Add -> Specification of the client ID and the local system proxy port <SOCKS_PROXY_PORT> -> v Add
+```
+
+Refer to the `Overview - SOCKS proxy pivots` paragraph above for more
+information on how to make use of the `SOCKS` proxy, using `proxychains` or
+through `metasploit`.
+
 ### Web TCP tunnel
 
 `reGeorg` and `ABPTTS` can be used to act as socks proxies and tunnel TCP
@@ -244,16 +315,9 @@ Once the page / package is deployed, `reGeorg` socks server can be started:
 python reGeorgSocksProxy.py -p <LOCAL_SOCKS_PROXY_PORT> -u <http | https>://<HOSTNAME | IP>/<PATH>/<tunnel.xx>
 ```
 
-`proxychains` can be used to easily redirect traffic a program traffic to
-`reGeorg`'s socks server:
-
-```
-# /etc/proxychains.conf
-[ProxyList]
-socks4 <127.0.0.1 | LOCAL_C2_INTERFACE> <LOCAL_SOCKS_PROXY_PORT>
-
-proxychains [...]
-```
+Refer to the `Overview - SOCKS proxy pivots` paragraph above for more
+information on how to make use of the `SOCKS` proxy, using `proxychains` or
+through `metasploit`.
 
 ### [Windows] netsh
 
@@ -265,7 +329,7 @@ forwarding.
 netsh interface portproxy show all
 
 # Configure a local port forwarding
-netsh interface portproxy add v4tov4 listenaddress=<LHOST> listenport=<LPORT>  connectaddress=<RHOST> connectport=<RPORT>
+netsh interface portproxy add v4tov4 listenaddress=<LHOST> listenport=<LPORT> connectaddress=<RHOST> connectport=<RPORT>
 ```
 
 ### [Linux] iptables
