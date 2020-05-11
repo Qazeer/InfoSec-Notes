@@ -17,14 +17,27 @@ Communications are performed over `HTTP`, port TCP `5985`, or `HTTPS`, port TCP
   - `Basic` / `Digest`: basic authentication for local Windows accounts.
   Credentials are base64 encoded and sent to the server ;
   - `Negotiate`: use negotiate authentication for both local and domain joined
-  accounts, also known as Windows Integrated Authentication. By default, for
-  local accounts, only the built-in Administrator account can connect.
+  accounts, also known as Windows Integrated Authentication. By default only
+  the built-in local Administrator and domain-joined accounts can connect
+  through `Negotiate`. If the registry key
+  `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\
+  System\LocalAccountTokenFilterPolicy` is set to `1`,  all local accounts in
+  the `Administrators` group to access the service.
   - `Client Certificate-based`: authentication is made using a client
   certificate mapped to a local Windows account on the server ;
   - `Kerberos`: use `Kerberos` authentication for domain joined accounts ;
-  - `ntlm`: use `NTLM` authentication for both local and domain joined accounts ;
+  - `ntlm`: use `NTLM` authentication for both local and domain joined
+    accounts ;
   - `credssp`: use `CredSSP` authentication mechanism for both local and domain
   joined accounts.
+
+Members of the Windows built-in `Administrators` and `Remote Management Users`
+groups are allowed, by default, to access a remote machine through `WinRM`:
+
+```
+(Get-PSSessionConfiguration -Name Microsoft.PowerShell).Permission
+  NT AUTHORITY\INTERACTIVE AccessAllowed, BUILTIN\Administrators AccessAllowed, BUILTIN\Remote Management Users AccessAllowed
+```
 
 **`WinRM` presents a limited attack surface, with no publicly known
 vulnerability to date (May-2019) and is subject to Windows anti brute

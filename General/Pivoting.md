@@ -49,7 +49,7 @@ options to run a ports / services scan through a `SOCKS` proxy:
 `nmap -n -Pn -sT [...]`.
 
 Commands network traffic an be proxied through a `SOCKS` proxy service using
-`proxychains`:
+`proxychains` on Linux:
 
 ```
 # Specification of the SOCKS proxy address in /etc/proxychains.conf
@@ -59,6 +59,18 @@ socks5 <127.0.0.1 | IP> <SOCKS_PROXY_PORT>
 
 # Execution of commands through proxychains
 proxychains [...]
+```
+
+On Windows, the `Proxifier` graphical utility can be used to tunnel specific
+processes network traffic through a `SOCKS` proxy:
+
+```
+# SOCKS proxy settings configuration
+Profile -> Proxy Servers... -> Add -> Specification of the SOCKS proxy configuration: Address, Port and Protocol (SOCKS Version 5 or SOCKS Version 4) -> Ok
+An authentication may also be specified and the proxy status and availability checked by establishing a connection and trying to reach www.google.com:80 through the proxy server.
+
+# Processes specification
+Profile -> Proxification Rules... -> Add -> Specification of the processes and proxy server: Applications, Target hosts / ports, Action (Proxy server) -> Enabled should be checked (by default) -> Ok
 ```
 
 In `metasploit`, the

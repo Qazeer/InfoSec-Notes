@@ -386,8 +386,11 @@ groups are allowed, by default, to access a remote machine through `WinRM`:
   NT AUTHORITY\INTERACTIVE AccessAllowed, BUILTIN\Administrators AccessAllowed, BUILTIN\Remote Management Users AccessAllowed
 ```  
 
+Refer to the `[L7] 5985-5986 WSMan` note for the listing of the different
+authentication mechanisms supported by `WinRM`.
+
 ```
-$user = '<USERNAME>';
+$user = '<DOMAIN | WORKGROUP>\<USERNAME>';
 $pass = '<PASSWORD>';
 $spass = ConvertTo-SecureString -AsPlainText $pass -Force;
 $creds = New-Object System.Management.Automation.PSCredential -ArgumentList $user,$spass;
