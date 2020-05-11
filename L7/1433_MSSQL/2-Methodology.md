@@ -1,4 +1,4 @@
-# MSSQL - Methodology
+# Microsoft SQL Server (MSSQL) - Methodology
 
 ### MSSQL instances discovery
 

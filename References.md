@@ -130,6 +130,7 @@ https://insomniasec.com/downloads/publications/LFI%20With%20PHPInfo%20Assistance
 https://byt3bl33d3r.github.io/practical-guide-to-ntlm-relaying-in-2017-aka-getting-a-foothold-in-under-5-minutes.html
 https://www.sternsecurity.com/blog/local-network-attacks-llmnr-and-nbt-ns-poisoning
 https://pen-testing.sans.org/blog/2013/04/25/smb-relay-demystified-and-ntlmv2-pwnage-with-python
+https://blog.fox-it.com/2018/01/11/mitm6-compromising-ipv4-networks-via-ipv6/
 
 ### L7
 
@@ -160,6 +161,10 @@ https://www.windows-security.org/windows-service/rpc-endpoint-mapper
 https://support.microsoft.com/en-us/help/832017/service-overview-and-network-port-requirements-for-windows
 https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/96952411-1d17-4fe4-879c-d5b48a264314
 https://kb.juniper.net/InfoCenter/index?page=content&id=KB12057&pmv=print&actp=&searchid=&type=currentpaging
+https://www.harmj0y.net/blog/redteaming/not-a-security-boundary-breaking-forest-trusts/
+https://dirkjanm.io/krbrelayx-unconstrained-delegation-abuse-toolkit/
+https://beta.hackndo.com/constrained-unconstrained-delegation/
+https://docs.microsoft.com/en-us/windows/win32/adschema/a-useraccountcontrol?redirectedfrom=MSDN
 
 ###### NetBIOS
 
