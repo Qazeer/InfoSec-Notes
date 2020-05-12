@@ -9,6 +9,13 @@ https://www.pdq.com/blog/secure-password-with-powershell-encrypting-credentials-
 https://blog.ropnop.com/using-credentials-to-own-windows-boxes-part-3-wmi-and-winrm/
 https://powersploit.readthedocs.io/en/latest/Recon/Find-DomainUserLocation/
 
+###### Kerberos
+
+https://www.sstic.org/media/SSTIC2014/SSTIC-actes/secrets_dauthentification_pisode_ii__kerberos_cont/SSTIC2014-Article-secrets_dauthentification_pisode_ii__kerberos_contre-attaque-bordes_2.pdf
+https://www.ssi.gouv.fr/uploads/IMG/pdf/Aurelien_Bordes_-_Secrets_d_authentification_episode_II_Kerberos_contre-attaque_--_planches.pdf
+https://remivernier.com/index.php/2018/07/07/kerberos-exploration/
+https://docs.microsoft.com/en-us/archive/blogs/openspecification/understanding-microsoft-kerberos-pac-validation
+
 ###### Kerberoasting
 
 https://www.harmj0y.net/blog/redteaming/kerberoasting-revisited/
@@ -131,6 +138,9 @@ https://byt3bl33d3r.github.io/practical-guide-to-ntlm-relaying-in-2017-aka-getti
 https://www.sternsecurity.com/blog/local-network-attacks-llmnr-and-nbt-ns-poisoning
 https://pen-testing.sans.org/blog/2013/04/25/smb-relay-demystified-and-ntlmv2-pwnage-with-python
 https://blog.fox-it.com/2018/01/11/mitm6-compromising-ipv4-networks-via-ipv6/
+https://www.secureauth.com/blog/playing-relayed-credentials
+https://docs.microsoft.com/en-us/previous-versions/technet-magazine/cc160954(v=msdn.10)?redirectedfrom=MSDN
+https://github.com/NotMedic/NetNTLMtoSilverTicket
 
 ### L7
 
