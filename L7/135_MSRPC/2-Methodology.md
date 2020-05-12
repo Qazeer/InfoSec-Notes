@@ -240,12 +240,40 @@ exploited in a number of ways:
   any domain resources as the targeted machine account. For more information on
   the attack, refer to the `[ActiveDirectory] Kerberos unconstrained
   delegation` note.
-  - If the targeted machine account is member of the local `Administrators`
-  group of remote systems, the captured `NTLM` authentication can be relayed to
-  these systems. For more information, refer to the `[ActiveDirectory] NTLM
-  relaying` note. As a machine account password is robust, 120 `UTF16`
-  characters, and regularly rotated, 30 days by default, the `Net-NTLM` hash
-  cannot directly be cracked offline.
+
+  - If the machine account of the machine exposing the `SpoolerService` is
+  member of the local `Administrators` group of remote systems, the captured
+  `NTLM` authentication can be relayed to these systems. For more information,
+  refer to the `[ActiveDirectory] NTLM relaying` note. As a machine account
+  password is robust, 120 `UTF16` characters, and regularly rotated, 30 days by
+  default, the `Net-NTLM` hash cannot directly be cracked offline.
+
+  - If the machine exposing the `SpoolerService` has its `LMCompatibilityLevel`
+  attribute set to 2 or lower (which is usually the case for environment with
+  `Windows XP` / `Windows server 2003` operating systems), the authentication
+  can be downgraded to use the `NetNTLMv1` protocol. `NetNTLMv1` hashes can be
+  cracked in order to retrieve the machine account `NTLM` hash, with the
+  possibility of cracking `NetNTLMv1` hashes obtained with the challenge
+  `1122334455667788` through a comprehensive `rainbow table` usable for free on
+  `crack.sh`. The machine account `NTLM` hash can then be used to generate a
+  `silver ticket` for the `HOST` service of the machine allowing for remote
+  code execution. Refer to the `ActiveDirectory - NTLM capture and relay` and
+  `ActiveDirectory - Kerberos Silver Tickets` notes for more information on the
+  attack.
+
+`PingCastle`'s `spooler` module, `Impacket`'s `rpcdump` Python script, and the
+`Get-SpoolStatus.ps1` PowerShell script can be used to enumerate the servers
+exposing the `MS-RPRN` `MSRPC` interface:
+
+```
+# Automates the enumeration of the computers in the domain and conducts the check on all the enumerated computers.
+# Refer to the Active Directory - Automatic scanners note for more information on how to use PingCastle.
+PingCastle.exe --scanner spooler
+
+rpcdump.py '<DOMAIN>/<USERNAME>:<PASSWORD>@<IP | HOSTNAME> | grep -i "MS-RPRN"
+
+Get-SpoolStatus -ComputerName <IP | HOSTNAME>
+```
 
 The `printerbug.py` Python script, of the `krbrelayx` toolkit, can be used to
 call the `SpoolerService` `MSRPC` functions and trigger the authentication
