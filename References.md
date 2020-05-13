@@ -28,6 +28,13 @@ https://tools.ietf.org/html/rfc4120#page-60
 https://beta.hackndo.com/kerberos-asrep-roasting/
 https://adsecurity.org/?p=227
 
+###### Kerberos golden and silver tickets
+
+https://2014.rmll.info/slides/80/day_3-1010-Benjamin_Delpy-Mimikatz_a_short_journey_inside_the_memory_of_the_Windows_Security_service.pdf
+https://adsecurity.org/?page_id=1821
+TECHNIQUES DE PERSISTANCE ACTIVE DIRECTORY BASÉES SUR KERBEROS - MISC Hors-Série N°20
+https://www.beneaththewaves.net/Projects/Mimikatz_20_-_Silver_Ticket_Walkthrough.html
+
 ###### DACLs / ACEs exploit
 
 https://www.specterops.io/assets/resources/an_ace_up_the_sleeve.pdf
