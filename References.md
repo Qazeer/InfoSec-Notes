@@ -323,6 +323,7 @@ https://posts.specterops.io/lateral-movement-scm-and-dll-hijacking-primer-d2f61e
 https://ss64.com/nt/sc.html
 https://support.microsoft.com/en-us/help/251192/how-to-create-a-windows-service-by-using-sc-exe
 https://posts.specterops.io/offensive-lateral-movement-1744ae62b14f
+https://www.contextis.com/en/blog/lateral-movement-a-deep-look-into-psexec
 https://docs.microsoft.com/fr-fr/windows/win32/winrm/portal
 https://docs.microsoft.com/fr-fr/windows/win32/wmisdk/wmi-start-page
 https://www.blackhat.com/docs/us-15/materials/us-15-Graeber-Abusing-Windows-Management-Instrumentation-WMI-To-Build-A-Persistent%20Asynchronous-And-Fileless-Backdoor-wp.pdf
@@ -337,6 +338,7 @@ https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-dcom/4a893f3d-bd
 https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-dcom/ba4c4d80-ef81-49b4-848f-9714d72b5c01
 https://blog.varonis.fr/dcom-technologie-distributed-component-object-model/
 https://gallery.technet.microsoft.com/scriptcenter/89a5e3c2-0a1c-4471-b78c-136606cafdfb
+https://blog.f-secure.com/endpoint-detection-of-remote-service-creation-and-psexec/
 
 ###### Post exploitation
 
