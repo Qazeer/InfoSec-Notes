@@ -339,6 +339,7 @@ https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-dcom/ba4c4d80-ef
 https://blog.varonis.fr/dcom-technologie-distributed-component-object-model/
 https://gallery.technet.microsoft.com/scriptcenter/89a5e3c2-0a1c-4471-b78c-136606cafdfb
 https://blog.f-secure.com/endpoint-detection-of-remote-service-creation-and-psexec/
+Applied Incident Response, Steve Anson
 
 ###### Post exploitation
 
