@@ -73,6 +73,33 @@ An authentication may also be specified and the proxy status and availability ch
 Profile -> Proxification Rules... -> Add -> Specification of the processes and proxy server: Applications, Target hosts / ports, Action (Proxy server) -> Enabled should be checked (by default) -> Ok
 ```
 
+Additionally, a `SOCKS` proxy can be specified through the `Internet Options`
+(settings used by the `Internet Explorer`, `Edge`, and `Chrome` web browsers)
+graphical utility and set as the system-wide `Microsoft Windows HTTP Services
+(WinHTTP)` proxy using `netsh`.
+
+```
+Control Panel -> Internet Options -> Connections -> LAN settings
+  "Use a proxy server for your LAN [...]" checked
+  (Optional) "Bypass proxy server for local addresses" checked
+  Advanced -> Socks: <127.0.0.1 | SOCKS_PROXY_IP> <SOCKS_PROXY_PORT>
+
+netsh winhttp import proxy source=ie
+
+# Lists the configured proxies.
+netsh winhttp dump
+  [...]
+  set proxy proxy-server="socks=<SOCKS_PROXY_IP>:<SOCKS_PROXY_PORT>" bypass-list="<local>"
+
+# Restore the WinHTTP default proxy settings (no proxies).
+netsh winhttp reset proxy
+```
+
+Note that however both methods prove to be unreliable to proxy PowerShell
+cmdlets network traffic through the `SOCKS` proxy (while some cmdlets, such
+as `Invoke-Command` and `Enter-PSSession` can be reliably proxied through a
+system-wide `HTTP` / `HTTPS` proxy).
+
 In `metasploit`, the
 `setg Proxies socks4:<127.0.0.1 | IP>:<SOCKS_PROXY_PORT>`
 command can be used to tunnel modules through a `SOCKS` proxy.

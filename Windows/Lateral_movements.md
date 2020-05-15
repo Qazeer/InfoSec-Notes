@@ -199,12 +199,13 @@ targeted system, usually given to members of the local `Administrators` group:
     - Permissions to create (`SC_MANAGER_CREATE_SERVICE`) and start
       (`SERVICE_QUERY_STATUS` + `SERVICE_START`) Windows services.  
 
-The execution of a PsExec-like utility will notably generate the following
-Windows events:
-  - `System` hive, `7045: A service was installed in the system`.
+The execution of a `PsExec`-like utility will notably, in addition to
+`Security` `EID 4624` and `EID 4672` events, generate the following Windows
+events:
+  - `System` hive, `EID 7045: A service was installed in the system`.
   - `Security` starting from the Windows Server 2016 and Windows 10 operating
-    systems, `4697: A service was installed in the system`.
-  - `System` hive, `7036: The <SERVICE_NAME> service entered the
+    systems, `EID 4697: A service was installed in the system`.
+  - `System` hive, `EID 7036: The <SERVICE_NAME> service entered the
     <running/stopped> state`.
 
 *PsExec*
@@ -227,8 +228,8 @@ Control Manager` to start the aforementioned binary.
 Note that while the name of the created service can be specified, the name of
 the uploaded binary cannot be changed, resulting in known forensics artefacts
 on the accessed system associated to the use of `PsExec`, such as:
-  - A Windows `Security` event `4624: An account was successfully logged on`
-  with its `Process Name`	field set to `C:\Windows\PSEXESVC.exe`.    
+  - A Windows `Security` event `EID 4624: An account was successfully logged
+    on` with its `Process Name`	field set to `C:\Windows\PSEXESVC.exe`.    
   - A `PSEXESVC.EXE` entry in the `Shimcache` / `Amcache`
   - A possible record in the `Master File Table (MFT)` and `Update Sequence
   Number Journal (USN) Journal`
@@ -412,6 +413,29 @@ groups are allowed, by default, to access a remote machine through `WinRM`:
 Refer to the `[L7] 5985-5986 WSMan` note for the listing of the different
 authentication mechanisms supported by `WinRM`.
 
+`PowerShell Remoting` can be conducted through `HTTP` / `HTTPS` proxies, if
+necessary. The proxy settings can be specified through the `Internet Options`
+graphical utility and set as the system-wide `Microsoft Windows HTTP Services
+(WinHTTP)` proxy using `netsh`.
+
+```
+Control Panel -> Internet Options -> Connections -> LAN settings
+  "Use a proxy server for your LAN [...]" checked
+  (Optional) "Bypass proxy server for local addresses" checked
+  Advanced -> (For WinRM over HTTP, port TCP 5985) HTTP: <127.0.0.1 | HTTP_PROXY_IP> <HTTP_PROXY_PORT>
+           -> (For WinRM over HTTPS, port TCP 5986) Secure: <127.0.0.1 | HTTPS_PROXY_IP> <HTTPS_PROXY_PORT>
+
+netsh winhttp import proxy source=ie
+
+# Lists the configured proxies.
+netsh winhttp dump
+  [...]
+  set proxy proxy-server="http=<HTTP_PROXY_IP>:<HTTP_PROXY_PORT>;https=<HTTPS_PROXY_IP>:<HTTPS_PROXY_PORT>" bypass-list="<local>"
+
+# Restore the WinHTTP default proxy settings (no proxies).
+netsh winhttp reset proxy
+```
+
 ```
 $user = '<DOMAIN | WORKGROUP>\<USERNAME>';
 $pass = '<PASSWORD>';
@@ -561,25 +585,119 @@ services.py -k -no-pass -dc-ip <DC_IP> <HOSTNAME> <start | delete> -name <SERVIC
 
 ###### Remote scheduled tasks
 
-The Windows built-in utility `schtasks` can be used to remotely create and
-start a Windows scheduled tasks.
+The Windows built-in utility `schtasks`, the `Impacket`'s `atexec.py`
+Python script, and the Windows `Task Scheduler` graphical utility can be used
+to remotely create and start a Windows scheduled tasks.
+
+Remote code execution can be achieved through a Windows scheduled task by:
+    - Copying a binary to the targeted system and executing it through the
+      scheduled task.
+    - Directly executing a one-liner or payload through a built-in Windows
+      binary, such as `cmd.exe` or `powershell.exe`.
+
+Refer to the `[General] Shells` note for Windows reverse shell one-liners and
+scripts.
 
 While `schtasks` does not have a "run now" option, a scheduled task can be
 programmed to run once and starts in a few minutes. The `/Z` switch can be
 specified to automatically delete the scheduled task after execution. It may
-however raise compatibility issue, in which case the scheduled task could be
-deleted manually.
+however raise compatibility issue, in which case the scheduled task would need
+to be deleted manually.
+
+`atexec.py` will create, run and immediately delete a scheduled task, by
+default with a random generated name, that execute the specified command. The
+scheduled task will be exectued as `NT AUTHORIT\SYSTEM`. The command output
+will be stored in a temporary random file and retrieved through the `ADMIN$`
+share.
+
+The Windows `Task Scheduler` utility can be used to configure remote scheduled
+task through the `Microsoft Management Console (MMC)` utility:
 
 ```
+File -> Add/Remove Snap-in (Ctrl + M) -> Task Scheduler -> Add
+Specification of the remote computer: Another computer -> (Optional) Connect as another user
+
+Task Scheduler (<HOSTNAME>) -> Right click -> Create task...
+
+  General -> Name
+          -> Description
+          -> Run whether user is logged on or not
+          -> Hidden
+          -> Run with highest privileges
+          -> (Optional, to run as NT AUTHORITY\SYSTEM) Change User or Group... -> SYSTEM
+
+  Actions -> New... -> Program/script: <cmd.exe | %ComSpec% | powershell.exe | BINARY>
+          -> Add arguments (optional): <COMMAND_ARGS>
+
+  Conditions -> Power -> Start the task only if the computer is on AC power -> Unchecked
+
+Task Scheduler Library -> Right click on <TASK> -> Run / Delete  
+```
+
+The creation, execution and deletion of a scheduled task will notably, in
+addition to `Security` `EID 4624` and `EID 4672` events, generate the following
+Windows events:
+  - `Microsoft-Windows-TaskScheduler/Operational` hive, `EID 106: User
+    "<DOMAIN | HOSTNAME>\<USERNAME> | <SID>" registered Task Scheduler task
+    "\<TASK_NAME>"`.
+
+  - `Microsoft-Windows-TaskScheduler/Operational` hive, `EID 140: User
+    "<DOMAIN | HOSTNAME>\<USERNAME> | <SID>" updated Task Scheduler task
+    "\<TASK_NAME>"`.
+
+  - `Microsoft-Windows-TaskScheduler/Operational` hive, `EID 141: User
+    "<DOMAIN | HOSTNAME>\<USERNAME> | <SID>" deleted Task Scheduler task
+    "\<TASK_NAME>"`.
+
+  - `Microsoft-Windows-TaskScheduler/Operational` hive, `EID 129: Task
+    Scheduler launch task "\<TASK_NAME>", instance "<INSTANCE>"  with process
+    ID <PID>`.
+
+  - `Microsoft-Windows-TaskScheduler/Operational` hive, `EID 100: Task
+    Scheduler started "<INSTANCE>" instance of the "\<TASK_NAME>" task for
+    user "NT AUTHORITY\SYSTEM | <DOMAIN | HOSTNAME>\<USERNAME> | <SID>"`.
+
+  - `Microsoft-Windows-TaskScheduler/Operational` hive, `EID 140: User
+    "<DOMAIN | HOSTNAME>\<USERNAME> | <SID>"  updated Task Scheduler task
+    "\<TASK_NAME>"`.
+
+  - `Security`, if `Audit object access` is enabled for `Success` and
+    `Failure`, `EID 4698: A scheduled task was created`. Includes the scheduled
+    task detailed configuration (author, triggers, executing user, command and
+    eventual command argument, etc.) and can be correlated to a logon session
+    using the event `Logon ID`.
+
+  - `Security`, if `Audit object access` is enabled for `Success` and
+    `Failure`, `EID 4702: A scheduled task was updated`. Specifies the user
+    at the origin of the modification, the task name of the updated scheduled
+    task and can be correlated to a logon session using the event `Logon ID`.
+
+  - `Security`, if `Audit object access` is enabled for `Success` and
+    `Failure`, `EID 4699: A scheduled task was deleted`. Specifies the user
+    at the origin of the modification, the task name of the updated scheduled
+    task and can be correlated to a logon session using the event `Logon ID`.
+
+```
+# <TASK_COMMAND> example with a Windows binary: <cmd.exe /c '<COMMAND> <COMMAND_ARGS>' | %ComSpec% /c '<COMMAND> <COMMAND_ARGS>' |  powershell.exe -NoP -NonI -W Hidden -Exec Bypass -C '<COMMAND> <COMMAND_ARGS>' | powershell.exe -NoP -NonI -W Hidden -Exec Bypass -Enc <ENCODED_BASE64_CMD> | ...>
+
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoP -NonI -W Hidden -Enc [...]
+
 # Create a scheduled task to run PowerShell code for example
-schtasks /create /tn "<TASK_NAME>" /tr "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoP -NonI -W Hidden -Enc [...]" /sc once /sd <MM/DD/YYYY> /st <HH:MM:SS> /V1 /Z /RU "NT AUTHORITY\SYSTEM" /S <IP | HOSTNAME>
+schtasks /create /tn "<TASK_NAME>" /tr "<TASK_COMMAND>" /sc once /sd <MM/DD/YYYY> /st <HH:MM:SS> /V1 /Z /RU "NT AUTHORITY\SYSTEM" /S <IP | HOSTNAME>
 
 # The creation and status of the scheduled task can be validated
 schtasks /query /tn "<TASK_NAME>" /S <IP | HOSTNAME>
-
 schtasks /run /tn "<TASK_NAME>" /S <IP | HOSTNAME>
-
 schtasks /delete /tn "<TASK_NAME>" /S <IP | HOSTNAME>
+
+# By default, atexec execute "cmd /C <COMMAND>"
+# NTLM authentication
+atexec.py [-target-ip <TARGET_IP>] [<DOMAIN>/]<USERNAME>[:<PASSWORD>]@<HOSTNAME | IP> <TASK_COMMAND>
+atexec.py -hashes <LM_HASH:NT_HASH> [-target-ip <TARGET_IP>] [[<DOMAIN>/]<USERNAME>@<HOSTNAME | IP> <TASK_COMMAND>
+
+# Kerberos authentication
+export KRB5CCNAME=<TICKET_CCACHE_FILE_PATH>
+atexec.py -k -no-pass -dc-ip <DC_IP> <HOSTNAME> "<COMMAND | TASK_COMMAND>"
 ```
 
 ###### Distributed Component Object Model (DCOM)
@@ -676,7 +794,11 @@ below list, mostly gathered from
 `https://www.cybereason.com/blog/dcom-lateral-movement-techniques`, is possibly
 far from being exhaustive.
 
+PowerShell and `Impacket`'s `dcomexec.py` Python script can be used to execute
+commands through `DCOM` objects:
+
 ```
+# PowerShell
 # MMC20.Application
 # Blocked by the default Windows firewall rules
 # Starts a child process under Microsoft Management Console (mmc.exe)
@@ -713,6 +835,16 @@ $dcom_shell.ShellExecute("<BINARY>", "<COMMAND_ARGS>", "<EXEC_DIRECTORY>", $null
 $dcom = [activator]::CreateInstance([type]::GetTypeFromProgID("Excel.Application","<IP>"))
 $dcom.DisplayAlert = $False
 $dcom.DDEInitiate("<BINARY>","<COMMAND_ARGS>")
+
+# Python
+# dcomexec.py executes by default a semi-interactive shell using the ShellBrowserWindow DCOM oject.
+# NTLM authentication
+dcomexec.py -debug [-object <MMC20 | ShellWindows | ShellBrowserWindow>] [-target-ip <TARGET_IP>] [<DOMAIN>/]<USERNAME>[:<PASSWORD>]@<HOSTNAME | IP> <TASK_COMMAND>
+dcomexec.py -debug [-object <MMC20 | ShellWindows | ShellBrowserWindow>] -hashes <LM_HASH:NT_HASH> [-target-ip <TARGET_IP>] [[<DOMAIN>/]<USERNAME>@<HOSTNAME | IP> <TASK_COMMAND>
+
+# Kerberos authentication
+export KRB5CCNAME=<TICKET_CCACHE_FILE_PATH>
+dcomexec.py -debug [-object <MMC20 | ShellWindows | ShellBrowserWindow>] -k -no-pass -dc-ip <DC_IP> <HOSTNAME> "<COMMAND | TASK_COMMAND>"
 
 # More Microsoft Office DCOM objects can be leveraged for lateral movements, as described in the provided source above
 ```
