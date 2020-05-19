@@ -194,8 +194,9 @@ Recon` note).
 The aforementioned actions require the following elevated privileges on the
 targeted system, usually given to members of the local `Administrators` group:
     - Write permission on any network share (both `NTFS` and `Share` write
-      permission). `PsExec` however requires write permission to the `ADMIN$`
-      share.
+      permission). `PsExec` however requires specifically write permission to
+      the `ADMIN$` share. If necessary, a writable share can be configured
+      remotely through the `Server Service` `MSRPC` interface.
     - Permissions to create (`SC_MANAGER_CREATE_SERVICE`) and start
       (`SERVICE_QUERY_STATUS` + `SERVICE_START`) Windows services.  
 
@@ -207,6 +208,32 @@ events:
     systems, `EID 4697: A service was installed in the system`.
   - `System` hive, `EID 7036: The <SERVICE_NAME> service entered the
     <running/stopped> state`.
+
+*Writable network share*
+
+The `smbmap` Python script can be used to list the shares, and their
+configured permissions, on the remote system and the `rpcclient` utility
+can be used to call the `NetShareAdd` function of the `Server Service` `MSRPC`
+interface in order to create a share on the remote system.
+
+According to the Microsoft documentation, only members of the `Administrators`,
+`System Operators`, or `Power Users` local groups can add shares using the
+`NetShareAdd` function. The `Print Operator` can however add printer
+shares.
+
+```
+# The <HASH> should be specified in the <LM_HASH:NT_HASH> format (<aad3b435b51404eeaad3b435b51404ee:NT_HASH>)
+smbmap [-d <DOMAIN>] [-u <USERNAME>] [-p <PASSWORD | HASH>] (-H <HOSTNAME | IP> | --host-file <FILE>)  
+
+rpcclient -U "<USERNAME>" [--pw-nt-hash] <HOSTNAME | IP>
+
+rpclient $> netshareadd "<C:\Windows | SHARE_PATH>" "<SHARE_NAME>" <MAX_USERS> "<COMMENT>"
+```
+
+An utility supporting the specification of the remote share to write the binary
+to, such as the `Metasploit`'s `exploit/windows/smb/psexec` module or
+the `Impacket`'s `smbexec.py` Python script can then be leveraged to execute
+code on the remote system.
 
 *PsExec*
 
