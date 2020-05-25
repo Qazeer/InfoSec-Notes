@@ -7,7 +7,7 @@ system under the security context and privileges of the specified user.
 
 This security context may be used to access resources on the present system as
 well as moving laterally using various methods (remote Windows services or
-scheduled taks, `WMI`, etc.) that can rely on the current user security
+scheduled tasks, `WMI`, etc.) that can rely on the current user security
 context.      
 
 ###### runas

@@ -350,3 +350,15 @@ https://medium.com/@markmotig/some-ways-to-dump-lsass-exe-c4a75fdc49bf
 https://yungchou.wordpress.com/2016/03/14/an-introduction-of-windows-10-credential-guard/
 https://outflank.nl/blog/2019/06/19/red-team-tactics-combining-direct-system-calls-and-srdi-to-bypass-av-edr/
 https://github.com/Hackndo/lsassy/wiki
+
+###### Post exploitation - DPAPI
+
+https://github.com/gentilkiwi/mimikatz/wiki/howto-~-credential-manager-saved-credentials
+https://github.com/gentilkiwi/mimikatz/wiki/module-~-dpapi
+https://onedrive.live.com/view.aspx?resid=A352EBC5934F0254!3104&ithint=file%2cxlsx&authkey=!ACGFg7R-U5xkTh4
+https://www.harmj0y.net/blog/redteaming/operational-guidance-for-offensive-user-dpapi-abuse/
+https://www.synacktiv.com/ressources/univershell_2017_dpapi.pdf
+https://rastamouse.me/2017/08/jumping-network-segregation-with-rdp/
+https://ired.team/offensive-security/credential-access-and-credential-dumping/reading-dpapi-encrypted-secrets-with-mimikatz-and-c++
+https://docs.microsoft.com/fr-fr/windows/win32/api/wincred/ns-wincred-credentiala?redirectedfrom=MSDN
+http://revertservice.com/10/wwansvc/
