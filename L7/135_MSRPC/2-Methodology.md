@@ -236,10 +236,9 @@ exploited in a number of ways:
   delegation`, the `Kerberos` `service ticket`, received from the targeted
   machine as part of a `Kerberos` authentication, will contain a copy of the
   machine `Ticket-Granting Ticket (TGT)`. This `TGT` can be extracted from the
-  `LSASS` process of the controlled machine, and futher used to authenticate to
-  any domain resources as the targeted machine account. For more information on
-  the attack, refer to the `[ActiveDirectory] Kerberos unconstrained
-  delegation` note.
+  `LSASS` process of the controlled machine, and further used to authenticate
+  to any domain resources as the targeted machine account. For more information
+  on the attack, refer to the `[ActiveDirectory] Kerberos delegation` note.
 
   - If the machine account of the machine exposing the `SpoolerService` is
   member of the local `Administrators` group of remote systems, the captured
