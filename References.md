@@ -15,6 +15,9 @@ https://www.sstic.org/media/SSTIC2014/SSTIC-actes/secrets_dauthentification_piso
 https://www.ssi.gouv.fr/uploads/IMG/pdf/Aurelien_Bordes_-_Secrets_d_authentification_episode_II_Kerberos_contre-attaque_--_planches.pdf
 https://remivernier.com/index.php/2018/07/07/kerberos-exploration/
 https://docs.microsoft.com/en-us/archive/blogs/openspecification/understanding-microsoft-kerberos-pac-validation
+https://www.blackhat.com/docs/us-14/materials/us-14-Duckwall-Abusing-Microsoft-Kerberos-Sorry-You-Guys-Don't-Get-It.pdf
+https://cyberwardog.blogspot.com/2017/04/chronicles-of-threat-hunter-hunting-for.html
+https://gist.github.com/TarlogicSecurity/2f221924fef8c14a1d8e29f3cb5c5c4a
 
 ###### Kerberoasting
 
