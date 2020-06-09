@@ -532,12 +532,12 @@ gpp-decrypt <ENC_PASSWORD>
 Passwords may also be stored in Windows registry:
 
 ```
+# Windows autologin
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon"
+
 # VNC
 reg query "HKCU\Software\ORL\WinVNC3\Password"
 reg query HKEY_LOCAL_MACHINE\SOFTWARE\RealVNC\WinVNC4 /v password
-
-# Windows autologin
-reg query "HKLM\SOFTWARE\Microsoft\Windows NT\Currentversion\Winlogon"
 
 # SNMP Paramters
 reg query "HKLM\SYSTEM\Current\ControlSet\Services\SNMP"
@@ -1065,11 +1065,13 @@ Get-WmiObject -Class win32_service -Property PathName | Ft PathName
 Get-WmiObject -Class win32_service -Property PathName | Where-Object { $_.PathName -NotMatch "system32"} | Ft PathName
 ```
 
-The Windows bullet-in `icacls` can be used to determine the NTFS permissions on
-the services binary:
+The Windows bullet-in `icacls` can be used to determine the `NTFS` permissions
+on the services binary:
 
 ```
 icacls <BINARY_PATH>
+
+Get-ACL <BINARY_PATH | FOLDER_PATH> | Format-List
 ```
 
 ###### Unquoted service binary paths

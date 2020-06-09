@@ -95,10 +95,11 @@ https://blog.stealthbits.com/what-is-dcsync-an-introduction/
 ###### Kerberos_delegations
 
 https://www.sstic.org/media/SSTIC2014/SSTIC-actes/secrets_dauthentification_pisode_ii__kerberos_cont/SSTIC2014-Article-secrets_dauthentification_pisode_ii__kerberos_contre-attaque-bordes_2.pdf
-https://shenaniganslabs.io/2019/01/28/Wagging-the-Dog.html
+  https://shenaniganslabs.io/2019/01/28/Wagging-the-Dog.html
 https://adsecurity.org/?p=1667
 https://www.synetis.com/risques-associes-a-la-delegation-kerberos/
 https://blog.stealthbits.com/unconstrained-delegation-permissions/
+https://blog.stealthbits.com/resource-based-constrained-delegation-abuse/
 https://docs.microsoft.com/fr-fr/dotnet/api/system.security.principal.wellknownsidtype?view=dotnet-plat-ext-3.1
 https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-sfu/bde93b0e-f3c9-4ddf-9f44-e1453be7af5a
 https://posts.specterops.io/hunting-in-active-directory-unconstrained-delegation-forests-trusts-71f2b33688e1
@@ -106,8 +107,10 @@ https://beta.hackndo.com/unconstrained-delegation-attack/#rappels--unconstrained
 https://dirkjanm.io/krbrelayx-unconstrained-delegation-abuse-toolkit/
 https://chryzsh.github.io/relaying-delegation/
 https://www.harmj0y.net/blog/redteaming/another-word-on-delegation/
+https://alsid.com/fr/node/143
 https://alsid.com/fr/node/144
 https://ired.team/offensive-security-experiments/active-directory-kerberos-abuse/abusing-kerberos-constrained-delegation
+https://stackoverflow.com/questions/57171940/accessing-parsing-msds-allowedtoactonbehalfofotheridentity-ad-property-in-c-sh
 
 ### File transfer
 
