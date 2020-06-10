@@ -8,9 +8,9 @@ Collected artifacts:
   - Windows registries hives
   - autorunsC CSV output
   - Prefetch and Amcache
-
-Missing:
   - $MFT and UsnJrnl
+
+Missing ?
   - Shimcache
 
 ### PowerShell PowerForensics Get-ForensicTimeline

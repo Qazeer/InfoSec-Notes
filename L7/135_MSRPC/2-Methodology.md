@@ -153,7 +153,11 @@ credentials, misconfiguration may allow unauthenticated binding, known as
 enumeration of all the security principals in the domain, as well as the domain
 password policies, may be possible. As `NULL` session corresponds to a Windows
 `NT AUTHORITY\ANONYMOUS LOGON`, any privileged operation, such as user and
-group administration, should however be restricted.  
+group administration, should however be restricted.
+
+Such `NULL` session may be established on Active Directory `Domain controllers`
+if the `Anonymous` (`SID: S-1-5-7`) domain group is member of the
+`Pre-Windows 2000 Compatible Access` domain group.
 
 On Linux, the `rpcclient` utility implements a number of commands to interact
 with the `SAMR`, `LSARPC`, `LSARPC-DS`, and `NETLOGON` RPC services interfaces.
