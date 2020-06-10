@@ -66,8 +66,15 @@ kwp -s 1 -a 1 ./basechars/full.base <KEYBOARD_LAYOUT_FILE> <ROUTES> > <OUTPUT_FI
 
 ### Hash types
 
-To identity the hash type being faced, the list from the hashcat organization
-can be used:
+The `hashid` Python utility can be used to determine the hash type and its
+corresponding `hashcat` and `john` modules:
+
+```
+hashid -m -j "<HASH | HASH_FILE>"
+```
+
+Additionally, the `hashcat` documentation may be directly used as well in order
+to identify the hash type and its corresponding `hashcat` mode:
 
 ```
 https://hashcat.net/wiki/doku.php?id=example_hashes
@@ -106,7 +113,15 @@ john --list=formats
 john --show <HASH_FILE>
 cat ~/.john/john.pot
 
+# With out the --format option, John will automatically attempt to determine the hash type.
+john --wordlist=<WORDLIST> <HASH_FILE>
 john --wordlist=<WORDLIST> --format=<HASH_FORMAT> <HASH_FILE>
+
+# Default rules.
+john --wordlist=<WORDLIST> --rules --format=<HASH_FORMAT> <HASH_FILE>
+
+# Specified rule.
+john --wordlist=<WORDLIST> --rules=<Jumbo | KoreLogic | All | RULE_NAME> --format=<HASH_FORMAT> <HASH_FILE>
 ```
 
 ###### hashcat
@@ -143,10 +158,13 @@ option:
 # https://hashcat.net/wiki/doku.php?id=example_hashes
 hashcat --example-hashes
 
+# -w: Sets workload profile, with may have significant performance and power consumption impacts. 1 = Low, 2 = Default, 3 = High, and 4 = Nightmare.
+# --hwmon-temp-abort <TEMP_DEGRE_CELSIUS>: Defines a maximum temperature in place of the default 90° celsius.
 hashcat [options] <HASH | HASH_FILE> [<WORDLIST | MASK>]
 
 # Dictionary attack
-hashcat -m <HASH_TYPE> -a 0 -r <RULE_FILE> -o <OUTPUT_FILE> <HASH | HASH_FILE> <WORDLIST>
+hashcat -w 3 -m <HASH_TYPE> -a 0 -o <OUTPUT_FILE> <HASH | HASH_FILE> <WORDLIST>
+hashcat -w 3 -m <HASH_TYPE> -a 0 -r <best64.rule | OneRuleToRuleThemAll.rule | RULE_FILE> -o <OUTPUT_FILE> <HASH | HASH_FILE> <WORDLIST>
 
 # Mask attack
 # A mask is a string that configures the keyspace of the password candidate
@@ -160,8 +178,8 @@ hashcat -m <HASH_TYPE> -a 0 -r <RULE_FILE> -o <OUTPUT_FILE> <HASH | HASH_FILE> <
     ?a = ?l?u?d?s
     ?b = 0x00 - 0xff
 
-hashcat -m <HASH_TYPE> -a 3 --increment -o <OUTPUT_FILE> <HASH | HASH_FILE> "?a?a?a?a?a?a?a?a"
-hashcat -m <HASH_TYPE> -a 3 --increment --increment-min=4 -o <OUTPUT_FILE> <HASH | HASH_FILE> "?a?a?a?a?a?a?a?a"
+hashcat -w 3 -m <HASH_TYPE> -a 3 --increment -o <OUTPUT_FILE> <HASH | HASH_FILE> "?a?a?a?a?a?a?a?a"
+hashcat -w 3 -m <HASH_TYPE> -a 3 --increment --increment-min=4 -o <OUTPUT_FILE> <HASH | HASH_FILE> "?a?a?a?a?a?a?a?a"
 ```
 
 ### Misc
