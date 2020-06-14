@@ -177,6 +177,11 @@ https://www.secureauth.com/blog/playing-relayed-credentials
 https://docs.microsoft.com/en-us/previous-versions/technet-magazine/cc160954(v=msdn.10)?redirectedfrom=MSDN
 https://github.com/NotMedic/NetNTLMtoSilverTicket
 
+###### NTLM relay ADIDNS
+
+https://blog.netspi.com/exploiting-adidns/#adidnszones
+https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/active-directory-integrated-dns-zones 
+
 ### L7
 
 ###### DNS
