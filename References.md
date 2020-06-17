@@ -180,7 +180,7 @@ https://github.com/NotMedic/NetNTLMtoSilverTicket
 ###### NTLM relay ADIDNS
 
 https://blog.netspi.com/exploiting-adidns/#adidnszones
-https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/active-directory-integrated-dns-zones 
+https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/active-directory-integrated-dns-zones
 
 ### L7
 
@@ -383,6 +383,16 @@ https://medium.com/@markmotig/some-ways-to-dump-lsass-exe-c4a75fdc49bf
 https://yungchou.wordpress.com/2016/03/14/an-introduction-of-windows-10-credential-guard/
 https://outflank.nl/blog/2019/06/19/red-team-tactics-combining-direct-system-calls-and-srdi-to-bypass-av-edr/
 https://github.com/Hackndo/lsassy/wiki
+
+###### Post exploitation - Local Security Authority Protection
+
+https://aaltodoc.aalto.fi/bitstream/handle/123456789/38990/master_Aquilino_Broderick_2019.pdf?sequence=1&isAllowed=y
+https://www.programmersought.com/article/3880644118/
+https://googleprojectzero.blogspot.com/2018/10/injecting-code-into-windows-protected.html
+https://www.crowdstrike.com/blog/evolution-protected-processes-part-1-pass-hash-mitigations-windows-81/
+https://docs.microsoft.com/fr-fr/windows-server/security/credentials-protection-and-management/configuring-additional-lsa-protection
+https://posts.specterops.io/mimidrv-in-depth-4d273d19e148
+https://medium.com/@gorkemkaradeniz/defeating-runasppl-utilizing-vulnerable-drivers-to-read-lsass-with-mimikatz-28f4b50b1de5
 
 ###### Post exploitation - DPAPI
 
