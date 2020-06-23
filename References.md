@@ -55,6 +55,12 @@ https://blog.fox-it.com/2018/04/26/escalating-privileges-with-acls-in-active-dir
 https://dirkjanm.io/abusing-exchange-one-api-call-away-from-domain-admin/
 https://github.com/gdedrouas/Exchange-AD-Privesc
 
+###### DACLs / ACEs exploit
+
+https://www.microsoft.com/en-us/download/details.aspx?id=46899
+https://blog.stealthbits.com/running-laps-in-the-race-to-security/
+https://github.com/leoloobeek/LAPSToolkit
+
 ###### Passwords spraying
 
 https://social.technet.microsoft.com/Forums/ie/en-US/79978325-549e-42b3-a532-1e26775982bf/how-to-reset-badpwdcount-value?forum=winserverDS

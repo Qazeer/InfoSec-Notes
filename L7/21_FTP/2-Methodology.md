@@ -48,7 +48,7 @@ login. To specifically scan the network for FTP services supporting anonymous
 login, the following command can be used:
 
 ```
-nmap -v -p 21 --script ftp-anon.nse <IP | RANGE | CIDR>
+nmap -v -p 21 -sV --script ftp-anon.nse <IP | RANGE | CIDR>
 
 ftp <HOST | IP>
 Name: anonymous
