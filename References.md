@@ -399,6 +399,7 @@ https://www.crowdstrike.com/blog/evolution-protected-processes-part-1-pass-hash-
 https://docs.microsoft.com/fr-fr/windows-server/security/credentials-protection-and-management/configuring-additional-lsa-protection
 https://posts.specterops.io/mimidrv-in-depth-4d273d19e148
 https://medium.com/@gorkemkaradeniz/defeating-runasppl-utilizing-vulnerable-drivers-to-read-lsass-with-mimikatz-28f4b50b1de5
+https://github.com/alxbrn/gdrv-loader
 
 ###### Post exploitation - DPAPI
 
