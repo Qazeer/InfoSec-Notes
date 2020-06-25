@@ -1,4 +1,4 @@
-deployment# Ports and services scanning - Methodology
+# Ports and services scanning - Methodology
 
 --------------------------------------------------------------------------------
 

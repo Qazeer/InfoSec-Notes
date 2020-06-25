@@ -874,8 +874,9 @@ under the privileges of the user starting the service, often
 
 ###### Windows services enumeration
 
-The Windows built-ins `sc` and `wmic` can be used to enumerate the services configured on
-the target system:
+The Windows built-ins `sc` and `wmic` can be used to enumerate the services
+configured on the target system. The Windows built-in graphical utility
+`services.msc` can alternatively be used as well.
 
 ```
 # List services
