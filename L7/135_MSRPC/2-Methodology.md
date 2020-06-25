@@ -155,9 +155,16 @@ password policies, may be possible. As `NULL` session corresponds to a Windows
 `NT AUTHORITY\ANONYMOUS LOGON`, any privileged operation, such as user and
 group administration, should however be restricted.
 
-Such `NULL` session may be established on Active Directory `Domain controllers`
-if the `Anonymous` (`SID: S-1-5-7`) domain group is member of the
-`Pre-Windows 2000 Compatible Access` domain group.
+Such `NULL` session may be established on Active Directory
+`Domain controllers`:
+  - if the `Anonymous` (`SID: S-1-5-7`) domain group is member of the
+    `Pre-Windows 2000 Compatible Access` / `Accès compatible pré-Windows 2000`
+    domain group.
+  - or if the
+    `HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Lsa\EveryoneIncludesAnonymous`
+    registry key is set to `1` on the Domain Controllers. The key may notably set
+    through the `Default Domain Controllers Policy` `GPO`
+    (`UID: {6AC1786C-016F-11D2-945F-00C04fB984F9}`).
 
 On Linux, the `rpcclient` utility implements a number of commands to interact
 with the `SAMR`, `LSARPC`, `LSARPC-DS`, and `NETLOGON` RPC services interfaces.
