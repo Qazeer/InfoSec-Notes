@@ -705,9 +705,11 @@ Windows events:
     task and can be correlated to a logon session using the event `Logon ID`.
 
 ```
-# <TASK_COMMAND> example with a Windows binary: <cmd.exe /c '<COMMAND> <COMMAND_ARGS>' | %ComSpec% /c '<COMMAND> <COMMAND_ARGS>' |  powershell.exe -NoP -NonI -W Hidden -Exec Bypass -C '<COMMAND> <COMMAND_ARGS>' | powershell.exe -NoP -NonI -W Hidden -Exec Bypass -Enc <ENCODED_BASE64_CMD> | ...>
-
-C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoP -NonI -W Hidden -Enc [...]
+# <TASK_COMMAND> example with the Windows built-in cmd.exe or PowerShell:
+cmd.exe /c '<COMMAND> <COMMAND_ARGS>' | %ComSpec% /c '<COMMAND> <COMMAND_ARGS>'
+powershell.exe -NoP -NonI -W Hidden -Exec Bypass -C '<COMMAND> <COMMAND_ARGS>'
+powershell.exe -NoP -NonI -W Hidden -Exec Bypass -Enc <ENCODED_BASE64_CMD>
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoP -NonI -W Hidden -Enc <ENCODED_BASE64_CMD>
 
 # Create a scheduled task to run PowerShell code for example
 schtasks /create /tn "<TASK_NAME>" /tr "<TASK_COMMAND>" /sc once /sd <MM/DD/YYYY> /st <HH:MM:SS> /V1 /Z /RU "NT AUTHORITY\SYSTEM" /S <IP | HOSTNAME>
