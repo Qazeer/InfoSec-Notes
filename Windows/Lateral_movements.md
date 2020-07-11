@@ -264,13 +264,11 @@ on the accessed system associated to the use of `PsExec`, such as:
 ```
 # -s - Runs the remote process as the System account (NT AUTHORITY\SYSTEM).
 # -h - If the targeted system is using the Windows Vista operating system, or higher, the created process will attempt to be run with the account's elevated token.
-# -i - Runs the program so that it interacts with the desktop of the specified session on the remote system.
-# -d - Do not wait for process to terminate (non-interactive).
 # -r <SERVICE_NAME> - Specifies the name of the remote service to create. Default to PSEXESVC.
 
 # Interactive commands execution through cmd or PowerShell
-PsExec.exe -accepteula \\<HOST | IP> -s -i -d <cmd.exe | %ComSpec% | powershell.exe>
-PsExec.exe -accepteula \\<HOST | IP> -u "<DOMAIN | WORKGROUP>\<USERNAME>" -p "<PASSWORD>" -s -i -d <cmd.exe | %ComSpec% | powershell.exe>
+PsExec.exe -accepteula \\<HOST | IP> -s <cmd.exe | %ComSpec% | powershell.exe>
+PsExec.exe -accepteula \\<HOST | IP> -u "<DOMAIN | WORKGROUP>\<USERNAME>" -p "<PASSWORD>" -s <cmd.exe | %ComSpec% | powershell.exe>
 
 # Unitary command execution on one or multiple specified hosts.
 # PsExec hosts specified file should be encoded in ANSI.
@@ -705,9 +703,11 @@ Windows events:
     task and can be correlated to a logon session using the event `Logon ID`.
 
 ```
-# <TASK_COMMAND> example with a Windows binary: <cmd.exe /c '<COMMAND> <COMMAND_ARGS>' | %ComSpec% /c '<COMMAND> <COMMAND_ARGS>' |  powershell.exe -NoP -NonI -W Hidden -Exec Bypass -C '<COMMAND> <COMMAND_ARGS>' | powershell.exe -NoP -NonI -W Hidden -Exec Bypass -Enc <ENCODED_BASE64_CMD> | ...>
-
-C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoP -NonI -W Hidden -Enc [...]
+# <TASK_COMMAND> example with the Windows built-in cmd.exe or PowerShell:
+cmd.exe /c '<COMMAND> <COMMAND_ARGS>' | %ComSpec% /c '<COMMAND> <COMMAND_ARGS>'
+powershell.exe -NoP -NonI -W Hidden -Exec Bypass -C '<COMMAND> <COMMAND_ARGS>'
+powershell.exe -NoP -NonI -W Hidden -Exec Bypass -Enc <ENCODED_BASE64_CMD>
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoP -NonI -W Hidden -Enc <ENCODED_BASE64_CMD>
 
 # Create a scheduled task to run PowerShell code for example
 schtasks /create /tn "<TASK_NAME>" /tr "<TASK_COMMAND>" /sc once /sd <MM/DD/YYYY> /st <HH:MM:SS> /V1 /Z /RU "NT AUTHORITY\SYSTEM" /S <IP | HOSTNAME>

