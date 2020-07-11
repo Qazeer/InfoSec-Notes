@@ -264,13 +264,11 @@ on the accessed system associated to the use of `PsExec`, such as:
 ```
 # -s - Runs the remote process as the System account (NT AUTHORITY\SYSTEM).
 # -h - If the targeted system is using the Windows Vista operating system, or higher, the created process will attempt to be run with the account's elevated token.
-# -i - Runs the program so that it interacts with the desktop of the specified session on the remote system.
-# -d - Do not wait for process to terminate (non-interactive).
 # -r <SERVICE_NAME> - Specifies the name of the remote service to create. Default to PSEXESVC.
 
 # Interactive commands execution through cmd or PowerShell
-PsExec.exe -accepteula \\<HOST | IP> -s -i -d <cmd.exe | %ComSpec% | powershell.exe>
-PsExec.exe -accepteula \\<HOST | IP> -u "<DOMAIN | WORKGROUP>\<USERNAME>" -p "<PASSWORD>" -s -i -d <cmd.exe | %ComSpec% | powershell.exe>
+PsExec.exe -accepteula \\<HOST | IP> -s <cmd.exe | %ComSpec% | powershell.exe>
+PsExec.exe -accepteula \\<HOST | IP> -u "<DOMAIN | WORKGROUP>\<USERNAME>" -p "<PASSWORD>" -s <cmd.exe | %ComSpec% | powershell.exe>
 
 # Unitary command execution on one or multiple specified hosts.
 # PsExec hosts specified file should be encoded in ANSI.
