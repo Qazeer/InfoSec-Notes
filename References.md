@@ -119,6 +119,15 @@ https://alsid.com/fr/node/144
 https://ired.team/offensive-security-experiments/active-directory-kerberos-abuse/abusing-kerberos-constrained-delegation
 https://stackoverflow.com/questions/57171940/accessing-parsing-msds-allowedtoactonbehalfofotheridentity-ad-property-in-c-sh
 
+###### Operators to Domain Admins
+
+https://adsecurity.org/?p=3700
+https://medium.com/@esnesenon/feature-not-bug-dnsadmin-to-dc-compromise-in-one-line-a0f779b8dc83
+https://ired.team/offensive-security-experiments/active-directory-kerberos-abuse/from-dnsadmins-to-system-to-domain-compromise
+https://docs.microsoft.com/en-us/windows/security/identity-protection/access-control/active-directory-security-groups
+https://adsecurity.org/?p=4064
+https://www.youtube.com/watch?v=8KJebvmd1Fk
+
 ### File transfer
 
 https://github.com/frizb/Windows-Privilege-Escalation
