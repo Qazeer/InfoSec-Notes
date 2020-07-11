@@ -114,12 +114,21 @@ registries keys of the user.
 Each entry is composed of a key and an associated value that may contain a
 program, and the program arguments if any, to be run.
 
+The `RegistryExplorer.exe` / `RECmd.exe` utilities leverage transaction log
+files, for example `ntuser.dat.LOG1`, to identify and recover deleted keys /
+values. The transaction log files must be present in the same directory as
+the analyzed hive.
+
 The most commons ASEP keys can be automatically checked using the
 `SysInternals`' GUI `Autoruns` and CLI `AutorunsC` utilities. The `RECmd` CLI
 utility can also be used to access a predefined list of ASEP registries keys.
 The `RegistryASEPs.reb` enumerate a comprehensive list of nearly ASEP 500
 registry keys and 400 values. The results of `RECmd` can be analyzed using
 `Timeline Explorer`.
+
+Alternatively, `RegistryExplorer.exe` implements a number of `bookmarks` which
+are well-known key / value pairs. The `bookmarks` include a number of `ASEP`
+registry entries.
 
 ```
 RECmd.exe -d <NTFS_VOLUME | FOLDER_CONTAINING_REGISTRY_HIVES> --bn .\BatchExamples\RegistryASEPs.reb --csv <OUTPUT_FOLDER>

@@ -29,7 +29,7 @@ execution. Accessed files information may thus persist through `powershell.exe`
 subsequent runs.
 
 ```
-PECmd -d <DIRECTORY>
+PECmd -d <C:\Windows\Prefetch | DIRECTORY>
 PECmd -f <PF_FILE>
 ```
 
@@ -52,14 +52,13 @@ https://www.fireeye.com/blog/threat-research/2015/06/caching_out_the_val.html
 .\PowerForensics.psd1
 Import-Module .\PowerForensics.psd1
 
-Get-ForensicShimcache | Out-File <OUTPUT_FILE>
-
 # Live
+Get-ForensicShimcache | Out-File <OUTPUT_FILE>
 AppCompatCacheParser.exe -t --csv <OUTPUT_FOLDER>
-# From hive
-AppCompatCacheParser.exe -t -f <SYSTEM_HIVE_FILE> --csv <OUTPUT_FOLDER>
-
 python ShimCacheParser.py --local -o <OUTPUT_FILE>
+
+# From hive / mounted disk image
+AppCompatCacheParser.exe -t -f <SYSTEM_HIVE_FILE> --csv <OUTPUT_FOLDER>
 python ShimCacheParser.py --hive <SYSTEM_HIVE_FILE> -o <OUTPUT_FILE>
 python ShimCacheParser.py --reg <REG_FILE> -o <OUTPUT_FILE>
 ```
@@ -87,8 +86,9 @@ Import-Module .\PowerForensics.psd1
 # Default to C:\Windows\AppCompat\Programs\Amcache.hve
 Get-ForensicAmcache | Out-File <OUTPUT_FILE>
 
-Get-ForensicAmcache -HivePath <EXPORTED_HIVE_PATH> | Out-File <OUTPUT_FILE>
-AmcacheParser.exe -f "<HIVE_PATH>" -i on --csv <OUTPUTDIR_PATH>
+# From hive / mounted disk image
+Get-ForensicAmcache -HivePath "<C:\Windows\AppCompat\Programs\Amcache.hve | EXPORTED_HIVE_PATH>" | Out-File <OUTPUT_FILE>
+AmcacheParser.exe -f "<C:\Windows\AppCompat\Programs\Amcache.hve | EXPORTED_HIVE_PATH>" -i on --csv <OUTPUTDIR_PATH>
 ```
 
 ### RecentFilecache

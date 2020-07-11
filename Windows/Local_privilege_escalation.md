@@ -33,6 +33,7 @@ current system:
 | **Writable files** | dir /a-r-d /s /b | | | |
 | **Processes** | tasklist /v | Get-Process &#124; Ft Name,Id | wmic process get Name,ProcessID <br/> (PS) Get-WmiObject -Query "Select * from Win32_Process" | where {$_.Name -notlike "svchost*"} &#124; Select Name, Handle, @{Label="Owner";Expression={$_.GetOwner().User}} &#124; ft -AutoSize |
 | **Processes command line** | | | wmic process get Name,ProcessID,ExecutablePath <br/> (PS) gwmi win32_process &#124; select Name,Handle,CommandLine &#124; Format-List |
+| **User Account Control (UAC)**<br/> `EnableLUA` = 0x0 -> `UAC` is disabled. | reg query HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\ /v EnableLUA | Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System -Name EnableLUA | |
 
 ###### Installed .NET framework
 
@@ -95,8 +96,8 @@ running processes or configured services.
 # SecurityCenter: Windows 2000, Windows Server 2003, Windows XP, and older
 # SecurityCenter2: Windows Vista, Windows Server 2008, or newer
 
-WMIC /Node:localhost /Namespace:\rootSecurityCenter2 Path AntiVirusProduct Get displayName,productState,timestamp /Format:List
 Get-WmiObject -Namespace root\SecurityCenter2 -Class AntiVirusProduct | Ft displayName,productState,timestamp
+WMIC /Node:localhost /Namespace:\rootSecurityCenter2 Path AntiVirusProduct Get displayName,productState,timestamp /Format:List
 ```
 
 The `productState` property can be parsed and converted to a human readable
@@ -611,7 +612,7 @@ The following files may contains sensible information:
 %HOMEPATH%\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu<...>
 ```
 
-######  Alternate data streams (ADS)
+###### Alternate data streams (ADS)
 
 The NTFS file system includes support for ADS, allowing files to contain more
 than one stream of data. Every Windows file has at least one data stream,
@@ -681,7 +682,8 @@ potential missing patches on the target.
 ```
 wes.py --update
 
-wes.py <SYSTEMINFO_FILE>
+# --muc-lookup: Conducts false positives verification using the Microsoft's Update Catalog to determine if installed patches supersedes potentially missing KBs
+wes.py --muc-lookup <SYSTEMINFO_FILE>
 ```
 
 *Windows-Exploit-Suggester (outdated) *
@@ -1102,9 +1104,9 @@ for services in `C:\Program Files` and `C:\Program Files (x86)` are usually
 not exploitable as unprivileged user rarely have write access in the `C:\` root
 directory or in the standard program directories.
 
-In the above example, if an attacker has write privilege in C:\TEST\, he could create
-a C:\Service.exe and escalate its privileges to the level of the account that
-starts the service.
+In the above example, if an attacker has write privilege in C:\TEST\, he could
+create a C:\Service.exe and escalate its privileges to the level of the account
+that starts the service.
 
 To find vulnerable services the `wmic` tool and the `Powershell` `PowerUp`
 script can be used as well as a manual review of each service metadata using

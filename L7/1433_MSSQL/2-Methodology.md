@@ -96,7 +96,7 @@ The `sqsh` Linux utility as well as the `impacket` Python script
 sqsh -U <USERNAME> -P <PASSWORD> -S <IP>:<PORT>
 
 # -db is optional and defaults to "None"
-mssqlclient.py -db <DB_NAME> <DOMAIN | WORKGROUP>/<USERNAME>:<PASSWORD>@<HOSTNAME | IP>
+mssqlclient.py [-db <DB_NAME>] <DOMAIN | WORKGROUP>/<USERNAME>:<PASSWORD>@<HOSTNAME | IP>
 
 # Windows authentication using the provided credentials
 mssqlclient.py -windows-auth -db <DB_NAME> <DOMAIN | WORKGROUP>/<USERNAME>:<PASSWORD>@<HOSTNAME | IP>
@@ -458,11 +458,11 @@ has sufficient privilege (sysadmin):
 ```SQL
 -- To allow advanced options to be changed.  
 EXEC sp_configure 'show advanced options', 1;  
-GO  
+GO
 
 -- To update the currently configured value for advanced options.  
 RECONFIGURE;  
-GO  
+GO
 
 -- To enable the feature.  
 EXEC sp_configure 'xp_cmdshell', 1;  
@@ -470,14 +470,14 @@ GO
 
 -- To update the currently configured value for this feature.  
 RECONFIGURE;  
-GO  
+GO
 ```
 
 Operating system CMD commands can then be executed:
 
 ```SQL
 EXEC xp_cmdshell '<CMD>'
-GO  
+GO
 ```
 
 The SQL queries above can be made using the `sqsh` Linux utility as well as

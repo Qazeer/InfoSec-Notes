@@ -163,11 +163,11 @@ It can notably be used to take advantage of Linux utilities such as `grep` and
 `awk`.
 
 ```
-# apt-get install python-evtx
-evtx_dump.py <EVTX> > <DUMP_FILE>
-
 EvtxECmd.exe [-f '<FILE>' | -d '<DIRECTORY>'] --inc <LIST_EVENT_IDs> --csv '<OUTPUT_DIRECTORY_CSV>'
 EvtxECmd.exe [-f '<FILE>' | -d '<DIRECTORY>'] --exc <LIST_EVENT_IDs> --csv '<OUTPUT_DIRECTORY_CSV>'
+
+# apt-get install python-evtx - Unoptimized
+evtx_dump.py <EVTX> > <DUMP_FILE>
 ```
 
 ###### CSV searching
