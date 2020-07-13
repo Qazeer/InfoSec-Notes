@@ -102,7 +102,7 @@ https://blog.stealthbits.com/what-is-dcsync-an-introduction/
 ###### Kerberos_delegations
 
 https://www.sstic.org/media/SSTIC2014/SSTIC-actes/secrets_dauthentification_pisode_ii__kerberos_cont/SSTIC2014-Article-secrets_dauthentification_pisode_ii__kerberos_contre-attaque-bordes_2.pdf
-  https://shenaniganslabs.io/2019/01/28/Wagging-the-Dog.html
+https://shenaniganslabs.io/2019/01/28/Wagging-the-Dog.html
 https://adsecurity.org/?p=1667
 https://www.synetis.com/risques-associes-a-la-delegation-kerberos/
 https://blog.stealthbits.com/unconstrained-delegation-permissions/
@@ -127,6 +127,9 @@ https://ired.team/offensive-security-experiments/active-directory-kerberos-abuse
 https://docs.microsoft.com/en-us/windows/security/identity-protection/access-control/active-directory-security-groups
 https://adsecurity.org/?p=4064
 https://www.youtube.com/watch?v=8KJebvmd1Fk
+https://www.tarlogic.com/en/blog/abusing-seloaddriverprivilege-for-privilege-escalation/
+https://github.com/FuzzySecurity/Capcom-Rootkit
+https://github.com/tandasat/ExploitCapcom
 
 ### File transfer
 
