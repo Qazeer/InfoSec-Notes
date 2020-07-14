@@ -128,6 +128,7 @@ https://docs.microsoft.com/en-us/windows/security/identity-protection/access-con
 https://adsecurity.org/?p=4064
 https://www.youtube.com/watch?v=8KJebvmd1Fk
 https://www.tarlogic.com/en/blog/abusing-seloaddriverprivilege-for-privilege-escalation/
+https://ired.team/offensive-security-experiments/active-directory-kerberos-abuse/privileged-accounts-and-token-privileges
 https://github.com/FuzzySecurity/Capcom-Rootkit
 https://github.com/tandasat/ExploitCapcom
 
