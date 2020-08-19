@@ -165,7 +165,8 @@ set ShowFiles true
 set SpiderShares true
 ```
 
-`smbmap`, `metasploit` and `smbget` can be used to download, upload or delete a file:
+`smbmap`, `metasploit` and `smbget` can be used to download, upload or delete
+a specific file:
 
 ```
 smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] --download/--upload/--delete <PATH> (-H HOSTNAME | IP | --host-file FILE)

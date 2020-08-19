@@ -547,7 +547,7 @@ such as command history and completion, upload and download of files, loading
 of in memory of `PowerShell` scripts, dll or `C#` binary, etc.
 
 ```
-evil-winrm -u <USERNAME> -p '<PASSWORD' -i <HOSTNAME | IP> -s <LOCAL_PATH_PS_SCRIPTS> -e <LOCAL_PATH_EXE_SCRIPTS>
+evil-winrm -u <USERNAME> -p '<PASSWORD>' -i <HOSTNAME | IP> -s <LOCAL_PATH_PS_SCRIPTS> -e <LOCAL_PATH_EXE_SCRIPTS>
 ```
 
 Supported commands:
