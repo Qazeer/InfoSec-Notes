@@ -291,6 +291,18 @@ cryptsetup  open --type luks <LUKS_FILE> <DEVICE_NAME>
 mount /dev/mapper/<DEVICE_NAME> /mnt
 ```
 
+###### PKCS#12 certificate
+
+The Linux utilities `pfx2john`, packaged with the `John the Ripper Jumbo`
+community version, can be used to convert a password protected `PKCS12`
+certificate to a hash crackable by `john`.
+
+```
+pfx2john <PKCS12_CERTIFICATE> > <PKCS12_HASH_FILE>
+
+john --wordlist=<WORDLIST> <PKCS12_HASH_FILE>
+```
+
 ###### mRemoteNG
 
 `mRemoteNG` is an open source multi-protocol remote connections manager. The

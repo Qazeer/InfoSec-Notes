@@ -198,21 +198,21 @@ nmap -v -sT -Pn -p <SERVICE_PORT> -oA <FILEOUT> --script=vuln -iL LiveHosts.txt
 
 ###### Scan Types
 
--sS : TCP SYN scan
+`-sS` : TCP SYN scan
 
 A SYN packet is sent.
 In response, a SYN/ACK indicates the port is listening (open), while a RST
 (reset) is indicative of a non-listener. 
 No response or an ICMP unreachable error means the port is filtered.
 
--sT : TCP connect scan
+`-sT` : TCP connect scan
 
 Does not require admin privilege.
 Instead of writing raw packets as most other scan types do, Nmap asks the
 underlying operating system to establish a connection with the target machine.
 Works the same way as the TCP SYN scan, only closing the TCP handsake.
 
--sU : UDP scan
+`-sU` : UDP scan
 
 Can be combined with a TCP scan.
 A UDP packet is sent.
@@ -220,7 +220,7 @@ Open and filtered ports rarely send any response.
 If an ICMP port unreachable error (type 3, code 3) is returned, the port is 
 closed.
 
--sN, -sF, -sX : TCP NULL, FIN, and Xmas scans.
+`-sN`, `-sF`, `-sX` : TCP NULL, FIN, and Xmas scans.
 
 Null scan : Does not set any bits (TCP flag header is 0).  
 FIN scan : Sets just the TCP FIN bit.  
@@ -233,7 +233,7 @@ The port is marked filtered if an ICMP unreachable error (type 3, code 0, 1, 2,
 The key advantage to these scan types is that they can sneak through certain
 non-stateful firewalls and packet filtering routers.
 
--sI <zombie host> : idle scan
+`-sI <zombie host>` : idle scan
 
 Reference : https://nmap.org/book/idlescan.html
 
@@ -393,6 +393,30 @@ Can be used to list all scripts in a given category/directory/exprossion. 
 ```
 
 This option updates the script database found in scripts/script.db 
+
+###### nmap output parsing
+
+The `nmap-parse-output` utility can be used to parse and extract information
+from `nmap` results (in the `xml` format).  
+
+```
+# Extracts hosts that have at least one open port.
+nmap-parse-output <NMAP_XML_SCAN_RESULT> hosts
+
+# Extracts all open ports in the following format: "<IP>:<PORT> <TCP | UDP>".
+nmap-parse-output <NMAP_XML_SCAN_RESULT> host-ports
+nmap-parse-output <NMAP_XML_SCAN_RESULT> host-ports | cut -d " " -f 1
+
+# Extract a list of uniquely filtered services identified.
+nmap-parse-output <NMAP_XML_SCAN_RESULT> service-names
+
+# Extract hosts with the specified service exposed, in the following format: "<IP>:<PORT>".
+nmap-parse-output <NMAP_XML_SCAN_RESULT> service <SERVICE_NAME>
+
+# Extract hosts with an exposed http service, in the following format: "<http | https>://<IP>:<PORT>".
+# The following services are identified as being http services: Currently, http, https, http-alt, https-alt, http-proxy, sip, rtsp, soap, vnc-http, caldav
+nmap-parse-output <NMAP_XML_SCAN_RESULT> http-ports
+```
 
 ### Pivot scans through compromised hosts
 

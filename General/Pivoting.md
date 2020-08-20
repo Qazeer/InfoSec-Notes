@@ -268,9 +268,9 @@ ip route add default via <IP> dev <INTERFACE_NAME>
 ### NPS
 
 `NPS` is a high-performance proxy server suite, analogous to a C2 framework,
-with cross-plateforms agents and a web management interface. It supports
+with cross-platforms agents and a web management interface. It supports
 numerous network protocols: socks5, http proxy, tcp, udp, http(s), etc. `NPS`
-additionnally implements multiple extension functions, such as client
+additionally implements multiple extension functions, such as client
 authentication and network compression and encryption, and can display
 connected clients usage information (real-time bandwidth, total volume of data
 exchanged, etc.).
@@ -303,7 +303,7 @@ Server startup and initial client connection to the server:
 nps start / restart
 
 # A client must first be configured through the web management interface in order to receive a client callback.
-URL of the web management inteface: http://127.0.0.1:8080 (by default).
+URL of the web management interface: http://127.0.0.1:8080 (by default).
 Client -> + Add -> Eventual configuration of client basic auth and network compression / encryption -> v Add
 
 The "Unique verify key" is needed for the client callback.
@@ -318,7 +318,7 @@ The callback command may be copied directly (as displayed after clicking on the 
 Once a client has established a session with the server, the following pivoting
 functions can be configured through the web management interface:
   - Unitary port forwarding using the `TCP` or `UDP` menus
-  - `HTTP` or `SOCKS5` proxies uising the `HTTP proxy` or `SOCKS 5` menus
+  - `HTTP` or `SOCKS5` proxies using the `HTTP proxy` or `SOCKS 5` menus
 
 For instance, the procedure to deploy a `SOCKS5` proxy on the compromised
 system is as follow:

@@ -41,7 +41,7 @@ ldapsearch -x -h <HOSTNAME | IP> -s base namingcontexts
 LDAP requires the specification of a search base DN for search queries, which
 specifies the base of the subtree in which the search will be constrained. The
 search base DN must be provided, but it may be the NULL DN. In such case, the
-search will be constrained to the `Root DSE`.    
+search will be constrained to the `Root DSE`.
 
 ###### CLI
 
