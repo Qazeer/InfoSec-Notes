@@ -1,4 +1,4 @@
-# Forensics - Windows - Windows event logs
+# DFIR Windows - Windows event logs
 
 ### Export Windows event logs
 
@@ -344,15 +344,16 @@ interactive command history executed through PowerShell console.
 The events providing command line / command history information should be
 searched for the following keywords (case insensitive search):
   - `-Enc`
-  - `-nop`
+  - `-nop` / `bypass`
   - `IEX` / `Invoke-Expression`
   - `ICM` / `Invoke-command`
-  - `Net.WebClient`
+  - `Net.WebClient` / `io.`
   - `DownloadString` / `DownloadFile`
   - `&` / `|`
   - `//` / `http` / `ftp` / `cifs` / `smb` / etc.
-  - `join` / `nioj` / `replace` / `ecalper` / `-f` / `CHAR` / `STRING`
-    / `marshal` / `convert` / `env` / `{` / `}` (obfuscation detection)
+  - `join` / `nioj` / `replace` / `ecalper` / `-f` / `CHAR` / `RAHC` / `STRING`
+    / `GNIRTS` / `marshal` / `convert` / `env` / `{` / `}` (obfuscation
+    detection)
 
 While the occurrence of these keywords may entail malicious activities, their
 absence is not a formal proof of lack of malicious PowerShell activity as

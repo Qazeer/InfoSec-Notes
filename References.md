@@ -132,6 +132,21 @@ https://ired.team/offensive-security-experiments/active-directory-kerberos-abuse
 https://github.com/FuzzySecurity/Capcom-Rootkit
 https://github.com/tandasat/ExploitCapcom
 
+###### Active Directory trusts
+
+https://docs.microsoft.com/fr-fr/azure/active-directory-domain-services/concepts-forest-trust
+https://blogs.msmvps.com/acefekay/2016/11/02/active-directory-trusts/
+https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/c9efe39c-f5f9-43e9-9479-941c20d0e590
+https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/e9a2d23c-c31e-4a6f-88a0-6646fdb51a3c
+https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/166d8064-c863-41e1-9c23-edaaa5f36962
+https://dirkjanm.io/active-directory-forest-trusts-part-one-how-does-sid-filtering-work/
+https://gist.github.com/xan7r/ca99181e3d45ee2042425f4f9181e614
+https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-pac/55fc19f2-55ba-4251-8a6a-103dd7c66280
+https://www.ssi.gouv.fr/uploads/IMG/pdf/Aurelien_Bordes_-_Secrets_d_authentification_episode_II_Kerberos_contre-attaque_--_planches.pdf
+https://github.com/wavestone-cdt/MISC-AD-trusts-relationships/SIDHistoryInjection
+http://www.harmj0y.net/blog/redteaming/a-guide-to-attacking-domain-trusts/
+https://support.microsoft.com/fr-fr/help/4490425/updates-to-tgt-delegation-across-incoming-trusts-in-windows-server
+
 ### File transfer
 
 https://github.com/frizb/Windows-Privilege-Escalation
@@ -144,6 +159,14 @@ http://www.carnal0wnage.com/papers/LARES-ColdFusion.pdf
 https://jumpespjump.blogspot.com/2014/03/attacking-adobe-coldfusion.html
 http://www.pwnag3.com/2013/04/coldfusion-for-pentesters-part-2.html
 https://waycool.tech/coldfusion-data-source-decryption/
+
+###### Jenkins
+
+https://github.com/gquere/pwn_jenkins
+https://codurance.com/2019/05/30/accessing-and-dumping-jenkins-credentials/
+https://www.jenkins.io/doc/book/managing/security/
+https://support.cloudbees.com/hc/en-us/articles/203802500-Injecting-Secrets-into-Jenkins-Build-Jobs
+https://plugins.jenkins.io/mask-passwords/
 
 ###### WebApps - LDAP injections
 
