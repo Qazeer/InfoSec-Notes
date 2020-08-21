@@ -1197,6 +1197,9 @@ Stop-Service -Name <SERVICE_NAME> -Force
 # Start
 net start <SERVICE_NAME>
 Start-Service -Name <SERVICE_NAME>
+
+# Or through a graphical interface:
+services.msc
 ```
 
 If an error `System error 1068` ("The dependency service or group failed to
