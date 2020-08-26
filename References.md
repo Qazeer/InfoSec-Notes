@@ -167,6 +167,7 @@ https://codurance.com/2019/05/30/accessing-and-dumping-jenkins-credentials/
 https://www.jenkins.io/doc/book/managing/security/
 https://support.cloudbees.com/hc/en-us/articles/203802500-Injecting-Secrets-into-Jenkins-Build-Jobs
 https://plugins.jenkins.io/mask-passwords/
+https://www.jenkins.io/doc/book/architecting-for-scale/
 
 ###### WebApps - LDAP injections
 
