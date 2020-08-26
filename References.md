@@ -427,6 +427,7 @@ https://medium.com/@markmotig/some-ways-to-dump-lsass-exe-c4a75fdc49bf
 https://yungchou.wordpress.com/2016/03/14/an-introduction-of-windows-10-credential-guard/
 https://outflank.nl/blog/2019/06/19/red-team-tactics-combining-direct-system-calls-and-srdi-to-bypass-av-edr/
 https://github.com/Hackndo/lsassy/wiki
+http://blog.gentilkiwi.com/securite/mscache-v2-dcc2-iteration
 
 ###### Post exploitation - Local Security Authority Protection
 
