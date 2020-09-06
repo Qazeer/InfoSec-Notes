@@ -9,6 +9,7 @@ https://www.pdq.com/blog/secure-password-with-powershell-encrypting-credentials-
 https://blog.ropnop.com/using-credentials-to-own-windows-boxes-part-3-wmi-and-winrm/
 https://powersploit.readthedocs.io/en/latest/Recon/Find-DomainUserLocation/
 https://blog.cptjesus.com/posts/sharphoundtechnical
+https://docs.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/network-access-restrict-clients-allowed-to-make-remote-sam-calls
 
 ###### Kerberos
 
