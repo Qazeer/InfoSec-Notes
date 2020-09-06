@@ -52,12 +52,12 @@ Commands network traffic an be proxied through a `SOCKS` proxy service using
 `proxychains` on Linux:
 
 ```
-# Specification of the SOCKS proxy address in /etc/proxychains.conf
+# Specification of the SOCKS proxy address in /etc/proxychains.conf.
 [ProxyList]
 socks4 <127.0.0.1 | IP> <SOCKS_PROXY_PORT>
 socks5 <127.0.0.1 | IP> <SOCKS_PROXY_PORT>
 
-# Execution of commands through proxychains
+# Execution of commands through proxychains.
 proxychains [...]
 ```
 
@@ -146,12 +146,6 @@ and redirect tools connections through it:
 
 ```
 ssh -nNT -D <LOCAL_PORT> <USERNAME>@<SSH_HOSTNAME | SSH_IP>
-
-# Edit proxychains.conf
-socks5 127.0.0.1 <LOCAL_PORT>
-
-# Run tools through proxychains
-proxychains <[...]>
 ```
 
 ### Meterpreter
