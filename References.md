@@ -9,6 +9,7 @@ https://www.pdq.com/blog/secure-password-with-powershell-encrypting-credentials-
 https://blog.ropnop.com/using-credentials-to-own-windows-boxes-part-3-wmi-and-winrm/
 https://powersploit.readthedocs.io/en/latest/Recon/Find-DomainUserLocation/
 https://blog.cptjesus.com/posts/sharphoundtechnical
+https://docs.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/network-access-restrict-clients-allowed-to-make-remote-sam-calls
 
 ###### Kerberos
 
@@ -167,6 +168,7 @@ https://codurance.com/2019/05/30/accessing-and-dumping-jenkins-credentials/
 https://www.jenkins.io/doc/book/managing/security/
 https://support.cloudbees.com/hc/en-us/articles/203802500-Injecting-Secrets-into-Jenkins-Build-Jobs
 https://plugins.jenkins.io/mask-passwords/
+https://www.jenkins.io/doc/book/architecting-for-scale/
 
 ###### WebApps - LDAP injections
 
@@ -426,6 +428,7 @@ https://medium.com/@markmotig/some-ways-to-dump-lsass-exe-c4a75fdc49bf
 https://yungchou.wordpress.com/2016/03/14/an-introduction-of-windows-10-credential-guard/
 https://outflank.nl/blog/2019/06/19/red-team-tactics-combining-direct-system-calls-and-srdi-to-bypass-av-edr/
 https://github.com/Hackndo/lsassy/wiki
+http://blog.gentilkiwi.com/securite/mscache-v2-dcc2-iteration
 
 ###### Post exploitation - Local Security Authority Protection
 

