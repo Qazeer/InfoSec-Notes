@@ -220,7 +220,7 @@ ls <DIRECTORY>
 allinfo <FILE>
 ```
 
-###### recursive download of shared files
+###### Recursive download of shared files
 
 The `smbget` and `smbclient` utilities on Linux and the `PowerShell`
 `Copy-Item` cmdlet on Windows can be used to recursively upload or download a
@@ -271,12 +271,15 @@ net use <DRIVELETTER>: \\<HOSTNAME | IP>\<SHARE> "" /user:""
 net use <DRIVELETTER>: \\<HOSTNAME | IP>\<SHARE> /user:"<DOMAIN>\<USERNAME>"
 ```
 
-###### Agent Ransack
+###### Distributed shares searching
+
+*Agent Ransack*
 
 The `Agent Ransack` GUI file searching tool can be used to conduct `grep` like
 searches using the current Windows user identity and access rights.
 
-Both file names or content can be searched.
+Both file names or content can be searched, and one or multiple local or remote
+locations may be specified.
 
 The tool supports regex use, such as follow:
 

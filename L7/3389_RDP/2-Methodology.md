@@ -25,34 +25,25 @@ Nmap can be used to scan the network for RDP services:
 nmap -v -p 3389 -A -oA nmap_rdp <RANGE | CIDR>
 ```
 
-### RDP clients
+### Authentication brute force
 
-###### Windows
+The local or Active Directory domain account lockout policies apply
+(depending on the type of authentication tried) when connecting with RDP.
+Vertical brute forcing is thus not possible.
 
-On Windows, the default Microsoft Remote Desktop application
-("Connexion Bureau à distance") or the Remote Desktop Manager third party
-application can be used as RDP clients.
+However, horizontal RDP brute forcing can be used for lateral movement once
+an account has been compromised. Indeed, the compromised account may not be an
+local Administrator (and thus can not connect through PsExec like tool) but can
+be a member of the Remote Desktop Users group.
 
-The Remote Desktop Manager allows for the configuration and storing of
-multiples RDP connection (host and authentication information). A Free Edition
-is available as well as a commercial grade Enterprise Edition.
-
-###### Linux
-
-On Linux, rdesktop or Remmina (GUI) can be used as RDP clients.
-
-```
-rdesktop [options] server[:port]
-Remmina
-```
-
-### Pass-the-hash
-
-FreeRDP can be used to authenticate using the hash through RDP against hosts
-using the Restricted Admin mode feature.
+Patator, Hydra or the crowbar Python Script can be used to brute force RDP
+access. Patator and crowbar both support NLA (as of December 2018, Patator does
+not support no NLA RDP brute force).
 
 ```
-xfreerdp /u:<USERNAME> /d:<DOMAIN> /pth:<HASH> /v:<HOST | IP>
+python crowbar.py -b rdp (-u <USERNAME | <DOMAIN\\USERNAME> | -U USERNAME_FILE) (-c <PASSWORD> | -C <PASSWORDS_LIST) -s <CIDR>
+
+hydra -t 1 -V -l <USERNAME> (-p <PASSWORD> | -P <PASSWORDS_LIST) rdp://<IP | HOST>
 ```
 
 ### Known vulnerabilities
@@ -106,28 +97,37 @@ A metasploit module is available to realize a DoS of the target:
 msf> use auxiliary/dos/windows/rdp/ms12_020_maxchannelids
 ```
 
-As of december 2018, no public proof-of-concept code that results in remote
+As of December 2018, no public proof-of-concept code that results in remote
 code execution is available.
 
-### Authentication brute force
+### RDP clients
 
-The local or Active Directory domain account lockout policies apply
-(depending on the type of authentication tried) when connecting with RDP.
-Vertical brute forcing is thus not possible.
+###### Windows
 
-However, horizontal RDP brute forcing can be used for lateral movement once
-an account has been compromised. Indeed, the compromised account may not be an
-local Administrator (and thus can not connect through PsExec like tool) but can
-be a member of the Remote Desktop Users group.
+On Windows, the default Microsoft Remote Desktop application
+("Connexion Bureau à distance") or the Remote Desktop Manager third party
+application can be used as RDP clients.
 
-Patator, Hydra or the crowbar Python Script can be used to brute force RDP
-access. Patator and crowbar both support NLA (as of December 2018, Patator does
-not support no NLA RDP brute force).
+The Remote Desktop Manager allows for the configuration and storing of
+multiples RDP connection (host and authentication information). A Free Edition
+is available as well as a commercial grade Enterprise Edition.
+
+###### Linux
+
+On Linux, rdesktop or Remmina (GUI) can be used as RDP clients.
 
 ```
-python crowbar.py -b rdp (-u <USERNAME | <DOMAIN\\USERNAME> | -U USERNAME_FILE) (-c <PASSWORD> | -C <PASSWORDS_LIST) -s <CIDR>
+rdesktop [options] server[:port]
+Remmina
+```
 
-hydra -t 1 -V -l <USERNAME> (-p <PASSWORD> | -P <PASSWORDS_LIST) rdp://<IP | HOST>
+### Pass-the-hash over RDP
+
+FreeRDP can be used to authenticate using the hash through RDP against hosts
+using the Restricted Admin mode feature.
+
+```
+xfreerdp /u:<USERNAME> /d:<DOMAIN> /pth:<HASH> /v:<HOST | IP>
 ```
 
 ### Man-in-the-middle attack
@@ -171,4 +171,4 @@ If Administrator / SYSTEM privileges could be obtained on a host, RDP sessions
 of others users can be hijacked. This could be used to access the
 host as the hijacked user through a GUI interface with out knowing its password.  
 
-To hijack RDP session refer to the [Windows] Post Exploitation note.
+To hijack RDP session refer to the `[Windows] Post Exploitation` note.
