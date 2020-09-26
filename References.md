@@ -2,7 +2,7 @@
 
 ### AD
 
-###### Credentials reuse
+###### Credentials theft shuffling
 
 https://stackoverflow.com/questions/18113651/powershell-remoting-policy-does-not-allow-the-delegation-of-user-credentials
 https://www.pdq.com/blog/secure-password-with-powershell-encrypting-credentials-part-1/
@@ -10,6 +10,10 @@ https://blog.ropnop.com/using-credentials-to-own-windows-boxes-part-3-wmi-and-wi
 https://powersploit.readthedocs.io/en/latest/Recon/Find-DomainUserLocation/
 https://blog.cptjesus.com/posts/sharphoundtechnical
 https://docs.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/network-access-restrict-clients-allowed-to-make-remote-sam-calls
+https://docs.microsoft.com/en-us/windows/win32/sysinfo/registry-hives
+https://docs.microsoft.com/en-us/windows/win32/api/lmshare/nf-lmshare-netsessionenum
+https://docs.microsoft.com/en-us/windows/win32/api/lmwksta/nf-lmwksta-netwkstauserenum
+https://docs.microsoft.com/en-us/windows/win32/api/lmshare/ns-lmshare-session_info_10
 
 ###### Kerberos
 
