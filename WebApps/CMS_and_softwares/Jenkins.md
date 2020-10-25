@@ -171,7 +171,7 @@ retrieved from a `Jenkins` server, the credentials can be retrieved using the
 `jenkins_offline_decrypt` `Python` script:
 
 ```
-jenkins_offline_decrypt.py <MASTER_KEY_FILE> <HUDSON_UTIL_SECRET_FILE> <CREDENTIALS_XML_FILE>
+python3 jenkins_offline_decrypt.py <MASTER_KEY_FILE> <HUDSON_UTIL_SECRET_FILE> <CREDENTIALS_XML_FILE>
 ```
 
 ###### Credentials leak in build jobs
@@ -184,7 +184,7 @@ The `jenkins_dump_builds` Python script can be used to dump all build jobs
 past builds.
 
 ```
-# Source: https://github.com/gquere/pwn_jenkins/blob/master/offline_decryption/jenkins_offline_decrypt.py
+# Source: https://github.com/gquere/pwn_jenkins/blob/master/dump_builds/jenkins_dump_builds.py
 
 python3 jenkins_dump_builds.py -o <OUTPUT_DIRECTORY> <JENKINS_URL | JENKINS_URL [JENKINS_URL2 ...]>
 

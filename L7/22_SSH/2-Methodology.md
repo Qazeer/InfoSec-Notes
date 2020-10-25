@@ -89,14 +89,17 @@ patator ssh_login host=<HOST> user=FILE0 password=FILE1 0=<WORDLIST_USER> 1=<WOR
 msf> auxiliary/scanner/ssh/ssh_login
 ```
 
-###### Public keys authentication
+###### publickey authentication spraying
 
-The `crowbar` Python script can be used to brute force `SSH` keys.  
+The `Metasploit`'s `auxiliary/scanner/ssh/ssh_login_pubkey` module and the
+Python script `crowbar` can be used to brute force `SSH` keys.  
 
 While an exhaustive attack is not possible, the key based brute force can be
 used for lateral movement once a private key could be compromised.
 
 ```
+msf5 > use auxiliary/scanner/ssh/ssh_login_pubkey
+
 python crowbar.py -b sshkey (-u <USERNAME> | -U USERNAME_FILE) -k <KEY_FILE | KEY_FOLDER> -s <CIDR>
 ```
 
