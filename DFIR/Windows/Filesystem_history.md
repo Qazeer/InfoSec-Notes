@@ -128,7 +128,7 @@ ExtractUsnJrnl64.exe /ImageFile:<IMAGE_PATH> [/OutputPath:<FULL_OUTPUT_PATH> | /
 
 # Starts the UsnJrnl2Csv GUI
 UsnJrnl2Csv64.exe
-UsnJrnl2Csv64.exe /UsnJrnlFile:<INPUT_USN_JRNL> /OutputPath:<OUTPUT_FOLDER> /TimeZone:"<-12.00 ... 14.00>" /Separator:"<CSV_SEPARATOR>"
+  UsnJrnl2Csv64.exe /UsnJrnlFile:<INPUT_USN_JRNL> /OutputPath:<OUTPUT_FOLDER> /TimeZone:"<-12.00 ... 14.00>" /Separator:"<CSV_SEPARATOR>"
 
 # May not work properly on newer Windows operating systems
 Get-ForensicUsnJrnl
