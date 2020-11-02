@@ -151,6 +151,7 @@ https://www.ssi.gouv.fr/uploads/IMG/pdf/Aurelien_Bordes_-_Secrets_d_authentifica
 https://github.com/wavestone-cdt/MISC-AD-trusts-relationships/SIDHistoryInjection
 http://www.harmj0y.net/blog/redteaming/a-guide-to-attacking-domain-trusts/
 https://support.microsoft.com/fr-fr/help/4490425/updates-to-tgt-delegation-across-incoming-trusts-in-windows-server
+https://github.com/vletoux/pingcastle/issues/9
 
 ### File transfer
 
