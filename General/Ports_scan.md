@@ -101,9 +101,9 @@ Invoke-Portscan -f -noProgressMeter -quiet -Pn -p "<COMMA_LIST_PORTS>" -iL "<OUT
 
 ### Asynchronous and stateless ports scan
 
-The tools `ZMap`, `MASSCAN` and `Unicornscan` can be used to quickly scan
-massive IP ranges. For instance, `MASSCAN` can scan the all the IPv4’s of the
-Internet in less than 6 minutes.
+The tools `ZMap`, `MASSCAN`, `RustScan`, and `Unicornscan` can be used to
+quickly scan massive IP ranges. For instance, `MASSCAN` can scan the all the
+IPv4’s of the Internet in less than 6 minutes.
 
 `MASSCAN` uses a default rate of 100 packets/second and supports
 `nmap` like options.
@@ -424,6 +424,26 @@ nmap-parse-output <NMAP_XML_SCAN_RESULT> http-ports
 
 As described above, `netcat` can be used to conduct a basic ports scan from a
 compromised host.
+
+###### Static nmap
+
+Prebuild static and standalone binaries of `nmap` are available on the
+following GitHub repository. `nmap` is compiled from the official GitHub
+repository sources automatically with `GitHub Actions`.
+
+```
+https://github.com/ernw/static-toolbox
+```
+
+
+The `run-nmap.sh` script can be used to run the prebuild `nmap` on a
+compromised host with out external dependencies. Additionally, the binary comes
+with the various `NSE` scripts and modules necessary to conduct version
+fingerprinting.
+
+```
+run-nmap.sh <NMAP_OPTIONS>
+```
 
 ###### Proychains
 
