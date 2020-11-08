@@ -175,6 +175,14 @@ one of the service above from your network standpoint, AD queries and `nmap`
 can be used in combination (refer to the `[Active Directory] Methodology -
 Domain Recon` note).
 
+Note that the `Impacket` Python scripts presented below are available as static
+stand-alone binaries for both Windows and Linux x64 operating systems on the
+following GitHub repository:
+
+```
+https://github.com/ropnop/impacket_static_binaries
+```
+
 ###### [Over SMB] PsExec-like utilities
 
 `PsExec`-like utilities operate under the same general principle:
@@ -380,9 +388,10 @@ class can be used to start a process and the `Win32_Product` class can be used
 to install an MSI installer package, both locally and remotely.
 
 ```
-WMIC /NODE:<HOSTNAME | IP> COMPUTERSYSTEM GET USERNAME
-
 # <COMMAND> example: <cmd.exe | powershell.exe | cmd.exe /c '<COMMAND> <COMMAND_ARGS>' | %ComSpec% /c '<COMMAND> <COMMAND_ARGS>' | powershell.exe -NoP -NonI -W Hidden -Exec Bypass -C '<COMMAND> <COMMAND_ARGS>' | powershell.exe -NoP -NonI -W Hidden -Exec Bypass -Enc <ENCODED_BASE64_CMD> | ...>
+
+wmic /node:<IP | HOSTNAME> process call create "<COMMAND>"
+wmic /user:"<DOMAIN | WORKGROUP>\<USERNAME>" /password:"<PASSWORD>" /node:<IP | HOSTNAME> process call create "<COMMAND>"
 
 Invoke-WmiMethod -Class Win32_Process -Name Create "<COMMAND>"
 Invoke-WmiMethod -ComputerName <IP | HOSTNAME> -Credential <PSCredential> -Class Win32_Process -Name Create "<COMMAND>"
