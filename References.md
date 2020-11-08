@@ -424,6 +424,7 @@ https://gallery.technet.microsoft.com/scriptcenter/89a5e3c2-0a1c-4471-b78c-13660
 https://blog.f-secure.com/endpoint-detection-of-remote-service-creation-and-psexec/
 Applied Incident Response, Steve Anson
 https://docs.microsoft.com/en-us/windows/win32/api/lmshare/nf-lmshare-netshareadd
+https://www.harmj0y.net/blog/redteaming/pass-the-hash-is-dead-long-live-localaccounttokenfilterpolicy/
 
 ###### Post exploitation
 

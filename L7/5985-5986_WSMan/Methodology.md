@@ -3,7 +3,7 @@
 ### Overview
 
 Windows Remote Management (`WinRM`) is the Microsoft implementation of
-WS-Management Protocol, a standard Simple Object Access Protocol
+`WS-Management` Protocol, a standard `Simple Object Access Protocol`
 (`SOAP`)-based, protocol that allows hardware and operating systems, from
 different vendors, to interoperate.
 

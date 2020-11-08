@@ -157,30 +157,23 @@ framework.
 
 ### Lateral movements
 
-Multiples mechanisms and tools can be used to access computers remotely:
+Multiples techniques can be used to access computers remotely:
 
-  - Using `PsExec` and psexec-like utilities that will create and run a service
-    remotely over `SMB` (port 445) or `SMB` over `NetBIOS` (port 139).
-  - Using `Windows Management Instrumentation (WMI)` (ports 135 or 445) or
-    `Windows Remote Management (WinRM)` (HTTP based API on
-    ports 5985 / 5986).
-  - Through a graphical interface over `Remote Desktop Protocol (RDP)` (port
-    3389). User must be part of the `Remote Desktop User` /
-    `Utilisateurs du Bureau à distance` group on the targeted system.
-  - Remotely creating a Windows `service` or a `scheduled task`.
-  - Using third parties applications, notably used by IT support for remote
-    help desk and support sessions.
+| Technique / Service | Port | Required privileges | Pass-the-Hash? |
+|---------------------|------|------------|---------------|
+| `PsExec` | `SMB`: TCP Port 445 <br> or <br> `SMB` over `NetBIOS`: TCP port 139 | If `User Account Control (UAC)` is disabled (`EnableLUA` set to `0x0`): <br> Any local and domain accounts members of the local `Administrators` group <br><br> If `UAC` is enabled (`EnableLUA` set to `0x1`) in default configuration (standard since `Windows Vista` / `Windows Server 2008`): <br> Local built-in `Administrator` (RID: `500`) <br> Domain accounts members of the local `Administrators` group (SID: `S-1-5-32-544`) <br><br> If `UAC` remote restrictions are disabled (`LocalAccountTokenFilterPolicy` set to `0x1`): <br> Any local (and domain) accounts members of the local `Administrators` group <br><br> If `UAC` is enforced for the local built-in `Administrator` account `RID` 500 (`FilterAdministratorToken` set to `0x1`): <br> Only domain accounts members of the local `Administrators` group | Network logon <br> -> Yes |
+| `Remote Desktop Protocol (RDP)` | `Terminal Services`	TCP port 3389 | Any local and domain accounts members of the local `Administrators` (SID: `S-1-5-32-544`) or `Remote Desktop Users` (SID: `S-1-5-32-555`) groups | Yes, if `Restricted Admin` mode is enabled server-side  |
+| `Windows Management Instrumentation (WMI)` | `RPC` TCP port 135 <br> `RPC` randomly allocated high TCP ports: <br> - TCP ports 1024 - 5000 (<= Windows 2003R2) <br> - TCP ports 49152 - 65535 | Similar privileges to `PsExec` | Network logon <br> -> Yes |
+| `Windows Remote Management (WinRM)` | `WinRM 1.1 and earlier`: <br> `HTTP` port 80 <br> or <br> `HTTPS` port 443 <br><br> `WinRM 2.0`: <br> `HTTP` port 5985 <br> or <br> `HTTPS` port 5986 | Similar privileges to `PsExec` with the addition of membership to the `Remote Management Users` (SID: `S-1-5-32-580`) group | Network logon <br> -> Yes |
+| `Distributed Component Object Model (DCOM)` | Same TCP ports as `WMI` | Similar privileges to `PsExec` with the addition of membership to the `Distributed COM Users` (SID: `S-1-5-32-562`) group depanding on the target host configuration | Network logon <br> -> Yes |
+| Remote Windows services | TCP port 445 | Similar privileges to `PsExec` | Network logon <br> -> Yes |
+| Remote scheduled tasks | TCP port 445 | Similar privileges to `PsExec` | Network logon <br> -> Yes |
+| Third parties remote administration IT tools | `AnyDesk`: TCP port 7070 <br> `TeamViewer`: TCP / UDP ports 5938 <br> ... | Technology dependent | Likely not |
 
-To conduct `Pass-the-Hash` authentication the user account must moreover be the
-built-in local `RID-500` Administrator account or be a domain account. Local
-accounts `RID != 500` member of the `Administrators` / `Administrateurs` group
-can only authenticate using plain text credentials since Microsoft update
-`KB2871997`.   
-
-To quickly identity which servers or workstations in the domain are exposing one
-of the service above from your network standpoint, AD queries and `nmap` can be
-used in combination (refer to the `[Active Directory] Methodology - Domain
-Recon` note).
+To quickly identity which servers or workstations in the domain are exposing
+one of the service above from your network standpoint, AD queries and `nmap`
+can be used in combination (refer to the `[Active Directory] Methodology -
+Domain Recon` note).
 
 ###### [Over SMB] PsExec-like utilities
 
@@ -631,7 +624,7 @@ to be deleted manually.
 
 `atexec.py` will create, run and immediately delete a scheduled task, by
 default with a random generated name, that execute the specified command. The
-scheduled task will be exectued as `NT AUTHORIT\SYSTEM`. The command output
+scheduled task will be executed as `NT AUTHORIT\SYSTEM`. The command output
 will be stored in a temporary random file and retrieved through the `ADMIN$`
 share.
 
@@ -758,19 +751,25 @@ The `COM` / `DCOM` object register a few notable identifiers:
 The configuration defined in `AppID` notably specify, the form of `Access
 Control List (ACL)`, the following permissions:
    - `Launch Permissions`, that restrict the security principals that can
-   locally or remotely start
-   the `DCOM object` server
+   locally or remotely start the `DCOM object` server
    - `Access Permissions`, that restrict the security principals that can
    locally or remotely access the `DCOM object` methods
    - `Configuration Permissions`, that restrict the security principals that
    can modify the configuration of the `DCOM` objects.
 
-If the `Access Permissions` is left specified in the `AppID` configuration, the
-system-wide `Access Permissions` are applied. By default, the `Remote Access`
-right is only granted to the Windows local built-in `Administrators` group.
-The `AppID` registered on a system can be browsed and edited using the
-`dcomcnfg.exe` Windows built-in utility or, the dedicated `OleViewDotNet` .NET
-utility.
+System-wide limits are defined and control the minimal level of restrictions
+`DCOM applications` can set. By default, `Everyone` and non authenticated
+users (`ANONYMOUS LOGON`) may be granted local or remote access to `DCOM
+object` methods while only members of the local `Administrators`, `Distributed
+COM Users`, and `Performance Log Users` may be granted remote `launch` and
+`activation` rights.
+
+If the `Access Permissions` is left unspecified in the `AppID` configuration,
+the system-wide `Access Permissions` and `Launch Permissions` are applied. By
+default, the `Remote Access` right is only granted to the Windows local
+built-in `Administrators` group. The `AppID` registered on a system can be
+browsed and edited using the `dcomcnfg.exe` Windows built-in utility or, the
+dedicated `OleViewDotNet` .NET utility.
 
 A client request the instantiation of a remote `DCOM` object class by
 specifying its `CLSID` or `ProgID`, the later being resolved to the associated

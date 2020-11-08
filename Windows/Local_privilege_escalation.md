@@ -33,7 +33,8 @@ current system:
 | **Writable files** | dir /a-r-d /s /b | | | |
 | **Processes** | tasklist /v | Get-Process &#124; Ft Name,Id | wmic process get Name,ProcessID <br/> (PS) Get-WmiObject -Query "Select * from Win32_Process" | where {$_.Name -notlike "svchost*"} &#124; Select Name, Handle, @{Label="Owner";Expression={$_.GetOwner().User}} &#124; ft -AutoSize |
 | **Processes command line** | | | wmic process get Name,ProcessID,ExecutablePath <br/> (PS) gwmi win32_process &#124; select Name,Handle,CommandLine &#124; Format-List |
-| **User Account Control (UAC)**<br/> `EnableLUA` = 0x0 -> `UAC` is disabled. | reg query HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\ /v EnableLUA | Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System -Name EnableLUA | |
+| `TCP` / `UDP` network connections | netstat -anob | Get-NetTCPConnection | |
+| **User Account Control (UAC)** <br><br> `EnableLUA` = `0x1` -> `UAC` is enabled (default since `Windows Vista` / `Windows Server 2008`). <br><br> `LocalAccountTokenFilterPolicy` = `0x1` -> `UAC` remote restrictions are disabled (non default). <br><br> `FilterAdministratorToken` = `0x1` -> `UAC` is enforced for the local built-in `Administrator` account `RID` 500 (non default).  | reg query HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\ /v EnableLUA <br><br> reg query HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\ /v LocalAccountTokenFilterPolicy <br><br> reg query HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\ /v FilterAdministratorToken | Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System -Name EnableLUA,LocalAccountTokenFilterPolicy,FilterAdministratorToken | |
 
 ###### Installed .NET framework
 
