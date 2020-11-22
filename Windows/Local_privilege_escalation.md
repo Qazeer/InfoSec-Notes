@@ -16,15 +16,16 @@ current system:
 
 |  | DOS | Powershell | WMI |
 |--|-----|------------|-----|
-| **Basic info** | net config workstation | | |
+| **Basic info** | net config workstation | Get-ComputerInfo | |
 | **OS details**  | systeminfo | [environment]::OSVersion.Version |  |
 | **OS Architecture** | echo %PROCESSOR_ARCHITECTURE% |  [Environment]::Is64BitOperatingSystem | wmic os get osarchitecture |
 | **Hostname**  | hostname | $env:ComputerName<br/> $env:computername.$env:userdnsdomain <br/> (Get-WmiObject Win32_ComputerSystem).Name ||
+| **Drives** | | [System.IO.DriveInfo]::getdrives() <br> Get-PSDrive -PSProvider FileSystem | |
 | **Curent Domain** | echo %userdomain% | $env:UserDomain<br/>(Get-WmiObject Win32_ComputerSystem).Domain ||
 | **Curent User**  | whoami /all<br/>net user %username%  | $env:UserName<br/>(Get-WmiObject Win32_ComputerSystem).UserName | |
-| **Local users**  | net users<br/>net users <USERNAME\> | Get-WMIObject Win32_UserAccount -NameSpace "root\CIMV2" -Filter "LocalAccount='$True'" | wmic USERACCOUNT list full |
+| **Local users**  | net users<br/>net users <USERNAME\> | Get-LocalUser | wmic USERACCOUNT list full <br> Get-WMIObject Win32_UserAccount -NameSpace "root\CIMV2" -Filter "LocalAccount='$True'" |
 | **Local groups** | net localgroup | *(Win10+)* Get-LocalGroup | wmic group list full |
-| **Local group users** | net localgroup Administrators<br/>net localgroup <GROUPNAME\> | | |
+| **Local group users** | net localgroup Administrators<br/>net localgroup <GROUPNAME\> | Get-LocalGroupMember -Name "<GROUPNAME\>" | |
 | **Connected users** | qwinsta | | |
 | **Powershell version**  | Powershell  $psversiontable | $psversiontable ||
 | **Environement variables** | set | Get-ChildItem Env: &#124; ft Key,Value ||

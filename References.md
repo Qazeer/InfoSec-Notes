@@ -425,6 +425,7 @@ https://blog.f-secure.com/endpoint-detection-of-remote-service-creation-and-psex
 Applied Incident Response, Steve Anson
 https://docs.microsoft.com/en-us/windows/win32/api/lmshare/nf-lmshare-netshareadd
 https://www.harmj0y.net/blog/redteaming/pass-the-hash-is-dead-long-live-localaccounttokenfilterpolicy/
+Mitigating-Pass-the-Hash-Attacks-and-Other-Credential-Theft-Version-2.pdf
 
 ###### Post exploitation
 
