@@ -21,7 +21,7 @@ nmap -v -p 445 -sV -sC -oA nmap_smb <RANGE | CIDR>
 nbtscan -r <RANGE>
 ```
 
-### Basic recon
+### Recon
 
 The `nmap` `smb-os-discovery.nse` script attempts to determine the operating
 system, computer name, domain, workgroup, and current time over the SMB
@@ -32,7 +32,7 @@ nmap --script smb-os-discovery.nse -p 445 <HOST>
 nmap -sU -sS --script smb-os-discovery.nse -p U:137,T:139 <HOST>
 ```
 
-### Null session & guest access
+###### Null session and guest access
 
 A null session refers to an unauthenticated NetBIOS session.  
 A null session allows unauthenticated access to the shared files as well as a
@@ -42,14 +42,21 @@ This Microsoft feature existed in SMB1 by default and was later restricted in
 subsequent versions of SMB.  
 
 To detect and retrieve information about the machine through a null session,
-the `enum4linux` Perl as well as the `smbmap` scripts can be used. `enum4linux`
-being outdated, `smbmap` is recommended as the go to tool.
+the `enum4linux` Perl / `enum4linux-ng.py` Python scripts as well as the
+`smbmap` can be used.
+
+`enum4linux`being outdated, `enum4linux-ng.py` is recommended as the go to
+tool. In addition to enumerating the exposed shares, it will also perform
+`MSRPC` calls to enumerate users, groups, password policy information, etc.
+For more information, refer to the `[L7] MSRPC` note.
 
 ```
 smbmap -H <HOSTNAME | IP>
 smbmap -u "Guest" -H <HOSTNAME | IP>
 smbmap -u "Invité" -H <HOSTNAME | IP>
-enum4linux <HOST>
+
+enum4linux-ng.py -A -R <HOSTNAME | IP>
+enum4linux <HOSTNAME | IP>
 ```
 
 The following quick bash script can be used to combine a network scan and null
@@ -59,6 +66,14 @@ session enumeration:
 nbtscan -s ' ' <RANGE> | cut -d ' ' -f 1 | while read -r line ; do
   smbmap -H $line > smbmap_$line.txt
 done
+```
+
+###### Authenticated recon
+
+`enum4linux-ng.py` additionally supports authenticated queries:
+
+```
+enum4linux-ng.py -u "<USERNAME>" -pw "<PASSWORD>" -A -R <HOSTNAME | IP>
 ```
 
 ### List accessible shares
@@ -89,10 +104,10 @@ crackmapexec <HOSTNAME | IP> -d <DOMAIN> -u <USERNAME> -H <HASH> --shares
 msf > use auxiliary/scanner/smb/smb_enumshares
 
 smbclient -U "" -N -L \\<HOSTNAME | IP>
-# Some Windows servers do not support IP only and require the NetBIOS name too
+# Some Windows servers do not support IP only and require the NetBIOS name to be specified.
 smbclient -U "" -N -L \\<HOSTNAME> -I <IP>
-# To authenticate as USERNAME. --pw-nt-hash to specify an NT hash instead of a cleartext password
-smbclient -U <USERNAME> [--pw-nt-hash] ...
+# To authenticate as the specifed user. --pw-nt-hash to specify an NT hash instead of a cleartext password.
+smbclient -U '<WORKGROUP | DOMAIN>\<USERNAME>' [--pw-nt-hash] -L \\<HOSTNAME | IP>
 ```
 
 The `SoftPerfect`'s' `NetScan` Windows graphical network scanner utility can be
@@ -188,8 +203,8 @@ smbclient -U "" -N "\\\\<HOSTNAME | IP>\\<SHARE>"
 
 # To authenticate as USERNAME
 
-# --pw-nt-hash to specify an NT hash instead of a cleartext password
-smbclient -U <USER> --pw-nt-hash ...
+# --pw-nt-hash: specify an NT hash instead of a cleartext password.
+smbclient -U '<WORKGROUP | DOMAIN>\<USERNAME>' [--pw-nt-hash] "\\\\<HOSTNAME | IP>\\<SHARE>"
 ```
 
 The following basic commands can be used through the client (partial list):

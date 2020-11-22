@@ -166,6 +166,8 @@ Such `NULL` session may be established on Active Directory
     through the `Default Domain Controllers Policy` `GPO`
     (`UID: {6AC1786C-016F-11D2-945F-00C04fB984F9}`).
 
+###### Manual query
+
 On Linux, the `rpcclient` utility implements a number of commands to interact
 with the `SAMR`, `LSARPC`, `LSARPC-DS`, and `NETLOGON` RPC services interfaces.
 
@@ -211,13 +213,27 @@ commands:
 | `lsaaddacctrights <SID> <RIGHT \| RIGHTS_LIST>` | `LSARPC` | Assign a privilege to a, domain or local, security principal on the machine. |
 | `lsaremoveacctrights <SID> <RIGHT \| RIGHTS_LIST>` | `LSARPC` | Remove a privilege to a, domain or local, security principal on the machine. |
 
+###### Automated enumeration
+
 For a more automated approach, the `rpctools`' `walksam.exe` Windows utility
 and the `impacket`'s `samrdump.py` Python script can be used to dump
 information about each user found in the SAM database, which will contain
 domain accounts information on a domain controller, local accounts information
 otherwise.
 
+Additionally, the (outdated) `enum4linux` Perl and (maintained)
+`enum4linux-ng.py` Python scripts can be used to automatically enumerate
+through `MSRPC` calls and `NetBIOS` and `LDAP` queries (for Domain
+Controllers). `enum4linux-ng.py` will notably attempt to enumerate users,
+groups, group's memberships, password policy information, shares, and, against
+Domain Controllers, naming context information.   
+
 ```
+# -A: all simple enumeration including nmblookup (-U -G -S -P -O -N -I -L).
+# -R: users enumeration via RID cycling through MSRPC calls.
+enum4linux-ng.py -A -R <HOSTNAME | IP>
+enum4linux-ng.py -u "<USERNAME>" -pw "<PASSWORD>" -A -R <HOSTNAME | IP>
+
 # walksam.exe uses the current security context by default, and does provide a mechanism to specify an user
 
 # To emulate a NULL session
@@ -230,6 +246,8 @@ walksam.exe <IP | HOSTNAME>
 python samrdump.py <IP | HOSTNAME>
 python samrdump.py [<DOMAIN>/]<USERNAME>:<PASSWORD>@<IP | HOSTNAME>
 ```
+
+TODO
 
 ### MS-RPRN "printer bug"
 
