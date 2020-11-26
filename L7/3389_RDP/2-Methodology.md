@@ -161,6 +161,9 @@ On Linux, `FreeRDP` (`xfreerdp`), `rdesktop` or `Remmina` (GUI) can be used as
 
 ```
 xfreerdp /u:'<DOMAIN | WORKGROUP>\<USERNAME>' /p:'<PASSWORD>' /v:<HOSTNAME | IP>[:<PORT>]
+# No NLA for host that do not require NLA.
+xfreerdp -sec-nla /v:<HOSTNAME | IP>
+xfreerdp -sec-nla /u:'<DOMAIN | WORKGROUP>\<USERNAME>' /p:'<PASSWORD>' /v:<HOSTNAME | IP>
 # Restricted admin mode.
 xfreerdp /restricted-admin /u:'<DOMAIN | WORKGROUP>\<USERNAME>' /p:'<PASSWORD>' /v:<HOSTNAME | IP>
 
