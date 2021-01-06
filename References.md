@@ -331,6 +331,7 @@ https://xorl.wordpress.com/2018/02/04/ssh-hijacking-for-lateral-movement/
 
 ### DFIR
 
+https://blog.1234n6.com/2018/10/available-artifacts-evidence-of.html
 https://www.blackhat.com/docs/us-14/materials/us-14-Kazanciyan-Investigating-Powershell-Attacks-WP.pdf
 
 ###### Windows event logs
@@ -409,6 +410,16 @@ http://docshare02.docshare.tips/files/17344/173447840.pdf
 https://github.com/api0cradle/UltimateAppLockerByPassList
 https://hinchley.net/articles/an-approach-for-managing-microsoft-applocker-policies/
 https://posts.specterops.io/lateral-movement-scm-and-dll-hijacking-primer-d2f61e8ab992
+
+###### Bypass PowerShell ConstrainedLanguage mode
+
+http://www.3nc0d3r.com/2016/12/pslockdownpolicy-and-ways-around-it.html
+https://github.com/p3nt4/PowerShdll
+https://s3cur3th1ssh1t.github.io/Playing-with-OffensiveNim/
+https://decoder.cloud/2017/11/17/we-dont-need-powershell-exe-part-3/
+https://github.com/padovah4ck/PSByPassCLM
+https://www.sysadmins.lv/blog-en/powershell-50-and-applocker-when-security-doesnt-mean-security.aspx
+https://github.com/stonepresto/CLMBypass
 
 ###### Lateral movements
 
