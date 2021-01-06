@@ -243,11 +243,13 @@ HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run
 
 ###### Windows EVTX logs
 
+The following events could be indicators of execution on the machine of
+persistence through ASEP registry keys:
+
 | Hive     | Event ID | Conditions | Description | Information yield |
 |----------|----------|------------|-------------|------------------ |
-
-Windows Security Log Event ID 4657: A registry value was modified
-this event will only be logged if the key's audit policy is enabled for Set Value permission for the appropriate user or a group in the user is a member.
+| `Microsoft-Windows-Shell-Core%4Operational.evtx` | 9707 <br><br> 9708 | Default configuration. <br><br> Introduced in Windows 10 and Windows Server 2016. <br><br> Logged whenever a program is executed through the `Run` / `RunOnce` registry keys. | Event `9707: Started execution of command '<COMMAND>'`. <br><br> Event `9708: Finished execution of command '<COMMAND>'`. | Username and domain of the user responsible for the execution. <br><br> Program / command executed. |
+| `Security.evtx` | 4657 | Logged whenever an user modify a registry key for which the audit policy is set to audit usage of the `Set Value` rights (by the user.) <br><br> Requires: <br><br> - `Audit: Force audit policy subcategory settings` to be enabled. <br><br> - `Audit object access` set to `Success(, Failure)`. <br><br> - The `SACL` on the ASEP registry keys to define audit on the rights `Create Subkey`, `Set Value`, `Create Link`, `Write DAC`, and `Delete` for the user conducting the action (possibly through identity / group membership, such as, for example, `Everyone`). <br><br> **-> very likely not logged.** | Event `4657: A registry value was modified`. | Username, domain, and `LogonID` of the user conducting the modification. <br><br> Registry key modified and the new value defined. |
 
 ### Windows scheduled tasks
 
@@ -341,6 +343,9 @@ the `ASEP registry keys` section), located at
 
 ###### Windows EVTX logs
 
+The following events could be indicators of persistence on the machine through
+scheduled tasks:
+
 | Hive     | Event ID | Conditions | Description | Information yield |
 |----------|----------|------------|-------------|------------------ |
 | `Microsoft-Windows-TaskScheduler%4Operational.evtx` | 106 | Introduced in `Windows 7` / `Windows 2008`. <br><br> Logged whenever a scheduled task is registered.	| Event `106: User "<DOMAIN \| WORKGROUP>\<USERNAME>" registered Task Scheduler task "\<TASK_NAME>"`. <br><br> Can be correlated, after execution of the task, with an event `200` / `201` to determine the scheduled task's executable full path. | Registering user's domain and username. <br><br> Task name. |
@@ -378,19 +383,28 @@ The Windows services are stored under the following registry keys (as listed in
 the `ASEP registry keys` section), located at
 `%WinDir%\System32\config\SYSTEM`:
 
-  - `HKLM\SYSTEM\CurrentControlSet\Services`
+  - `HKLM\SYSTEM\CurrentControlSet\Services\<SERVICE_NAME>`
+
+The registry keys hold the configuration information of the Windows services:
+name, display name, start mode, service type, image path, required privileges
+if any, etc.
+
+The last written timestamp of the service sub key indicates the service
+creation or last modification time.
 
 ###### Windows EVTX logs
 
+The following events could be indicators of persistence on the machine through
+Windows services:
+
 | Hive     | Event ID | Conditions | Description | Information yield |
 |----------|----------|------------|-------------|------------------ |
-| System   | 7045 | `A service was installed in the system`. |
-| System   | 7035, 7036 | `The <SERVICE_NAME> service was successfully sent a <start/stop> control.` and `The <SERVICE_NAME> service entered the <running/stopped> state.` A run / stop signal is sent then the service is effectively started / stopped. |
-| System   | 7030 | `Basic Service Operations`. Occurs when a service is configured as an interactive, which is not supported since Windows Vista and Windows Server 2008 (du to security risks posed by interactive services). |
-| System   | 7040 | Service start type was changed |  
-| Security | 4697 | `A service was installed in the system` from Windows Server 2016 and Windows 10 |
-
-| Security | 4688 | `A new process has been created`. Occurs when a process is created and include information about the process: creator subject (SID, account domain and name as well as the Logon ID), creator PID, token elevation type. etc. If enabled, the "process command line" field include the command line of the process. |
+| `System.evtx` | 7045 | Default configuration. <br><br> Logged whenever a Windows service is created on the machine. | Event `7045: A service was installed in the system`. | Domain and username of the user that installed the service. <br><br> Information on the installed service: name, file name, type, start type and executing account. |
+| `Security.evtx` | 4697 | Introduced in Windows Server 2016 and Windows 10. <br><br> Requires: <br><br> `Audit: Force audit policy subcategory settings` to be enabled. <br> And `Other Object Access Events` set to `Success(, Failure)`. <br><br> Logged whenever a Windows service is created on the machine. | Event `4697: A service was installed in the system`. <br><br> Legacy (Windows Server 2003 and Windows XP): <br> Event `601: Attempt to install service`. | Domain, username and Logon ID of the user that performed the action. <br> -> Often marked as `SYSTEM`. <br><br> Information on the installed service: name, file name, type, start type and executing account. |
+| `System.evtx` | 7036 | Default configuration. <br><br> Logged whenever a Windows service is is effectively running / stopped. | Event `7036: The <SERVICE_NAME> service entered the <running/stopped> state`. | The name of the concerned service and the account used to execute the service (which may not be the account that instructed the service to start / stop). |
+| `System.evtx` | 7035 | Logged only on <= `Windows XP` and `Windows Server 2003`. <br><br> Logged whenever a Windows service is instructed to start / stop. | Event `7035: The <SERVICE_NAME> service was successfully sent a <start/stop> control`. | The name of the concerned service and the account that instructed the service to start / stop (which is likely different that the account under which the service is executed). |
+| `System.evtx`   | 7040 | Default configuration. <br><br> Logged whenever there is a change to a service start type. | Event `7040: The start type of the <SERVICE_NAME> service was changed from demand <OLD_START_TYPE> to <NEW_START_TYPE>`. | The name of the concerned service and the account that modified the service. |
+| `System.evtx` | 7030 | Introduced in Windows Vista and Windows Server 2008. <br><br> Logged whenever a service is configured as an interactive service, which is not supported since Windows Vista and Windows Server 2008 (du to security risks posed by interactive services). | Event `7030: The <SERVICE_NAME> service is marked as an interactive service`. | |
 
 ### WMI event subscriptions
 
