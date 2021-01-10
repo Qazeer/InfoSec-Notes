@@ -2,6 +2,16 @@
 
 ### AD
 
+###### Azure AD Connect
+
+https://blog.xpnsec.com/azuread-connect-for-redteam/
+https://www.synacktiv.com/publications/azure-ad-introduction-for-red-teamers.html
+https://github.com/fox-it/adconnectdump
+https://vbscrub.com/2020/01/14/azure-ad-connect-database-exploit-priv-esc/
+https://docs.microsoft.com/fr-fr/azure/active-directory/manage-apps/migrate-adfs-apps-to-azure
+https://docs.microsoft.com/fr-fr/azure/active-directory/hybrid/how-to-connect-password-hash-synchronization
+https://docs.microsoft.com/fr-fr/azure/active-directory/hybrid/how-to-connect-pta
+
 ###### Credentials theft shuffling
 
 https://stackoverflow.com/questions/18113651/powershell-remoting-policy-does-not-allow-the-delegation-of-user-credentials
