@@ -8,6 +8,7 @@ https://blog.xpnsec.com/azuread-connect-for-redteam/
 https://www.synacktiv.com/publications/azure-ad-introduction-for-red-teamers.html
 https://github.com/fox-it/adconnectdump
 https://vbscrub.com/2020/01/14/azure-ad-connect-database-exploit-priv-esc/
+https://www.varonis.com/blog/azure-skeleton-key/
 https://docs.microsoft.com/fr-fr/azure/active-directory/manage-apps/migrate-adfs-apps-to-azure
 https://docs.microsoft.com/fr-fr/azure/active-directory/hybrid/how-to-connect-password-hash-synchronization
 https://docs.microsoft.com/fr-fr/azure/active-directory/hybrid/how-to-connect-pta
@@ -371,6 +372,17 @@ https://dfironthemountain.wordpress.com/2019/02/15/rdp-event-log-dfir/
 https://jpcertcc.github.io/ToolAnalysisResultSheet/details/mstsc.htm
 https://salt4n6.com/2019/09/22/event-id-1024/
 https://nullsec.us/windows-rdp-related-event-logs-the-client-side-of-the-story/
+
+###### Active Directory persistence
+
+https://social.technet.microsoft.com/wiki/contents/articles/51185.active-directory-replication-metadata.aspx#:~:text=Replication%20Metadata%20is%20the%20data,in%20Active%20Directory%20(AD)
+https://www.harmj0y.net/blog/defense/hunting-with-active-directory-replication-metadata/
+https://social.technet.microsoft.com/wiki/contents/articles/25946.metadata-de-replication-et-analyse-forensic-active-directory-fr-fr.aspx
+https://www.ssi.gouv.fr/uploads/2019/04/ad_timeline_first_tc.pdf
+
+###### Active Directory lastLogon v. lastLogonTimestamp
+
+https://social.technet.microsoft.com/wiki/contents/articles/22461.understanding-the-ad-account-attributes-lastlogon-lastlogontimestamp-and-lastlogondate.aspx
 
 ###### Programs execution
 
