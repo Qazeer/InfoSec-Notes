@@ -90,7 +90,7 @@ not retrieve the same information.
 
 ```
 # If no username provided, null session assumed
-smbmap [-d <DOMAIN>] [-u <USERNAME>] [-p <PASSWORD | HASH>] (-H <HOSTNAME | IP> | --host-file <FILE>)  
+smbmap [-d <WORKGROUP | DOMAIN>] [-u <USERNAME>] [-p <PASSWORD | HASH>] (-H <HOSTNAME | IP> | --host-file <FILE>)  
 
 # nmap smb-enum-shares script will attempt to retrieve the file system path of the share
 nmap -v -sT -p 139,445 --script smb-enum-shares.nse <HOSTNAME | IP>
@@ -166,8 +166,8 @@ matching the search criteria.
 If no credentials are provided, a null session will be attempted.
 
 ```
-smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] -R <SHARE> (-H <HOSTNAME | IP> | --host-file <FILE>)  
-smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] -F <PATTERN> (-H <HOSTNAME | IP> | --host-file <FILE>)  
+smbmap [-d <WORKGROUP | DOMAIN>] [-u <USERNAME>] [-p <PASSWORD | NTLM_HASH>] -R <SHARE> (-H <HOSTNAME | IP> | --host-file <INPUT_FILE>)  
+smbmap [-d <WORKGROUP | DOMAIN>] [-u <USERNAME>] [-p <PASSWORD | NTLM_HASH>] -F <PATTERN> (-H <HOSTNAME | IP> | --host-file <INPUT_FILE>)  
 
 nmap -v -sT -p 139,445 <HOSTNAME | IP> --script smb-enum-shares,smb-ls --script-args maxdepth=-1
 nmap -v -sT -p 139,445 <HOSTNAME | IP> --script smb-ls --script-args share=<SHARE>,maxdepth=-1
@@ -186,7 +186,7 @@ set SpiderShares true
 a specific file:
 
 ```
-smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] --download/--upload/--delete <PATH> (-H HOSTNAME | IP | --host-file FILE)
+smbmap [-d <WORKGROUP | DOMAIN>] [-u <USERNAME>] [-p <PASSWORD | NTLM_HASH>] --download/--upload/--delete <PATH> (-H HOSTNAME | IP | --host-file <INPUT_FILE>)
 
 msf > use auxiliary/admin/smb/download_file
 
@@ -313,7 +313,12 @@ The `patator` tool can be used to brute force credentials on the service:
 patator smb_login host=<HOSTNAME | IP> user=FILE0 password=FILE1 0=<WORDLIST_USER> 1=<WORDLIST_PASSWORD> -x ignore:fgrep='NT_STATUS_LOGON_FAILURE'
 ```
 
-### Known vulnerabilities
+### Known vulnerabilities / CVE
+
+Multiple known vulnerabilities affect the `SMB` protocol, that could allow if
+unpatched unauthenticated Remote Code Execution.
+
+###### Detection
 
 `nmap` can be used to check for the following exploits:
 
@@ -339,7 +344,7 @@ the root filesystem.
 
 https://www.exploit-db.com/exploits/33599/
 
-###### EternalBlue & SambaCry
+###### EternalBlue & SambaCry detection and exploitation
 
 A remote code execution vulnerability exists in the way that the Microsoft
 Server Message Block 1.0 (SMBv1) server handles certain requests. Write access
