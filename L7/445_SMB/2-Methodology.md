@@ -187,6 +187,7 @@ The Linux `smbclient` CLI tool can be used to interact with the a `SMB` or
 smbclient -U "" -N "\\\\<HOSTNAME | IP>\\<SHARE>"
 
 # To authenticate as USERNAME
+smbclient [-W <WORKGROUP | DOMAIN>] -U "" "\\\\<HOSTNAME | IP>\\<SHARE>"
 
 # --pw-nt-hash to specify an NT hash instead of a cleartext password
 smbclient -U <USER> --pw-nt-hash ...

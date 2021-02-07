@@ -357,6 +357,10 @@ through `metasploit`.
 On Windows, the `netsh` built-in can be used to configure unitary port
 forwarding.
 
+As stated in the Microsoft `KB555744`, "the [`portproxy add v4tov4]` command is
+sent to the `IPV6MON.DLL` helper, and because of that it will work only if
+`IPv6` protocol is installed."
+
 ```
 # Display current configured port forwarding rule
 netsh interface portproxy show all

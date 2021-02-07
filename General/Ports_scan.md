@@ -414,7 +414,7 @@ nmap-parse-output <NMAP_XML_SCAN_RESULT> service-names
 nmap-parse-output <NMAP_XML_SCAN_RESULT> service <SERVICE_NAME>
 
 # Extract hosts with an exposed http service, in the following format: "<http | https>://<IP>:<PORT>".
-# The following services are identified as being http services: Currently, http, https, http-alt, https-alt, http-proxy, sip, rtsp, soap, vnc-http, caldav
+# The following services are currently identified as being http services: http, https, http-alt, https-alt, http-proxy, sip, rtsp, soap, vnc-http, caldav
 nmap-parse-output <NMAP_XML_SCAN_RESULT> http-ports
 ```
 
