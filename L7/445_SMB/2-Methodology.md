@@ -21,7 +21,7 @@ nmap -v -p 445 -sV -sC -oA nmap_smb <RANGE | CIDR>
 nbtscan -r <RANGE>
 ```
 
-### Basic recon
+### Recon
 
 The `nmap` `smb-os-discovery.nse` script attempts to determine the operating
 system, computer name, domain, workgroup, and current time over the SMB
@@ -32,7 +32,7 @@ nmap --script smb-os-discovery.nse -p 445 <HOST>
 nmap -sU -sS --script smb-os-discovery.nse -p U:137,T:139 <HOST>
 ```
 
-### Null session & guest access
+###### Null session and guest access
 
 A null session refers to an unauthenticated NetBIOS session.  
 A null session allows unauthenticated access to the shared files as well as a
@@ -42,14 +42,21 @@ This Microsoft feature existed in SMB1 by default and was later restricted in
 subsequent versions of SMB.  
 
 To detect and retrieve information about the machine through a null session,
-the `enum4linux` Perl as well as the `smbmap` scripts can be used. `enum4linux`
-being outdated, `smbmap` is recommended as the go to tool.
+the `enum4linux` Perl / `enum4linux-ng.py` Python scripts as well as the
+`smbmap` can be used.
+
+`enum4linux`being outdated, `enum4linux-ng.py` is recommended as the go to
+tool. In addition to enumerating the exposed shares, it will also perform
+`MSRPC` calls to enumerate users, groups, password policy information, etc.
+For more information, refer to the `[L7] MSRPC` note.
 
 ```
 smbmap -H <HOSTNAME | IP>
 smbmap -u "Guest" -H <HOSTNAME | IP>
 smbmap -u "Invité" -H <HOSTNAME | IP>
-enum4linux <HOST>
+
+enum4linux-ng.py -A -R <HOSTNAME | IP>
+enum4linux <HOSTNAME | IP>
 ```
 
 The following quick bash script can be used to combine a network scan and null
@@ -59,6 +66,14 @@ session enumeration:
 nbtscan -s ' ' <RANGE> | cut -d ' ' -f 1 | while read -r line ; do
   smbmap -H $line > smbmap_$line.txt
 done
+```
+
+###### Authenticated recon
+
+`enum4linux-ng.py` additionally supports authenticated queries:
+
+```
+enum4linux-ng.py -u "<USERNAME>" -pw "<PASSWORD>" -A -R <HOSTNAME | IP>
 ```
 
 ### List accessible shares
@@ -75,7 +90,7 @@ not retrieve the same information.
 
 ```
 # If no username provided, null session assumed
-smbmap [-d <DOMAIN>] [-u <USERNAME>] [-p <PASSWORD | HASH>] (-H <HOSTNAME | IP> | --host-file <FILE>)  
+smbmap [-d <WORKGROUP | DOMAIN>] [-u <USERNAME>] [-p <PASSWORD | HASH>] (-H <HOSTNAME | IP> | --host-file <FILE>)  
 
 # nmap smb-enum-shares script will attempt to retrieve the file system path of the share
 nmap -v -sT -p 139,445 --script smb-enum-shares.nse <HOSTNAME | IP>
@@ -89,10 +104,10 @@ crackmapexec <HOSTNAME | IP> -d <DOMAIN> -u <USERNAME> -H <HASH> --shares
 msf > use auxiliary/scanner/smb/smb_enumshares
 
 smbclient -U "" -N -L \\<HOSTNAME | IP>
-# Some Windows servers do not support IP only and require the NetBIOS name too
+# Some Windows servers do not support IP only and require the NetBIOS name to be specified.
 smbclient -U "" -N -L \\<HOSTNAME> -I <IP>
-# To authenticate as USERNAME. --pw-nt-hash to specify an NT hash instead of a cleartext password
-smbclient -U <USERNAME> [--pw-nt-hash] ...
+# To authenticate as the specifed user. --pw-nt-hash to specify an NT hash instead of a cleartext password.
+smbclient -U '<WORKGROUP | DOMAIN>\<USERNAME>' [--pw-nt-hash] -L \\<HOSTNAME | IP>
 ```
 
 The `SoftPerfect`'s' `NetScan` Windows graphical network scanner utility can be
@@ -123,12 +138,14 @@ The following one-liner can be used on a Linux system to retrieve the ACL of a
 mounted share:
 
 ```
-# Files and directories in the specified directory
-for i in $(/bin/ls /mnt/<LOCAL_MOUNT_POINT>/<DIRECTORY>); do echo "\n$i"; smbcacls -N "\\\\<HOSTNAME>\\<SHARE>\\<DIRECTORY>" $i 2>/dev/null; done
+# Files and directories in the specified share, with an eventual specified directory.
+# If no directory is specified, the share UNC path shouldn't end with a backslash (example of a valid path: '\\<HOSTNAME>\<SHARE>').
 
-# Recursively retrieve the ACL of all files and directories in the specified directory
-cd /mnt/<LOCAL_MOUNT_POINT>/<DIRECTORY>
-for i in $(/usr/bin/find *); do echo "\n$i"; smbcacls -N "\\\\<HOSTNAME>\\<SHARE>\\<DIRECTORY>" $i; done
+for i in $(/bin/ls /mnt/<LOCAL_MOUNT_POINT>[/<DIRECTORY>]); do echo "\n$i"; smbcacls -N '\\<HOSTNAME>\<SHARE>[\<DIRECTORY>]' $i 2>/dev/null; done
+
+# Recursively retrieve the ACL of all files and directories in the specified share or directory
+cd /mnt/<LOCAL_MOUNT_POINT>/[<DIRECTORY>]
+for i in $(/usr/bin/find *); do echo "\n$i"; smbcacls -N '\\<HOSTNAME>\<SHARE>[\<DIRECTORY>]' $i; done
 ```
 
 The following PowerShell one-liner can be used to recursively retrieve the ACL
@@ -149,8 +166,8 @@ matching the search criteria.
 If no credentials are provided, a null session will be attempted.
 
 ```
-smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] -R <SHARE> (-H <HOSTNAME | IP> | --host-file <FILE>)  
-smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] -F <PATTERN> (-H <HOSTNAME | IP> | --host-file <FILE>)  
+smbmap [-d <WORKGROUP | DOMAIN>] [-u <USERNAME>] [-p <PASSWORD | NTLM_HASH>] -R <SHARE> (-H <HOSTNAME | IP> | --host-file <INPUT_FILE>)  
+smbmap [-d <WORKGROUP | DOMAIN>] [-u <USERNAME>] [-p <PASSWORD | NTLM_HASH>] -F <PATTERN> (-H <HOSTNAME | IP> | --host-file <INPUT_FILE>)  
 
 nmap -v -sT -p 139,445 <HOSTNAME | IP> --script smb-enum-shares,smb-ls --script-args maxdepth=-1
 nmap -v -sT -p 139,445 <HOSTNAME | IP> --script smb-ls --script-args share=<SHARE>,maxdepth=-1
@@ -169,7 +186,7 @@ set SpiderShares true
 a specific file:
 
 ```
-smbmap [-d DOMAIN] [-u USERNAME] [-p PASSWORD/HASH] --download/--upload/--delete <PATH> (-H HOSTNAME | IP | --host-file FILE)
+smbmap [-d <WORKGROUP | DOMAIN>] [-u <USERNAME>] [-p <PASSWORD | NTLM_HASH>] --download/--upload/--delete <PATH> (-H HOSTNAME | IP | --host-file <INPUT_FILE>)
 
 msf > use auxiliary/admin/smb/download_file
 
@@ -189,8 +206,8 @@ smbclient -U "" -N "\\\\<HOSTNAME | IP>\\<SHARE>"
 # To authenticate as USERNAME
 smbclient [-W <WORKGROUP | DOMAIN>] -U "" "\\\\<HOSTNAME | IP>\\<SHARE>"
 
-# --pw-nt-hash to specify an NT hash instead of a cleartext password
-smbclient -U <USER> --pw-nt-hash ...
+# --pw-nt-hash: specify an NT hash instead of a cleartext password.
+smbclient -U '<WORKGROUP | DOMAIN>\<USERNAME>' [--pw-nt-hash] "\\\\<HOSTNAME | IP>\\<SHARE>"
 ```
 
 The following basic commands can be used through the client (partial list):
@@ -253,7 +270,7 @@ of smbmount):
 
 ```
 # ro for read only and rw for read & write
-# guest for null session or specify an user with username=
+# guest / no username for null session or specify an user with username=
 # vers=1.0 if any error arise
 
 mount -t cifs //<HOSTNAME | IP>//<SHARE> /mnt/<FOLDER> -o rw,guest,vers=1.0
@@ -297,7 +314,12 @@ The `patator` tool can be used to brute force credentials on the service:
 patator smb_login host=<HOSTNAME | IP> user=FILE0 password=FILE1 0=<WORDLIST_USER> 1=<WORDLIST_PASSWORD> -x ignore:fgrep='NT_STATUS_LOGON_FAILURE'
 ```
 
-### Known vulnerabilities
+### Known vulnerabilities / CVE
+
+Multiple known vulnerabilities affect the `SMB` protocol, that could allow if
+unpatched unauthenticated Remote Code Execution.
+
+###### Detection
 
 `nmap` can be used to check for the following exploits:
 
@@ -323,7 +345,7 @@ the root filesystem.
 
 https://www.exploit-db.com/exploits/33599/
 
-###### EternalBlue & SambaCry
+###### EternalBlue & SambaCry detection and exploitation
 
 A remote code execution vulnerability exists in the way that the Microsoft
 Server Message Block 1.0 (SMBv1) server handles certain requests. Write access

@@ -2,6 +2,17 @@
 
 ### AD
 
+###### Azure AD Connect
+
+https://blog.xpnsec.com/azuread-connect-for-redteam/
+https://www.synacktiv.com/publications/azure-ad-introduction-for-red-teamers.html
+https://github.com/fox-it/adconnectdump
+https://vbscrub.com/2020/01/14/azure-ad-connect-database-exploit-priv-esc/
+https://www.varonis.com/blog/azure-skeleton-key/
+https://docs.microsoft.com/fr-fr/azure/active-directory/manage-apps/migrate-adfs-apps-to-azure
+https://docs.microsoft.com/fr-fr/azure/active-directory/hybrid/how-to-connect-password-hash-synchronization
+https://docs.microsoft.com/fr-fr/azure/active-directory/hybrid/how-to-connect-pta
+
 ###### Credentials theft shuffling
 
 https://stackoverflow.com/questions/18113651/powershell-remoting-policy-does-not-allow-the-delegation-of-user-credentials
@@ -331,6 +342,7 @@ https://xorl.wordpress.com/2018/02/04/ssh-hijacking-for-lateral-movement/
 
 ### DFIR
 
+https://blog.1234n6.com/2018/10/available-artifacts-evidence-of.html
 https://www.blackhat.com/docs/us-14/materials/us-14-Kazanciyan-Investigating-Powershell-Attacks-WP.pdf
 
 ###### Windows event logs
@@ -351,6 +363,26 @@ https://www.powershellmagazine.com/2014/07/16/investigating-powershell-attacks/
 https://nsfocusglobal.com/Attack-and-Defense-Around-PowerShell-Event-Logging
 https://static1.squarespace.com/static/552092d5e4b0661088167e5c/t/59c1814829f18782e24f1fe2/1505853768977/Windows+PowerShell+Logging+Cheat+Sheet+ver+Sept+2017+v2.1.pdf
 https://www.eventtracker.com/EventTracker/media/EventTracker/Files/support-docs/Integration-Guide-Windows-PowerShell.pdf
+https://digital-forensics.sans.org/media/SANS_Poster_2018_Hunt_Evil_FINAL.pdf
+https://ponderthebits.com/2018/02/windows-rdp-related-event-logs-identification-tracking-and-investigation/
+https://www.andreafortuna.org/2020/06/04/windows-forensic-analysis-some-thoughts-on-rdp-related-event-ids/
+https://www.13cubed.com/downloads/rdp_flowchart.pdf
+https://purerds.org/remote-desktop-security/auditing-remote-desktop-services-logon-failures-1/
+https://dfironthemountain.wordpress.com/2019/02/15/rdp-event-log-dfir/
+https://jpcertcc.github.io/ToolAnalysisResultSheet/details/mstsc.htm
+https://salt4n6.com/2019/09/22/event-id-1024/
+https://nullsec.us/windows-rdp-related-event-logs-the-client-side-of-the-story/
+
+###### Active Directory persistence
+
+https://social.technet.microsoft.com/wiki/contents/articles/51185.active-directory-replication-metadata.aspx#:~:text=Replication%20Metadata%20is%20the%20data,in%20Active%20Directory%20(AD)
+https://www.harmj0y.net/blog/defense/hunting-with-active-directory-replication-metadata/
+https://social.technet.microsoft.com/wiki/contents/articles/25946.metadata-de-replication-et-analyse-forensic-active-directory-fr-fr.aspx
+https://www.ssi.gouv.fr/uploads/2019/04/ad_timeline_first_tc.pdf
+
+###### Active Directory lastLogon v. lastLogonTimestamp
+
+https://social.technet.microsoft.com/wiki/contents/articles/22461.understanding-the-ad-account-attributes-lastlogon-lastlogontimestamp-and-lastlogondate.aspx
 
 ###### Programs execution
 
@@ -401,6 +433,16 @@ https://github.com/api0cradle/UltimateAppLockerByPassList
 https://hinchley.net/articles/an-approach-for-managing-microsoft-applocker-policies/
 https://posts.specterops.io/lateral-movement-scm-and-dll-hijacking-primer-d2f61e8ab992
 
+###### Bypass PowerShell ConstrainedLanguage mode
+
+http://www.3nc0d3r.com/2016/12/pslockdownpolicy-and-ways-around-it.html
+https://github.com/p3nt4/PowerShdll
+https://s3cur3th1ssh1t.github.io/Playing-with-OffensiveNim/
+https://decoder.cloud/2017/11/17/we-dont-need-powershell-exe-part-3/
+https://github.com/padovah4ck/PSByPassCLM
+https://www.sysadmins.lv/blog-en/powershell-50-and-applocker-when-security-doesnt-mean-security.aspx
+https://github.com/stonepresto/CLMBypass
+
 ###### Lateral movements
 
 https://ss64.com/nt/sc.html
@@ -425,6 +467,7 @@ https://blog.f-secure.com/endpoint-detection-of-remote-service-creation-and-psex
 Applied Incident Response, Steve Anson
 https://docs.microsoft.com/en-us/windows/win32/api/lmshare/nf-lmshare-netshareadd
 https://www.harmj0y.net/blog/redteaming/pass-the-hash-is-dead-long-live-localaccounttokenfilterpolicy/
+Mitigating-Pass-the-Hash-Attacks-and-Other-Credential-Theft-Version-2.pdf
 
 ###### Post exploitation
 

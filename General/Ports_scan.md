@@ -101,9 +101,17 @@ Invoke-Portscan -f -noProgressMeter -quiet -Pn -p "<COMMA_LIST_PORTS>" -iL "<OUT
 
 ### Asynchronous and stateless ports scan
 
-The tools `ZMap`, `MASSCAN`, `RustScan`, and `Unicornscan` can be used to
-quickly scan massive IP ranges. For instance, `MASSCAN` can scan the all the
-IPv4’s of the Internet in less than 6 minutes.
+[`masscan`](https://github.com/robertdavidgraham/masscan) or
+[`RustScan`](https://github.com/RustScan/RustScan) (or `Unicornscan`, `ZMap`,
+etc.) can be used to conduct fast asynchronous and stateless ports scan on
+targets supporting high inbound network bandwidth. `masscan` / `RustScan`'s
+ports scan speed can be combined with `nmap`'s services detection probes to
+rapidly conduct a large network ports and services scan.
+
+Note however that the trade-off for the speed achieved using such tools is
+less precision, and potentially missed open ports.
+
+###### masscan
 
 `MASSCAN` uses a default rate of 100 packets/second and supports
 `nmap` like options.
@@ -113,6 +121,11 @@ IPv4’s of the Internet in less than 6 minutes.
 masscan --rate 10000 --open [-oL <FILENAME.mscan> | -oX <FILENAME.xml> | -oG <FILENAME.gmap>] -p <PORT | PORT_RANGE | 0-65535> <CIDR | RANGE>
 
 grep <PORT> <FILENAME.gmap> | cut -d ' ' -f '2'
+```
+
+###### RustScan
+
+```
 ```
 
 ### Ports and services scan with Nmap
@@ -162,12 +175,14 @@ nmap -v -sT -Pn -p <SERVICE_PORT> --script=vuln <IP/FQDN>
 
 *Host Discovery*
 
-Generate a live hosts list trough a `nmap` ping sweep (ARP ping if on same
-subnet, ICMP echo and TCP packets on ports 80 and 443 otherwise).
+Generate a live hosts list trough a `nmap` "ping sweep":
+  - `ARP` ping for hosts on the same local subnet
+  - `ICMP` `echo` requests and `TCP` probes on ports 80 and 443 otherwise.
 
 ```
-nmap -sn -T4 -oG Discovery.gnmap <RANGE | CIDR>
-grep "Status: Up" Discovery.gnmap | cut -f 2 -d ' ' > LiveHosts.txt
+nmap -v -sn -T4 -oG <OUTPUT_GNMAP> [<RANGE | CIDR> -iL <INPUT_FILE>]
+
+grep "Status: Up" <OUTPUT_GNMAP> | cut -f 2 -d ' ' > <OUTPUT_IP_FILE>
 ```
 
 *Port Discovery*
@@ -396,6 +411,8 @@ This option updates the script database found in scripts/script.db 
 
 ###### nmap output parsing
 
+*nmap-parse-output*
+
 The `nmap-parse-output` utility can be used to parse and extract information
 from `nmap` results (in the `xml` format).  
 
@@ -416,6 +433,18 @@ nmap-parse-output <NMAP_XML_SCAN_RESULT> service <SERVICE_NAME>
 # Extract hosts with an exposed http service, in the following format: "<http | https>://<IP>:<PORT>".
 # The following services are currently identified as being http services: http, https, http-alt, https-alt, http-proxy, sip, rtsp, soap, vnc-http, caldav
 nmap-parse-output <NMAP_XML_SCAN_RESULT> http-ports
+```
+
+*NmaptoCSV*
+
+The [`NmaptoCSV`](https://github.com/maaaaz/nmaptocsv) Python script can be
+used to convert `nmap` output (regular, `GNMAP`, or `XML` formats) to the `CSV`
+format.
+
+```
+nmaptocsv [-d ","] -i <NMAP_REGULAR_OUPUT | NMAP_GNMAP_OUTPUT> -o <CSV_OUTPUT>
+
+nmaptocsv [-d ","] -x <NMAP_XML_OUPUT> -o <CSV_OUTPUT>
 ```
 
 ### Pivot scans through compromised hosts

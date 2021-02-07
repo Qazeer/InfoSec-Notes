@@ -183,6 +183,9 @@ following GitHub repository:
 https://github.com/ropnop/impacket_static_binaries
 ```
 
+**For the forensics artefacts induced by the different lateral movement
+technics refer to the `[DFIR] Windows - Analysis - Lateral movement` note.**
+
 ###### [Over SMB] PsExec-like utilities
 
 `PsExec`-like utilities operate under the same general principle:
@@ -660,49 +663,6 @@ Task Scheduler (<HOSTNAME>) -> Right click -> Create task...
 
 Task Scheduler Library -> Right click on <TASK> -> Run / Delete  
 ```
-
-The creation, execution and deletion of a scheduled task will notably, in
-addition to `Security` `EID 4624` and `EID 4672` events, generate the following
-Windows events:
-  - `Microsoft-Windows-TaskScheduler/Operational` hive, `EID 106: User
-    "<DOMAIN | HOSTNAME>\<USERNAME> | <SID>" registered Task Scheduler task
-    "\<TASK_NAME>"`.
-
-  - `Microsoft-Windows-TaskScheduler/Operational` hive, `EID 140: User
-    "<DOMAIN | HOSTNAME>\<USERNAME> | <SID>" updated Task Scheduler task
-    "\<TASK_NAME>"`.
-
-  - `Microsoft-Windows-TaskScheduler/Operational` hive, `EID 141: User
-    "<DOMAIN | HOSTNAME>\<USERNAME> | <SID>" deleted Task Scheduler task
-    "\<TASK_NAME>"`.
-
-  - `Microsoft-Windows-TaskScheduler/Operational` hive, `EID 129: Task
-    Scheduler launch task "\<TASK_NAME>", instance "<INSTANCE>"  with process
-    ID <PID>`.
-
-  - `Microsoft-Windows-TaskScheduler/Operational` hive, `EID 100: Task
-    Scheduler started "<INSTANCE>" instance of the "\<TASK_NAME>" task for
-    user "NT AUTHORITY\SYSTEM | <DOMAIN | HOSTNAME>\<USERNAME> | <SID>"`.
-
-  - `Microsoft-Windows-TaskScheduler/Operational` hive, `EID 140: User
-    "<DOMAIN | HOSTNAME>\<USERNAME> | <SID>"  updated Task Scheduler task
-    "\<TASK_NAME>"`.
-
-  - `Security`, if `Audit object access` is enabled for `Success` and
-    `Failure`, `EID 4698: A scheduled task was created`. Includes the scheduled
-    task detailed configuration (author, triggers, executing user, command and
-    eventual command argument, etc.) and can be correlated to a logon session
-    using the event `Logon ID`.
-
-  - `Security`, if `Audit object access` is enabled for `Success` and
-    `Failure`, `EID 4702: A scheduled task was updated`. Specifies the user
-    at the origin of the modification, the task name of the updated scheduled
-    task and can be correlated to a logon session using the event `Logon ID`.
-
-  - `Security`, if `Audit object access` is enabled for `Success` and
-    `Failure`, `EID 4699: A scheduled task was deleted`. Specifies the user
-    at the origin of the modification, the task name of the updated scheduled
-    task and can be correlated to a logon session using the event `Logon ID`.
 
 ```
 # <TASK_COMMAND> example with the Windows built-in cmd.exe or PowerShell:

