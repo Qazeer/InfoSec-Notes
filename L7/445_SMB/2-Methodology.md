@@ -34,10 +34,10 @@ nmap -sU -sS --script smb-os-discovery.nse -p U:137,T:139 <HOST>
 
 ###### Null session and guest access
 
-A null session refers to an unauthenticated NetBIOS session.  
-A null session allows unauthenticated access to the shared files as well as a
-large amounts of information about the machine, such as password policies,
-usernames, group names, machine names, user and host SIDs.  
+A null session refers to an unauthenticated NetBIOS session and allows
+unauthenticated access to the shared files as well as a large amounts of
+information about the machine, such as password policies, usernames, group
+names, machine names, user and host SIDs.  
 This Microsoft feature existed in SMB1 by default and was later restricted in
 subsequent versions of SMB.  
 
@@ -45,10 +45,15 @@ To detect and retrieve information about the machine through a null session,
 the `enum4linux` Perl / `enum4linux-ng.py` Python scripts as well as the
 `smbmap` can be used.
 
-`enum4linux`being outdated, `enum4linux-ng.py` is recommended as the go to
+`enum4linux` being outdated, `enum4linux-ng.py` is recommended as the go to
 tool. In addition to enumerating the exposed shares, it will also perform
-`MSRPC` calls to enumerate users, groups, password policy information, etc.
+`MSRPC` calls (using mainly `nmblookup`, `net`, `rpcclient` and `smbclientto`)
+to enumerate users, groups, password policy information, etc.
 For more information, refer to the `[L7] MSRPC` note.
+
+Note that if the null session test if being performed from a domain-joined
+system, the current user and computer account can be implicitly used for the
+connection if a null authentication is not explicitly specified.  
 
 ```
 smbmap -H <HOSTNAME | IP>

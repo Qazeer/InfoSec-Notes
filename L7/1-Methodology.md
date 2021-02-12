@@ -36,6 +36,7 @@ directly implacable to the OSCP exam.
 | `RustScan` | Fast network port scanner written in `Rust`. | https://github.com/RustScan/RustScan |
 | `SecLists` | Collection of multiple types of lists (directory wordlists, usernames and passwords wordlists, etc.). | https://github.com/danielmiessler/SecLists |
 | `Sn1per Community Edition` | Opensource automated vulnerabilities scanner. | https://github.com/1N3/Sn1per |
+| `sshUsernameEnumExploit.py` | Python script to enumerate local users through `OpenSSH` services vulnerable to the `CVE-2018-15473` vulnerability. | https://github.com/Rhynorater/CVE-2018-15473-Exploit |
 | `testssl` <br><br> `sslscan2` | Tools to enumerate the supported ciphers and presence of cryptographic flaws of `SSL` / `TLS` services. | https://github.com/drwetter/testssl.sh <br><br> https://github.com/rbsec/sslscan |
 | `WhatWeb` | Tool to identify technological components, including content management systems, of  web applications. | https://github.com/urbanadventurer/WhatWeb |
 
@@ -121,7 +122,7 @@ aforementioned ports scanners, only a limited range of ports should be probed
 ```
 # The ports scan can be mutualized with a service -sV and default script -sC scan.
 
-nmap -v -Pn [-sT] [-sV -sC] --min-hostgroup 64 --host-timeout 3600s -oA <OUTPUT_FILES> -iL <INPUT_IP_FILE>
+nmap -v -Pn [-sT] [-sV -sC] --min-hostgroup 128 --host-timeout 3600s -oA <OUTPUT_FILES> -iL <INPUT_IP_FILE>
 ```
 
 ###### Nmap services scan
@@ -286,6 +287,23 @@ smbmap -u "Invité" --host-file <INPUT_HOSTS>
 smbmap [-d <WORKGROUP | DOMAIN>] -u <USERNAME>] [-p <PASSWORD | NTLM_HASH>]
 ```
 
+###### Null session enumeration attempts
+
+`enum4linux-ng` can be used to attempt in an unauthenticated manner to retrieve
+information, in addition to exposed shares, such as local users, groups,
+password policy information, etc. For more information, refer to the
+`[L7] MSRPC` note.
+
+`Interlace` is used in combination with `WhatWeb` to manage multi-threading and
+parameterize output.
+
+```
+# Command to instruct interlace to execute enum4linux-ng, to place in a file.
+enum4linux-ng -A -R _target_ > _output_/_cleantarget_-enum4linux-ng.txt
+
+interlace -tL <INPUT_SMB_HOSTS> -o <OUTPUT_FOLDER> -cL <ENUM4LINUX_COMMAND_FILE>
+```
+
 --------------------------------------------------------------------------------
 
 ### X. HTTP / HTTPS services enumeration and analysis
@@ -306,7 +324,11 @@ nmap-parse-output <NMAP_XML_OUPUT> http-ports | tee <OUTPUT_HOSTS_HTTP>
 ###### URL validation and screenshotting
 
 Using the extracted list of URLs as input, `aquatone` can be used to validate
-the URL and screenshot the accessible web applications:
+the URL and screenshot the accessible web applications.
+
+`Aquatone` produces a report in the `HTML` format that embeds the screenshots,
+web page title, and headers enumerated. Web applications are grouped by
+similarities for easier visualization and analysis.
 
 ```
 cat <INPUT_URLS> | aquatone <OUTPUT_DIR>
@@ -321,7 +343,7 @@ by the web applications exposed on the URL validated by `aquatone`.
 parameterize output.
 
 ```
-# Command to instruct interlace to execute WhatWeb, to place in a file.  
+# Command to instruct interlace to execute WhatWeb, to place in a file.
 whatweb --aggression=3 _target_ > _output_/_cleantarget_-whatweb.txt
 
 interlace -tL <INPUT_HTTPS_URLS> -o <OUTPUT_FOLDER> -cL <WHATWEB_COMMAND_FILE>
@@ -350,7 +372,7 @@ services.
 multi-threading and parameterize outputs.
 
 ```
-# Commands to instruct interlace to execute sslscan and testssl.sh, to place in a file.  
+# Commands to instruct interlace to execute sslscan and testssl.sh, to place in a file.
 sslscan _target_ > _output_/_cleantarget_-sslscan.txt
 testssl.sh _target_ > _output_/_cleantarget_-testssl.txt
 
@@ -362,6 +384,19 @@ interlace -tL <INPUT_HTTPS_URLS> -o <OUTPUT_FOLDER> -cL <SSL_COMMANDS_FILE>
 ### X. Credentials bruteforcing
 
 ###### Usernames and passwords wordlist
+
+###### SSH user enumeration
+
+The `sshUsernameEnumExploit.py` Python script can be used to enumerate local
+users against `OpenSSH` services, under `OpenSSH 7.7`, which are vulnerable to
+oracle username enumeration (`CVE-2018-15473`).
+
+```
+# Commands to instruct interlace to execute sshUsernameEnumExploit, to place in a file.
+python3 sshUsernameEnumExploit.py [--username <USERNAME> | --userList <USERNAMES_FILE> _target_ > _output_/_cleantarget_-ssh-enum.txt
+
+interlace -tL <INPUT_SSH_HOSTS> -o <OUTPUT_FOLDER> -cL <SSH_COMMANDS_FILE>
+```
 
 ###### Common services login bruteforce
 
