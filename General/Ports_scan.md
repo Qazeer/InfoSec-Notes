@@ -118,7 +118,7 @@ less precision, and potentially missed open ports.
 
 ```
 # Supports nmap's XML or grepable (gnmap) output file format  
-masscan --rate 10000 --open [-oL <FILENAME.mscan> | -oX <FILENAME.xml> | -oG <FILENAME.gmap>] -p <PORT | PORT_RANGE | 0-65535> <CIDR | RANGE>
+masscan --rate <10000 | RATE> --open [-oL <FILENAME.mscan> | -oX <FILENAME.xml> | -oG <FILENAME.gmap>] -p <PORT | PORT_RANGE | 0-65535> <CIDR | RANGE>
 
 grep <PORT> <FILENAME.gmap> | cut -d ' ' -f '2'
 ```
