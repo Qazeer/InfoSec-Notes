@@ -52,10 +52,10 @@ Commands network traffic an be proxied through a `SOCKS` proxy service using
 `proxychains` on Linux:
 
 ```
-# Specification of the SOCKS proxy address in /etc/proxychains.conf.
+# Specification of the HTTP/HTTPS proxy address in /etc/proxychains.conf or passed as argument to proxychains using the CLI "-f" option.
 [ProxyList]
-socks4 <127.0.0.1 | IP> <SOCKS_PROXY_PORT>
-socks5 <127.0.0.1 | IP> <SOCKS_PROXY_PORT>
+socks4 <127.0.0.1 | SOCKS_PROXY_IP> <SOCKS_PROXY_PORT>
+socks5 <127.0.0.1 | SOCKS_PROXY_IP> <SOCKS_PROXY_PORT>
 
 # Execution of commands through proxychains.
 proxychains [...]
