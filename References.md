@@ -288,6 +288,13 @@ Windows NT TCP/IP Network Administration
 
 https://www.petri.com/how-to-get-ntfs-file-permissions-using-powershell
 
+###### JDWP
+
+https://docs.oracle.com/javase/7/docs/technotes/guides/jpda/jdwp-spec.html
+https://ioactive.com/hacking-java-debug-wire-protocol-or-how/
+https://book.hacktricks.xyz/pentesting/pentesting-jdwp-java-debug-wire-protocol
+https://www.redteamsecure.com/research/exploitation-java-debug-wire-protocol
+
 ###### memcached
 
 https://lzone.de/cheat-sheet/memcached
@@ -425,6 +432,9 @@ http://www.alex-ionescu.com/publications/BlueHat/bluehat2016.pdf
 https://recon.cx/2018/brussels/resources/slides/RECON-BRX-2018-Linux-Vulnerabilities_Windows-Exploits--Escalating-Privileges-with-WSL.pdf
 https://resources.infosecinstitute.com/windows-subsystem-linux/#gref
 https://mspscripts.com/get-installed-antivirus-information-2/
+https://itm4n.github.io/printspoofer-abusing-impersonate-privileges/
+https://decoder.cloud/2019/12/06/we-thought-they-were-potatoes-but-they-were-beans/
+https://decoder.cloud/2018/10/29/no-more-rotten-juicy-potato/
 
 ###### Bypass AppLocker
 
