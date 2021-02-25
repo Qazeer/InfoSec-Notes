@@ -418,6 +418,21 @@ Start-BitsTransfer -TransferType Upload -Source "<INPUT_FILE_PATH>" -Destination
 Start-BitsTransfer -TransferType Upload -Source "<INPUT_FILE_PATH | *>" -Destination "\\<IP | HOSTNAME>\<SHARE>\"
 ```
 
+Note that while the `Start-BitsTransfer` cmdlet supports the specification of
+alternative `PSCredential` credentials with the `-Credential` parameter, the
+functionality is currently bugged. Instead, a temporary drive mapping should be
+created using the `New-PSDrive` cmdlet (`PowerShell 3.0`) or
+`WScript.Network` object.
+
+```
+New-PSDrive -Credential <PSCredential> -Name "<DRIVE_NAME>" -PSProvider "FileSystem" -Root "\\<IP | HOSTNAME>\<SHARE>\"
+
+$net = new-object -ComObject WScript.Network
+$net.MapNetworkDrive("<DRIVE_LETTER>", "\\<IP | HOSTNAME>\<SHARE>\", $false, "<DOMAIN | WORKGROUP>\<USERNAME>", "<PASSWORD>")
+
+Start-BitsTransfer -Source "<DRIVE_NAME | DRIVE_LETTER>:\<FILE | *>" -Destination "<OUTPUT_FILE_PATH>"
+```
+
 ###### [Windows] CertUtil
 
 `CertUtil` is a Windows command-line tool designed to manage Certification
