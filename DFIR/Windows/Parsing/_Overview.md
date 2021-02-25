@@ -13,6 +13,7 @@ A more detailed explanation of the artefacts, and associated parsing tools, are 
 | `EVTX` | Accounts authentication. <br><br> Overall system usage (Windows Services, scheduled tasks, PowerShell activity, etc.). | `%SystemRoot%\System32\winevt\Logs\*` |
 | `Jumplist` | Files and folders access. | `%SystemDrive%:\Users\<USERNAME>\AppData\Roaming\Microsoft\Windows\Recent\AutomaticDestinations\*.automaticDestinations-ms` <br><br> `%SystemDrive%:\Users\<USERNAME>\AppData\Roaming\Microsoft\Windows\Recent\CustomDestinations\*.customDestinations-ms` |
 | `LNK (shortcuts) Files` | Files and folders access. | `%SystemDrive%:\Users\<USERNAME>\AppData\Roaming\Microsoft\Windows\Recent\*.lnk` <br><br> `%SystemDrive%:\Users\<USERNAME>\AppData\Roaming\Microsoft\Office\Recent\*.lnk` |
+| `Map Network Drive MRU` | Recently used network shares. | File: `%SystemDrive%:\Users\<USERNAME>\NTUSER.dat` <br><br> Registry key: <br> `HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Map Network Drive MRU` |
 | `MFT` | Filesystem and limited filesystem history. | `%SystemDrive%:\$MFT` |
 | `NetworkList registry key` | Basic network historical information (network name and type, first and last connection, etc.) | File: `%SystemRoot%\System32\config\SYSTEM` <br> Registry key: `HKLM\Microsoft\Windows NT\CurrentVersion\NetworkList\Profiles\` |
 | `Prefetch` | Programs execution. | `%SystemRoot%\Prefetch\*` |
@@ -30,4 +31,5 @@ A more detailed explanation of the artefacts, and associated parsing tools, are 
 | `UserAssist` | Programs execution. | File: `%SystemDrive%:\Users\<USERNAME>\NTUSER.dat` <br> Registry key:  `HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\UserAssist\<GUID>\Count` |
 | `UsnJrnl` | Filesystem and limited filesystem history. | `\$Extend\$UsnJrnl` (`$Max` and `$J` data streams) |
 | `Windows Background Activity Moderator (BAM)` <br><br> Introduced in Windows 10's Fall Creators update - version 1709. | Programs execution. | File: `%SystemRoot%\System32\config\SYSTEM` <br><br> Registry key: <br> `HKLM\SYSTEM\CurrentControlSet\Services\bam\UserSettings\<SID>` <br> After from Win10 1809: `HKLM\SYSTEM\CurrentControlSet\Services\bam\State\UserSettings\<SID>` |
+| Windows Search | Files and folders access. | `%SystemDrive%:\ProgramData\Microsoft\Search\Data\Applications\Windows\Windows.edb` |
 | `WordWheelQuery` | Files and folders access. <br><br> Potential Programs execution. | File: `%SystemDrive%:\Users\<USERNAME>\NTUSER.dat`  <br> Registry key:  `HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\WordWheelQuery` |
