@@ -435,6 +435,7 @@ https://mspscripts.com/get-installed-antivirus-information-2/
 https://itm4n.github.io/printspoofer-abusing-impersonate-privileges/
 https://decoder.cloud/2019/12/06/we-thought-they-were-potatoes-but-they-were-beans/
 https://decoder.cloud/2018/10/29/no-more-rotten-juicy-potato/
+https://itm4n.github.io/localservice-privileges/
 
 ###### Bypass AppLocker
 

