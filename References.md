@@ -288,6 +288,23 @@ Windows NT TCP/IP Network Administration
 
 https://www.petri.com/how-to-get-ntfs-file-permissions-using-powershell
 
+###### Java RMI
+
+https://docs.oracle.com/javase/tutorial/rmi/overview.html
+https://docs.oracle.com/javase/8/docs/technotes/guides/rmi/codebase.html
+https://docs.oracle.com/javase/7/docs/technotes/guides/rmi/enhancements-7.html
+https://docs.oracle.com/javase/7/docs/api/java/rmi/server/RMIClassLoader.html
+https://en.wikipedia.org/wiki/Java_remote_method_invocation
+https://apiacoa.org/publications/teaching/distributed/rmi.pdf
+http://www2.ift.ulaval.ca/IFT-Stage/ateliers/old/RMI/atelierRMI.pdf
+https://www.jmdoudoux.fr/java/dej/chap-rmi.htm
+https://www.clear.rice.edu/comp310/course/rmi/stub_passing.html
+https://book.hacktricks.xyz/pentesting/1099-pentesting-java-rmi
+https://null-byte.wonderhowto.com/how-to/exploit-java-remote-method-invocation-get-root-0187685/
+https://itnext.io/java-rmi-for-pentesters-part-two-reconnaissance-attack-against-non-jmx-registries-187a6561314d
+https://github.com/BishopFox/rmiscout
+https://github.com/NickstaDB/BaRMIe
+
 ###### JDWP
 
 https://docs.oracle.com/javase/7/docs/technotes/guides/jpda/jdwp-spec.html
