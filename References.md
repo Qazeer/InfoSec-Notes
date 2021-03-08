@@ -307,6 +307,10 @@ https://docs.oracle.com/javase/7/docs/api/java/rmi/registry/LocateRegistry.html
 http://www.docjar.com/docs/api/sun/rmi/registry/RegistryImpl.html
 https://github.com/BishopFox/rmiscout
 https://github.com/NickstaDB/BaRMIe
+https://labs.bishopfox.com/tech-blog/rmiscout
+https://labs.bishopfox.com/tech-blog/lessons-learned-on-brute-forcing-rmi-iiop-with-rmiscout
+https://ctftime.org/writeup/6953
+https://github.com/allesctf/writeups/tree/master/2018/RealWorldCTF2018_Finals/RMI
 
 ###### JDWP
 
