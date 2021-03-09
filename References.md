@@ -439,6 +439,18 @@ https://www.aldeid.com/wiki/
 https://www.nirsoft.net/kernel_struct/vista/EPROCESS.html
 https://blog.scrt.ch/2010/11/22/manipulation-des-jetons-des-processus-sous-windows/
 
+###### Timestomping
+
+https://dfir.ru/2021/01/10/standard_information-vs-file_name/
+https://medium.com/@bromiley/a-journey-into-ntfs-part-4-f2865c39ac83
+https://www.andreafortuna.org/2017/10/06/macb-times-in-windows-forensic-analysis/
+https://www.sans.org/security-resources/posters/windows-forensic-analysis/170/download
+https://www.sans.org/blog/digital-forensics-detecting-time-stamp-manipulation/
+https://www.osforensics.com/faqs-and-tutorials/how-to-scan-ntfs-i30-entries-deleted-files.html
+https://alexsta-cybersecurity.com/how-to-detect-timestomping-on-a-windows-system/
+https://www.sans.org/blog/ntfs-i30-index-attributes-evidence-of-deleted-and-overwritten-files/
+https://www.youtube.com/watch?v=XzoYNOlJ37s
+
 ### Windows
 
 ###### LPE
