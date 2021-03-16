@@ -1,26 +1,131 @@
 # DFIR - Memory analysis
 
-### Memory Acquisition (TODO)
+### Memory collection
 
-###### winpmem
+###### RAM acquisition on Windows systems
+
+*WinPmem*
+
+[`WinPmem`](https://github.com/Velocidex/WinPmem) is a (maintained) utility
+that can be used to conduct a local capture of memory.
+
+As stated in the documentation, `WinPmem` implements three acquisition methods:
+  - PTE remapping mode, the default method and the most stable one.
+  - MMMapIoSpace mode, which leverage the `MMMapIoSpace` kernel API.
+  - PhysicalMemory mode, which passes a handle to the tradition
+    `\\.\PhysicalMemory` device.
+
+`WinPmem` used to output capture in the `Advanced Forensics File Format 4
+(AFF4)` format (which include metadata about the capture, compression of the
+output, etc.) but the updated version produces images in the `RAW`
+format.
+
+[`WinPmem` older versions](https://github.com/Velocidex/c-aff4).
 
 ```
--o Output file location
--p <path to pagefile.sys> Include page file
--e Extract raw image from AFF4 file
--l Load driver for live memory analysis
- winpmem_<version>.exe -o F:\mem.aff4
- winpmem_<version>.exe F:\mem.aff4 -e PhysicalMemory -o mem.raw
+winpmem.exe <OUTPUT_RAW_DUMP>
+winpmem.exe \\<IP | HOSTNAME>\<SHARE>\<OUTPUT_RAW_DUMP>
+
+# --- Older versions
+# -p <PAGEFILE_PATH>: instructs WinPmem to also collect the page file.
+
+# Retrieves the page file path.
+wmic pagefile list
+
+winpmem.exe -p <PAGEFILE_PATH> -o <OUTPUT_DUMP_AFF4>
 ```
 
-###### DumpIt
+*DumpIt*
+
+`DumpIt` is a reliable utility that can be used to conduct a local capture of
+memory on Windows systems.
+
+Depending on the version used, different options are implemented. In a basic
+and standard use case, `DumpIt` can be simply executed with out being provided
+any argument to create a memory dump in the local folder.
 
 ```
-/f Output file location
-/s <value> Hash function to use
-/t <addr> Send to remote host (set up listener with /l)
-DumpIt.exe /f F:\mem.raw /s 1
+DumpIt.exe
 ```
+
+###### RAM acquisition on Linux systems
+
+*Volatility profiles*
+
+Contrary to Windows systems, `Volatility` integrates a limited number of
+profiles for Linux systems. It is thus often necessary to generate the profile
+of the system to analyze directly on the system itself or on a system which
+matches the target system (identical Linux distribution, kernel version, and
+CPU architecture).
+
+A number of tools must be installed on the target system (or system emulating
+the target system) in order to generate the Volatility profile:
+  - `dwarfdump`
+  - `GCC` and `make`
+  - `kernel-devel` or `linux-headers-generic` package
+
+Refer to the [official Volatility documentation
+](https://github.com/volatilityfoundation/volatility/wiki/Linux#Linux-Profiles)
+for more information on how to install the necessary tools and the build steps
+to generate a Volatility profile for Linux systems.
+
+```
+# Installs the prerequisite tools on Debian / Ubuntu systems.
+apt-get install dwarfdump
+apt-get install build-essential
+# If "uname -a" returns something different than "generic" after the version number it may be necessary to install the specific kernel headers.
+apt-get install linux-headers-generic / apt-get install linux-headers-<SPECIFIC>
+
+# Generates the Volatility profile (which is a ZIP file).
+# The generated ZIP file must be transferred to the system with Volatility installed (in the <VOLATILITY_INSTALL>/volatility/plugins/overlays/linux/ folder or the plugin folder specified as parameter to volatility using --plugins=).
+git clone https://github.com/volatilityfoundation/volatility.git
+cd volatility/tools/linux && make
+zip $(uname)_$(uname -r)_$(uname -m)_profile.zip module.dwarf /boot/System.map-$(uname -r)
+```
+
+*Acquire Volatile Memory for Linux (AVML)*
+
+[`AVML`](https://github.com/microsoft/avml) is a memory acquisition utility
+written in Rust and open-sourced by Microsoft.
+
+The memory dumps can be generated in the `LiME` output format or in a
+compressed format that can be uncompressed using `avml-convert`. The
+compression significantly reduces the size of the memory dump.
+
+`AVML` supports upload to `Azure Blob Store` or through `HTTP` `PUT` requests.
+
+```
+# Generates a memory dump in the LIME format.
+avml <OUTPUT_DUMP_LIME>
+
+# Generates a compressed memory dump that can then be uncompressed using avml-convert.
+avml --compress <OUTPUT_DUMP_COMPRESSED>
+avml-convert --format lime_compressed <OUTPUT_DUMP_COMPRESSED> <OUTPUT_DUMP_LIME>
+
+# Uploads to the specified URL using a HTTP PUT request and delete the file upon successful upload.
+avml --put <URL> --delete <OUTPUT_DUMP_LIME>
+```
+
+*Linux Memory Extractor (LiME)*
+
+[`LiME`](https://github.com/504ensicsLabs/LiME) is another memory acquisition
+utility that can be used to capture memory of Linux systems.
+
+
+`LiME` is implemented as a `Loadable Kernel Module (LKM)` that can be loaded
+and executed using the `insmod` command.
+
+```
+sudo insmod lime.ko path=<OUTPUT_DUMP_LIME> format=<raw | lime>
+```
+
+###### RAM acquisition of Virtual machines
+
+*VMWare*
+
+*Hyper-V*
+
+*Oracle VM VirtualBox*
 
 ### Volatility
 
@@ -216,6 +321,7 @@ volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> ldrmodules -v
 
 volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> ldrmodules -v -p <PID>
 ```
+
 *Handles*
 
 The `handles` module display the open handles for all processes or for the
