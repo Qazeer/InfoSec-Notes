@@ -393,7 +393,10 @@ to install an MSI installer package, both locally and remotely.
 ```
 # <COMMAND> example: <cmd.exe | powershell.exe | cmd.exe /c '<COMMAND> <COMMAND_ARGS>' | %ComSpec% /c '<COMMAND> <COMMAND_ARGS>' | powershell.exe -NoP -NonI -W Hidden -Exec Bypass -C '<COMMAND> <COMMAND_ARGS>' | powershell.exe -NoP -NonI -W Hidden -Exec Bypass -Enc <ENCODED_BASE64_CMD> | ...>
 
-wmic /node:<IP | HOSTNAME> process call create "<COMMAND>"
+wmic /node:"<IP | HOSTNAME>" process call create "<COMMAND>"
+wmic /node:"<HOST1>","<HOST2>",...,"<HOST_N>" process call create "<COMMAND>"
+# Takes in input a list of hosts in the given file.
+wmic /failfast:on /node:@<FILE> process call create "<COMMAND>"
 wmic /user:"<DOMAIN | WORKGROUP>\<USERNAME>" /password:"<PASSWORD>" /node:<IP | HOSTNAME> process call create "<COMMAND>"
 
 Invoke-WmiMethod -Class Win32_Process -Name Create "<COMMAND>"
