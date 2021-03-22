@@ -133,6 +133,10 @@ sudo insmod lime.ko path=<OUTPUT_DUMP_LIME> format=<raw | lime>
 number of different modules. `Volatility` is implemented in Python and is
 completely open source.
 
+`Volatility 3` is a major rework of `Volatility 2` with a few notable changes
+(removal of profiles, read once of the memory image for performance
+improvement, etc.).
+
 `Volatility` supports the following memory dump file format:
   - Raw/Padded Physical Memory
   - 32-bit and 64-bit Windows Crash Dump
@@ -158,6 +162,18 @@ And the analyze of the memory from the following systems:
   - 32- and 64-bit Windows XP (SP2 and SP3)
   - 32- and 64-bit Linux kernels from 2.6.11 to 4.2.3+
 
+Microsoft releases new Windows 10 versions significantly more frequently than
+what was the norm in the past years (with nowadays to versions being released
+each year). Due to this rapid release cycle, supporting the latest Windows
+versions has become a challenge for memory forensics tools (as it requires
+debugging / reverse engineering of each new version to keep structure
+definitions and symbols up to date). This is partially why the `Rekall` memory
+forensics tool (based on a fork of `Volatility` with consequential subsequent
+rewrites of the code base) was discontinued and is no longer maintained.
+`Volatility 3` addresses this challenge by implementing an extensive library of
+symbol tables and attempting to generate new tables for Windows memory images
+from the memory image itself.
+
 For a more detailed modules documentation, the following official documentation
 can be consulted:
 
@@ -165,7 +181,7 @@ can be consulted:
 https://github.com/volatilityfoundation/volatility/wiki/Command-Reference
 ```
 
-###### Analysis process steps
+###### Analysis steps
 
 The memory analysis of a compromised system is dependent of the investigations
 context. For example, if a workstation is suspected to have been compromised
@@ -182,7 +198,6 @@ the memory of a system:
   addresses
   - TODO...
 
-
 ######  Usage
 
 `Volatility` works using modules / plugins, executed individually as follow:
@@ -195,6 +210,71 @@ export VOLATILITY_LOCATION=file://<MEMORY_DUMP_FILE_PATH>
 export VOLATILITY_PROFILE=<PROFILE>
 volatility <PLUGIN>
 ```
+
+###### Plugins overview
+
+`Volatility` implements two main types of plugins, each using a distinct
+approach:
+  - the "`list`" plugins, that will navigate through Kernel data structures to
+    extract information from memory. The plugins implemented using this
+    approach will work similarly to the native operating system `APIs` (and
+    will thus be vulnerable to the same potential anti-forensics techniques).
+
+  - the "`scan`" plugins, that will carve memory for known specific data
+    structures. Carving is a general term for extracting structured
+    data (in case of memory, `EPROCESS` objects for example) out of raw data.
+    While a bit slower and more prone to false positives, this approach can
+    retrieve information for objects no longer referenced by the operating
+    system (such as a process that have exited) or hidden using anti-forensics
+    techniques.    
+
+List of `Volatility 2` plugins (either included in the base code or from the
+community) that can be useful for general memory forensics. Some plugins below
+are ported, under a different naming nomenclature, to `Volatility 3`.
+
+Note that all the plugins below may not be compatible with every operating
+systems memory image.
+
+| Plugin | Description |
+|--------|-------------|
+| `amcache` | Extracts information from the `AmCache` registry hive. |
+| `apihooks` | Attempts to detect hooked functions and displays information about the hooks found (impacted process, hook type, function hooked, dissambly code of the hook, etc.). |
+| `autoruns` | (Custom) Lists processes executed from an `Auto-Start Extensibility Points (ASEP)`. |
+| `cachedump` | Dumps the `MsCacheV1` / `MsCacheV2` hashes of locally cached Active Directory domain accounts. |
+| `clipboard` | Extracts the content of the Windows clipboard. |
+| `cmdscan` | Scans the memory image for `COMMAND_HISTORY` structures which contain the (limited) history of commands entered in a `console shell` (`cmd.exe`). |
+| `connscan` <br> `netscan` | Scans the memory image for respectively connections that have since been terminated and network artifacts (TCP / UDP connections and listeners). |
+| `consoles` | Scans the memory image for `CONSOLE_INFORMATION` structures which contain the (limited) history of commands typed as well as the screen buffer (commands input and output). |
+| `dlldump` | Extracts the DLL(s) loaded by each or the specified process. |
+| `dlllist` | Lists the `DLL` loaded by each or the specified process. |
+| `dumpfiles` | Dumps all the files mapped in memory (or the ones matching a specified regex). | `mftparser` | Scans the memory image for potential `Master File Table (MFT)` entries to reconstrcut the `MFT`. |
+| `dumpregistry` | Dumps all or the specified (using its virtual offset) registry hive to a file. |
+| `envars` | Displays the environment variables of each or the specified process. |
+| `filescan` | Scans the memory image for `FILE_OBJECTs` which correspond to files loaded in memory. |
+| `getsids` <br> `getservicesids` | Lists the `Security Identifiers (SID)` present, respectively, in each processes token or services. |
+| `handles` | Lists the handles (and information about the handles) for each or the specified process. |
+| `hashdump` | Dumps the local accounts `LM` / `NTLM` hashes from the `SAM` registry hive loaded in memory. |
+| `imagecopy` | Converts a memory dump (such as a crashdump, hibernation file, `VirtualBox` core dump, `VMware` snapshot, etc.) to a `raw` memory image. |
+| `imageinfo` | Prints high level information about the memory image. |
+| `ldrmodules` | Lists the `DLL` loaded by each or the specified process but, in contrary to `dlllist`, from a process's `VirtualAddressDescriptor (VAD)` which can be used to find unlinked `DLL`. |
+| `lsadump` | Dumps decrypted `LSA` secrets (account cleartext passwords for Windows autologon or  Windows services / scheduled tasks, etc.) from the memory image. |
+| `malfind` | Scans the memory image for injected code, that is memory pages marked with the `read`, `write`, and `execute` permissions that contains data not associated with a file on disk. <br><br> Due to its very nature, this plugin is prone to false positives. |
+| `mimikatz` | (Custom) Dumps the accounts secrets from the `LSASS` process in memory, similarly to what can be achieved on a running system using `mimikatz`. |
+| `moddump` | Extracts a kernel driver to a file. |
+| `printkey` | Prints the subkeys, values, data, and data types contained within a specified registry key. |
+| `privs` | Lists the privileges present in each processes token and indicates if the privileges are enabled explicitly or by default. |
+| `procdump` | Extracts a process's executable to a file that more or less closely resembles the original process executable. |
+| `pslist` | Lists the processes of the memory image. |
+| `psscan` <br> `psdispscan` | Enumerates the processes of the memory image through carving. |
+| `pstree` | Lists the processes of the memory image in tree form (parent-child relationships). |
+| `psxview` | Uses different process listing / scanning techniques to find hidden processes. |
+| `shellbags` | Parses and prints Shellbag information (file name and `MAC` timestamps associated which entry) from all user hives loaded in memory. |
+| `shimcache` | Parses the Application Compatibility Shim Cache registry key. |
+| `sockets` | Lists the listening sockets of any protocol (`TCP`, `UDP`, `RAW`, etc.). |
+| `sockscan` | Scans the memory image for `_ADDRESS_OBJECT` structures which contain sockets information. |
+| `svcscan` | Scans the memory image for Windows services and returns information about each service (service name and display name, service state, associated binary path, etc.). |
+| `timeliner` | Creates a timeline from multiples artifacts in memory (processes creation and exit times, sockets creation time, registry keys `LastWriteTime` etc.). |
+| `yarascan` | Scans the image memory for the specified `YARA` rule. |
 
 ###### Image identification
 
@@ -209,6 +289,10 @@ as the time the sample was collected and suggested `Volatility` profiles.
 Contrary to `imageinfo`, `kdbgscan` is designed to positively identify the
 correct profile by scanning for `KDBGHeader` signatures linked to `Volatility`
 profiles.
+
+**Note that (contrary to `Volatility 2`) `Volatility 3` does not rely on
+profiles and instead attempts to generate the equivalent information directly
+from the memory image itself.**
 
 ```
 volatility -f <MEMORY_DUMP_FILE> imageinfo
