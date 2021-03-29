@@ -351,6 +351,10 @@ https://blog.netspi.com/get-sql-server-sysadmin-privileges-local-admin-powerupsq
 https://docs.microsoft.com/fr-fr/dotnet/framework/data/adonet/sql/customizing-permissions-with-impersonation-in-sql-server
 https://blog.netspi.com/hacking-sql-server-stored-procedures-part-2-user-impersonation/
 https://sqlity.net/en/1701/the-trustworthy-database-property-explained-part-2/
+https://docs.microsoft.com/en-us/previous-versions/sql/sql-server-2008-r2/ms189237(v=sql.105)
+https://docs.microsoft.com/fr-fr/sql/ssms/agent/create-an-activex-script-job-step?view=sql-server-2016
+https://www.mssqltips.com/sqlservertip/2014/replace-xpcmdshell-command-line-use-with-sql-server-agent/
+https://docs.microsoft.com/fr-fr/sql/ssms/agent/clear-the-job-history-log?view=sql-server-ver15
 
 ### Linux
 
