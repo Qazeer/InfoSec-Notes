@@ -1,12 +1,22 @@
-### Prefetch
+# DFIR - Windows - Prefetch artefacts
 
-Location `%systemroot%\Prefetch`. **Not present by default on Windows Server
-Operating System**
+###### Overview
+
+Location `%systemroot%\Prefetch`.
+
+**Not present by default on Windows Server Operating System**
 
 Windows Prefetch is a performance enhancement feature that enables prefetching
-to make system boots or applications startups faster. Prefetch files `.PF`,
-in the directory `%systemroot%\prefetch`, store data and files accessed during
-boot or application start-up.
+of applications to make system boots or applications startups faster. Prefetch
+files, located as `.PF` files in the directory `%SystemRoot%\prefetch`, store
+data and files accessed during boot or application start-up.
+
+Prefetch files are created whenever a program is executed from a specific path.
+If the same binary is executed from different locations, separate Prefetch
+files will be created for each different location. A Prefetch file can be
+created even if the executable did not successfully run.
+
+###### Fields of interest
 
 Parsing the contents of these files can yield:
   - Date and time of first execution (corresponding to the prefetch file
@@ -25,6 +35,8 @@ of the `powershell.exe` execution.
 The accessed file list does retain entries from previous instances of a program
 execution. Accessed files information may thus persist through `powershell.exe`
 subsequent runs.
+
+###### Parsing
 
 ```
 PECmd -d <C:\Windows\Prefetch | DIRECTORY>
