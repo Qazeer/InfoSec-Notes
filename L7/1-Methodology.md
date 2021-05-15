@@ -53,11 +53,13 @@ non accessible IP form another network interface.
 ```
 Get-ADComputer -Filter * -Property IPv4Address | Export-CSV <FILENAME>.csv -NoTypeInformation -Encoding UTF8
 
-# identify servers if a certain naming convention is respected, for example
-servers name's starting with a "S" and computer with a "P"
+# Identify obsolete Windows operating systems in use.
+Get-ADComputer -Filter {Enabled -eq "True"} -Properties OperatingSystem | ? { $_.OperatingSystem -Match "Windows NT|Windows 2000 Server|Windows Server 2003|Windows Server 2008|Windows XP|Windows 7"} | Sort OperatingSystem | Ft DNSHostName, OperatingSystem
+
+# Identify servers if a certain naming convention is respected, for example servers name's starting with a "S" and computer with a "P".
 Get-ADComputer -Filter "Name -like 'S*'" -Property IPv4Address
 
-# Specific search
+# Specific search for known services.
 Get-ADComputer -Filter "Name -like '*MSSQL*'" -Property IPv4Address
 Get-ADComputer -Filter "Name -like '*TOMCAT*'" -Property IPv4Address
 ```
