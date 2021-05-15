@@ -1,32 +1,141 @@
 # DFIR - Memory analysis
 
-### Memory Acquisition (TODO)
+### Memory collection
 
-###### winpmem
+###### RAM acquisition on Windows systems
+
+*WinPmem*
+
+[`WinPmem`](https://github.com/Velocidex/WinPmem) is a (maintained) utility
+that can be used to conduct a local capture of memory.
+
+As stated in the documentation, `WinPmem` implements three acquisition methods:
+  - PTE remapping mode, the default method and the most stable one.
+  - MMMapIoSpace mode, which leverage the `MMMapIoSpace` kernel API.
+  - PhysicalMemory mode, which passes a handle to the tradition
+    `\\.\PhysicalMemory` device.
+
+`WinPmem` used to output capture in the `Advanced Forensics File Format 4
+(AFF4)` format (which include metadata about the capture, compression of the
+output, etc.) but the updated version produces images in the `RAW`
+format.
+
+[`WinPmem` older versions](https://github.com/Velocidex/c-aff4).
 
 ```
--o Output file location
--p <path to pagefile.sys> Include page file
--e Extract raw image from AFF4 file
--l Load driver for live memory analysis
- winpmem_<version>.exe -o F:\mem.aff4
- winpmem_<version>.exe F:\mem.aff4 -e PhysicalMemory -o mem.raw
+winpmem.exe <OUTPUT_RAW_DUMP>
+winpmem.exe \\<IP | HOSTNAME>\<SHARE>\<OUTPUT_RAW_DUMP>
+
+# --- Older versions
+# -p <PAGEFILE_PATH>: instructs WinPmem to also collect the page file.
+
+# Retrieves the page file path.
+wmic pagefile list
+
+winpmem.exe -p <PAGEFILE_PATH> -o <OUTPUT_DUMP_AFF4>
 ```
 
-###### DumpIt
+*DumpIt*
+
+`DumpIt` is a reliable utility that can be used to conduct a local capture of
+memory on Windows systems.
+
+Depending on the version used, different options are implemented. In a basic
+and standard use case, `DumpIt` can be simply executed with out being provided
+any argument to create a memory dump in the local folder.
 
 ```
-/f Output file location
-/s <value> Hash function to use
-/t <addr> Send to remote host (set up listener with /l)
-DumpIt.exe /f F:\mem.raw /s 1
+DumpIt.exe
 ```
+
+###### RAM acquisition on Linux systems
+
+*Volatility profiles*
+
+Contrary to Windows systems, `Volatility` integrates a limited number of
+profiles for Linux systems. It is thus often necessary to generate the profile
+of the system to analyze directly on the system itself or on a system which
+matches the target system (identical Linux distribution, kernel version, and
+CPU architecture).
+
+A number of tools must be installed on the target system (or system emulating
+the target system) in order to generate the Volatility profile:
+  - `dwarfdump`
+  - `GCC` and `make`
+  - `kernel-devel` or `linux-headers-generic` package
+
+Refer to the [official Volatility documentation
+](https://github.com/volatilityfoundation/volatility/wiki/Linux#Linux-Profiles)
+for more information on how to install the necessary tools and the build steps
+to generate a Volatility profile for Linux systems.
+
+```
+# Installs the prerequisite tools on Debian / Ubuntu systems.
+apt-get install dwarfdump
+apt-get install build-essential
+# If "uname -a" returns something different than "generic" after the version number it may be necessary to install the specific kernel headers.
+apt-get install linux-headers-generic / apt-get install linux-headers-<SPECIFIC>
+
+# Generates the Volatility profile (which is a ZIP file).
+# The generated ZIP file must be transferred to the system with Volatility installed (in the <VOLATILITY_INSTALL>/volatility/plugins/overlays/linux/ folder or the plugin folder specified as parameter to volatility using --plugins=).
+git clone https://github.com/volatilityfoundation/volatility.git
+cd volatility/tools/linux && make
+zip $(uname)_$(uname -r)_$(uname -m)_profile.zip module.dwarf /boot/System.map-$(uname -r)
+```
+
+*Acquire Volatile Memory for Linux (AVML)*
+
+[`AVML`](https://github.com/microsoft/avml) is a memory acquisition utility
+written in Rust and open-sourced by Microsoft.
+
+The memory dumps can be generated in the `LiME` output format or in a
+compressed format that can be uncompressed using `avml-convert`. The
+compression significantly reduces the size of the memory dump.
+
+`AVML` supports upload to `Azure Blob Store` or through `HTTP` `PUT` requests.
+
+```
+# Generates a memory dump in the LIME format.
+avml <OUTPUT_DUMP_LIME>
+
+# Generates a compressed memory dump that can then be uncompressed using avml-convert.
+avml --compress <OUTPUT_DUMP_COMPRESSED>
+avml-convert --format lime_compressed <OUTPUT_DUMP_COMPRESSED> <OUTPUT_DUMP_LIME>
+
+# Uploads to the specified URL using a HTTP PUT request and delete the file upon successful upload.
+avml --put <URL> --delete <OUTPUT_DUMP_LIME>
+```
+
+*Linux Memory Extractor (LiME)*
+
+[`LiME`](https://github.com/504ensicsLabs/LiME) is another memory acquisition
+utility that can be used to capture memory of Linux systems.
+
+
+`LiME` is implemented as a `Loadable Kernel Module (LKM)` that can be loaded
+and executed using the `insmod` command.
+
+```
+sudo insmod lime.ko path=<OUTPUT_DUMP_LIME> format=<raw | lime>
+```
+
+###### RAM acquisition of Virtual machines
+
+*VMWare*
+
+*Hyper-V*
+
+*Oracle VM VirtualBox*
 
 ### Volatility
 
 `Volatility` is a complete volatile memory analysis framework, composed of a
 number of different modules. `Volatility` is implemented in Python and is
 completely open source.
+
+`Volatility 3` is a major rework of `Volatility 2` with a few notable changes
+(removal of profiles, read once of the memory image for performance
+improvement, etc.).
 
 `Volatility` supports the following memory dump file format:
   - Raw/Padded Physical Memory
@@ -53,6 +162,18 @@ And the analyze of the memory from the following systems:
   - 32- and 64-bit Windows XP (SP2 and SP3)
   - 32- and 64-bit Linux kernels from 2.6.11 to 4.2.3+
 
+Microsoft releases new Windows 10 versions significantly more frequently than
+what was the norm in the past years (with nowadays to versions being released
+each year). Due to this rapid release cycle, supporting the latest Windows
+versions has become a challenge for memory forensics tools (as it requires
+debugging / reverse engineering of each new version to keep structure
+definitions and symbols up to date). This is partially why the `Rekall` memory
+forensics tool (based on a fork of `Volatility` with consequential subsequent
+rewrites of the code base) was discontinued and is no longer maintained.
+`Volatility 3` addresses this challenge by implementing an extensive library of
+symbol tables and attempting to generate new tables for Windows memory images
+from the memory image itself.
+
 For a more detailed modules documentation, the following official documentation
 can be consulted:
 
@@ -60,7 +181,7 @@ can be consulted:
 https://github.com/volatilityfoundation/volatility/wiki/Command-Reference
 ```
 
-###### Analysis process steps
+###### Analysis steps
 
 The memory analysis of a compromised system is dependent of the investigations
 context. For example, if a workstation is suspected to have been compromised
@@ -77,7 +198,6 @@ the memory of a system:
   addresses
   - TODO...
 
-
 ######  Usage
 
 `Volatility` works using modules / plugins, executed individually as follow:
@@ -90,6 +210,71 @@ export VOLATILITY_LOCATION=file://<MEMORY_DUMP_FILE_PATH>
 export VOLATILITY_PROFILE=<PROFILE>
 volatility <PLUGIN>
 ```
+
+###### Plugins overview
+
+`Volatility` implements two main types of plugins, each using a distinct
+approach:
+  - the "`list`" plugins, that will navigate through Kernel data structures to
+    extract information from memory. The plugins implemented using this
+    approach will work similarly to the native operating system `APIs` (and
+    will thus be vulnerable to the same potential anti-forensics techniques).
+
+  - the "`scan`" plugins, that will carve memory for known specific data
+    structures. Carving is a general term for extracting structured
+    data (in case of memory, `EPROCESS` objects for example) out of raw data.
+    While a bit slower and more prone to false positives, this approach can
+    retrieve information for objects no longer referenced by the operating
+    system (such as a process that have exited) or hidden using anti-forensics
+    techniques.    
+
+List of `Volatility 2` plugins (either included in the base code or from the
+community) that can be useful for general memory forensics. Some plugins below
+are ported, under a different naming nomenclature, to `Volatility 3`.
+
+Note that all the plugins below may not be compatible with every operating
+systems memory image.
+
+| Plugin | Description |
+|--------|-------------|
+| `amcache` | Extracts information from the `AmCache` registry hive. |
+| `apihooks` | Attempts to detect hooked functions and displays information about the hooks found (impacted process, hook type, function hooked, dissambly code of the hook, etc.). |
+| `autoruns` | (Custom) Lists processes executed from an `Auto-Start Extensibility Points (ASEP)`. |
+| `cachedump` | Dumps the `MsCacheV1` / `MsCacheV2` hashes of locally cached Active Directory domain accounts. |
+| `clipboard` | Extracts the content of the Windows clipboard. |
+| `cmdscan` | Scans the memory image for `COMMAND_HISTORY` structures which contain the (limited) history of commands entered in a `console shell` (`cmd.exe`). |
+| `connscan` <br> `netscan` | Scans the memory image for respectively connections that have since been terminated and network artifacts (TCP / UDP connections and listeners). |
+| `consoles` | Scans the memory image for `CONSOLE_INFORMATION` structures which contain the (limited) history of commands typed as well as the screen buffer (commands input and output). |
+| `dlldump` | Extracts the DLL(s) loaded by each or the specified process. |
+| `dlllist` | Lists the `DLL` loaded by each or the specified process. |
+| `dumpfiles` | Dumps all the files mapped in memory (or the ones matching a specified regex). | `mftparser` | Scans the memory image for potential `Master File Table (MFT)` entries to reconstrcut the `MFT`. |
+| `dumpregistry` | Dumps all or the specified (using its virtual offset) registry hive to a file. |
+| `envars` | Displays the environment variables of each or the specified process. |
+| `filescan` | Scans the memory image for `FILE_OBJECTs` which correspond to files loaded in memory. |
+| `getsids` <br> `getservicesids` | Lists the `Security Identifiers (SID)` present, respectively, in each processes token or services. |
+| `handles` | Lists the handles (and information about the handles) for each or the specified process. |
+| `hashdump` | Dumps the local accounts `LM` / `NTLM` hashes from the `SAM` registry hive loaded in memory. |
+| `imagecopy` | Converts a memory dump (such as a crashdump, hibernation file, `VirtualBox` core dump, `VMware` snapshot, etc.) to a `raw` memory image. |
+| `imageinfo` | Prints high level information about the memory image. |
+| `ldrmodules` | Lists the `DLL` loaded by each or the specified process but, in contrary to `dlllist`, from a process's `VirtualAddressDescriptor (VAD)` which can be used to find unlinked `DLL`. |
+| `lsadump` | Dumps decrypted `LSA` secrets (account cleartext passwords for Windows autologon or  Windows services / scheduled tasks, etc.) from the memory image. |
+| `malfind` | Scans the memory image for injected code, that is memory pages marked with the `read`, `write`, and `execute` permissions that contains data not associated with a file on disk. <br><br> Due to its very nature, this plugin is prone to false positives. |
+| `mimikatz` | (Custom) Dumps the accounts secrets from the `LSASS` process in memory, similarly to what can be achieved on a running system using `mimikatz`. |
+| `moddump` | Extracts a kernel driver to a file. |
+| `printkey` | Prints the subkeys, values, data, and data types contained within a specified registry key. |
+| `privs` | Lists the privileges present in each processes token and indicates if the privileges are enabled explicitly or by default. |
+| `procdump` | Extracts a process's executable to a file that more or less closely resembles the original process executable. |
+| `pslist` | Lists the processes of the memory image. |
+| `psscan` <br> `psdispscan` | Enumerates the processes of the memory image through carving. |
+| `pstree` | Lists the processes of the memory image in tree form (parent-child relationships). |
+| `psxview` | Uses different process listing / scanning techniques to find hidden processes. |
+| `shellbags` | Parses and prints Shellbag information (file name and `MAC` timestamps associated which entry) from all user hives loaded in memory. |
+| `shimcache` | Parses the Application Compatibility Shim Cache registry key. |
+| `sockets` | Lists the listening sockets of any protocol (`TCP`, `UDP`, `RAW`, etc.). |
+| `sockscan` | Scans the memory image for `_ADDRESS_OBJECT` structures which contain sockets information. |
+| `svcscan` | Scans the memory image for Windows services and returns information about each service (service name and display name, service state, associated binary path, etc.). |
+| `timeliner` | Creates a timeline from multiples artifacts in memory (processes creation and exit times, sockets creation time, registry keys `LastWriteTime` etc.). |
+| `yarascan` | Scans the image memory for the specified `YARA` rule. |
 
 ###### Image identification
 
@@ -104,6 +289,10 @@ as the time the sample was collected and suggested `Volatility` profiles.
 Contrary to `imageinfo`, `kdbgscan` is designed to positively identify the
 correct profile by scanning for `KDBGHeader` signatures linked to `Volatility`
 profiles.
+
+**Note that (contrary to `Volatility 2`) `Volatility 3` does not rely on
+profiles and instead attempts to generate the equivalent information directly
+from the memory image itself.**
 
 ```
 volatility -f <MEMORY_DUMP_FILE> imageinfo
@@ -216,6 +405,7 @@ volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> ldrmodules -v
 
 volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> ldrmodules -v -p <PID>
 ```
+
 *Handles*
 
 The `handles` module display the open handles for all processes or for the

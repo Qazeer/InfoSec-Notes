@@ -798,37 +798,68 @@ governed by the following fixed database roles:
 | `SQLAgentReaderRole` | `msdb` database fixed-database role. | Includes the permissions of the `SQLAgentUserRole` role. <br><br> Can additionally enumerate and view the properties / history of all local or multi-servers jobs. |
 | `SQLAgentOperatorRole` | `msdb` database fixed-database role. | Includes the permissions of the `SQLAgentUserRole` and `SQLAgentReaderRole` roles. <br><br> Can additionally execute, stop, and enable / disable all local jobs and their job history. <br><br> Cannot however modify or delete jobs they don't own (nor make use of multi-servers jobs). |
 
-###### Verify prerequisites
+###### SQL Server Agent jobs prerequisites
 
 In order to execute `SQL Server Agent jobs`:
   - the `SQL Server Agent` Windows service must be running.
-  - the current user must have sufficient privileges.
+  - the current user must have sufficient privileges (fixed-server `sysadmin`
+    role or any of the fixed-database roles introduced above).
 
 ```
 # Checks whether the SQL Server Agent Windows service is running or not.
-SELECT dss.[status], dss.[status_desc] FROM sys.dm_server_services dss WHERE  dss.[servicename] LIKE N'SQL Server Agent (%';"
+SELECT dss.[status], dss.[status_desc] FROM sys.dm_server_services dss WHERE  dss.[servicename] LIKE N'SQL Server Agent (%';
 
-
+# Checks if the current, or specified, user has the fixed-server sysadmin role.
+SELECT IS_SRVROLEMEMBER('sysadmin')
 SELECT IS_SRVROLEMEMBER('sysadmin', '<USERNAME>')
-EXEC sp_helprolemember 'SQLAgentUserRole';
-EXEC sp_helprolemember 'SQLAgentReaderRole';
-EXEC sp_helprolemember 'SQLAgentOperatorRole';
+
+# Lists the each users msdb database's roles (including the SQLAgentUserRole, SQLAgentReaderRole, SQLAgentOperatorRole roles related to SQL Server Agent jobs).
+SELECT u.name, r.name FROM msdb.sys.database_role_members AS m INNER JOIN msdb.sys.database_principals AS r ON m.role_principal_id = r.principal_id INNER JOIN msdb.sys.database_principals AS u ON u.principal_id = m.member_principal_id;
+
+USE MSDB; EXEC sp_helprolemember 'SQLAgentUserRole';
+USE MSDB; EXEC sp_helprolemember 'SQLAgentReaderRole';
+USE MSDB; EXEC sp_helprolemember 'SQLAgentOperatorRole';
 ```
 
-###### SQL Server Agent jobs enumeration
+###### SQL Server Agent jobs operations
 
+The following SQL statements can be used to enumerate, create or delete `SQL
+Server Agent jobs`:
+
+```sql
+-- Retrieves information about the currently defined SQL Server Agent jobs.
+SELECT job_id, name, enabled, description, originating_server_id, start_step_id, owner_sid, date_created, date_modified FROM msdb.dbo.sysjobs;
+
+-- Enumerates all, or the specified, SQL Server Agent jobs' steps.
+SELECT * FROM msdb.dbo.sysjobsteps;
+SELECT * FROM msdb.dbo.sysjobsteps WHERE job_id = N'<JOBS_ID>';
+
+-- Retrieves information about all, or the specified, activity and status.
+SELECT * FROM msdb.dbo.sysjobactivity;
+SELECT * FROM msdb.dbo.sysjobactivity WHERE job_id = N'<JOBS_ID>';
+
+-- Retrieves information about past (all or the specified) SQL Server Agent jobs execution history.
+SELECT * FROM msdb.dbo.sysjobhistory;
+SELECT * FROM msdb.dbo.sysjobhistory WHERE job_id = N'<JOBS_ID>';
+
+-- Deletes the specified SQL Server Agent jobs.
+EXEC msdb.dbo.sp_delete_job @job_name = N'<JOBS_NAME>';
+EXEC msdb.dbo.sp_delete_job @job_id = N'<JOBS_ID>';
+
+-- Deletes SQL Server Agent jobs history.
+EXEC msdb.dbo.sp_purge_jobhistory @job_name = N'<JOBS_NAME>';
+EXEC msdb.dbo.sp_purge_jobhistory @job_id = N'<JOBS_ID>';
+-- Members of the sysadmin or SQLAgentOperatorRole roles can delete all local jobs history (and  multiservers jobs history as well for sysadmin).
+EXEC msdb.dbo.sp_purge_jobhistory;
+
+-- Creates and runs a SQL Server Agent job with a single CmdExec / PowerShell step to execute an operating system command.
+EXEC msdb.dbo.sp_add_job @job_name = N'<JOBS_NAME>';
+-- A proxy can be specified using proxy_id (@proxy_id = <1 | PROXY_ID>) or proxy_name (@proxy_name = <PROXY_NAME>) to run the jobs step under the identity of another identity.
+EXEC msdb.dbo.sp_add_jobstep @job_name = N'<JOBS_NAME>', @step_name = N'<JOBS_STEP>', @subsystem = N'<CmdExec | PowerShell>', @command = N'<CMD_COMMAND | POWERSHELL_COMMAND>', @retry_attempts = <1 | RETRY_ATTEMPTS>, @retry_interval = <1 | RETRY_INTERVAL_IN_MINUTES>;
+-- The job will be executed on the local server by default. If necessary, the sp_add_jobserver procedure can be used to attach the job to a remote server (registered as a target server for the current instance).
+EXEC msdb.dbo.sp_add_jobserver @job_name = N'<JOBS_NAME>', @server_name = N'<LOCAL | SERVER_NAME>';
+EXEC msdb.dbo.sp_start_job N'<JOBS_NAME>'
 ```
-# Lists the defined MSSQL jobs.
-SELECT job_id, [name] FROM msdb.dbo.sysjobs;
-```
-
-https://docs.microsoft.com/en-us/previous-versions/sql/sql-server-2008-r2/ms189237(v=sql.105)
-https://docs.microsoft.com/fr-fr/sql/ssms/agent/create-an-activex-script-job-step?view=sql-server-2016
-https://www.mssqltips.com/sqlservertip/2014/replace-xpcmdshell-command-line-use-with-sql-server-agent/
-
-Delete job history:
-
-https://docs.microsoft.com/fr-fr/sql/ssms/agent/clear-the-job-history-log?view=sql-server-ver15
 
 ### Net-NTLM stealer and relaying
 
