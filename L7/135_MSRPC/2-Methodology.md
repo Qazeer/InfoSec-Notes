@@ -193,7 +193,7 @@ commands:
 | `querydispinfo` | `SAMR` | Enumerate users and their description. Enumerates the AD domain users on a DC, the machine local users otherwise. |
 | `enumdomgroups` | `SAMR` | Enumerate groups. Returns the AD domain groups on a DC, the machine local groups otherwise. |
 | `samlookupnames domain <USERNAME \| USERNAMES_LIST>` | `SAMR` | Retries the RID of the domain, if the machine is a DC, or local user RID in HEX format (needed for `queryuser`). |
-| `queryuser <RID>` | `SAMR` | Query the specified user (HEX RID) info. Query information of domain users on a DC, of the machine local users otherwise. |
+| `queryuser <500 \| RID>` <br> `queryuser <0x1f4 \| RID_HEX>` | `SAMR` | Query the specified user (using its RID or RID encoded in hexadecimal) info. Query information of domain users on a DC, of the machine local users otherwise. |
 | `lookupnames <USERNAME>` | `LSARPC` |	Retrieve the specified domain user SID for machines integrated to an Active Director forest. |
 | `querygroup <RID>` | `SAMR` | Query the specified group (HEX RID) info. Query information of domain groups on a DC, of the machine local users otherwise. |
 | `queryusergroups <RID>` | `SAMR` | Query the specified user (HEX RID) groups. Query information of domain users on a DC, of the machine local users otherwise. |

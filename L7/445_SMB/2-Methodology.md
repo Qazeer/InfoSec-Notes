@@ -113,6 +113,9 @@ smbclient -U "" -N -L \\<HOSTNAME | IP>
 smbclient -U "" -N -L \\<HOSTNAME> -I <IP>
 # To authenticate as the specifed user. --pw-nt-hash to specify an NT hash instead of a cleartext password.
 smbclient -U '<WORKGROUP | DOMAIN>\<USERNAME>' [--pw-nt-hash] -L \\<HOSTNAME | IP>
+
+# Using the  Windows built-in net utility.
+net view \\<HOSTNAME | IP>
 ```
 
 The `SoftPerfect`'s' `NetScan` Windows graphical network scanner utility can be

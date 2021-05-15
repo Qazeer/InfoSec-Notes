@@ -226,6 +226,9 @@ SELECT DISTINCT p.name AS [loginname], p.type, p.type_desc, p.is_disabled, s.sys
 
 -- Lists the users' fixed-database role(s) in the current database.
 SELECT db_name(), r.[name], p.[name] FROM sys.database_role_members m JOIN sys.database_principals r ON m.role_principal_id = r.principal_id JOIN sys.database_principals p ON m.member_principal_id = p.principal_id;
+
+-- Maps the fixed-database role(s) to the user(s). Taken from https://docs.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-database-role-members-transact-sql?view=sql-server-ver15#example
+SELECT DP1.name AS DatabaseRoleName, isnull (DP2.name, 'No members') AS DatabaseUserName FROM sys.database_role_members AS DRM RIGHT OUTER JOIN sys.database_principals AS DP1 ON DRM.role_principal_id = DP1.principal_id LEFT OUTER JOIN sys.database_principals AS DP2 ON DRM.member_principal_id = DP2.principal_id   WHERE DP1.type = 'R' ORDER BY DP1.name;
 ```
 
 ###### IMPERSONATE permission
@@ -837,6 +840,9 @@ SELECT * FROM msdb.dbo.sysjobsteps WHERE job_id = N'<JOBS_ID>';
 -- Retrieves information about all, or the specified, activity and status.
 SELECT * FROM msdb.dbo.sysjobactivity;
 SELECT * FROM msdb.dbo.sysjobactivity WHERE job_id = N'<JOBS_ID>';
+
+-- Enumerates the EXEC msdb.dbo.sp_help_prox
+EXEC msdb.dbo.sp_help_prox
 
 -- Retrieves information about past (all or the specified) SQL Server Agent jobs execution history.
 SELECT * FROM msdb.dbo.sysjobhistory;
