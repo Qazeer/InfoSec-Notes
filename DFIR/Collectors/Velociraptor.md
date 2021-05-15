@@ -17,15 +17,26 @@ continuously collecting endpoint events, it can also be used as a standalone
 binary to conduct one-time collection. For instance, artefacts retrieved this
 way can be parsed latter using, among others, `Kape`.
 
+[Pre-compiled released `Velociraptor` binaries are available on
+GitHub](https://github.com/Velocidex/velociraptor/releases).
+
+### System drive independent collect
+
+The following command can be used to collect the `KAPE` default triage
+artefacts and the anti-virus logs of a number of products. The artefacts are
+collected on the system drive (retrieved from the system environment variable).
+
+```
+.\velociraptor.exe artifacts collect -v Windows.KapeFiles.Targets --output "$(hostname).zip" --args Device=$($Env:SystemDrive) --args KapeTriage=Y --args Avast=Y --args AviraAVLogs=Y --args Bitdefender=Y --args ESET=Y --args FSecure=Y --args HitmanPro=Y --args Kaseya=Y --args Malwarebytes=Y --args McAfee=Y --args McAfee_ePO=Y --args Kaseya=Y --args SentinelOne=Y --args Sophos=Y --args Symantec_AV_Logs=Y --args TeamViewerLogs=Y --args TrendMicro=Y --args VIPRE=Y --args WindowsDefender=Y
+```
+
 ### Standalone binary   
 
 Standalone collector binary can be executed, without any argument, to conduct
 the artefacts collection on a live system.
 
-The [pre-compiled released `Velociraptor`
-binaries] (https://github.com/Velocidex/velociraptor/releases) may be used to
-generate the collector binary, which will collect the artefacts as defined in
-the provided configuration file:
+The pre-compiled released `Velociraptor` binaries may be used to generate the
+collector binary, which will collect the artefacts as defined in the provided configuration file:
 
 ```
 velociraptor.exe config repack <CONFIG_YAML> <COLLECTOR_BINARY.exe>
@@ -35,7 +46,7 @@ velociraptor.exe config repack <CONFIG_YAML> <COLLECTOR_BINARY.exe>
 
 The following configuration file will collect the artefacts defined in the
 `KapeFiles.Targets` as well as the anti-virus logs (for around 20 solutions)
-for the `C:` drive.
+for the system drive.
 
 The collected files will be placed in a `ZIP` file `<HOSTNAME>.zip`.
 
@@ -45,7 +56,7 @@ The collected files will be placed in a `ZIP` file `<HOSTNAME>.zip`.
 autoexec:
   argv: ["artifacts", "collect", "-v", "Windows.KapeFiles.Targets",
          "--output", "$COMPUTERNAME.zip",
-         "--args", "Device=C:",
+         "--args", "Device=$SYSTEMDRIVE",
          # Kape default triage
          "--args", "KapeTriage=Y",
          # Anti-virus logs
@@ -69,14 +80,15 @@ autoexec:
          "--args", "WindowsDefender=Y"]
 ```
 
+
 ###### [Windows] Example comprehensive collection
 
-The following configuration file will collect the artefacts, in the `C:` drive,
-defined in the `KapeFiles.Targets` as well as anti-virus logs, web browsers
-artefacts, web servers logs, users files (`C:\Users\*`), `Outlook` `PST` and
-`OST` files, etc. Depending on the triaged machine usage and `I/O` performance,
-collection may requires several hours and generate a resulting archive of
-multiple gigabytes.
+The following configuration file will collect the artefacts, in the system
+drive, defined in the `KapeFiles.Targets` as well as anti-virus logs, web
+browsers artefacts, web servers logs, users files (`C:\Users\*`), `Outlook`
+`PST` and `OST` files, etc. Depending on the triaged machine usage and `I/O`
+performance, collection may requires several hours and generate a resulting
+archive of multiple gigabytes.
 
 The collected files will be placed in a `ZIP` file `<HOSTNAME>.zip`.
 
@@ -92,7 +104,7 @@ The collected files will be placed in a `ZIP` file `<HOSTNAME>.zip`.
 autoexec:
   argv: ["artifacts", "collect", "-v", "Windows.KapeFiles.Targets",
          "--output", "$COMPUTERNAME.zip",
-         "--args", "Device=C:",
+         "--args", "Device=$SYSTEMDRIVE",
          # Kape default triage
          "--args", "KapeTriage=Y",
          # Web browsers history, bookmarks, etc.: Edge, Chrome, Firefox, and Internet Explorer
