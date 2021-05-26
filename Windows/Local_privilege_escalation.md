@@ -519,7 +519,7 @@ The `meterpreter` `search` command can be used in place of `findstr` if a
 `meterpreter` shell is being used.
 
 ```
-# Searche recursively in current folder
+# Searches recursively in current folder
 dir /s <KEYWORD>
 
 # Meterpreter search command

