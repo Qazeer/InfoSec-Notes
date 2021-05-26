@@ -16,26 +16,27 @@ current system:
 
 |  | DOS | Powershell | WMI |
 |--|-----|------------|-----|
-| **Basic info** | net config workstation | Get-ComputerInfo | |
-| **OS details**  | systeminfo | [environment]::OSVersion.Version |  |
-| **OS Architecture** | echo %PROCESSOR_ARCHITECTURE% |  [Environment]::Is64BitOperatingSystem | wmic os get osarchitecture |
-| **Hostname**  | hostname | $env:ComputerName<br/> $env:computername.$env:userdnsdomain <br/> (Get-WmiObject Win32_ComputerSystem).Name ||
-| **Drives** | | [System.IO.DriveInfo]::getdrives() <br> Get-PSDrive -PSProvider FileSystem | |
-| **Curent Domain** | echo %userdomain% | $env:UserDomain<br/>(Get-WmiObject Win32_ComputerSystem).Domain ||
-| **Curent User**  | whoami /all<br/>net user %username%  | $env:UserName<br/>(Get-WmiObject Win32_ComputerSystem).UserName | |
-| **Local users**  | net users<br/>net users <USERNAME\> | Get-LocalUser | wmic USERACCOUNT list full <br> Get-WMIObject Win32_UserAccount -NameSpace "root\CIMV2" -Filter "LocalAccount='$True'" |
-| **Local groups** | net localgroup | *(Win10+)* Get-LocalGroup | wmic group list full |
-| **Local group users** | net localgroup Administrators<br/>net localgroup <GROUPNAME\> | Get-LocalGroupMember -Name "<GROUPNAME\>" | |
-| **Connected users** | qwinsta | | |
-| **Powershell version**  | Powershell  $psversiontable | $psversiontable ||
-| **Environement variables** | set | Get-ChildItem Env: &#124; ft Key,Value ||
-| **Mounted disks** | fsutil fsinfo drives | Get-PSDrive &#124; where {$_.Provider -like "Microsoft.PowerShell.Core\FileSystem"} | wmic volume get DriveLetter,FileSystem,Capacity |
-| **Writable directories** | dir /a-rd /s /b | | |
-| **Writable files** | dir /a-r-d /s /b | | | |
-| **Processes** | tasklist /v | Get-Process &#124; Ft Name,Id | wmic process get name,processid,executablepath,commandline,parentprocessid <br/> (PS) Get-WmiObject -Query "Select * from Win32_Process" | where {$_.Name -notlike "svchost*"} &#124; Select Name, Handle, @{Label="Owner";Expression={$_.GetOwner().User}} &#124; ft -AutoSize |
-| **Processes command line** | | | wmic process get Name,ProcessID,ExecutablePath <br/> (PS) gwmi win32_process &#124; select Name,Handle,CommandLine &#124; Format-List |
-| `TCP` / `UDP` network connections | netstat -anob | Get-NetTCPConnection | |
-| **User Account Control (UAC)** <br><br> `EnableLUA` = `0x1` -> `UAC` is enabled (default since `Windows Vista` / `Windows Server 2008`). <br><br> `LocalAccountTokenFilterPolicy` = `0x1` -> `UAC` remote restrictions are disabled (non default). <br><br> `FilterAdministratorToken` = `0x1` -> `UAC` is enforced for the local built-in `Administrator` account `RID` 500 (non default).  | reg query HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\ /v EnableLUA <br><br> reg query HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\ /v LocalAccountTokenFilterPolicy <br><br> reg query HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\ /v FilterAdministratorToken | Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System -Name EnableLUA,LocalAccountTokenFilterPolicy,FilterAdministratorToken | |
+| **Basic info** | `net config workstation` | `Get-ComputerInfo` | |
+| **OS details**  | `systeminfo` | `[environment]::OSVersion.Version` |  |
+| **OS Architecture** | `echo %PROCESSOR_ARCHITECTURE%` | `[Environment]::Is64BitOperatingSystem` | `wmic os get osarchitecture` |
+| **Hostname**  | `hostname` | `$env:ComputerName` | `wmic computersystem  get name` <br> (PS) `(Get-WmiObject Win32_ComputerSystem).Name`|
+| **Fully qualified hostname** | `net config workstation \| findstr /C:"Full Computer name"` | `[System.Net.Dns]::GetHostByName($env:computerName)` | |
+| **Drives** | | `[System.IO.DriveInfo]::getdrives()` <br> `Get-PSDrive -PSProvider FileSystem` | |
+| **Curent Domain** | `echo %userdomain%` | `$env:UserDomain` | (PS) `(Get-WmiObject Win32_ComputerSystem).Domain` |
+| **Curent User** | `whoami /all` <br/> `net user %username%`  | `$env:UserName` | (PS) `(Get-WmiObject Win32_ComputerSystem).UserName` |
+| **Local users** | `net users` <br/> `net users <USERNAME>` | `Get-LocalUser` | `wmic USERACCOUNT list full` <br> (PS) `Get-WMIObject Win32_UserAccount -NameSpace "root\CIMV2" -Filter "LocalAccount='$True'"` |
+| **Local groups** | `net localgroup` | *(Win10+)* `Get-LocalGroup` | `wmic group list full` |
+| **Local group users** | `net localgroup Administrators` <br/> `net localgroup <GROUPNAME>` | `Get-LocalGroupMember -Name "<GROUPNAME>"` | |
+| **Connected users** | `qwinsta` | | |
+| **Powershell version**  | `Powershell  $psversiontable` | `$psversiontable` | |
+| **Environement variables** | `set` | `Get-ChildItem Env: \| ft Key,Value` | |
+| **Mounted disks** | `fsutil fsinfo drives` | `Get-PSDrive \| where {$_.Provider -like "Microsoft.PowerShell.Core\FileSystem"}` | `wmic volume get DriveLetter,FileSystem,Capacity` |
+| **Writable directories** | `dir /a-rd /s /b` | | |
+| **Writable files** | `dir /a-r-d /s /b` | | |
+| **Processes** | `tasklist /v` | `Get-Process \| Ft Name,Id` | `wmic process get name,processid,executablepath,commandline,parentprocessid` <br/> (PS) `Get-WmiObject -Query "Select * from Win32_Process" \| where {$_.Name -notlike "svchost*"} \| Select Name, Handle, @{Label="Owner";Expression={$_.GetOwner().User}} \| ft -AutoSize` |
+| **Processes command line** | | | `wmic process get Name,ProcessID,ExecutablePath` <br/> (PS) `Get-WmiObject win32_process \| Select Name,Handle,CommandLine \| Format-List` |
+| **`TCP` / `UDP` network connections** | `netstat -anob` | `Get-NetTCPConnection` | |
+| **User Account Control (UAC)** <br><br> `EnableLUA` = `0x1` -> `UAC` is enabled (default since `Windows Vista` / `Windows Server 2008`). <br><br> `LocalAccountTokenFilterPolicy` = `0x1` -> `UAC` remote restrictions are disabled (non default). <br><br> `FilterAdministratorToken` = `0x1` -> `UAC` is enforced for the local built-in `Administrator` account `RID` 500 (non default).  | `reg query HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\ /v EnableLUA` <br><br> `reg query HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\ /v LocalAccountTokenFilterPolicy` <br><br> `reg query HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\ /v FilterAdministratorToken` | `Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System -Name EnableLUA,LocalAccountTokenFilterPolicy,FilterAdministratorToken` | |
 
 ###### Installed .NET framework
 
@@ -1536,31 +1537,10 @@ Start-Service -Name Spooler
 PrintSpoofer.exe [-i] -c "<cmd.exe | powershell.exe | BINARY_PATH | cmd.exe COMMAND_LINE_ARGUMENTS | ...>"
 ```
 
---------------------------------------------------------------------------------
-### Windows Subsystem for Linux (WSL) - TODO
-
-Windows Subsystem for Linux
-Introduced in Windows 10
-Lets you execute Linux binaries natively on Windows
-
-######
-###### File system
-
-###### Backdoor
-
-*bashrc*
-
-*Planified tasks*
-
-### Credentials re-use
-
-Refer to the `Active Directory - Credentials theft shuffle` for methodology and
-tools to re use compromised credentials on the target.
-
 ### Administrator to SYSTEM
 
-The NT AUTHORITY\ SYSTEM account and the administrator account (Administrators
-group) have the same file privileges, but they have different functions.  
+The `NT AUTHORITY\ SYSTEM` account and the members of the `Administrators`
+local group have the same file privileges, but they have different functions.  
 The system account is used by the operating system and by services that run
 under Windows. It is an internal account, does not show up in User Manager,
 cannot be added to any groups, and cannot have user rights assigned to it.  
@@ -1581,14 +1561,3 @@ psexec.exe -accepteula -s -i -d cmd.exe
 
 If a `meterpreter` shell is being used, the `getsystem` command can be
 leveraged to the same end.
-
-### TODO
-
-### Process and installed programs
-
-The following commands can be used to retrieve the process, services,
-installed programs and scheduled tasks of the host:
-
-|  | DOS | Powershell | WMI |
-|--|-----|------------|-----|
-| **Process** | tasklist | Get-Process<br/>Get-CimInstance Win32_Process &#124; select ProcessName, ProcessId &#124; fl *<br/>Get-CimInstance Win32_Process -Filter "name = 'PccNTMon.exe'" &#124; fl * | wmic process get CSName,Description,ExecutablePath,ProcessId |
