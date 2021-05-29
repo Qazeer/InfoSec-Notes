@@ -164,6 +164,11 @@ http://www.harmj0y.net/blog/redteaming/a-guide-to-attacking-domain-trusts/
 https://support.microsoft.com/fr-fr/help/4490425/updates-to-tgt-delegation-across-incoming-trusts-in-windows-server
 https://github.com/vletoux/pingcastle/issues/9
 
+###### AD persistence
+
+https://adsecurity.org/?p=1714
+https://adsecurity.org/?p=1785
+
 ### File transfer
 
 https://github.com/frizb/Windows-Privilege-Escalation
