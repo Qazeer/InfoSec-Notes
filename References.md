@@ -171,6 +171,8 @@ https://adsecurity.org/?p=1785
 
 ### File transfer
 
+https://lolbas-project.github.io/
+https://labs.sentinelone.com/living-off-windows-land-a-new-native-file-downldr/
 https://github.com/frizb/Windows-Privilege-Escalation
 
 ### WebApps
