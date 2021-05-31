@@ -168,6 +168,11 @@ https://github.com/vletoux/pingcastle/issues/9
 
 https://adsecurity.org/?p=1714
 https://adsecurity.org/?p=1785
+https://www.cert.ssi.gouv.fr/uploads/guide-ad.html#primary_group_id_1000
+https://blog.alsid.eu/dcshadow-explained-4510f52fc19d
+https://www.alsid.com/2020/07/14/primary-group-id-attack/
+https://www.youtube.com/watch?v=6thBskwsOss
+http://www.labofapenetrationtester.com/2018/04/dcshadow.html
 
 ### File transfer
 
