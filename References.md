@@ -173,6 +173,9 @@ https://blog.alsid.eu/dcshadow-explained-4510f52fc19d
 https://www.alsid.com/2020/07/14/primary-group-id-attack/
 https://www.youtube.com/watch?v=6thBskwsOss
 http://www.labofapenetrationtester.com/2018/04/dcshadow.html
+https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/appendix-c--protected-accounts-and-groups-in-active-directory
+https://github.com/edemilliere/ADSI/blob/master/Invoke-ADSDPropagation.ps1
+https://stealthbits.com/blog/server-untrust-account/
 
 ### File transfer
 
