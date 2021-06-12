@@ -40,6 +40,8 @@ https://cyberwardog.blogspot.com/2017/04/chronicles-of-threat-hunter-hunting-for
 https://gist.github.com/HarmJ0y/dc379107cfb4aa7ef5c3ecbac0133a02
 https://gist.github.com/TarlogicSecurity/2f221924fef8c14a1d8e29f3cb5c5c4a
 https://github.com/GhostPack/Rubeus
+https://github.com/MichaelGrafnetter/DSInternals/blob/master/Documentation/PowerShell/ConvertTo-KerberosKey.md
+https://github.com/MichaelGrafnetter/DSInternals/blob/master/Documentation/PowerShell/ConvertTo-NTHash.md
 
 ###### Kerberoasting
 
