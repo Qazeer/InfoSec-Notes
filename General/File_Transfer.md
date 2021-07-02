@@ -91,15 +91,16 @@ smbserver.py -smb2support <SHARE_NAME> <SHARE_PATH>
 smbserver.py -smb2support <SHARE_NAME> `pwd`
 ```
 
-###### [Windows] GUI shares
+###### [Windows] SMB shares
 
-On Windows, the graphical interface can be used to share a specific folder over
-the network. Sharing a folder requires Administrator or SYSTEM privileges.
+On Windows, the graphical interface of `Windows Explorer` can be used to share
+a specific folder over the network. Sharing a folder requires Administrators or
+`NT AUTHORITY\SYSTEM` privileges.
 
 Note that the final access permissions for a shared resource are determined by
-considering both the NTFS permissions and the sharing protocol permissions, and
-then applying the more restrictive permissions. Thus, it is possible to grant
-"Everyone" full access permission when configuring the share permissions.
+considering both the `NTFS` permissions and the sharing protocol permissions,
+and then applying the more restrictive permissions. Thus, it is possible to
+grant "Everyone" full access permission when configuring the share permissions.
 
 ```
 # Share permissions
@@ -108,7 +109,80 @@ Right click folder -> Properties -> Sharing -> Share -> Everyone
 # NTFS permissions - Needs to be applied to the folder and its files
 Right click folder -> Properties -> Security -> Edit -> Add
   -> From this location -> <DOMAIN>
-  -> Enter the object names to select -> <USERNAME> (-> Check Names)
+  -> Enter the object names to select -> <USERNAME> or ANONYMOUS LOGON + Everyone (-> Check Names)
+```
+
+The above procedure, through `Windows Explorer`, can also be done in
+PowerShell:
+
+```
+mkdir <SHARE_FOLDER_PATH>
+
+# Grants read-only access to ANONYMOUS LOGON and Everyone.
+icacls <SHARE_FOLDER_PATH> /T /grant Anonymous` logon:`(OI`)`(CI`)r
+icacls <SHARE_FOLDER_PATH> /T /grant Everyone:`(OI`)`(CI`)r
+New-SmbShare -Path <SHARE_FOLDER_PATH> -Name <SHARE_NAME> -ReadAccess 'ANONYMOUS LOGON','Everyone'
+
+# Grants full control (read, write, delete, edit permissions, etc.) to ANONYMOUS LOGON and Everyone.
+icacls <SHARE_FOLDER_PATH> /T /grant Anonymous` logon:`(OI`)`(CI`)f
+icacls <SHARE_FOLDER_PATH> /T /grant Everyone:`(OI`)`(CI`)f
+New-SmbShare -Path <SHARE_FOLDER_PATH> -Name <SHARE_NAME> -FullAccess 'ANONYMOUS LOGON','Everyone'
+
+# Grants the specified rights to the specified security principals.
+# r / ReadAccess: read-only access, m / ChangeAccess: modify access (read, write, create, delete), and f / FullAccess: full control.
+icacls <SHARE_FOLDER_PATH> /T /grant <USERNAME | <DOMAIN>\<USERNAME>:`(OI`)`(CI`)<r | m | f>
+New-SmbShare -Path <SHARE_FOLDER_PATH> -Name <SHARE_NAME> [-ReadAccess | -ChangeAccess | -FullAccess] <USERNAME | <DOMAIN>\<USERNAME> | GROUPNAME | <DOMAIN>\<GROUPNAME> | COMMA_SEPARARED_LIST_OF_PRINCIPALS>
+
+# Removes (with out prompting for confirmation) the specifed share.
+Remove-SmbShare -Force -Name <SHARE_NAME>
+```
+
+Anonymous (`ANONYMOUS LOGON`) access may be prevented through system wide
+settings, independently of the access rights configured at the share and `NTFS`
+levels. Indeed, if the `RestrictNullSessAccess` registry key is enabled (set to
+`0x1`), anonymous access are restricted to only the named pipes and shares that
+are defined, respectively, in the `NullSessionPipes ` and `NullSessionShares`
+registry keys. Additional security parameters defined through registry keys
+may also interfere with anonymous access:
+  - `RestrictAnonymous`: if enabled (set to `0x1`), prevents users who logged
+    on anonymously to lists share names.
+  - `EveryoneIncludesAnonymous`: if disabled (set to `0x0`), prevents users who
+    logged on anonymously to have the same rights as the built-in Everyone
+    group.
+
+The following PowerShell commands can be used to authorize anonymous access to
+the specified share and disable the security parameters that may interfere with
+anonymous logon system-wide (effectively lowering the computer security
+configuration however):
+
+```
+# Checks if anonymous access are restricted (RestrictNullSessAccess registry key).
+reg query HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\LanManServer\Parameters\ /v RestrictNullSessAccess
+
+# If RestrictNullSessAccess is Enabled, the NullSessionShares and NullSessionPipes registry keys must be updated as follow.
+# Appends the specified share to the NullSessionShares registry key to authorized anonymous access to the share.
+$key = Get-Item "HKLM:System\CurrentControlSet\Services\LanManServer\Parameters"
+$values = $key.GetValue("NullSessionShares")
+$values += "<SHARE_NAME>"
+Set-ItemProperty "HKLM:\System\CurrentControlSet\Services\LanManServer\Parameters" "NullSessionShares" $values -Type MultiString
+
+# Appends "srvsvc" to the NullSessionPipes registry key to authorized anonymous access to the srvsvc named pipe used by the SMB protocol.
+$key = Get-Item "HKLM:System\CurrentControlSet\Services\LanManServer\Parameters"
+$values = $key.GetValue("NullSessionShares")
+$values += "<SHARE_NAME>"
+Set-ItemProperty "HKLM:\System\CurrentControlSet\Services\LanManServer\Parameters" "NullSessionShares" $values -Type MultiString
+
+# Validates the NullSessionPipes and NullSessionShares updates.
+reg query HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\LanManServer\Parameters\
+
+
+# Checks if RestrictAnonymous is enabled (0x1) and, if necessary, disables it (0x0).
+reg query "HKLM\System\CurrentControlSet\Control\Lsa" /v RestrictAnonymous
+reg add "HKLM\System\CurrentControlSet\Control\Lsa" /v RestrictAnonymous /t REG_DWORD /d 0 /f
+
+# Checks if EveryoneIncludesAnonymous is disabled (0x0) and, if necessary, enables it (0x1).
+reg query "HKLM\System\CurrentControlSet\Control\Lsa" /v EveryoneIncludesAnonymous
+reg add "HKLM\System\CurrentControlSet\Control\Lsa" /v EveryoneIncludesAnonymous /t REG_DWORD /d 1 /f
 ```
 
 ###### [Linux / Windows] FTP
@@ -163,7 +237,7 @@ Function Invoke-SimulateKeyboard ($FilePath) {
     $EncodedData.ToCharArray() | ForEach-Object {[System.Windows.Forms.SendKeys]::SendWait($_)}
 }
 
-$FilePath = "C:\Users\PENT08H\Documents\WavestonePentest\Simulate-Keyboard.ps1"
+$FilePath = "<FILE_TO_TRANSFER>"
 
 Invoke-SimulateKeyboard $FilePath
 ```

@@ -169,6 +169,8 @@ https://github.com/vletoux/pingcastle/issues/9
 https://lolbas-project.github.io/
 https://labs.sentinelone.com/living-off-windows-land-a-new-native-file-downldr/
 https://github.com/frizb/Windows-Privilege-Escalation
+https://github.com/cube0x0/CVE-2021-1675
+https://www.giac.org/paper/gcwn/22/limiting-anonymous-logon-network-access-named-pipes-shares/100328
 
 ### WebApps
 

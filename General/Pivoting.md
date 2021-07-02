@@ -186,12 +186,16 @@ multiple tunnel over one TCP connection, etc.).
 # Generic server-side usage (on the attacking machine).
 # Defaults to listening on all interfaces on port TCP 8080.
 # Option --reverse: allow clients to specify reverse port forwarding (required for remote port forwarding and SOCKS proxy with "R:" in <REMOTE>).
-# Option --socks: allow clients to access the internal SOCKS5 proxy.
-chisel server [--host <0.0.0.0 | SERVER_IP>] [-p <8080 | PORT>] [<OPTIONS>]
+# Option --socks / --socks5: allow clients to access the internal SOCKS5 proxy.
+chisel server [--host <0.0.0.0 | SERVER_IP>] [-p <8080 | PORT>] [--reverse --socks5] [<OPTIONS>]
 
 # Generic client-side usage (on the target machine).
 # <REMOTE> represents a local / remote port forward or SOCKS proxy (detailed below)
 chisel client <SERVER_IP>:<SERVER_PORT> <REMOTE>[/<TCP | UPD>]
+
+# If required, for example in enterprise environments, an HTTP CONNECT or SOCKS5 proxy can be specified using the --proxy option.
+# To date, NTLM authentication on proxy is not supported by chisel: https://github.com/jpillora/chisel/issues/149
+chisel client --proxy <http | socks>://<USERNAME>:<PASSWORD>@<PROXY_SERVER>:<PROXY_PORT> <SERVER_IP>:<SERVER_PORT> <REMOTE>[/<TCP | UPD>]
 ```
 
 ###### Chisel local port forwarding
