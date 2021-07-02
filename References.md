@@ -40,6 +40,8 @@ https://cyberwardog.blogspot.com/2017/04/chronicles-of-threat-hunter-hunting-for
 https://gist.github.com/HarmJ0y/dc379107cfb4aa7ef5c3ecbac0133a02
 https://gist.github.com/TarlogicSecurity/2f221924fef8c14a1d8e29f3cb5c5c4a
 https://github.com/GhostPack/Rubeus
+https://github.com/MichaelGrafnetter/DSInternals/blob/master/Documentation/PowerShell/ConvertTo-KerberosKey.md
+https://github.com/MichaelGrafnetter/DSInternals/blob/master/Documentation/PowerShell/ConvertTo-NTHash.md
 
 ###### Kerberoasting
 
@@ -163,6 +165,19 @@ https://github.com/wavestone-cdt/MISC-AD-trusts-relationships/SIDHistoryInjectio
 http://www.harmj0y.net/blog/redteaming/a-guide-to-attacking-domain-trusts/
 https://support.microsoft.com/fr-fr/help/4490425/updates-to-tgt-delegation-across-incoming-trusts-in-windows-server
 https://github.com/vletoux/pingcastle/issues/9
+
+###### AD persistence
+
+https://adsecurity.org/?p=1714
+https://adsecurity.org/?p=1785
+https://www.cert.ssi.gouv.fr/uploads/guide-ad.html#primary_group_id_1000
+https://blog.alsid.eu/dcshadow-explained-4510f52fc19d
+https://www.alsid.com/2020/07/14/primary-group-id-attack/
+https://www.youtube.com/watch?v=6thBskwsOss
+http://www.labofapenetrationtester.com/2018/04/dcshadow.html
+https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/appendix-c--protected-accounts-and-groups-in-active-directory
+https://github.com/edemilliere/ADSI/blob/master/Invoke-ADSDPropagation.ps1
+https://stealthbits.com/blog/server-untrust-account/
 
 ### File transfer
 

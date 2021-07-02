@@ -161,7 +161,7 @@ On Linux, `FreeRDP` (`xfreerdp`), `rdesktop` or `Remmina` (GUI) can be used as
 `RDP` clients.
 
 ```
-xfreerdp /u:'<DOMAIN | WORKGROUP>\<USERNAME>' /p:'<PASSWORD>' /v:<HOSTNAME | IP>[:<PORT>]
+xfreerdp [/size:<SCREEN_SIZE_PERCENT>%] /u:'<DOMAIN | WORKGROUP>\<USERNAME>' /p:'<PASSWORD>' /v:<HOSTNAME | IP>[:<PORT>]
 # No NLA for host that do not require NLA.
 xfreerdp -sec-nla /v:<HOSTNAME | IP>
 xfreerdp -sec-nla /u:'<DOMAIN | WORKGROUP>\<USERNAME>' /p:'<PASSWORD>' /v:<HOSTNAME | IP>
