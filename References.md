@@ -472,6 +472,12 @@ https://alexsta-cybersecurity.com/how-to-detect-timestomping-on-a-windows-system
 https://www.sans.org/blog/ntfs-i30-index-attributes-evidence-of-deleted-and-overwritten-files/
 https://www.youtube.com/watch?v=XzoYNOlJ37s
 
+###### ShellBags
+
+https://www.sans.org/reading-room/whitepapers/forensics/windows-shellbag-forensics-in-depth-34545
+https://www.sans.org/blog/computer-forensic-artifacts-windows-7-shellbags/
+https://lifars.com/wp-content/uploads/2020/04/LIFARS-WhitePaper-Windows-ShellBags-Forensics-Investigative-Value-of-Windows-ShellBags.pdf
+
 ### Windows
 
 ###### LPE
