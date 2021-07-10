@@ -65,7 +65,8 @@ the given target. `Shellbags` entries are not automatically deleted upon
 deletion of the related folders and can thus be a **source of historical
 information**.
 
-The `Shellbags` entry for a given target yield:
+The `Shellbags` entry for a given target yield the following information of
+forensic interest:
   - the **target name and absolute path**.
 
   - the **target `Modified, Access, and Created (MAC)` timestamps** (`UTC`),

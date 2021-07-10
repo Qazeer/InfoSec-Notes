@@ -480,6 +480,12 @@ https://www.sans.org/reading-room/whitepapers/forensics/windows-shellbag-forensi
 https://www.sans.org/blog/computer-forensic-artifacts-windows-7-shellbags/
 https://lifars.com/wp-content/uploads/2020/04/LIFARS-WhitePaper-Windows-ShellBags-Forensics-Investigative-Value-of-Windows-ShellBags.pdf
 
+###### LNKFile / JumpLists
+
+https://www.youtube.com/watch?v=wu4-nREmzGM
+https://forensicswiki.xyz/page/LNK
+https://www.magnetforensics.com/blog/forensic-analysis-of-lnk-files/#:~:text=LNK%20files%20are%20a%20relatively,LNK%20extension
+
 ### Windows
 
 ###### LPE

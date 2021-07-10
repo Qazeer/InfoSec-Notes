@@ -28,7 +28,7 @@ deleted and can thus be a source of historical information. However, as the
 and 1024 entries starting from `Windows 8`, Prefetch files may be overwritten
 and information lost.
 
-The `Prefecth` files can yield:
+The `Prefecth` files can yield the following information of forensic interest:
   - the file name and size of the binary executed
   - the first and last eight executions timestamps
   - run count (number of time the binary was executed)
@@ -62,8 +62,8 @@ parse `Prefecth` file(s):
 
 ```
 # Parses the specified Prefecth file.
-PECmd [--csv <CSV_DIRECTORY_OUTPUT>] -f <PF_FILE>
+PECmd [-q --csv <CSV_DIRECTORY_OUTPUT>] -f <PF_FILE>
 
 # Recursively retrieves and parses the Prefecth files in the specified directory.
-PECmd [--csv <CSV_DIRECTORY_OUTPUT>] -d <C:\Windows\Prefetch | C: | DIRECTORY>
+PECmd [-q --csv <CSV_DIRECTORY_OUTPUT>] -d <C:\Windows\Prefetch | C:\ | DIRECTORY>
 ```
