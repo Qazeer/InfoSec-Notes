@@ -62,7 +62,14 @@ smbmap -u "Invité" -H <HOSTNAME | IP>
 
 enum4linux-ng.py -A -R <HOSTNAME | IP>
 enum4linux <HOSTNAME | IP>
+
+crackmapexec smb <HOSTNAME | IP> -u "" -p "" [--shares | -M spider_plus]
 ```
+
+Standalone binaries of `smbmap`, `enum4linux-ng`, and `CrackMapExec` for Linux
+(Windows for `CrackMapExec`) are available on the following
+[`OffensivePythonPipeline` GitHub
+repository](https://github.com/Qazeer/OffensivePythonPipeline).
 
 The following quick bash script can be used to combine a network scan and null
 session enumeration:
@@ -103,8 +110,8 @@ nmap -v -sU -sT -p U:137,T:139,445 --script smb-enum-shares.nse <HOSTNAME | IP>
 nmap -v -sT -p 139,445 <HOSTNAME | IP> --script smb-enum-shares --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbpassword=<PASSWORD>
 nmap -v -sT -p 139,445 <HOSTNAME | IP> --script smb-enum-shares --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbhash=<HASH>
 
-crackmapexec <HOSTNAME | IP> -d <DOMAIN> -u <USERNAME> -p <PASSWORD> --shares
-crackmapexec <HOSTNAME | IP> -d <DOMAIN> -u <USERNAME> -H <HASH> --shares
+crackmapexec <HOSTNAME | IP> -d <DOMAIN> -u <USERNAME> -p <PASSWORD> [--shares | -M spider_plus]
+crackmapexec <HOSTNAME | IP> -d <DOMAIN> -u <USERNAME> -H <HASH> [--shares | -M spider_plus]
 
 msf > use auxiliary/scanner/smb/smb_enumshares
 
@@ -292,9 +299,11 @@ mount -t cifs //<HOSTNAME | IP>//<SHARE> /mnt/<FOLDER> -o rw,user=<USER>,passwor
 From a Windows system, the `net` bultin can be used:
 
 ```
-# NULL session
+# NULL session share mapping.
 net use <DRIVELETTER>: \\<HOSTNAME | IP>\<SHARE> "" /user:""
-net use <DRIVELETTER>: \\<HOSTNAME | IP>\<SHARE> /user:"<DOMAIN>\<USERNAME>"
+
+# Authenticated share mapping.
+net use <DRIVELETTER>: \\<HOSTNAME | IP>\<SHARE> /user:"<WORKGROUP | DOMAIN>\<USERNAME>"
 ```
 
 ###### Distributed shares searching
