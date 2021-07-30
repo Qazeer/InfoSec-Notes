@@ -202,6 +202,8 @@ stand-alone binaries for both Windows and Linux x64 operating systems on the
 following GitHub repository:
 
 ```
+https://github.com/Qazeer/OffensivePythonPipeline
+
 https://github.com/ropnop/impacket_static_binaries
 ```
 

@@ -1,31 +1,50 @@
 # DFIR - Windows - Prefetch artefacts
 
-###### Overview
+### Overview
 
-Location `%systemroot%\Prefetch`.
+Location: `%systemroot%\Prefetch\<EXECUTABLE.EXE>-<RANDOM_ID>.pf`  
+Filename example: `POWERSHELL.EXE-022A1004.pf`
 
-**Not present by default on Windows Server Operating System**
+Yield Information related to **programs execution**.
 
-Windows Prefetch is a performance enhancement feature that enables prefetching
-of applications to make system boots or applications startups faster. Prefetch
-files, located as `.PF` files in the directory `%SystemRoot%\prefetch`, store
-data and files accessed during boot or application start-up.
+**Not present by default on Windows Server Operating Systems.**
 
-Prefetch files are created whenever a program is executed from a specific path.
-If the same binary is executed from different locations, separate Prefetch
-files will be created for each different location. A Prefetch file can be
-created even if the executable did not successfully run.
+`Windows Prefetch` is a performance enhancement feature that enables
+prefetching of applications to make system boots or applications startups
+faster. `Prefetch` files, located as `.PF` files in the directory
+`%SystemRoot%\prefetch`, store data and files accessed during boot or
+application start-up.
 
-###### Fields of interest
+`Prefetch` files are created whenever a program is executed from a specific
+path. If the same binary is executed from different locations, separate
+`Prefetch` files will be created for each different location. A `Prefetch`
+file can be created even if the executable did not successfully run.
 
-Parsing the contents of these files can yield:
-  - Date and time of first execution (corresponding to the prefetch file
-    creation date)
-  - Last run time (stored within the prefetch file)
-  - Number of times executed (stored within the prefetch file)
-  - List of files accessed during the first ten seconds of execution
-    (stored within the prefetch file)
-  - Full path to executable file (derived from accessed file list)
+### Information of interest
+
+`Prefetch` files are not automatically deleted if the related executable is
+deleted and can thus be a source of historical information. However, as the
+`Prefetch` directory is limited to 128 entries on `Windows XP` to `Windows 7`
+and 1024 entries starting from `Windows 8`, Prefetch files may be overwritten
+and information lost.
+
+The `Prefecth` files can yield the following information of forensic interest:
+  - the file name and size of the binary executed
+  - the first and last eight executions timestamps
+  - run count (number of time the binary was executed)
+  - list of files and directories accessed during the first ten seconds of
+    execution (including the eventual `DLL` loaded).  
+    The full path to executable file can often be determined from the list of
+    files accessed (duplicate possible if a given binary access another binary
+    with the same name).
+
+*Prefecth files indirect information*
+
+The creation or modification of `Prefecth` files observed in others artefacts
+(`$MFT`, `UsnJrnl`, etc.) reflect an execution of the binary linked to the
+`Prefecth` file (and whose name can be deducted from the `Prefecth` filename).
+
+*Prefecth information related to PowerShell execution*
 
 The `POWERSHELL.EXE-[...].pf` Prefetch file may contain references to
 recently executed PowerShell scripts. For an entry to be created in the
@@ -36,9 +55,15 @@ The accessed file list does retain entries from previous instances of a program
 execution. Accessed files information may thus persist through `powershell.exe`
 subsequent runs.
 
-###### Parsing
+### Parsing
+
+Eric Zimmerman's `PECmd.exe` tool (`KAPE`'s `PECmd` module) can be used to
+parse `Prefecth` file(s):
 
 ```
-PECmd -d <C:\Windows\Prefetch | DIRECTORY>
-PECmd -f <PF_FILE>
+# Parses the specified Prefecth file.
+PECmd [-q --csv <CSV_DIRECTORY_OUTPUT>] -f <PF_FILE>
+
+# Recursively retrieves and parses the Prefecth files in the specified directory.
+PECmd [-q --csv <CSV_DIRECTORY_OUTPUT>] -d <C:\Windows\Prefetch | C:\ | DIRECTORY>
 ```

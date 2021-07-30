@@ -6,6 +6,18 @@ a RCE into a fully TTY shell.
 For Windows credentials (password or hashes) reuse and direct lateral
 movements, refer to the `[Windows] Lateral movements` note.
 
+### Miscellaneous
+
+The `rlwrap` utility runs the specified command and intercept further input to
+provide line editing and history functionalities. It is useful for the reverse
+shell one-liners and tools that do not natively implement those features (such
+as `netcat` for example) and for which use of the arrows keyboard keys result
+in `^[[C` / `^[[D` / `^[[A` / `^[[B`.
+
+```
+rlwrap <COMMAND> [<ARGUMENTS>]
+```
+
 ### Detect firewall filtering
 
 A firewall may be configured on the targeted system to block inbound or outbound
