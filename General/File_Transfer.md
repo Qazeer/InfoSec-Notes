@@ -91,6 +91,49 @@ smbserver.py -smb2support <SHARE_NAME> <SHARE_PATH>
 smbserver.py -smb2support <SHARE_NAME> `pwd`
 ```
 
+###### [Windows] SAMBA shares
+
+A `SAMBA` share can be configured on Linux systems using the `samba` utility.
+
+The `samba` configuration file's `/etc/samba/smb.conf` should be first updated
+to create a new network share. Access to the shared folder should be allowed at
+the filesystem level (restriction will still be enforced by the share
+configuration): <br/> `sudo chmod 0777 <SHARE_PATH>`.
+
+```
+[global]
+    map to guest = Bad User
+    server role = standalone server
+    # Allows anonymous access.
+    usershare allow guests = yes
+    idmap config * : backend = tdb
+    smb ports = 445
+
+# Specify the configuration for the new share.
+[<SHARE_NAME>]
+    comment = Samba
+    # Full path of the folder to be shared.
+    path = <SHARE_PATH>
+    # Allows anonymous access.
+    guest ok = yes
+    # "read only = no" will authorize modification of the files hosted on the share.
+    read only = yes
+    browsable = yes
+    # Should be set to the owner of the share (i.e the owner of the shared folder at the filesystem level).
+    force user = <root | SHARE_OWNER>
+```
+
+After the new network share is configured, the `smbd` daemon must be restarted:
+
+```
+# Restarts the smbd daemon to make the new configuration effective (either option below).
+sudo service smbd restart
+sudo /etc/init.d/smbd restart
+
+# If needed, allows inbound traffic to the samba share.
+sudo ufw allow samba
+```
+
 ###### [Windows] SMB shares
 
 On Windows, the graphical interface of `Windows Explorer` can be used to share

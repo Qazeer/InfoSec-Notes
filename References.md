@@ -296,6 +296,14 @@ https://dirkjanm.io/krbrelayx-unconstrained-delegation-abuse-toolkit/
 https://beta.hackndo.com/constrained-unconstrained-delegation/
 https://docs.microsoft.com/en-us/windows/win32/adschema/a-useraccountcontrol?redirectedfrom=MSDN
 
+###### RPC - PrintNightmare
+
+https://github.com/afwu/PrintNightmare
+https://github.com/cube0x0/CVE-2021-1675
+https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/39bbfc30-8768-4cd4-9930-434857e2c2a2
+https://securelist.com/quick-look-at-cve-2021-1675-cve-2021-34527-aka-printnightmare/103123/
+https://vk9-sec.com/printnightmare-cve-2021-1675-remote-code-execution-in-windows-spooler-service/
+
 ###### NetBIOS
 
 https://www.itprotoday.com/compute-engines/knowing-angles-netbios-suffixes
