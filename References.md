@@ -189,14 +189,14 @@ https://www.giac.org/paper/gcwn/22/limiting-anonymous-logon-network-access-named
 
 ### WebApps
 
-###### ColdFusion
+###### WebApps - ColdFusion
 
 http://www.carnal0wnage.com/papers/LARES-ColdFusion.pdf
 https://jumpespjump.blogspot.com/2014/03/attacking-adobe-coldfusion.html
 http://www.pwnag3.com/2013/04/coldfusion-for-pentesters-part-2.html
 https://waycool.tech/coldfusion-data-source-decryption/
 
-###### Jenkins
+###### WebApps - Jenkins
 
 https://github.com/gquere/pwn_jenkins
 https://codurance.com/2019/05/30/accessing-and-dumping-jenkins-credentials/
@@ -204,6 +204,12 @@ https://www.jenkins.io/doc/book/managing/security/
 https://support.cloudbees.com/hc/en-us/articles/203802500-Injecting-Secrets-into-Jenkins-Build-Jobs
 https://plugins.jenkins.io/mask-passwords/
 https://www.jenkins.io/doc/book/architecting-for-scale/
+
+###### WebApps - DotNetNuke (DNN)
+
+https://www.blackhat.com/docs/us-17/thursday/us-17-Munoz-Friday-The-13th-Json-Attacks.pdf
+https://www.exploit-db.com/exploits/48336
+https://pentest-tools.com/blog/exploit-dotnetnuke-cookie-deserialization/
 
 ###### WebApps - LDAP injections
 
