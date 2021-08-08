@@ -571,8 +571,8 @@ xc.exe <HOSTNAME | IP> <PORT>
 xc <HOSTNAME | IP> <PORT>
 ```
 
-Once a session has been established throug `xc`, the following notable commands
-are supported:
+Once a session has been established through `xc`, the following notable
+commands are supported:
 
 ```
 # Linux / Windows common commands.

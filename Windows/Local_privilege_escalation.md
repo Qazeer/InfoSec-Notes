@@ -925,7 +925,7 @@ using the following PowerShell cmdlets:
 # Returns "Cannot find path '\\127.0.0.1\pipe\spoolss' because it does not exist" if the Print Spooler service is not running.
 gci \\127.0.0.1\pipe\spoolss
 
-# Retrives the status of the Print Spooler service on the local system.
+# Retrieves the status of the Print Spooler service on the local system.
 Get-Service Spooler
 ```
 

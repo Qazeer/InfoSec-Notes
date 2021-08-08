@@ -173,7 +173,7 @@ TODO
 
 ### Pivoting with fully-fledged tools or C2 agents
 
-#### Chisel
+#### [Linux / Windows] Chisel
 
 *Recommended fully-fledged tool for its ease of use if no C2 is being used.*
 
@@ -317,7 +317,16 @@ Refer to the `Overview - SOCKS proxy pivots` paragraph above for more
 information on how to make use of the `SOCKS` proxy, using `proxychains` or
 through `metasploit`.
 
-#### Meterpreter
+#### [Linux / Windows] xct's xc
+
+`xc` is a reverse shell for Linux and Windows written in `Go` that include,
+among others, local / remote ports forwarding functionalities. `xc` can be used
+for basic port forward scenarios.
+
+Refer to the `[General] Shells` note (`[Linux / Windows] xct's xc` section) for
+more information on the `xc` reverse shell utility.
+
+#### [Linux / Windows] Meterpreter
 
 ###### Meterpreter's unitary port forwarding
 
@@ -351,7 +360,7 @@ compromised machine.
 TODO
 ```
 
-#### Cobalt Strike
+#### [Windows] Cobalt Strike
 
 `Cobalt Strike` supports the following pivoting mechanisms:
   - Pivot listeners

@@ -20,9 +20,7 @@ corresponding to approximately the same number of ColdFusion websites, while in
 
 As of January 2019, the last Adobe ColdFusion version is `ColdFusion 2018`.
 
-### Network scan and basic recon
-
-###### Network scan
+### Basic recon
 
 ###### Version disclosure
 
