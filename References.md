@@ -389,6 +389,8 @@ https://docs.microsoft.com/en-us/previous-versions/sql/sql-server-2008-r2/ms1892
 https://docs.microsoft.com/fr-fr/sql/ssms/agent/create-an-activex-script-job-step?view=sql-server-2016
 https://www.mssqltips.com/sqlservertip/2014/replace-xpcmdshell-command-line-use-with-sql-server-agent/
 https://docs.microsoft.com/fr-fr/sql/ssms/agent/clear-the-job-history-log?view=sql-server-ver15
+https://www.netspi.com/blog/technical/network-penetration-testing/sql-server-link-crawling-powerupsql/
+https://book.hacktricks.xyz/windows/active-directory-methodology/mssql-trusted-links
 
 ### Linux
 
