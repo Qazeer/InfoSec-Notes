@@ -32,6 +32,7 @@ https://www.sstic.org/media/SSTIC2014/SSTIC-actes/secrets_dauthentification_piso
 https://www.ssi.gouv.fr/uploads/IMG/pdf/Aurelien_Bordes_-_Secrets_d_authentification_episode_II_Kerberos_contre-attaque_--_planches.pdf
 https://remivernier.com/index.php/2018/07/07/kerberos-exploration/
 https://docs.microsoft.com/en-us/archive/blogs/openspecification/understanding-microsoft-kerberos-pac-validation
+https://www.ired.team/offensive-security-experiments/active-directory-kerberos-abuse/abusing-kerberos-constrained-delegation
 
 ###### Kerberos tickets usage
 
