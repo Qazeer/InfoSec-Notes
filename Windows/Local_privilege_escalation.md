@@ -699,6 +699,22 @@ wevtutil qe <System | Security | ...> /f:text /rd:true
 wevtutil qe <System | Security | ...> /r:<127.0.0.1 | HOSTNAME | IP> /u:<WORKGROUP | DOMAIN>\<USERNAME> /p:<* | PASSWORD> /f:text /rd:true
 ```
 
+###### Recently modified files
+
+Recently modified files can be of interest and may contain sensitive
+information. For example, the lastly modified files in a product installation
+folder may correspond to the non default modifications and configuration.
+
+The time of modification may also be of interest in a `CTF` scenarios.
+
+```bash
+# Lists the files and folders modified the last <DAYS> days.
+Get-ChildItem [-File] -ErrorAction SilentlyContinue -Force -Recurse <PATH> | Where { $_.LastWriteTime -gt (Get-Date).AddDays(-<DAYS>) } | Format-Table LastWriteTime,FullName
+
+# Lists the files and folders modified between the specifed dates.
+Get-ChildItem [-File] -ErrorAction SilentlyContinue -Force -Recurse <PATH> | Where { $_.lastwritetime -gt '<FIRST_MM/DD/YYYY>' -AND $_.lastwritetime -lt '<LAST_MM/DD/YYYY>' } | Format-Table LastWriteTime,FullName
+```
+
 ###### Hidden files
 
 To display only hidden files, the following command can be used:
