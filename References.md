@@ -597,6 +597,8 @@ https://docs.microsoft.com/fr-fr/windows-server/security/credentials-protection-
 https://posts.specterops.io/mimidrv-in-depth-4d273d19e148
 https://medium.com/@gorkemkaradeniz/defeating-runasppl-utilizing-vulnerable-drivers-to-read-lsass-with-mimikatz-28f4b50b1de5
 https://github.com/alxbrn/gdrv-loader
+https://skelsec.medium.com/duping-av-with-handles-537ef985eb03
+https://itm4n.github.io/lsass-runasppl/
 
 ###### Post exploitation - DPAPI
 
