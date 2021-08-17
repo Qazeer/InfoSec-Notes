@@ -29,7 +29,7 @@ system under the security context and privileges of the specified user.
 This security context may be used to access resources on the present system as
 well as moving laterally using various methods (remote Windows services or
 scheduled tasks, `WMI`, etc.) that can rely on the current user security
-context.      
+context.
 
 ###### runas
 
@@ -305,7 +305,7 @@ PsExec.exe -accepteula \\<HOST | IP> -u "<DOMAIN | WORKGROUP>\<USERNAME>" -p "<P
 
 # Unitary command execution on one or multiple specified hosts.
 # PsExec hosts specified file should be encoded in ANSI.
-PsExec.exe -accepteula [\\<IP | HOSTNAME | IPS | HOSTNAMES> | @<FILE_FULL_PATH>]  -u "<DOMAIN | WORKGROUP>\<USERNAME>" -p "<PASSWORD>" -s <cmd.exe /c "<COMMAND> <COMMAND_ARGS>" | %ComSpec% /c "<COMMAND> <COMMAND_ARGS>" | powershell.exe -NoP -NonI -W Hidden -Exec Bypass -C "<COMMAND> <COMMAND_ARGS>" | powershell.exe -NoP -NonI -W Hidden -Exec Bypass -Enc <ENCODED_BASE64_CMD> | ...>
+PsExec.exe -accepteula [\\<IP | HOSTNAME | IPS | HOSTNAMES> | @<FILE_FULL_PATH>] -u "<DOMAIN | WORKGROUP>\<USERNAME>" -p "<PASSWORD>" -s <cmd.exe /c "<COMMAND> <COMMAND_ARGS>" | %ComSpec% /c "<COMMAND> <COMMAND_ARGS>" | powershell.exe -NoP -NonI -W Hidden -Exec Bypass -C "<COMMAND> <COMMAND_ARGS>" | powershell.exe -NoP -NonI -W Hidden -Exec Bypass -Enc <ENCODED_BASE64_CMD> | ...>
 ```
 
 *Metasploit PsExec*
@@ -919,12 +919,15 @@ version), making its installation somewhat challenging at times.
 
 `CrackMapExec` pre-compiled binaries for Linux and Windows (that still require
 `Python3` to be installed on the system) can be downloaded on the
-[CrackMapExec's GitHub repository Actions](https://github.com/byt3bl33d3r/CrackMapExec/actions).
+[CrackMapExec's GitHub repository's
+"Actions"](https://github.com/byt3bl33d3r/CrackMapExec/actions). Fully
+standalone binaries for Linux and Windows can be retrieved in the
+[OffensivePythonPipeline](https://github.com/Qazeer/OffensivePythonPipeline).
 
 For more information on `CrackMapExec`'s installation refer to the [official
 documentation](https://mpgn.gitbook.io/crackmapexec/getting-started/installation).
 
-```
+```bash
 # As of March 2021, the crackmapexec package of the Kali Linux distribution is up to date and can be used to easily install CrackMapExec.
 apt install crackmapexec
 
@@ -935,7 +938,7 @@ docker run byt3bl33d3r/crackmapexec:latest [...]
 
 *CrackMapExec usage*
 
-```
+```bash
 # As of December 2018, crackmapexec does not provides an option to output to a file.
 # The tee utility can be used to both display and store to a file the crackmapexec standard output.
 # crackmapexec <[...]> | tee <OUTPUT_FILE>
@@ -1023,3 +1026,8 @@ Note that:
   - In case the metinject fails, a local administrator can be added for RDP
     access or a powershell reverse shell injected in memory instead (refer to
     the `[General] Shells - PowerShell` note).
+  - If a `permission denied` error is raised upon first execution of
+    `crackmapexec` on a Linux system, necessary rights to create new files in
+    the user's `HOME` folder may be missing. A temporary alternative `HOME`
+    folder can be specified for `crackmapexec` execution: `HOME=<PATH>
+    crackmapexec [...]`.

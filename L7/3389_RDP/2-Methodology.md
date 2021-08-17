@@ -161,16 +161,22 @@ On Linux, `FreeRDP` (`xfreerdp`), `rdesktop` or `Remmina` (GUI) can be used as
 `RDP` clients.
 
 ```
+# xfreerdp.
+
 xfreerdp [/size:<SCREEN_SIZE_PERCENT>%] /u:'<DOMAIN | WORKGROUP>\<USERNAME>' /p:'<PASSWORD>' /v:<HOSTNAME | IP>[:<PORT>]
-# No NLA for host that do not require NLA.
-xfreerdp -sec-nla /v:<HOSTNAME | IP>
+
+# Disables NLA for host that do not require Network Level Authentication.
 xfreerdp -sec-nla /u:'<DOMAIN | WORKGROUP>\<USERNAME>' /p:'<PASSWORD>' /v:<HOSTNAME | IP>
-# Restricted admin mode.
+
+# Connection in restricted admin mode.
 xfreerdp /restricted-admin /u:'<DOMAIN | WORKGROUP>\<USERNAME>' /p:'<PASSWORD>' /v:<HOSTNAME | IP>
 
-rdesktop -d '<DOMAIN | WORKGROUP>' -u '<USERNAME>' <HOSTNAME | IP>[:<PORT>]
+# For RD Web Access through a Remote Desktop gateway.
+# The <RDP_FILE> corresponds to the RDP client configuration file retrieved from the RD Web Access web interface.
+xfreerdp <RDP_FILE> /d:<DOMAIN | WORKGROUP> /u:<USERNAME> /p:'<PASSWORD>' /gt:rpc
 
-Remmina
+# rdesktop.
+rdesktop -d '<DOMAIN | WORKGROUP>' -u '<USERNAME>' <HOSTNAME | IP>[:<PORT>]
 ```
 
 ### Pass-the-hash over RDP
