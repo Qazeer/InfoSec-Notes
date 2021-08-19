@@ -63,6 +63,10 @@ https://adsecurity.org/?page_id=1821
 TECHNIQUES DE PERSISTANCE ACTIVE DIRECTORY BASÉES SUR KERBEROS - MISC Hors-Série N°20
 https://www.beneaththewaves.net/Projects/Mimikatz_20_-_Silver_Ticket_Walkthrough.html
 
+###### Domain Recon
+
+https://www.alitajran.com/get-organizational-units-with-powershell/
+
 ###### DACLs / ACEs exploit
 
 https://www.specterops.io/assets/resources/an_ace_up_the_sleeve.pdf
@@ -511,6 +515,16 @@ http://www.alex-ionescu.com/?p=39
 https://docs.microsoft.com/en-us/windows/win32/devnotes/application-compatibility-database
 https://lifars.com/wp-content/uploads/2017/03/Technical_tool_Amcache_Shimcache.pdf
 https://github.com/mandiant/ShimCacheParser
+
+### Phishing
+
+https://github.com/sevagas/macro_pack
+https://docs.microsoft.com/en-us/office/vba/word/concepts/customizing-word/auto-macros
+https://docs.microsoft.com/fr-fr/office/vba/api/excel.workbook
+https://www.excel-pratique.com/fr/vba/evenements_classeur
+https://github.com/christophetd/spoofing-office-macro
+https://www.youtube.com/watch?v=l8nkXCOYQC4
+https://blog.xpnsec.com/how-to-argue-like-cobalt-strike/
 
 ### Windows
 
