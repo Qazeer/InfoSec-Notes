@@ -248,9 +248,6 @@ Regsvr32.exe
 Payloads using the above utilities may be generated using the Python tool
 `GreatSCT`.
 
-```
-```
-
 ### Bypassing hardened AppLocker rules
 
 ###### Using DLL hijacking
@@ -315,3 +312,12 @@ $folder = $svc.GetFolder('\')
 $task = $folder.GetTask('TestTask')
 $task.RunEx($null, 0, 0, $user)
 ```  
+
+--------------------------------------------------------------------------------
+
+### References
+
+http://docshare02.docshare.tips/files/17344/173447840.pdf
+https://github.com/api0cradle/UltimateAppLockerByPassList
+https://hinchley.net/articles/an-approach-for-managing-microsoft-applocker-policies/
+https://posts.specterops.io/lateral-movement-scm-and-dll-hijacking-primer-d2f61e8ab992

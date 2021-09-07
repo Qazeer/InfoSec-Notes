@@ -137,3 +137,9 @@ time`: 32-bit value containing the number of seconds elapsed since 1/1/1970.
 Both attributes store time values in `Greenwich Mean Time (GMT)`. Refer to the
 `[DFIR] Windows - Timestamps` note for information on how to convert these
 timestamps to an human readable format.
+
+--------------------------------------------------------------------------------
+
+### References
+
+https://social.technet.microsoft.com/wiki/contents/articles/22461.understanding-the-ad-account-attributes-lastlogon-lastlogontimestamp-and-lastlogondate.aspx

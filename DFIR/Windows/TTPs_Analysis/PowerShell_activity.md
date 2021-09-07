@@ -1,4 +1,4 @@
-# DFIR - Windows PowerShell activity
+# DFIR - Windows - PowerShell activity
 
 ### Overview
 
@@ -77,3 +77,17 @@ PSDecode <ENCODED_POWERSHELL_FILE>
 | Microsoft-Windows-AppLocker\MSI and Script | 8005 | Require `AppLocker` to be enabled and running in `Audit only` mode | `<SCRIPT_PATH> was allowed to run`.<br/>Logged upon the execution of a local PowerShell script. |
 | Microsoft-Windows-AppLocker\MSI and Script | 8006 | Require `AppLocker` to be enabled and running in `Audit only` mode | `<SCRIPT_PATH> was allowed to run but would have been prevented from running if the AppLocker policy were enforced`.<br/>Logged upon the execution of a local PowerShell script. |
 | Security | 4688 | Requires `Audit Process Creation` to be enabled | `A new process has been created`.<br/> Logged upon the creation of every process. The `NewProcessName` field stores the full path of the process's executable and will contain `powershell.exe` for PowerShell activity.<br/>Refer to the `Processes` section for more information on this event. |
+
+--------------------------------------------------------------------------------
+
+### References
+
+https://www.blackhat.com/docs/us-14/materials/us-14-Kazanciyan-Investigating-Powershell-Attacks.pdf
+https://www.jpcert.or.jp/english/pub/sr/20170612ac-ir_research_en.pdf
+http://jpcertcc.github.io/ToolAnalysisResultSheet/details/PowerSploit_Invoke-Mimikatz.htm
+https://www.eventsentry.com/blog/2018/01/powershell-p0wrh11-securing-powershell.html
+https://www.powershellmagazine.com/2014/07/16/investigating-powershell-attacks/
+https://nsfocusglobal.com/Attack-and-Defense-Around-PowerShell-Event-Logging
+https://static1.squarespace.com/static/552092d5e4b0661088167e5c/t/59c1814829f18782e24f1fe2/1505853768977/Windows+PowerShell+Logging+Cheat+Sheet+ver+Sept+2017+v2.1.pdf
+https://www.eventtracker.com/EventTracker/media/EventTracker/Files/support-docs/Integration-Guide-Windows-PowerShell.pdf
+https://www.blackhat.com/docs/us-14/materials/us-14-Kazanciyan-Investigating-Powershell-Attacks-WP.pdf

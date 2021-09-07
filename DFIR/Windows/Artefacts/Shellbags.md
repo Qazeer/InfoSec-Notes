@@ -107,3 +107,11 @@ SBECmd.exe --csv <CSV_DIRECTORY_OUTPUT> -d <C:\Users\<USERNAME> | C:\Users\ | DI
 # Parses the ShellBags entries in the live registry.
 SBECmd.exe --csv <CSV_DIRECTORY_OUTPUT> -l
 ```
+
+--------------------------------------------------------------------------------
+
+### References
+
+https://www.sans.org/reading-room/whitepapers/forensics/windows-shellbag-forensics-in-depth-34545
+https://www.sans.org/blog/computer-forensic-artifacts-windows-7-shellbags/
+https://lifars.com/wp-content/uploads/2020/04/LIFARS-WhitePaper-Windows-ShellBags-Forensics-Investigative-Value-of-Windows-ShellBags.pdf

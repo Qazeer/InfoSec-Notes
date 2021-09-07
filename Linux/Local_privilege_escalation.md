@@ -962,3 +962,12 @@ int main(int argc, char * const * argv) {
 ### Capabilities
 
 https://medium.com/@int0x33/day-44-linux-capabilities-privilege-escalation-via-openssl-with-selinux-enabled-and-enforced-74d2bec02099
+
+
+--------------------------------------------------------------------------------
+
+### References
+
+https://book.hacktricks.xyz/linux-unix/privilege-escalation
+https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=299007
+https://unix.stackexchange.com/questions/47208/what-is-the-difference-between-kernel-drivers-and-kernel-modules

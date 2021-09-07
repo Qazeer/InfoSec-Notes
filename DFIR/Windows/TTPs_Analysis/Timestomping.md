@@ -1,4 +1,4 @@
-# DFIR - Timestomping
+# DFIR - Windows - Timestomping
 
 ### Overview
 
@@ -50,3 +50,17 @@ owner.
 Note that in addition to being the ones that can be easily modified, the
 `MACB` timestamps from the `$STANDARD_INFORMATION` attribute are conveniently
 the ones (generally) displayed by the `Windows Explorer`.
+
+--------------------------------------------------------------------------------
+
+### References
+
+https://dfir.ru/2021/01/10/standard_information-vs-file_name/
+https://medium.com/@bromiley/a-journey-into-ntfs-part-4-f2865c39ac83
+https://www.andreafortuna.org/2017/10/06/macb-times-in-windows-forensic-analysis/
+https://www.sans.org/security-resources/posters/windows-forensic-analysis/170/download
+https://www.sans.org/blog/digital-forensics-detecting-time-stamp-manipulation/
+https://www.osforensics.com/faqs-and-tutorials/how-to-scan-ntfs-i30-entries-deleted-files.html
+https://alexsta-cybersecurity.com/how-to-detect-timestomping-on-a-windows-system/
+https://www.sans.org/blog/ntfs-i30-index-attributes-evidence-of-deleted-and-overwritten-files/
+https://www.youtube.com/watch?v=XzoYNOlJ37s

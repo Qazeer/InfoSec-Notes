@@ -795,6 +795,23 @@ the host:
 |-----|------------|-----|
 | systeminfo<br/> Check content of C:\Windows\SoftwareDistribution\Download<br/>type C:\Windows\WindowsUpdate.log | Get-HotFix<br/> Get-WindowsUpdateLog | wmic qfe get HotFixID,InstalledOn,Description |
 
+Windows releases information:
+
+| NT Version | Build | Marketing name |
+|------------|-------|----------------|
+| 3.1 | 528 | Windows NT 3.1 |
+| 3.5 | 807	| Windows NT 3.5 |
+| 3.51 | 1057 | Windows NT 3.51 |
+| 4.0 | 1381 | Windows NT 4.0 |
+| 5.0 | 2195 | Windows 2000 |
+| 5.1 | 2600 | Windows XP |
+| 5.2 | 3790 | Windows XP x64 <br/> Windows Server 2003 <br/> Windows Server 2003 R2 |
+| 6.0 | 6000 <br/> 6001 | Windows Vista <br/> Windows Server 2008 |
+| **6.1** | **7600** | **Windows 7** <br/> **Windows Server 2008 R2** |
+| 6.2 | 9200 | Windows 8 <br/> Windows Server 2012 |
+| **6.3** | **9600** | Windows 8.1 <br/> **Windows Server 2012 R2** |
+| **10.0** | 10240 (TH1) / 10586 (TH2) <br/> 14393 (RS1) / 15063 (RS2) / 16299 (RS3) / 17134 (RS4) / 17763 (RS5) | Windows 10 <br/> Windows Server 2016 |
+
 Automatically compare the system patch level to public known exploits:
 
 ###### Exploits detection tools
@@ -1631,3 +1648,25 @@ psexec.exe -accepteula -s -i -d cmd.exe
 
 If a `meterpreter` shell is being used, the `getsystem` command can be
 leveraged to the same end.
+
+--------------------------------------------------------------------------------
+
+### References
+
+https://stackoverflow.com/questions/1331887/detect-antivirus-on-windows-using-c-sharp
+https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md
+https://sushant747.gitbooks.io/total-oscp-guide/privilege_escalation_windows.html
+https://ired.team/offensive-security/defense-evasion/av-bypass-with-metasploit-templates
+https://www.elastic.co/fr/blog/ten-process-injection-techniques-technical-survey-common-and-trending-process
+https://i.blackhat.com/USA-19/Thursday/us-19-Kotler-Process-Injection-Techniques-Gotta-Catch-Them-All-wp.pdf
+https://book.hacktricks.xyz/windows/windows-local-privilege-escalation
+https://docs.microsoft.com/fr-fr/windows/desktop/SecAuthZ/ace-strings
+https://blogs.msmvps.com/erikr/2007/09/26/set-permissions-on-a-specific-service-windows/
+http://www.alex-ionescu.com/publications/BlueHat/bluehat2016.pdf
+https://recon.cx/2018/brussels/resources/slides/RECON-BRX-2018-Linux-Vulnerabilities_Windows-Exploits--Escalating-Privileges-with-WSL.pdf
+https://resources.infosecinstitute.com/windows-subsystem-linux/#gref
+https://mspscripts.com/get-installed-antivirus-information-2/
+https://itm4n.github.io/printspoofer-abusing-impersonate-privileges/
+https://decoder.cloud/2019/12/06/we-thought-they-were-potatoes-but-they-were-beans/
+https://decoder.cloud/2018/10/29/no-more-rotten-juicy-potato/
+https://itm4n.github.io/localservice-privileges/

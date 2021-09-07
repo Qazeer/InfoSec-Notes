@@ -54,3 +54,10 @@ Get-ForensicUsnJrnl
 Get-ForensicUsnJrnl -VolumeName <NTFS_VOLUME>
 Get-ForensicUsnJrnl -Path <USN_JRNL_PATH>
 ```
+
+--------------------------------------------------------------------------------
+
+### References
+
+http://forensicinsight.org/wp-content/uploads/2013/07/F-INSIGHT-Advanced-UsnJrnl-Forensics-English.pdf
+https://countuponsecurity.com/2017/05/25/digital-forensics-ntfs-change-journal/

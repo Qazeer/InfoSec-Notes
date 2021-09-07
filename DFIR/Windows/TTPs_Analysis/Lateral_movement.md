@@ -116,3 +116,19 @@ WinRM Operational event log entries indicating authentication prior to PowerShel
 ○ Event ID 169 (“User [DOMAIN\Account] authenticated successfully using [authentication_protocol]”)
 
 ### DCOM artefacts
+
+--------------------------------------------------------------------------------
+
+### References
+
+https://dfironthemountain.wordpress.com/2019/02/15/rdp-event-log-dfir/
+https://digital-forensics.sans.org/media/SANS_Poster_2018_Hunt_Evil_FINAL.pdf
+https://jpcertcc.github.io/ToolAnalysisResultSheet/details/mstsc.htm
+https://nullsec.us/windows-rdp-related-event-logs-the-client-side-of-the-story/
+https://ponderthebits.com/2018/02/windows-rdp-related-event-logs-identification-tracking-and-investigation/
+https://purerds.org/remote-desktop-security/auditing-remote-desktop-services-logon-failures-1/
+https://repo.zenk-security.com/Forensic/A-forensic-analysis-of-apt-lateral-movement-in-windows-environment.pdf
+https://salt4n6.com/2019/09/22/event-id-1024/
+https://www.13cubed.com/downloads/rdp_flowchart.pdf
+https://www.andreafortuna.org/2020/06/04/windows-forensic-analysis-some-thoughts-on-rdp-related-event-ids/
+https://www.manageengine.com/products/active-directory-audit/kb/windows-security-log-event-id-X.html

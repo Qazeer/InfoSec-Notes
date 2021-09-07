@@ -196,3 +196,12 @@ Windows Security Log Event ID 4648
 Logged on client. Includes information about the target server:
 `Target Server Name` (hostname or IP) and `Additional Information` of the
 service requested.
+
+--------------------------------------------------------------------------------
+
+### References
+
+https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventID=*
+https://docs.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4738
+https://docs.microsoft.com/fr-fr/windows/security/threat-protection/auditing/event-4624
+https://docs.microsoft.com/fr-fr/windows/security/threat-protection/auditing/event-4688

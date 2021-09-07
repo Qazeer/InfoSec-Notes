@@ -1,4 +1,6 @@
-Amcache, Shimcache, prefetch, prefetch files pf in MFT / UsnJrnl
+# DFIR - Windows - Program execution
+
+### Amcache, Shimcache, prefetch, prefetch files pf in MFT / UsnJrnl
 
 ###### Processes
 
@@ -34,3 +36,10 @@ command line specified at the process creation will be logged in the
 
 This event is followed by the `Security` event `4689: Process Termination:
 Success and Failure` upon the termination of the process.
+
+--------------------------------------------------------------------------------
+
+### References
+
+https://digital-forensics.sans.org/media/dfir_poster_2014.pdf
+https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/event.aspx?eventID=4688

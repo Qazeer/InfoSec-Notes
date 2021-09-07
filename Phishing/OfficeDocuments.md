@@ -122,3 +122,15 @@ macro_pack.exe -f "<VBA_TXT_FILE>" -o -G "<OUTPUT_FILE>"
 # Opens the specified document, triggering AutoOpen / Workbook_Openuse macros. Useful for testing purposes.
 macro_pack.exe --run "<FILE>"
 ```
+
+--------------------------------------------------------------------------------
+
+### References
+
+https://github.com/sevagas/macro_pack
+https://docs.microsoft.com/en-us/office/vba/word/concepts/customizing-word/auto-macros
+https://docs.microsoft.com/fr-fr/office/vba/api/excel.workbook
+https://www.excel-pratique.com/fr/vba/evenements_classeur
+https://github.com/christophetd/spoofing-office-macro
+https://www.youtube.com/watch?v=l8nkXCOYQC4
+https://blog.xpnsec.com/how-to-argue-like-cobalt-strike/

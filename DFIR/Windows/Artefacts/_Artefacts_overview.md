@@ -35,3 +35,9 @@ A more detailed explanation of the artefacts, and associated parsing tools, are 
 | `Windows Background Activity Moderator (BAM)` <br><br> Introduced in Windows 10's Fall Creators update - version 1709. | Programs execution. | File: `%SystemRoot%\System32\config\SYSTEM` <br><br> Registry key: <br> `HKLM\SYSTEM\CurrentControlSet\Services\bam\UserSettings\<SID>` <br> After from Win10 1809: `HKLM\SYSTEM\CurrentControlSet\Services\bam\State\UserSettings\<SID>` |
 | Windows Search | Files and folders access. | `%SystemDrive%:\ProgramData\Microsoft\Search\Data\Applications\Windows\Windows.edb` |
 | `WordWheelQuery` | Files and folders access. <br><br> Potential Programs execution. | File: `%SystemDrive%:\Users\<USERNAME>\NTUSER.dat`  <br> Registry key:  `HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\WordWheelQuery` |
+
+--------------------------------------------------------------------------------
+
+### References
+
+https://blog.1234n6.com/2018/10/available-artifacts-evidence-of.html

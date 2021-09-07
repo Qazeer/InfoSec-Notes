@@ -28,3 +28,12 @@ TODO 4670 and 4662 and 4728 and 4732 and 4756
 
 Windows Security Log Event ID 4657: A registry value was modified
 this event will only be logged if the key's audit policy is enabled for Set Value permission for the appropriate user or a group in the user is a member.
+
+--------------------------------------------------------------------------------
+
+### References
+
+https://social.technet.microsoft.com/wiki/contents/articles/51185.active-directory-replication-metadata.aspx#:~:text=Replication%20Metadata%20is%20the%20data,in%20Active%20Directory%20(AD)
+https://www.harmj0y.net/blog/defense/hunting-with-active-directory-replication-metadata/
+https://social.technet.microsoft.com/wiki/contents/articles/25946.metadata-de-replication-et-analyse-forensic-active-directory-fr-fr.aspx
+https://www.ssi.gouv.fr/uploads/2019/04/ad_timeline_first_tc.pdf

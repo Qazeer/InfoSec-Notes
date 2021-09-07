@@ -324,4 +324,10 @@ the creation and modification of legitimate PE on the system. Refer to the
 `DFIR - Filesystem history` note for more information. Additionally, if the
 malware strain could be retrieved, a reverse engineering of its functionalities
 may permit the identification of `Indice of Compromise (IoC)` for later
-detection.         
+detection.
+
+--------------------------------------------------------------------------------
+
+### References
+http://www.fuzzysecurity.com/tutorials/19.html
+https://digital-forensics.sans.org/blog/2019/04/29/offline-autoruns-revisited

@@ -187,3 +187,15 @@ emulate an interactive PowerShell console unaffected by language mode
 | `PSByPassCLM` | `InstallUtil.exe` | x86 systems: <br> `C:\Windows\Microsoft.NET\Framework\v4.0.30319\InstallUtil.exe /logfile= /LogToConsole=false /U <PSBYPASSCLM_BINARY_FULL_PATH>` <br><br> x64 systems: <br> `C:\Windows\Microsoft.NET\Framework64\v4.0.30319\InstallUtil.exe /logfile= /LogToConsole=true /U <PSBYPASSCLM_BINARY_FULL_PATH>` |
 | `PowerShdll` | `rundll32` <br><br> `InstallUtil.exe` <br> *Documented as supported but does not seem to work properly.* <br><br> `regsvcs.exe` <br><br>  `regasm.exe` <br> *Requires elevated privileges.* <br><br> `regsvr32` | `rundll32`: <br> - Start an interactive console in a new windows: <br> `rundll32 <POWERSHDLL_PATH>,main` <br> - Execute the specified script: <br> `rundll32 <POWERSHDLL_PATH>,main -f <SCRIPT_PATH>` <br><br> `regsvcs.exe`: <br> x86 systems: <br> `C:\Windows\Microsoft.NET\Framework\v4.0.30319\regsvcs.exe <POWERSHDLL_PATH>` <br> x64 systems: <br> `C:\Windows\Microsoft.NET\Framework64\v4.0.30319\regsvcs.exe <POWERSHDLL_PATH>` <br><br> `regasm.exe`: <br> x86 systems: <br> `C:\Windows\Microsoft.NET\Framework\v4.0.30319\regasm.exe <POWERSHDLL_PATH>` <br> x64 systems: <br> `C:\Windows\Microsoft.NET\Framework64\v4.0.30319\regasm.exe <POWERSHDLL_PATH>` <br><br> `regsvr32`: <br> `regsvr32 /s /u <POWERSHDLL_PATH>` (calls `DllUnregisterServer`). <br> `regsvr32 /s <POWERSHDLL_PATH>` (calls `DllRegisterServer`). |
 | `PowerLessShell` | `MSBuild.exe` | Generation of the `csproj` that will execute the specified PowerShell script (such as `Invoke-PowerShellTcp`): <br> `python2 PowerLessShell.py` <br> `Set payload type [...]> powershell` <br> `Path to the PowerShell script> <POWERSHELL_SCRIPT_TO_EXEC>` <br> `Path for the generated MsBuild out file> <CSPROJ_OUTPUT>` <br><br> Execution using `MSBuild`: <br> `C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild <CSPROJ_FILE>` |
+
+--------------------------------------------------------------------------------
+
+### References
+
+http://www.3nc0d3r.com/2016/12/pslockdownpolicy-and-ways-around-it.html
+https://github.com/p3nt4/PowerShdll
+https://s3cur3th1ssh1t.github.io/Playing-with-OffensiveNim/
+https://decoder.cloud/2017/11/17/we-dont-need-powershell-exe-part-3/
+https://github.com/padovah4ck/PSByPassCLM
+https://www.sysadmins.lv/blog-en/powershell-50-and-applocker-when-security-doesnt-mean-security.aspx
+https://github.com/stonepresto/CLMBypass

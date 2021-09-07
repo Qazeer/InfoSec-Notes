@@ -98,3 +98,14 @@ analysis, refer to the `[DFIR] Memory` note.
 ```
 vol.py -f win7.vmem --profile=Win7SP1x86 shimcache
 ```
+
+--------------------------------------------------------------------------------
+
+### References
+
+https://www.fireeye.com/content/dam/fireeye-www/services/freeware/shimcache-whitepaper.pdf
+https://www.fireeye.com/blog/threat-research/2015/06/caching_out_the_val.html
+http://www.alex-ionescu.com/?p=39
+https://docs.microsoft.com/en-us/windows/win32/devnotes/application-compatibility-database
+https://lifars.com/wp-content/uploads/2017/03/Technical_tool_Amcache_Shimcache.pdf
+https://github.com/mandiant/ShimCacheParser

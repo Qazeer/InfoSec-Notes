@@ -1031,3 +1031,31 @@ Note that:
     the user's `HOME` folder may be missing. A temporary alternative `HOME`
     folder can be specified for `crackmapexec` execution: `HOME=<PATH>
     crackmapexec [...]`.
+
+--------------------------------------------------------------------------------
+
+### References
+
+https://ss64.com/nt/sc.html
+https://support.microsoft.com/en-us/help/251192/how-to-create-a-windows-service-by-using-sc-exe
+https://posts.specterops.io/offensive-lateral-movement-1744ae62b14f
+https://www.contextis.com/en/blog/lateral-movement-a-deep-look-into-psexec
+https://docs.microsoft.com/fr-fr/windows/win32/winrm/portal
+https://docs.microsoft.com/fr-fr/windows/win32/wmisdk/wmi-start-page
+https://www.blackhat.com/docs/us-15/materials/us-15-Graeber-Abusing-Windows-Management-Instrumentation-WMI-To-Build-A-Persistent%20Asynchronous-And-Fileless-Backdoor-wp.pdf
+https://blog.cobaltstrike.com/2017/05/23/cobalt-strike-3-8-whos-your-daddy/
+https://blog.cobaltstrike.com/2015/12/16/windows-access-tokens-and-alternate-credentials/
+https://blog.cobaltstrike.com/2015/05/21/how-to-pass-the-hash-with-mimikatz/
+https://docs.microsoft.com/en-us/windows/win32/secauthz/access-tokens
+http://woshub.com/powershell-remoting-via-winrm-for-non-admin-users/
+https://enigma0x3.net/2017/01/05/lateral-movement-using-the-mmc20-application-com-object/
+https://www.cybereason.com/blog/dcom-lateral-movement-techniques
+https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-dcom/4a893f3d-bd29-48cd-9f43-d9777a4415b0
+https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-dcom/ba4c4d80-ef81-49b4-848f-9714d72b5c01
+https://blog.varonis.fr/dcom-technologie-distributed-component-object-model/
+https://gallery.technet.microsoft.com/scriptcenter/89a5e3c2-0a1c-4471-b78c-136606cafdfb
+https://blog.f-secure.com/endpoint-detection-of-remote-service-creation-and-psexec/
+Applied Incident Response, Steve Anson
+https://docs.microsoft.com/en-us/windows/win32/api/lmshare/nf-lmshare-netshareadd
+https://www.harmj0y.net/blog/redteaming/pass-the-hash-is-dead-long-live-localaccounttokenfilterpolicy/
+Mitigating-Pass-the-Hash-Attacks-and-Other-Credential-Theft-Version-2.pdf

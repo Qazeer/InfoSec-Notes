@@ -325,3 +325,11 @@ Tools -> External Tools -> New External Tool
 After the confCons.xml is loaded, the created external tool can be used to retrieve the passwords
 Connections -> <CONNECTION> -> External Tools -> Print pasword
 ```
+
+--------------------------------------------------------------------------------
+
+### References
+
+https://github.com/hashcat/kwprocessor
+http://cosine-security.blogspot.com/2011/06/stealing-password-from-mremote.html
+https://robszar.wordpress.com/2012/08/07/view-mremote-passwords-4/
