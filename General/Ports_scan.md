@@ -46,10 +46,10 @@ prefix="<X.X.X>" && for i in {0..254}; do sh -c "ping -c 1 $prefix.$i | grep \"i
 banner grabbing or version probing:
 
 ```
-# TCP
+# TCP ports.
 nc -znv -w 2 <HOSTNAME | IP> <PORT | PORT_RANGE>
 
-# UDP
+# UDP ports.
 nc -uznv -w 2 <HOSTNAME | IP> <PORT | PORT_RANGE>
 ```
 
@@ -159,12 +159,12 @@ scan results (`Ndiff`), and a packet generation and response analysis tool
 ###### Usage
 
 ```
-nmap [Scan Type(s)] [Options] (<IP> | <FQDN> | <CIDR> | <RANGE>)
+nmap [<SCAN_TYPE>] [<SCAN_OPTIONS>] (<IP> | <FQDN> | <CIDR> | <RANGE>)
 ```
 
 ###### Single host scanning
 
-To scan a single host:
+Using `nmap` to scan a single host:
 
 ```
 # TCP - all ports.
@@ -186,8 +186,8 @@ nmap -v -sT -Pn -p <SERVICE_PORT> --script=vuln <IP/FQDN>
 
 *Host Discovery*
 
-Generate a live hosts list trough a `nmap` "ping sweep":
-  - `ARP` ping for hosts on the same local subnet
+Generate a live hosts list through a `nmap` "ping sweep":
+  - `ARP` ping for hosts on the same local subnet.
   - `ICMP` `echo` requests and `TCP` probes on ports 80 and 443 otherwise.
 
 ```
@@ -199,51 +199,51 @@ grep "Status: Up" <OUTPUT_GNMAP> | cut -f 2 -d ' ' > <OUTPUT_IP_FILE>
 *Port Discovery*
 
 ```
-# Most Common Ports
-nmap -sS -T4 -Pn -A -oG TopTCP -iL LiveHosts.txt
-nmap -sU -T4 -Pn -A -oN TopUDP -iL LiveHosts.txt
+# Most common top 100 ports.
+nmap -sS -T4 -Pn -A -oG <TopTCP | OUTPUT_FILE> -iL <HOSTS_FILE>
+nmap -sU -T4 -Pn -A -oN <TopUDP | OUTPUT_FILE> -iL <HOSTS_FILE>
 
-# Full Port Scans (UDP is very slow)
-nmap -sS -T4 -Pn -A -p- -oN FullTCP -iL LiveHosts.txt
-nmap -sU -T4 -Pn -A -p- -oN FullUDP -iL LiveHosts.txt
+# Full port scans (UDP scans are very slow).
+nmap -sS -T4 -Pn -A -p- -oN <FullTCP | OUTPUT_FILE> -iL <HOSTS_FILE>
+nmap -sU -T4 -Pn -A -p- -oN <FullUDP | OUTPUT_FILE> -iL <HOSTS_FILE>
 ```
 
 *Print results*
 
 ```
-grep "open" FullTCP | cut -f 1 -d ' ' | sort -nu | cut -f 1 -d '/' |xargs | sed 's/ /,/g'|awk '{print "T:"$0}'
-grep "open" FullUDP | cut -f 1 -d ' ' | sort -nu | cut -f 1 -d '/' |xargs | sed 's/ /,/g'|awk '{print "U:"$0}'
+grep "open" FullTCP | cut -f 1 -d ' ' | sort -nu | cut -f 1 -d '/' | xargs | sed 's/ /,/g'| awk '{print "T:"$0}'
+grep "open" FullUDP | cut -f 1 -d ' ' | sort -nu | cut -f 1 -d '/' | xargs | sed 's/ /,/g'| awk '{print "U:"$0}'
 ```
 
-*Specific service vulnerabilites*
+*Specific service vulnerabilities*
 
 ```
 nmap -v -sT -Pn -p <SERVICE_PORT> -oA <FILEOUT> --script=vuln <RANGE | CIDR>
-nmap -v -sT -Pn -p <SERVICE_PORT> -oA <FILEOUT> --script=vuln -iL LiveHosts.txt
+nmap -v -sT -Pn -p <SERVICE_PORT> -oA <FILEOUT> --script=vuln -iL <HOSTS_FILE>
 ```
 
 ###### Scan Types
 
-`-sS` : `TCP` `SYN` scan.
+`-sS`: `TCP` `SYN` scan.
 
 `A SYN` packet is sent. In response, a `SYN/ACK` indicates the port is
 listening (open), while a `RST` (reset) packet is indicative of a non-listener.
 No response or an `ICMP` unreachable error means the port is filtered.
 
-`-sT` : `TCP` connect scan.
+`-sT`: `TCP` connect scan.
 
 Does not require admin privilege. Instead of writing raw packets as most other
 scan types do, `nmap` asks the underlying operating system to establish a
 connection with the target machine. Works the same way as the `TCP` `SYN` scan,
 only closing the `TCP` handshake.
 
-`-sU` : `UDP` scan.
+`-sU`: `UDP` scan.
 
 Can be combined with a `TCP` scan. A `UDP` packet is sent. Open and filtered
 ports rarely send any response. If an `ICMP` port unreachable error
 (type 3, code 3) is returned, the port is closed.
 
-`-sN`, `-sF`, `-sX` : `TCP` `NULL`, `FIN`, and `Xmas` scans.
+`-sN`, `-sF`, `-sX`: `TCP` `NULL`, `FIN`, and `Xmas` scans.
 
   - NULL scan: Does not set any bits (`TCP` flag header is 0).  
   - `FIN` scan: Sets just the `TCP` `FIN` bit.  
@@ -256,16 +256,15 @@ filtered if an `ICMP` unreachable error (`type 3`, code 0, 1, 2, 3, 9, 10, or
 13) is received. The key advantage to these scan types is that they might
 sneak through certain non-stateful firewalls and packet filtering routers.
 
-`-sI <REMOTE_ZOMBIE_HOST>` : idle / zombie scan.
+`-sI <REMOTE_ZOMBIE_HOST>`: idle / zombie scan.
 
 Channel the ports scan through a non controlled remote host. Reference:
-https://nmap.org/book/idlescan.html.
+`https://nmap.org/book/idlescan.html`.
 
 ###### Target Specification
 
 `nmap` supports multiple way to specify a target host, either as an input
-command line parameter or through a file.
-
+command line parameter or through a file:
   - IP address or hostname (example: 192.168.15.15 / www.google.com).
   - IP range (example: 192.168.0.*).
   - CIDR-style subnet (example: 192.168.0.0/24).
@@ -280,52 +279,62 @@ command line parameter or through a file.
   specified by preceding the port numbers by `T:` for `TCP`, `U:` for `UDP`.
 
   Example: `-p U:53,111,137, T:21-25,80,139,443,8080`
+  <br>
 
   - `-sn`: no port scan (ping scan only).
 
   Instructs `nmap` not to do a port scan after host discovery, and only print
   out the available hosts that responded to the host discovery probes.
+  <br>
 
   - `-Pn`: skip the host discovery phase and assume every hosts is up.
 
   By default, `nmap` use a ping scan to determine if the host is up before
   starting the specified scan. If specified, this flag tells `nmap` to skip the
   host discovery phase and directly start the specified scan.
+  <br>
 
   - `-n`: skip `DNS` resolution.
 
   Instructs `nmap` to never do reverse `DNS` resolution on the active IP
   addresses it may find. Can reduce scanning times.
+  <br>
 
   - `--dns-servers <NAMESERVER>`.
 
   Instructs `nmap` to use the specified nameserver for `DNS` resolution.
+  <br>
 
   - `-PR`: `ARP` ping.
 
   Instructs `nmap` to use `ARP` requests to conduct host discovery on `LA-T4N`
   network.
+  <br>
 
   -`-sV`: enables version probing.
 
  	Instructs `nmap` to try to determine the service protocol, the application
   name, the version number, hostname, device type and OS family of the target.
+  <br>
 
   - `-O`: enables OS detection.
 
   Instructs `nmap` to try to determine the OS and OS details of the target.
+  <br>
 
   -`-sC`: enables default script scanning.
 
   Instructs `nmap` to perform enumeration using its `NSE` script engine and a
   default set of scripts.
+  <br>
 
   - `-A`: "aggressive" scan options (equivalent to `-sV`, `-O`, and `-sC`).
 
   Tells `nmap` to perform OS detection (`-O`), version scanning (`-sV`), script
   scanning (`-sC`) and traceroute (`--traceroute`).
+  <br>
 
-  - `-T <paranoid/0 | sneaky/1 | polite/2 | normal/3 | aggressive/4 | insane/5>`: timing template
+  - `-T <paranoid/0 | sneaky/1 | polite/2 | normal/3 | aggressive/4 | insane/5>`: timing template.
 
   Instructs `nmap` to use the specified scan / timing template:
     - `paranoid/0` and `sneaky/1` are for `IDS` evasion and are incredibly
@@ -448,7 +457,7 @@ https://github.com/ernw/static-toolbox
 The
 [`run-nmap.sh`](https://github.com/ernw/static-toolbox/blob/master/package/targets/nmap/run-nmap.ps1)
 or [`run-nmap.ps1`](https://github.com/ernw/static-toolbox/blob/master/package/targets/nmap/run-nmap.sh)
-scripts can be used to run the prebuild `nmap` on a compromised host with out
+scripts can be used to run the prebuild `nmap` on a compromised host without
 external dependencies. Additionally, the binary comes with the various `NSE`
 scripts and modules necessary to conduct version fingerprinting.
 
@@ -545,7 +554,7 @@ The tool provides easy access to the main identified services (`HTTP`, `HTTPS`,
 ###### netscan
 
 [`SoftPerfect`'s `NetScan`](https://www.softperfect.com/products/networkscanner/)
-is an advanced and light weight Windows GUI network scanner utility, available
+is an advanced and lightweight Windows GUI network scanner utility, available
 as a standalone binary. `NetScan` supports the `Windows 7` through
 `Windows 10`, and `Windows Server 2008 R2` through `Windows Server 2019`
 operating systems.
