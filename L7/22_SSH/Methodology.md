@@ -2,7 +2,7 @@
 
 ### Network scan
 
-`Nmap` can be used to scan the network for SSH services:
+[`nmap`](https://nmap.org/) can be used to scan the network for `SSH` services:
 
 ```
 nmap -v -p 22 -A -oA nmap_smb <IP | RANGE | CIDR>
@@ -13,13 +13,14 @@ nmap -v -p 22 -A -oA nmap_smb <IP | RANGE | CIDR>
 The `OpenSSH` service for all versions < `7.7` are vulnerable to oracle
 username enumeration.
 
-The Python script `sshUsernameEnumExploit` as well as the `Metasploit` module
-`auxiliary/scanner/ssh/ssh_enumusers` can be used to validate the presence of
-a system user:
+The Python script
+[`sshUsernameEnumExploit`](https://github.com/Rhynorater/CVE-2018-15473-Exploit)
+as well as the `Metasploit` module `auxiliary/scanner/ssh/ssh_enumusers` can
+be used to validate the presence of a system user:
 
 ```
-# [--threads THREADS] - Default to 5. If more than 10 are used, the OpenSSH service often gets overwhelmed
-# [--outputFile OUTPUTFILE] [--outputFormat {list,json,csv}]
+# [--threads <THREADS>] - Default to 5. If more than 10 are used, the OpenSSH service often gets overwhelmed
+# [--outputFile <OUTPUTFILE>] [--outputFormat <{list,json,csv}>]
 sshUsernameEnumExploit.py [--port PORT]  (--username <USERNAME> | --userList <USERLIST>) <HOST>
 
 msf> use auxiliary/scanner/ssh/ssh_enumusers
@@ -28,38 +29,37 @@ msf> use auxiliary/scanner/ssh/ssh_enumusers
 ### Supported authentication methods
 
 A verbose connection attempt will display the authentication methods supported
-by the server:
+by the server (under `debug1: Authentications that can continue:`):
 
 ```
 ssh -v <HOST>
-debug1: Authentications that can continue:
 ```
 
 ###### Authentication methods available
 
 The following authentication methods are possible:
 
-  - `password authentication`: Simple request for a single password with no
-  specific prompt
+  - `password authentication`: simple request for a single password with no
+    specific prompt.
 
-  - `keyboard interactive`: More complex request for arbitrary number of pieces
-  of information. Can be hooked to two-factor (or multi-factor) authentications
-  (PAM, Kerberos, etc.)  
+  - `keyboard interactive`: more complex request for arbitrary number of pieces
+    of information. Can be hooked to two-factor (or multi-factor)
+    authentications (PAM, Kerberos, etc.).  
 
-  - `public key authentication`: Clients must provide a public key in the list
-  of allowed keys on the server and encrypts a certain data packet using the
-  private key. The public key authentication method is the only method that
-  both client and server software are required to implement.
+  - `public key authentication`: clients must provide a public key in the list
+    of allowed keys on the server and encrypts a certain data packet using the
+    private key. The public key authentication method is the only method that
+    both client and server software are required to implement.
 
-  - `host-based authentication`: Host-based authentication is used to
-  restrict client access only to certain hosts. This method is similar to
-  public key authentication; however, the server additionally maintains a list
-  of hosts mapped to their public keys and will only accept connection with the
-  keys from the pre recorded host.
+  - `host-based authentication`: host-based authentication is used to
+    restrict client access only to certain hosts. This method is similar to
+    public key authentication; however, the server additionally maintains a
+    list of hosts mapped to their public keys and will only accept connection
+    with the keys from the pre recorded host.
 
 ###### Legacy DSA public key authentication
 
-To connect to a server using DSA keys with a modern OpenSSH client, the
+To connect to a server using `DSA` keys with a modern `OpenSSH` client, the
 `PubkeyAcceptedKeyTypes +ssh-dss` option must be added to the client config:
 
 ```
@@ -77,9 +77,10 @@ debug1: Skipping ssh-dss key ... - not in PubkeyAcceptedKeyTypes
 
 ###### Password & keyboard interactive authentication
 
-The `patator` Python script or the `auxiliary/scanner/ssh/ssh_login`
-`metasploit` module can be used to brute force credentials through the password
-and keyboard interactive authentication methods:
+The [`patator`](https://github.com/lanjelot/patator) multi-purpose brute-forcer
+or the `auxiliary/scanner/ssh/ssh_login` `metasploit` module can be used to
+brute force credentials through the `password` and `keyboard interactive`
+authentication methods:
 
 ```
 # auth_type: auth type to use <password|keyboard-interactive>
@@ -92,7 +93,8 @@ msf> auxiliary/scanner/ssh/ssh_login
 ###### publickey authentication spraying
 
 The `Metasploit`'s `auxiliary/scanner/ssh/ssh_login_pubkey` module and the
-Python script `crowbar` can be used to brute force `SSH` keys.  
+Python script [`crowbar`](https://github.com/galkan/crowbar) can be used to
+brute force `SSH` keys.
 
 While an exhaustive attack is not possible, the key based brute force can be
 used for lateral movement once a private key could be compromised.
@@ -104,11 +106,8 @@ python crowbar.py -b sshkey (-u <USERNAME> | -U USERNAME_FILE) -k <KEY_FILE | KE
 ```
 
 A repository of static authorized SSH keys "hardcoded" into software and
-hardware products is available:
-
-```
-https://github.com/rapid7/ssh-badkeys
-```
+hardware products is available in the
+[`ssh-badkeys` GitHub repository](https://github.com/rapid7/ssh-badkeys).
 
 ### Known vulnerabilities
 
@@ -141,15 +140,16 @@ grep -rl <KEY> <FOLDER_RSA|FOLDER_DSA>
 
 ###### [Windows] PuTTY
 
-`PuTTY` is a simple `SSH`, as well as `telnet`, `rlogin` and `serial`, GUI
-client for Microsoft Windows, available as an installed program and a
-standalone binary.
+[`PuTTY`](https://www.putty.org/) is a simple `SSH`, as well as `telnet`,
+`rlogin` and `serial`, GUI client for Microsoft Windows, available as an
+installed program and a standalone binary.
 
 ###### [Linux] parallel-ssh
 
-The `parallel-ssh` / `pssh` command-line utility can be used to execute
-operating system commands through `ssh` on multiple hosts. The utility will
-return for each host the `return code` of the provided command.
+The [`parallel-ssh` / `pssh`](https://github.com/ParallelSSH/parallel-ssh)
+command-line utility can be used to execute operating system commands through
+`ssh` on multiple hosts. The utility will return for each host the
+`return code` of the provided command.
 
 The option `-x '-q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o GlobalKnownHostsFile=/dev/null'` can be provided to bypass the verification of
 the target host key and prevent the saving of the host key.
