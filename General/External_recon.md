@@ -5,7 +5,7 @@ intelligence (OSINT) framework designed to provide "a powerful environment to
 conduct open source [reconnaissance] quickly and thoroughly".
 `recon-ng` provides a layer of abstraction for numerous `APIs` that can be
 leveraged for external information gathering (domains and subdomains
-enumeration, reverse DNS lookups, searches in services and vulnerabilities
+enumeration, reverse `DNS` lookups, searches in services and vulnerabilities
 datasets, etc.). <br><br>
 `recon-ng` is built around modules, that will be referenced in the adequate
 sections of the present note. <br>
@@ -51,6 +51,7 @@ keys list
 
 # Database operations (adding / removing targets, listing current results, etc.).
 # Supported tables (as of recon-ng v5.1.2): companies, contacts, credentials domains, hosts, leaks, locations, netblocks, ports, profiles, pushpins, repositories, and vulnerabilities.
+# "companies" table: name of the companies to target (for Whois / ASN research for instance).
 # "domains" table: domains to be targeted.
 # "hosts" table: hosts enumerated (hostname and IP address information notably).
 # "ports" table: ports enumerated, including information on the host, the protocol / service, etc.
@@ -62,11 +63,17 @@ db schema
 show <domains | hosts | ports | TABLE_NAME>
 db query SELECT rowid, * FROM <domains | hosts | ports | TABLE_NAME>;
 
-# Adds the specified domain in the "domains" table.
-db insert domains <DOMAIN> ~
+# Adds the specified entry in the given table.
+db insert companies <COMPANY_NAME>~ ~
+db insert domains <DOMAIN>~
+db insert netblocks <CIDR>~
+[...]
 
 # Removes the specified domain from the "domains" table.
 db delete domains <ROWID>
+
+# Removes all entries from the specified table.
+db query DELETE FROM <TABLE>;
 
 --------------------------------------------------------------------------------
 
@@ -106,6 +113,20 @@ modules load <MODULE_PATH>
 
 # Execute the current module.
 [recon-ng][<WORKSPACE>][<MODULE>] > run
+
+--------------------------------------------------------------------------------
+
+# Specific modules are designed for the importing / exporting of results.
+# Input modules: import/csv_file, import/list, import/masscan, and import/nmap.
+# Notable exporting modules: reporting/csv, reporting/list, reporting/json, reporting/html, and reporting/xlsx.
+
+# Import the data in the file in the specified table's column.
+# For example, to import subdomains: <TABLE> = hosts & <COLUMN> = host.
+modules load import/list
+[recon-ng][<WORKSPACE>][list] > options set FILENAME <FILENAME>
+[recon-ng][<WORKSPACE>][list] > options set TABLE <TABLE>
+[recon-ng][<WORKSPACE>][list] > options set COLUMN <COLUMN>
+[recon-ng][<WORKSPACE>][list] > run
 ```
 
 ### Domain enumeration
@@ -117,19 +138,20 @@ be conducted to identify a list of domains linked to the targeted entity.
 
 The goal of the research is to:
 
-  - Gather an initial list of the domain directly linked to the targeted entity.
+  - Gather an initial list of the domain directly linked to the targeted
+    entity.
 
   - Identify the possible subsidiaries of the entity and gather information
     about their associated domains.
 
 Once the main domain names are identified:
 
-  - Queries to `WHOIS` records can be done to retrieve information about the
+  - Queries to `Whois` records can be done to retrieve information about the
     `registrant` (registered holder of the domain) or the `registrar`
     (accredited organization that registers a domain on behalf of the
     `registrant`) of the domains.
 
-    The `whois` Linux utility can be used to retrieve the `WHOIS` record of a
+    The `whois` Linux utility can be used to retrieve the `Whois` record of a
     specified domain:
 
     ```bash
@@ -144,18 +166,19 @@ Once the main domain names are identified:
     done < "$1"
     ```
 
-    Additionally, the following online services can be used to make `WHOIS`
+    Additionally, the following online services can be used to make `Whois`
     queries:
 
     | Service | URL | Description |
     |---------|-----|-------------|
-    | who.is | https://who.is/ | |
-    | DomainTools's Whois lookup | https://whois.domaintools.com/ | |
+    | `who.is` | https://who.is/ | Free service through a web interface. |
+    | `Whoxy` Whois Lookup | https://www.whoxy.com/ | Free `Whois` queries through the web interface and paid `API` (with a low pricing: 1,000 Domain `Whois` `API` queries for 2$). <br><br> `recon-ng`'s module (requires a `whoxy_api` `API` key): <br> `recon/domains-companies/whoxy_whois`. |
+    | `DomainTools`'s Whois lookup | https://whois.domaintools.com/ | Free service through a web interface. |
 
 
-  - The IP address(es) associated with the domains can be enumerated through
+  - The `IP` address(es) associated with the domains can be enumerated through
     `DNS` resolutions (using utilities such as `dig`, `host`, or `nslookup`) or
-    using proprietary databases. Note that more than one IP can be associated
+    using proprietary databases. Note that more than one `IP` can be associated
     with a domain name (through `DNS` `A` or `AAAA` records) and result may
     vary depending on client `GeoIP` data, etc.
 
@@ -171,24 +194,28 @@ Once the main domain names are identified:
     done < "$1"
     ```
 
+    The `recon-ng`'s `recon/hosts-hosts/resolve` module can be used to resolve
+    domain names (for the `hosts` table by default) using the nameserver
+    configured with-in the framework (`Google`'s `DNS` 8.8.8.8 by default).
+
     Refer to the `[L7] DNS - Methodology` note for more information on `DNS`
     resolution if needed.
 
-###### [Passive] Reverse WHOIS search
+###### [Passive] Reverse Whois search
 
-Reverse research in `WHOIS` records consist of researching information related
-to the `registrant` (name or email address for example) in proprietary `WHOIS`
+Reverse research in `Whois` records consist of researching information related
+to the `registrant` (name or email address for example) in proprietary `Whois`
 records dataset. Such research can be used to enumerate the others domains
 possibly registered by the same `registrant`.
 
-A number of online services can be used to make reverse `WHOIS` queries.
+A number of online services can be used to make reverse `Whois` queries.
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| reversewhois.io | https://www.reversewhois.io | Free service. |
-| ViewDNS.info | https://viewdns.info/reversewhois | Free service. |
-| drs.WhoisXMLAPI.com | https://drs.whoisxmlapi.com/reverse-whois-search | Paid service, with limited credit upon signup. |
-| DomainTools's reverse Whois lookup | https://reversewhois.domaintools.com/ | Paid service, with the most comprehensive results. |
+| `ViewDNS.info` | https://viewdns.info/reversewhois | Free web interface, allows search based on company / person names or email addresses. <br><br> `recon-ng`'s module: <br> `recon/companies-domains/viewdns_reverse_whois`. <br><br> If `403 Forbidden` errors are returned by the `API`, the `recon-ng`'s `User-Agent` should be set to a legitimate one. |
+| `reversewhois.io` | https://www.reversewhois.io | Free web interface, allows search based on names or email addresses. |
+| `drs.WhoisXMLAPI.com` | https://drs.whoisxmlapi.com/reverse-whois-search | Paid service, with limited `API` credit upon signup. |
+| `DomainTools`'s reverse Whois lookup | https://reversewhois.domaintools.com/ | Paid service, with the most comprehensive results. The number of results returned by a query can be consulted freely but the retrieval of the domain names is subject to charge. |
 
 ###### [Passive] Reverse DNS lookup and IP sharing
 
@@ -202,11 +229,11 @@ identify `IP` sharing.
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| api.hackertarget.com | https://api.hackertarget.com/reverseiplookup/?q=<IP> | Website and `API`, limited to 20 queries / day in the free tier. |
-| host.io | https://host.io/ip/<IP> | Free queries through the web interface with limited result. <br><br> Premium API, with a free plan: 1000 requests / month with max 5 results per page (i.e 500 results would require 100 requests). |
-| ThreatCrowd | https://www.threatcrowd.org/ip.php?ip=<IP> | Free queries through a web interface. |
-| WhoisXMLAPI's Reverse `IP` / `DNS` lookup | https://reverse-ip.whoisxmlapi.com/lookup | Website and `API`, with 100 free `API` calls upon signup. |
-| Bing search engine | Search queries using: <br><br> `ip:<IP>` <br> `ip:<IP> -site:<EXCLUDE_DOMAIN1> -site:<EXCLUDE_DOMAIN2> [...]` | Free and unlimited but requires manual and time-consuming browsing. Search requests are additionally limited to 1000 characters. <br><br> The following bash one-liner can be used to generate a exclude `-site:` string from a file contaning domain names: <br><br> `while IFS= read -r line; do echo -n "-site:$line "; done < "$1"` |
+| `api.hackertarget.com` | https://api.hackertarget.com/reverseiplookup/?q=<IP> | Website and `API`, limited to 20 queries / day in the free tier (Python script provided below). <br><br> `recon-ng`'s module: <br> `recon/hosts-hosts/hackertarget_reverse`. |
+| `host.io` | https://host.io/ip/<IP> | Free queries through the web interface with limited result. <br><br> Premium API, with a free plan: 1000 requests / month with max 5 results per page (i.e 500 results would require 100 requests). |
+| `ThreatCrowd` | https://www.threatcrowd.org/ip.php?ip=<IP> | Free queries through a web interface and `API`. <br><br> The web interface displays results in the form of a graph, including additional results such as reverse `DNS` or `Whois` lookups. |
+| `WhoisXMLAPI`'s Reverse `IP` / `DNS` lookup | https://reverse-ip.whoisxmlapi.com/lookup | Website and `API`, with 100 free `API` calls upon signup. |
+| `Bing` search engine | Search queries using: <br><br> `ip:<IP>` <br> `ip:<IP> -site:<EXCLUDE_DOMAIN1> -site:<EXCLUDE_DOMAIN2> [...]` | **Web browsing** <br><br> Free and unlimited but requires manual and time-consuming browsing. Search requests are additionally limited to 1000 characters. <br><br> The following bash one-liner can be used to generate a exclude `-site:` string from a file contaning domain names: <br><br> `while IFS= read -r line; do echo -n "-site:$line "; done < "$1"` <br><br> **Bing API** <br><br> 1,000 requests free per month, with a Microsoft Azure account (requires credit card details). |
 
 The following Python script leverage the `api.hackertarget.com` reverse `IP`
 lookup `API` to retrieve the `DNS` records associated with each `IP` in the
@@ -246,7 +273,7 @@ entity as a client).
 
 *ASNRECON*
 
-`ASNRECON` is a Python script that:
+[`ASNRECON`](https://github.com/orlyjamie/asnrecon) is a Python script that:
   - retrieve the `ASN` of a given domain,
   - lookup the `IP` addresses / ranges part of the `ASN` (in the dataset
     downloaded from the [`pyasn`](https://github.com/hadiasghari/pyasn)
@@ -282,35 +309,44 @@ asn -o "<ENTITY_NAME>"
 
 ### Subdomains enumeration
 
-###### [Passive] Public resources and proprietary databases
+###### [Passive] Search engines and passive DNS proprietary dataset
 
-Search engines, such as Google, Bing, etc., and proprietary databases (with
+Search engines, such as `Google`, `Bing`, etc., and proprietary databases (with
 historical data) operated by services such as `DNSdumpster`, `VirusTotal`,
 `DomainTools`, can be used to retrieve subdomains associated with a domain
 name.
 
 | Service | URL / query | Description |
 |---------|-----|-------------|
-| `DNSdumpster` | https://dnsdumpster.com/ | |
-| `VirusTotal` | https://www.virustotal.com/gui/home/search | `recon-ng`'s module: |
-| `SPYSE` | https://spyse.com/tools/subdomain-finder | Unlimited free search with heavy restrictions: up to 20 results and unexportable results. <br><br> |
-| Google | Google dorks: <br><br> `site` <br> `site:<DOMAIN> -site:<EXCLUDED_SUBDOMAIN1> -site:<EXCLUDED_SUBDOMAIN2> [...]` | Free and unlimited (with eventual `reCAPTCHA` protection) but requires manual and time-consuming browsing. Search requests are additionally limited to 32 words. |
+| `Rapid7`'s `Project Sonar` | https://opendata.rapid7.com/sonar.fdns_v2/ | massive offline dataset (hundreds of GB uncrompessed) of domains and subdomains. <br><br> Gathered using various sources and using direct `DNS` resolutions queries (`ANY`, `A`, `AAAA`, `CNAME`, and `TXT` record lookups). <br><br> Offline query example (without extraction to disk to save disk space but which require new extraction for each search): <br> `pigz -dc <SONAR_GZ> \| grep "<DOMAIN>" \| jq` |
+| `DNSdumpster` (web GUI) <br> / <br> `HackerTarget` (`API`) | https://dnsdumpster.com/ <br><br> https://hackertarget.com/find-dns-host-records/ | Passive `DNS` service (with historical data) accessible using a web interface or an `API` through, respectively, `DNSdumpster` and `HackerTarget`. <br><br> `recon-ng`'s module (for `HackerTarget`): <br> `recon/domains-hosts/hackertarget`. |
+| `VirusTotal` | https://www.virustotal.com/gui/home/search | Initiated as an online scan engine relying on multiple anti-virus products, `VirusTotal` has a subdomains dataset (a priori based on historical lookups of files or URL submitted for scanning by users). <br><br> The free `API` is limited to 500 requests per day and a rate of 4 requests per minute. <br><br> `recon-ng`'s module (requires a `virustotal_api` `API` key): <br> `recon/hosts-hosts/virustotal`. |
+| `SPYSE` | https://spyse.com/tools/subdomain-finder | Unlimited free search through the web interface with however heavy restrictions: up to 20 results and unexportable results. <br><br> `API` available in the free tier, limited to 100 requests each month (with a maximum of 100 results per request). <br><br> `recon-ng`'s module (requires a `spyse_api` `API` key): <br> `recon/domains-hosts/spyse_subdomains`. |
+| `ThreatCrowd` | https://www.threatcrowd.org/domain.php?domain=<DOMAIN> | Free queries through a web interface and `API`. <br><br> The web interface displays results in the form of a graph, including additional results such as reverse `DNS` or `Whois` lookups. <br><br> `recon-ng`'s module: <br> `recon/domains-hosts/threatcrowd`. |
+| `Google` search engine | Google dorks: <br><br> `site` <br> `site:<DOMAIN> -site:<EXCLUDED_SUBDOMAIN1> -site:<EXCLUDED_SUBDOMAIN2> [...]` | Free and unlimited (with eventual `reCAPTCHA` protection) but requires manual and time-consuming browsing. Search requests are additionally limited to 32 words. <br><br> `recon-ng`'s module (which may fail du to CAPTCHA): <br> `recon/domains-hosts/google_site_web`. |
+| `Bing` search engine | Bing dorks: <br><br> `site` <br> `site:<DOMAIN> -site:<EXCLUDED_SUBDOMAIN1> -site:<EXCLUDED_SUBDOMAIN2> [...]` | Similar to `Google` dorks. <br> `API` available, with 1,000 requests free per month for authenticated users (Microsoft Azure account, which requires credit card details). <br><br> `recon-ng`'s module that scrape `Bing` search results (no `API` key requied): <br> `recon/domains-hosts/bing_domain_web`. <br><br> `recon-ng`'s module for the `Bing API` (requires a `bing_api` `API` key): <br> `recon/domains-hosts/bing_domain_api`. |
 
-
-###### [Passive] SSL / TLS certificates search
+###### [Passive] SSL / TLS certificates passive search
 
 https://crt.sh/
+https://transparencyreport.google.com/https/certificates
 
-###### [Passive] Google and Bing dorks
+`recon-ng`'s module `recon/domains-hosts/certificate_transparency`.
 
-```
-# Google dorks.
+###### [Active] SSL / TLS certificates grabbing
 
-site:<DOMAIN>
-site:<DOMAIN> -<FILTER_OUT_DOMAIN>
-```
+nmap -v -sT -T 2 -Pn -p 443 -sV -sC -oA <OUTPUT_FILES> [-iL <INPUT_FILE> | <HOST | IP | CIDR | IP_RANGE>
 
 ###### [Active] Forward / reverse DNS brute force
+
+Forward `DNS` lookup brute force consist of attempting to guess valid
+subdomains through `DNS` resolution. In addition, if the `DNS` `PTR records`,
+used for mail services, are configured for the domain, reverse lookup brute
+force may possible. Both actions require direct interactions with the
+`DNS` nameservers of the targeted entity.
+
+Refer to the `[L7] DNS - Methodology` note for techniques and tooling to
+conduct forward / reverse `DNS` brute forcing.
 
 ###### [Passive / Active] Automated enumeration tools
 
@@ -321,19 +357,9 @@ tool can ensure a more comprehensive enumeration.
 
 | Tool | Description |
 |------|-------------|
-| [`Sublist3r`](https://github.com/aboul3la/Sublist3r) | Python script retrieving data from: <br> - Search engines (Google, Bing, Yahoo, Baidu, Ask, and Netcraft). <br> - Proprietary `DNS` datasets (`DNSdumpster`, `VirusTotal`, and `ThreatCrowd`) <br> - `SSL` / `TLS` certificates using `crt.sh`. |
-| [`Amass`](https://github.com/OWASP/Amass) | |
-
-*Sublist3r*
-
-```
-# Execution of Sublist3r on a single domain.
-python sublist3r.py -d <DOMAIN>
-
-# Uses of interlace to multi-thread the execution of Sublist3r on multiples domain.
-echo 'python3 sublist3r.py -n -d _target_ | grep _target_ | grep -v "Enumerating subdomains now for" > _output_/_cleantarget_-sublist3r.txt' > Sublist3r_cmd_file.txt
-interlace -tL <INPUT_DOMAIN_FILE> -o <OUTPUT_FOLDER> -cL Sublist3r_cmd_file.txt
-```
+| [`Amass`](https://github.com/OWASP/Amass) | Go project retrieving data from [numerous sources](https://github.com/OWASP/Amass/blob/master/README.md). |
+| [`assetfinder`](https://github.com/tomnomnom/assetfinder) | Go project retrieving data from `crt.sh`, `Certspotter`, `HackerTarget`, `ThreatCrowd`, the Wayback Machine, and `dns.bufferover.run`, as well as `Facebook`, `VirusTotal`, and `SPYSE` if `API` keys are provided. |
+| [`Sublist3r`](https://github.com/aboul3la/Sublist3r) | Python script retrieving data from: <br> - Search engines (`Google`, `Bing`, `Yahoo`, `Baidu`, `Ask`, and `Netcraft`). <br> - Proprietary `DNS` datasets (`DNSdumpster`, `VirusTotal`, and `ThreatCrowd`) <br> - `SSL` / `TLS` certificates using `crt.sh`. |
 
 *Amass*
 
@@ -344,6 +370,28 @@ amass enum -passive -d <DOMAIN>
 # Uses of interlace to multi-thread the execution of Amass on multiples domain.
 echo 'amass enum -passive -d _target_ > _output_/_cleantarget_-amass.txt' > Amass_cmd_file.txt
 interlace -tL <INPUT_DOMAIN_FILE> -o <OUTPUT_FOLDER> -cL Amass_cmd_file.txt
+```
+
+*assetfinder*
+
+```
+# Execution of assetfinder on a single domain.
+assetfinder <DOMAIN>
+
+# Uses of interlace to multi-thread the execution of assetfinder on multiples domain.
+echo 'assetfinder _target_ > _output_/_cleantarget_-assetfinder.txt' > assetfinder_cmd_file.txt
+interlace -tL <INPUT_DOMAIN_FILE> -o <OUTPUT_FOLDER> -cL assetfinder_cmd_file.txt
+```
+
+*Sublist3r*
+
+```
+# Execution of Sublist3r on a single domain.
+python sublist3r.py -d <DOMAIN>
+
+# Uses of interlace to multi-thread the execution of Sublist3r on multiples domain.
+echo 'python3 sublist3r.py -n -d _target_ | grep _target_ | grep -v "Enumerating subdomains now for" > _output_/_cleantarget_-sublist3r.txt' > Sublist3r_cmd_file.txt
+interlace -tL <INPUT_DOMAIN_FILE> -o <OUTPUT_FOLDER> -cL Sublist3r_cmd_file.txt
 ```
 
 ### IPs and services exposure
