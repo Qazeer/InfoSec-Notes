@@ -80,6 +80,10 @@ cut -d ',' -f 2 hosts.csv > IP.txt
 For more details on techniques and tools to conduct ports and services scan,
 refer to the `[General] Ports scan` note.
 
+Command that may require a long execution time, can be started using the
+`nohup` utility. `nohup` will start a process that remain active even after
+the user that launched it logged out: `nohup <COMMAND> &`.
+
 ###### Ping sweep
 
 `nmap` can be used to identify live hosts through a "ping sweep":

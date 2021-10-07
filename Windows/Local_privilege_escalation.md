@@ -814,6 +814,19 @@ Windows releases information:
 
 Automatically compare the system patch level to public known exploits:
 
+###### Installed software
+
+The following commands can be used to enumerate the software installed on the
+local system:
+
+```
+# Lists the software installed on the system.
+Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*, HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*, REGISTRY::HKEY_USERS\S-1-5-21-*\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Where {$_.DisplayName -notLike "" -or $_.InstallLocation -notlike ""} | Select DisplayName, DisplayVersion, Publisher, InstallDate, InstallLocation  | fl
+
+# Returns a partial list of the software installed on the system.
+wmic product get name,version
+```
+
 ###### Exploits detection tools
 
 *Windows Exploit Suggester - Next Generation (WES-NG)*
