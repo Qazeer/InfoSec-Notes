@@ -8,7 +8,7 @@ compute the MD5 file's hash.
 
 ### Server side / file sender
 
-The following tools can be used to host files server side.
+The following tools can be used to host files server-side.
 
 ###### [Linux / Windows] Python
 
@@ -91,7 +91,7 @@ smbserver.py -smb2support <SHARE_NAME> <SHARE_PATH>
 smbserver.py -smb2support <SHARE_NAME> `pwd`
 ```
 
-###### [Windows] SAMBA shares
+###### [Linux] SAMBA shares
 
 A `SAMBA` share can be configured on Linux systems using the `samba` utility.
 

