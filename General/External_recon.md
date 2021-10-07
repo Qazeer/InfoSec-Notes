@@ -23,7 +23,7 @@ options set USER-AGENT "<USER_AGENT_STRING>"
 # Creates a "workspace".
 workspaces create <WORKSPACE_NAME>
 
-# List the existing workspaces.   
+# List the existing workspaces.
 workspaces list
 
 # Switches to the specified workspace.
@@ -161,7 +161,7 @@ Once the main domain names are identified:
 
     #!/bin/bash
     while IFS= read -r domain; do
-        registrant=$(whois $domain | grep "Registrant Organization" | cut -d ":" -f 2 | awk '{$1=$1};1')   
+        registrant=$(whois $domain | grep "Registrant Organization" | cut -d ":" -f 2 | awk '{$1=$1};1')
         echo "\"$domain\",\"$registrant\""
     done < "$1"
     ```
@@ -222,7 +222,7 @@ A number of online services can be used to make reverse `Whois` queries.
 Reverse `DNS` lookup consist of retrieving, in proprietary datasets,
 the domain(s) (or subdomain(s)) associated to a given `IP` address. It can be
 used to identify the domains or subdomains sharing a common `IP` address (and
-possibly owned by the targeted entity).  
+possibly owned by the targeted entity).
 
 A number of online services can be used to make reverse `DNS` lookup to
 identify `IP` sharing.
@@ -318,7 +318,7 @@ name.
 
 | Service | URL / query | Description |
 |---------|-----|-------------|
-| `Rapid7`'s `Project Sonar` | https://opendata.rapid7.com/sonar.fdns_v2/ | massive offline dataset (hundreds of GB uncrompessed) of domains and subdomains. <br><br> Gathered using various sources and using direct `DNS` resolutions queries (`ANY`, `A`, `AAAA`, `CNAME`, and `TXT` record lookups). <br><br> Offline query example (without extraction to disk to save disk space but which require new extraction for each search): <br> `pigz -dc <SONAR_GZ> \| grep "<DOMAIN>" \| jq` |
+| `Rapid7`'s `Project Sonar` | https://opendata.rapid7.com/sonar.fdns_v2/ | massive offline dataset (hundreds of GB uncompressed) of domains and subdomains. <br><br> Gathered using various sources and using direct `DNS` resolutions queries (`ANY`, `A`, `AAAA`, `CNAME`, and `TXT` record lookups). <br><br> Offline query example (without extraction to disk to save disk space but which require new extraction for each search): <br> `pigz -dc <SONAR_GZ> \| grep -F '<DOMAIN>"' \| jq` |
 | `DNSdumpster` (web GUI) <br> / <br> `HackerTarget` (`API`) | https://dnsdumpster.com/ <br><br> https://hackertarget.com/find-dns-host-records/ | Passive `DNS` service (with historical data) accessible using a web interface or an `API` through, respectively, `DNSdumpster` and `HackerTarget`. <br><br> `recon-ng`'s module (for `HackerTarget`): <br> `recon/domains-hosts/hackertarget`. |
 | `VirusTotal` | https://www.virustotal.com/gui/home/search | Initiated as an online scan engine relying on multiple anti-virus products, `VirusTotal` has a subdomains dataset (a priori based on historical lookups of files or URL submitted for scanning by users). <br><br> The free `API` is limited to 500 requests per day and a rate of 4 requests per minute. <br><br> `recon-ng`'s module (requires a `virustotal_api` `API` key): <br> `recon/hosts-hosts/virustotal`. |
 | `SPYSE` | https://spyse.com/tools/subdomain-finder | Unlimited free search through the web interface with however heavy restrictions: up to 20 results and unexportable results. <br><br> `API` available in the free tier, limited to 100 requests each month (with a maximum of 100 results per request). <br><br> `recon-ng`'s module (requires a `spyse_api` `API` key): <br> `recon/domains-hosts/spyse_subdomains`. |
@@ -353,7 +353,7 @@ conduct forward / reverse `DNS` brute forcing.
 Multiple tools can be used to automate the process of passively enumerating
 subdomains using public resources. While the tools introduced below generally
 produce fairly similar results, slight differences may arise and executing each
-tool can ensure a more comprehensive enumeration.    
+tool can ensure a more comprehensive enumeration.
 
 | Tool | Description |
 |------|-------------|
