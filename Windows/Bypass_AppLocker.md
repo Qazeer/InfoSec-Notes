@@ -114,6 +114,8 @@ run in `Constrained language` mode using
 AppLocker scripts rules.
 
 ```
+# Source: https://gist.githubusercontent.com/bbhunter/20ca2d805d129aaaea7fda93aa48bfb4/raw/aec547f051b9b885b0d22ec989713d4c1a589b7e/UserWritableLocations.ps1
+
 Param(
 [parameter(Mandatory=$false)]
 [String[]] $Exclusions = @(),

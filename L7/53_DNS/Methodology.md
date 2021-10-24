@@ -35,6 +35,7 @@ specific domain, the following command be used:
 
 ```
 host -t ns <DOMAIN>
+
 dig -t NS +short <DOMAIN>
 ```
 
@@ -44,6 +45,7 @@ To resolve the IP associated to a Domain/Fully Qualified Domain Name:
 
 ```
 dig +short <FQDN>
+
 host <DOMAIN/FQDN>
 ```
 
@@ -65,8 +67,10 @@ To resolve the Domain/Fully Qualified Domain Name associated to an IP address:
 ```
 dig +short -x <IP>
 dig +short @<NAMESERVER> -x <IP>
+
 host <IP>
 host <IP> <NAMESERVER>
+
 nmap -sn -Pn --dns-servers <NAMESERVER> (<IP> | <FQDN> | <CIDR> | <RANGE>)
 ```
 
@@ -83,6 +87,7 @@ The following commands can be used to test for zone transfers:
 
 ```
 dig -t AXFR @<NAMESERVER> <DOMAIN>
+
 host -l <DOMAIN> <NAMESERVER>
 ```
 
@@ -176,20 +181,6 @@ brute force:
 
 ```
 for ip in $(seq <0> <255>);do host <x.x.x>.$ip;done |grep -v "not found"
-```
-
-### Public Resources and proprietary databases
-
-Public resources such as Google, Bing, etc. and proprietary databases such as
-`DNSdumpster`, `VirusTotal`, `DomainTools`, etc. can contain FQDN.
-
-The Sublist3r python script can be used to enumerate domains from public
-resources sources, as well as doing subdomains brute forcing:
-
-```
-python sublist3r.py -d <DOMAIN>
-
-python sublist3r.py -b <WORDLIST> -d <DOMAIN>
 ```
 
 --------------------------------------------------------------------------------

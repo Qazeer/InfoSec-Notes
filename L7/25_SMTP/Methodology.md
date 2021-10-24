@@ -2,59 +2,57 @@
 
 ### Overview
 
-Simple Mail Transfer Protocol (SMTP) is an Internet standard for **electronic
-mail transmission**.
+The `Simple Mail Transfer Protocol (SMTP)` protocol is an Internet standard for
+electronic email transmission. The `SMTP` protocol operates at the
+`Application Layer (L7)` layer of the `OSI` model.
 
-SMTP operates in the **Application Layer (Layer 7 of the OSI model)** of the
-Internet Protocol Suite.
+First defined by [`RFC 821`](https://datatracker.ietf.org/doc/html/rfc821) in
+1982, it was last updated in 2008 with `Extended SMTP` additions in the
+[RFC 5321](https://datatracker.ietf.org/doc/html/rfc5321), which is the
+protocol in widespread use today.
 
-First defined by RFC 821 in 1982, it was last updated in 2008 with Extended
-SMTP additions by RFC 5321, which is the protocol in widespread use today.
+Although electronic mail servers and other mail transfer agents use `SMTP` to
+send and receive mail messages, user-level client mail applications typically
+only use `SMTP` for sending messages to a mail server for relaying. For
+retrieving messages, client applications usually use either the `IMAP` or
+`POP3` protocols.
 
-Although electronic **mail servers** and other mail transfer agents use SMTP to
-**send and receive mail messages**, **user-level client** mail applications
-typically use SMTP only **for sending messages to a mail server** for relaying.
-For retrieving messages, client applications usually use either IMAP or POP3.
+`SMTP` communication between mail servers is conducted over the `TCP` port 25.
+Mail clients on the  other hand, often submit the outgoing emails to a mail
+server on `TCP` port 587.
 
-SMTP communication between mail servers uses **TCP port 25**. Mail clients
-on the  other hand, often submit the outgoing emails to a mail server on
-port 587.
-
-**SMTP connections secured by TLS, known as SMTPS**, can be made using STARTTLS.
+For secure transmission that protect, through encryption using cryptographic
+protocols, `SMTP` can be secured with an additional `SSL`/`TLS` layer
+(`SMTPS`). Such connections can be made using the `STARTTLS` command.
 
 Although proprietary systems (such as Microsoft Exchange and IBM Notes) and
 webmail systems (such as Outlook.com, Gmail and Yahoo! Mail) use their own
 non-standard protocols to access mail box accounts on their own mail servers,
-**all use SMTP when sending or receiving email from outside their own systems.**
+all use `SMTP` when sending or receiving email from outside their own systems.
 
 #### SMTP COMMANDS
 
-A client computer communicates with an SMTP server (e-mail server) by using
-SMTP commands.
-
-There is a **core list of SMTP commands that all SMTP servers supports.**
-
-To allow more flexibility and additional features most SMTP servers also
-support extended SMTP commands (also called ESMTP commands).
-In official documentation these ESMTP commands are also referred to as SMTP
-service extensions.
+A client communicates with an `SMTP` server (e-mail server) by using `SMTP`
+commands:
+  - a core list of `SMTP` commands that all `SMTP` servers supports.
+  - extended `SMTP` commands (also called `ESMTP commands`) to allow more
+    flexibility and additional features are also supported by most `SMTP`
+    servers. In official documentation, these `ESMTP` commands are also
+    referred to as `SMTP` service extensions.
 
 ##### Basic SMTP commands
 
+`HELO (Hello)`
 
-**HELO (Hello)**
+The client sends this command to the `SMTP` server to identify itself and
+initiate the `SMTP` conversation. The domain name or IP address of the SMTP
+client is usually sent as an argument together with the command (e.g. `HELO client.example.com`). If a domain name is used as an argument with the `HELO`
+command, it must be a fully qualified domain name (also called FQDN).
 
-The client sends this command to the SMTP server to identify itself and
-initiate the SMTP conversation.
-The domain name or IP address of the SMTP client is usually sent as an argument
-together with the command (e.g. “HELO client.example.com”).
-If a domain name is used as an argument with the HELO command, it must be a
-fully qualified domain name (also called FQDN).
-
-**MAIL FROM**
+`MAIL FROM`
 
 Specifies the e-mail address of the sender.
-This command also tells the SMTP server that a new mail transaction is starting
+This command also tells the `SMTP` server that a new mail transaction is starting
 and makes the server to reset all its state tables and buffers etc.
 This command is usually sent as the first command after the identifying and
 login process.
@@ -67,7 +65,7 @@ C: MAIL FROM:<mail@samlogic.com>
 S: 250 OK
 ```
 
-**RCPT TO (Recipient To)**
+`RCPT TO (Recipient To)`
 
 Specifies the e-mail address of the recipient.
 This command can be repeated multiple times for a given e-mail message in order
@@ -83,7 +81,7 @@ C: RCPT TO:<peggy@mail.com>
 S: 250 OK
 ```
 
-**DATA**
+`DATA`
 
 The DATA command starts the transfer of the message contents (body text,
   attachments etc).
@@ -92,7 +90,7 @@ server will respond with a 354 reply code.
 After that, the message contents can be transferred to the server.
 When all message contents have been sent, a single dot (“.”) must be sent in a
 line by itself.
-If the message is accepted for delivery, the SMTP server will response with a
+If the message is accepted for delivery, the `SMTP` server will response with a
 250 reply code.
 
 ```
@@ -111,7 +109,7 @@ C: .
 S: 250 OK
 ```
 
-**RSET (Reset)**
+`RSET (Reset)`
 
 If the RSET command is sent to the e-mail server the current mail transaction
 will be aborted.
@@ -120,7 +118,7 @@ The connection will not be closed (this is reserved for the QUIT command, see
 all information about the sender, recipients and e-mail data will be removed
 and buffers and state tables will be cleared.
 
-**VRFY (Verify)**
+`VRFY (Verify)`
 
 This command asks the server to confirm that a specified user name or mailbox
 is valid (exists).
@@ -132,13 +130,13 @@ The command can be used to probe for login names on servers.
 Servers that ignore the VRFY command will usually send some kind of reply, but
 they will not send the information that the client asked for.
 
-**NOOP (No operation)**
+`NOOP (No operation)`
 
 The NOOP command does nothing else than makes the receiver to send an OK reply.
 The main purpose is to check that the server is still connected and is able to
 communicate with the client.
 
-**QUIT**
+`QUIT`
 
 Asks the server to close the connection.
 If the connection can be closed the servers replies with a 221 numerical code
@@ -147,16 +145,16 @@ and then is the session closed.
 
 ##### Extended SMTP (ESMTP) Commands
 
-If a client initiates the SMTP communication using an EHLO (Extended Hello)
-command instead of the HELO command some additional SMTP commands are often
+If a client initiates the `SMTP` communication using an EHLO (Extended Hello)
+command instead of the HELO command some additional `SMTP` commands are often
 available.
-They are often referred to as Extended SMTP (ESMTP) commands or SMTP service
+They are often referred to as Extended `SMTP` (ESMTP) commands or `SMTP` service
 extensions.
-Every server can have its own set of extended SMTP commands.
+Every server can have its own set of extended `SMTP` commands.
 After the client has sent the EHLO command to the server, the server often
 sends a list of available ESMTP commands back to the client.
 
-**EHLO (Extended Hello)**
+`EHLO (Extended Hello)`
 
 Same as HELO but tells the server that the client may want to use the Extended
 SMTP (ESMTP) protocol instead.
@@ -164,7 +162,7 @@ EHLO can be used although you will not use any ESMTP command.
 Servers that do not offer any additional ESMTP commands will normally at least
 recognize the EHLO command and reply in a proper way.
 
-**AUTH (Authentication)**
+`AUTH (Authentication)`
 
 The AUTH command is used to authenticate the client to the server.
 The AUTH command sends the clients username and password to the e-mail server.
@@ -198,9 +196,9 @@ in the example above, is a BASE64 encoded username and "lkujsefxlj" is a BASE64
 encoded password).
 
 
-**STARTTLS (Start Transport Layer Security)**
+`STARTTLS (Start Transport Layer Security)`
 
-E-mail servers and clients that uses the SMTP protocol normally communicate
+E-mail servers and clients that uses the `SMTP` protocol normally communicate
 using plain text over the Internet.
 To improve security, an encrypted TLS (Transport Layer Security) connection can
 be used when communicating between the e-mail server and the client.
@@ -239,21 +237,21 @@ The client sends the EHLO command again to the e-mail server and starts the
 communication from the beginning, but this time the communication will be
 encrypted until the QUIT command is sent.
 
-**SIZE**
+`SIZE`
 
-The SIZE command has two purposes: the SMTP server can inform the client what
+The SIZE command has two purposes: the `SMTP` server can inform the client what
 is the maximum message size and
-the client can inform the SMTP server the (estimated) size of the e-mail
+the client can inform the `SMTP` server the (estimated) size of the e-mail
 message that will be sent.
 The client should not send an e-mail message that is larger than the size
 reported by the server, but normally it is no problem if the message is
 somewhat larger than the size informed by the client to the server.
 
 
-**HELP**
+`HELP`
 
 This command causes the server to send helpful information to the client, for
-example a list of commands that are supported by the SMTP server.
+example a list of commands that are supported by the `SMTP` server.
 
 ### SMTP client
 
@@ -285,8 +283,8 @@ client:
 openssl s_client -starttls smtp -crlf -connect <HOSTNAME | IP>:<PORT>
 ```   
 
-A SMTP service exposed on the TCP port 25 may also require the use of the
-SSL / TLS by only supporting the `STARTTLS` SMTP command:
+A `SMTP` service exposed on the TCP port 25 may also require the use of the
+SSL / TLS by only supporting the `STARTTLS` `SMTP` command:
 
 ```
 telnet <HOSTNAME | IP> <PORT>
@@ -301,7 +299,7 @@ EHLO
 ###### Automated sender
 
 The `sendemail` utility can be used to send emails, optionally with file
-attachment(s), through an exposed SMTP service:
+attachment(s), through an exposed `SMTP` service:
 
 ```
 sendemail -t <RCPT_EMAIL> -f <FROM_EMAIL> -u '<MAIL_SUBJECT>' -m '<MAIL_BODY>' -s <SMTP_SERVER>[:<SMTP_PORT> [-a <FILE> [<FILE2> ...]]
@@ -370,7 +368,7 @@ The `smtp-enum-users` `nmap` script and the `auxiliary/scanner/smtp/smtp_enum`
 
 ### Open relay
 
-An SMTP server that works as an open relay, is a email server that does not
+An `SMTP` server that works as an open relay, is a email server that does not
 verify if the user is authorized to send email from the specified email
 address. Therefore, users would be able to send email originating from any
 third-party email address.
