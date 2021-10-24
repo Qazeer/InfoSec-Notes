@@ -349,6 +349,9 @@ To list the domain controllers in the current or specified domain or forest,
 the following commands can be used:
 
 ```
+# PowerShell ADSI.
+[DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().DomainControllers | Select-Object Name,IPAddress
+
 # CMD
 net group "Domain Controllers" /domain
 nltest /dclist:<DOMAIN>
