@@ -48,7 +48,7 @@ disabled.
 ###### User-Agent
 
 Change the User-Agent header to identify difference in comportment (for
-example, the application may have a mobile version).  
+example, the application may have a mobile version).
 Firefox addon that allows for quickly changing the browser's user agent string:
 `User Agent Switcher`
 
@@ -66,8 +66,8 @@ Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (K
 
 Choose one or more functionalities where hidden debug parameters may be
 implemented.
-Use `Cluster bomb` attack type in `Burp Intruder` and the following common debug
-parameter names with common values (such as true, yes, on, and 1):
+Use `Cluster bomb` attack type in `Burp Intruder` and the following common
+debug parameter names with common values (such as true, yes, on, and 1):
 
 ```
 debug
@@ -129,8 +129,8 @@ results and select "Repeat the Search with the Omitted Results Included".
 
 ###### Accounts & emails scraping
 
-Open resources such as Google, Bing, linkedin, twitter, etc can be used to
-harvest accounts and emails associated to a domain.  
+Open resources such as Google, Bing, linkedin, twitter, etc. can be used to
+harvest accounts and emails associated to a domain.
 
 Those credentials may be used to conduct bruteforce attack subsequently.
 The tools below automate this scraping:
@@ -156,7 +156,7 @@ X-Generator
 ```
 
 Google any unknown / non-standard headers to discover which technology may
-have issued them.  
+have issued them.
 Load balancers usually use non-standard and misspelled headers.
 [*See Server Exposure*](./RECON_Server_exposure.md).
 - Default error pages
@@ -204,7 +204,7 @@ a starting point.
 
 `Burp Spider` is a module that will automatically parse HTML source for URL and
 request them, effectively crawling the web application for openly accessible
-content.  
+content.
 
 The authentication forms should be completed whenever possible.
 
@@ -227,17 +227,17 @@ wordlists, etc.
 Use the application root and any other path from already enumerated deemed fit
 as a starting point.
 
-*File extension*  
+*File extension*
 
 Determine file extension to use for the bruteforce (no extension +
 language extension).
 
-*Wordlists*  
+*Wordlists*
 
-Adapt the word list for the application context.  
+Adapt the word list for the application context.
 
 Example: if all resources in start with a capital letter, the wordlist used in
-the bruteforce should be capitalized.  
+the bruteforce should be capitalized.
 Check for default content associated with the technologies found.
 
 ```
@@ -261,7 +261,7 @@ application root).
 Some interesting sub directories should then be picked for further brute force
 enumeration.
 
-*Tools*  
+*Tools*
 
 The following tools can be used to brute force URI:
 
@@ -270,6 +270,9 @@ The following tools can be used to brute force URI:
 # -ic: Ignore wordlist comments (default: false)
 # -e Comma separated list of extensions. Extends FUZZ keyword.
 ffuf -ic [-e <EXTENSIONS_LIST>] -w <WORDLIST> -u <URL>/FUZZ
+
+# Executes ffuf in the background using nohup and over the URL in the specified file using interlace.
+nohup interlace -timeout 7200 -threads <1 | THREADS> -c 'ffuf -r -noninteractive -ignore-body -ac -ic -w <WORDLIST> -o <OUTPUT_DIRECTORY>/ffuf-_cleantarget_.txt -u _target_/FUZZ' -tL <URL_LIST_FILE> &
 
 # GUI
 DirBuster
@@ -302,7 +305,7 @@ parameters. The `SecList` `burp-parameter-names.txt` wordlist contains more
 than 2000 entries of frequent parameter names.
 
 A filter on response HTTP code or lines, words and characters number can be
-added using `--hc/hl/hw/hh code/lines/words/chars`.   
+added using `--hc/hl/hw/hh code/lines/words/chars`.
 
 ```
 wfuzz -w <WORDLIST> '<URL>?FUZZ=test'
