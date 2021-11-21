@@ -80,7 +80,11 @@ wpscan --url <URL> --enumerate < p | t | u | tt >
 wpscan --url <URL> --wordlist <WORDLIST_PASSWORDS> --threads 50
 
 # Wordlist usernames and password brute force using 50 threads
-wpscan <URL> (--username <USERNAME> | --usernames <WORDLIST_USERNAMES>) --wordlist <WORDLIST_PASSWORDS> --threads 50
+wpscan <URL> [--username <USERNAME> | --usernames <WORDLIST_USERNAMES>] --wordlist <WORDLIST_PASSWORDS> --threads 50
+
+# Multiple targets scan (all plugins, all themes, config backups, db exports, user enumeration, and password bruteforce) using using interlace.
+echo 'wpscan --disable-tls-checks --rua --force --max-threads 50 -e ap,at,cb,dbe,u,m --plugins-detection aggressive --detection-mode aggressive --passwords <PASSWORD_WORDLIST> -o _output_/_cleantarget_-wpscan.txt --url _target_' > wordpress_cmd.txt
+interlace -tL <WORDPRESS_HOSTS_FILE> -o <OUTPUT_DIRECTORY> -cL wordpress_cmd.txt
 ```
 
 ### Administrator to RCE

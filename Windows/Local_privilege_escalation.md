@@ -840,8 +840,9 @@ potential missing patches on the target.
 ```
 wes.py --update
 
-# --muc-lookup: Conducts false positives verification using the Microsoft's Update Catalog to determine if installed patches supersedes potentially missing KBs
-wes.py --muc-lookup <SYSTEMINFO_FILE>
+# -d: [+] Filters out old vulnerabilities by retrieving the most recent KB publication date and filtering out all KBs released before this date.
+# --muc-lookup: Conducts false positives verification using the Microsoft's Update Catalog to determine if installed patches supersedes potentially missing KBs.
+wes.py [-d] [--muc-lookup] <SYSTEMINFO_FILE>
 ```
 
 *Windows-Exploit-Suggester (outdated)*

@@ -25,11 +25,11 @@ AppLocker can control the process creation for the following files type:
 ### Extract AppLocker configuration
 
 The effectively applied AppLocker rules can be retrieved using the
-`Get-AppLockerPolicy` PowerShell cmdlet.  
+`Get-AppLockerPolicy` PowerShell cmdlet.
 
 An AppLocker rule is defined for an user or group, identified by the
 `UserOrGroupSid` attribute, and one or more conditions, which can be a
-filesystem paths, publishers for digitally signed files or files hashes.  
+filesystem paths, publishers for digitally signed files or files hashes.
 
 ```
 Get-WinEvent -LogName "Microsoft-Windows-AppLocker/EXE and DLL"
@@ -41,7 +41,7 @@ Get-AppLockerPolicy -Effective | Select-Object -ExpandProperty RuleCollections
 
 AppLocker provides different default rules for each files type category:
 
-  - **Executables**   
+  - **Executables**
   The members of the local administrators group (SID `S-1-5-32-544`) can
   execute any binaries, while the other users can only execute binaries from
   the `%PROGRAMFILES%` and `%WINDIR%` folders.
@@ -82,7 +82,7 @@ user that would normally be restricted in their programs execution by
 AppLocker, could allow for files execution against the default AppLocker rules.
 
 The following folders in `%WINDIR%` may be writable by non privileged users on
-non-hardened `Windows 10` and `Windows Server 2016` systems:  
+non-hardened `Windows 10` and `Windows Server 2016` systems:
 
 ```
 # [System.Environment]::ExpandEnvironmentVariables("%WINDIR%")

@@ -16,7 +16,7 @@ aka the low hanging fruits that can easily be detected and exploited (unpatched
 systems, default or guessable passwords, etc.).
 
 The following methodology makes use of several automated tools and is thus not
-directly implacable to the OSCP exam.  
+directly implacable to the OSCP exam.
 
 ###### Notable tools used in this methodology
 
@@ -45,7 +45,7 @@ directly implacable to the OSCP exam.
 ###### AD enrolled systems enumeration
 
 If an AD account is provided for the internal penetration test, AD queries
-can be used to quickly enumerate th (most-likely Windows) systems.     
+can be used to quickly enumerate th (most-likely Windows) systems.
 
 Note that the IP retrieved may not be up to date or may even correspond to an
 non accessible IP form another network interface.
@@ -66,13 +66,13 @@ Get-ADComputer -Filter "Name -like '*TOMCAT*'" -Property IPv4Address
 
 ###### DNS hostnames resolution from target file
 
-To resolve a list of DNS hostnames the following commands can be used:  
+To resolve a list of DNS hostnames the following commands can be used:
 
 ```
 hostnames=<HOSTNAMES_FILE>
 nmap -T5 -sL -n -oN hostnames_resolved.nmap -iL $hostnames
 cat hostnames_resolved.nmap | grep "scan report" | cut --output-delimiter=',' -d ' ' -f '5,6' | tr -d '()' > hosts.csv && rm hostnames_resolved.nmap
-cut -d ',' -f 2 hosts.csv > IP.txt   
+cut -d ',' -f 2 hosts.csv > IP.txt
 ```
 
 ### 1. Ports and services scan
@@ -210,7 +210,7 @@ sort -t . -k 3,3n -k 4,4n <INPUT_FILE>
 
 `Nessus` is a proprietary automated vulnerability scanner. It can be used to
 scan for vulnerabilities, various misconfigurations, and empty / default
-passwords on common services.    
+passwords on common services.
 
 Depending, on the number of hosts to scan, `Nessus` can be instructed to
 conduct a full ports scan and / or limit its scan for vulnerabilities that
@@ -409,7 +409,7 @@ interlace -tL <INPUT_SSH_HOSTS> -o <OUTPUT_FOLDER> -cL <SSH_COMMANDS_FILE>
 | Service | Default port | Specific username(s) | Specific password(s) | Command |
 |---------|--------------|----------------------|----------------------|---------|
 | `FTP` | TCP 21 | anonymous | |
-| `SSH` | TCP 22 | | |  
+| `SSH` | TCP 22 | | |
 | `rexec` <br><br> `rlogin` | TCP 512 <br><br> TCP 513 | | |
 | `MSSQL` | TCP 1433 | sa | sa | `patator mssql_login host=FILE0 user=FILE1 password=FILE2 0="<INPUT_HOSTS>" 1=<WORDLIST_USER> 2=<WORDLIST_PASSWORD> -x ignore:fgrep='Login failed for user'`
 | `Tomcat` | NA | tomcat <br> manager <br> role <br> role1 | tomcat <br> changethis <br> s3cret | |
