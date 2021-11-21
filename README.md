@@ -1,22 +1,21 @@
-# InfoSec-Notes
+Personal notes used as a way to keep trace of my experimentations over the
+years on attack vectors and digital forensics.
 
-InfoSec notes.
+The repository behind the notes can be found at:
+`https://github.com/Qazeer/InfoSec-Notes`.
 
-### Referenced tools
+{% hint style="warning" %}
+* These notes are distributed in the hope that they will be useful, but without any warranty of any kind.
+* Quality of each note may greatly vary (notably depending on the time spent on the note).
+* Some content may be outdated as the first note was written over 4 years ago.
+{% endhint %}
 
-If not specified otherwise, the tools referenced in the notes are either
-installed by default on Kali Linux or forked at the following GitHub
-repositories:
+As this project / documentation was initially started with no goal of being
+published, credit may not be properly given where credit is due. While efforts
+have been made to rectify this, feel free to contact me at
+`<qazeer at gmail dot com>` if you think a source that should be is not
+mentioned on a subject.
 
-```
-https://github.com/Qazeer?tab=repositories
-```
+--------------------------------------------------------------------------------
 
-The forked repositories serve as backups in case of removal of the original
-repository. The original repository should always be used to benefit from the
-project's latest developments.
-
-### License
-
-Created by Thomas DIOT (Qazeer) under the Creative Commons v3 "Attribution"
-License https://creativecommons.org/licenses/by/3.0/us/
+Created by Thomas DIOT (Qazeer).
