@@ -4,6 +4,7 @@
 
 ## General
 
+* [External recon](General/External_recon.md)
 * [Ports scan](General/Ports_scan.md)
 * [Shells](General/Shells.md)
 * [File transfer](General/File_Transfer.md)
@@ -28,6 +29,7 @@
 * [Exploitation - Kerberos silver tickets](Active_Directory/Exploitation-Kerberos_Silver_Tickets.md)
 * [Exploitation - Kerberos delegations](Active_Directory/Exploitation-Kerberos_delegations.md)
 * [Exploitation - Azure AD Connect](Active_Directory/Exploitation-Azure_AD_Connect.md)
+* [Exploitation - Active Directory Certificate Services](Active_Directory/Exploitation-Certificate_Services.md)
 * [Exploitation - Operators to Domain Admins](Active_Directory/Exploitation-Operators_to_Domain_Admins.md)
 * [Post Exploitation - ntds.dit dumping](Active_Directory/Post_Exploitation-ntds_dit_dumping.md)
 * [Post Exploitation - Kerberos golden tickets](Active_Directory/Post_Exploitation-Kerberos_Golden_Tickets.md)
@@ -67,6 +69,7 @@
 
 * [Lateral movements](Windows/Lateral_movements.md)
 * [Local privilege escalation](Windows/Local_privilege_escalation.md)
+* [Shellcode and PE loader](Windows/Shellcode_and_PE_loader.md)
 * [Bypass AppLocker](Windows/Bypass_AppLocker.md)
 * [Bypass PowerShell ConstrainedLanguageMode](Windows/Bypass_PS_ConstrainedLanguageMode.md)
 * [Post exploitation](Windows/Post_exploitation.md)
