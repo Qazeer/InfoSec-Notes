@@ -2,10 +2,10 @@ Personal notes used as a way to keep trace of my experimentations over the
 years on attack vectors and digital forensics.
 
 The repository behind the notes can be found at:
-`https://github.com/Qazeer/InfoSec-Notes`.
+[`https://github.com/Qazeer/InfoSec-Notes`](https://github.com/Qazeer/InfoSec-Notes).
 
 {% hint style="warning" %}
-* These notes are distributed in the hope that they will be useful, but without any warranty of any kind.
+* These notes are distributed in the hope that they will be useful, but without warranty of any kind.
 * Quality of each note may greatly vary (notably depending on the time spent on the note).
 * Some content may be outdated as the first note was written over 4 years ago.
 {% endhint %}
@@ -18,4 +18,4 @@ mentioned on a subject.
 
 --------------------------------------------------------------------------------
 
-Created by Thomas DIOT (Qazeer).
+Created by [Thomas DIOT (Qazeer)](https://qazeer.io/).
