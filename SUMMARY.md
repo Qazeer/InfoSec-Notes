@@ -34,7 +34,7 @@
 * [Exploitation - Operators to Domain Admins](Active_Directory/Exploitation-Operators_to_Domain_Admins.md)
 * [Post Exploitation - ntds.dit dumping](Active_Directory/Post_Exploitation-ntds_dit_dumping.md)
 * [Post Exploitation - Kerberos golden tickets](Active_Directory/Post_Exploitation-Kerberos_Golden_Tickets.md)
-* [Post Exploitation - Trusts_hopping.md](Active_Directory/Post_Exploitation-Trusts_hopping.md)
+* [Post Exploitation - Trusts hopping](Active_Directory/Post_Exploitation-Trusts_hopping.md)
 * [Post Exploitation - Persistence](Active_Directory/Post_Exploitation-Persistence.md)
 
 ## L7
