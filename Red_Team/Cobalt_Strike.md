@@ -1,8 +1,8 @@
 # Cobalt Strike
 
-### Team server & client
+### TeamServer
 
-###### Team server overview
+###### TeamServer Overview
 
 Cobalt Strike is split into a server, named the `team server`, and client
 components. The `team server` is at the core of the `Cobalt Strike`
@@ -27,7 +27,7 @@ the blue team.
 ./teamserver <LISTENING_IP> <PASSWORD> [<C2_PROFILE_PATH>] [<BEACON_KILL_DATE_YYYY-MM-DD>]
 ```
 
-###### Malleable C2 Profiles
+###### Malleable C2 Profiles overview
 
 The way `Cobalt Strike` beacons interact with the `team server` can be
 customized through an optional `Malleable C2 profile`, chosen upon the start of
@@ -63,6 +63,8 @@ options can be found on:
   - [threatexpress's `malleable-c2` GitHub repository](https://github.com/threatexpress/malleable-c2/blob/master/MalleableExplained.md)
   - [SpecterOps's A Deep Dive into Cobalt Strike Malleable C2 blog post](https://posts.specterops.io/a-deep-dive-into-cobalt-strike-malleable-c2-6660e33b0e0b)
 
+###### Public Malleable C2 profiles
+
 A number of public `Malleable C2 Profiles` can be used as templates /
 references for further customization (publicly shared profiles shouldn't be
 used as is, due to known markers being already defined by security products).
@@ -75,21 +77,15 @@ used as is, due to known markers being already defined by security products).
 `Cobalt Strike`'s `c2lint` utility can be used to check the validity of the
 specified profile: `c2lint <C2_PROFILE_PATH>`.
 
-###### Cobalt Strike client
+### Beacons
 
-```
-./cobaltstrike
-```
+###### Arsenal kit overview
 
-### Cobalt Strike beacons
+https://www.cobaltstrike.com/scripts
 
-###### Listeners
+###### Artefact kit: custom beacons PE
 
-###### Beacons generation
-
-###### Artefact kit
-
-###### Resource kit
+###### Resource kit: custom beacons scripts
 
 The `resource kit` is part of `Cobalt Strike` property `Arsenal` and contains
 `PowerShell`, `Python`, and `VBA` templates used by `Cobalt Strike` for
@@ -104,25 +100,36 @@ related operations. The `resource kit` is notably used for:
     PowerShell (`powershell`, `winrm`, `psexec_psh`, etc.) or requiring file
     download (`powershell-import`, `elevate`, `spawnas` / `spawnu`, etc.).
 
+The `resource kit` can be loaded / reloaded using the script manager:
+
+```
+Cobalt Strike -> Script Manager -> Load / Reload -> resources.cna
+```
+
 | File | Description |
 |------|-------------|
-| resources.cna | `Aggressor` script to load in order to instruct `Cobalt Strike` to use the templates defined in the `resource kit` over the built-in ones. |
-| compress.ps1 | PowerShell template to compress PowerShell scripts (by default using `IO.Compression.GzipStream`). <br><br> Affected components: <br> - Beacons PowerShell payloads. <br> - Scripted Web Delivery (PowerShell). <br> - beacons' `powershell-import`, `psexec_psh`, and `wmi` commands. |
-| template.x86.ps1 | PowerShell template for x86 PowerShell beacon stagers.  <br><br> Affected components: <br> - Windows EXE x86 stage-less PowerShell payload. <br> - Scripted Web Delivery (PowerShell). <br> - beacons' `spawnas` / `spawnu`, `psexec_psh`, and `winrm` / `wmi` commands. <br> - HTML Application (`PowerShell` method). |
-| template.x64.ps1 | PowerShell template for x64 PowerShell beacon stagers. <br><br> Affected components: <br> - Windows EXE x64 stage-less PowerShell payload. |
-| template.x86.vba | VBA template for x86 payloads. <br><br> Affected components: <br> - Microsoft Office Macro Attack. <br> - HTML Application (`VBA` method). - Scripted Web Delivery (`regsvr32` method). |
-| template.vbs | `VBScript` template used to execute `VBA` payloads (such as a payload generated from `template.x86.vba`).  |
-| template.exe.hta | `HTA` template for HTML application (`Attacks -> Packages -> HTLM Application`) generated with the `Executable` method. |
-| template.psh.hta | `HTA` template for HTML application (`Attacks -> Packages -> HTLM Application`) generated with the `PowerShell` method. |
-| template.py | Python for x86 and x64 payloads. <br><br> Affected components: <br> - Scripted Web Delivery (Python). |
+| `resources.cna` | `Aggressor` script to load in order to instruct `Cobalt Strike` to use the templates defined in the `resource kit` over the built-in ones. |
+| `compress.ps1` | PowerShell template to compress PowerShell scripts (by default using `IO.Compression.GzipStream`). <br><br> Affected components: <br> - Beacons PowerShell payloads. <br> - Scripted Web Delivery (PowerShell). <br> - beacons' `powershell-import`, `psexec_psh`, and `wmi` commands. |
+| `template.x86.ps1` | PowerShell template for x86 PowerShell beacon stagers.  <br><br> Affected components: <br> - Windows EXE x86 stage-less PowerShell payload. <br> - Scripted Web Delivery (PowerShell). <br> - beacons' `spawnas` / `spawnu`, `psexec_psh`, and `winrm` / `wmi` commands. <br> - HTML Application (`PowerShell` method). |
+| `template.x64.ps1` | PowerShell template for x64 PowerShell beacon stagers. <br><br> Affected components: <br> - Windows EXE x64 stage-less PowerShell payload. |
+| `template.x86.vba` | VBA template for x86 payloads. <br><br> Affected components: <br> - Microsoft Office Macro Attack. <br> - HTML Application (`VBA` method). - Scripted Web Delivery (`regsvr32` method). |
+| `template.vbs` | `VBScript` template used to execute `VBA` payloads (such as a payload generated from `template.x86.vba`).  |
+| `template.exe.hta` | `HTA` template for HTML application (`Attacks -> Packages -> HTLM Application`) generated with the `Executable` method. |
+| `template.psh.hta` | `HTA` template for HTML application (`Attacks -> Packages -> HTLM Application`) generated with the `PowerShell` method. |
+| `template.py` | Python for x86 and x64 payloads. <br><br> Affected components: <br> - Scripted Web Delivery (Python). |
 
-This is the VBA template Cobalt Strike uses to run x86 payloads.
+###### Sleep kit: custom obfuscation for beacons sleeps
 
-Affected features:
-  HTML Application (VBA)
-  Microsoft Office Macro Attack
-  Scripted Web Delivery (regsvr32)
+TODO
 
+###### Custom beacon shellcode and loader
+
+*Custom shellcode generation*
+
+The [`Cobalt Strike Shellcode Generator`](https://github.com/RCStep/CSSG)
+aggressor script can be used to generate and format `beacon` shellcode. The
+generated shellcode can be encrypted using `XOR` or `AES-256-CBC`, as well as
+encoded in `base64` or compressed (in `gzip`).
 
 --------------------------------------------------------------------------------
 

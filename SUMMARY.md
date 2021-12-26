@@ -115,9 +115,11 @@
   * [Timestomping](DFIR/Linux/Timestomping.md)
 * [Web logs](DFIR/Web_logs.md)
 
-## Phishing
+## Red Team specifics
 
-* [Office Documents](Phishing/OfficeDocuments.md)
+* [Phishing - Office Documents](Red_Team/Phishing_OfficeDocuments.md)
+* [OpSec Operating System](Red_Team/OpSec_OperatingSystem.md)
+* [Cobalt Strike](Red_Team/Cobalt_Strike.md)
 
 ## Web applications
 
