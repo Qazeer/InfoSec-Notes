@@ -1506,7 +1506,7 @@ another user, arbitrary command execution under the other user privileges can
 be achieved once the criteria associated to the scheduled task occurs.
 
 Refer to the `[General] Shells - Binary` note for reverse shell binaries /
-scripts.  
+scripts.
 
 ### Token Privileges abuse
 
@@ -1544,6 +1544,10 @@ privileges allow, by design, to create a process under the security context of
 another user. The `SeAssignPrimaryTokenPrivilege` privilege can be exploited
 using the `CreateProcessAsUser()` Win32 API while the `SeImpersonatePrivilege`
 privilege can leveraged using the `CreateProcessWithToken()` Win32 API.
+
+**Exploits of the potato family (except RoguePotato)
+[no longer work](https://decoder.cloud/2018/10/29/no-more-rotten-juicy-potato/)
+on `Windows 10 build 1809` / `Windows 2019` and later.**
 
 The process creation requires however a handle to a primary token of the user
 to impersonate. Multiple tools and techniques may be used to obtain a handle

@@ -121,7 +121,7 @@ smbclient -U "" -N -L \\<HOSTNAME> -I <IP>
 smbclient -U '<WORKGROUP | DOMAIN>\<USERNAME>' [--pw-nt-hash] -L \\<HOSTNAME | IP>
 
 # Using the  Windows built-in net utility.
-net view \\<HOSTNAME | IP>
+net view \\<HOSTNAME | IP> /all
 ```
 
 The `SoftPerfect`'s' `NetScan` Windows graphical network scanner utility can be

@@ -256,6 +256,12 @@ python samrdump.py [<DOMAIN>/]<USERNAME>:<PASSWORD>@<IP | HOSTNAME>
 exposing the `MS-RPRN` `MSRPC` interface:
 
 ```
+# Locally determine / query the Spooler service status.
+gci \\127.0.0.1\pipe\spoolss
+sc query Spooler
+sc qc Spooler
+
+# Remotely determine / query the Spooler service status.
 gci \\<HOSTNAME | IP>\pipe\spoolss
 
 Get-SpoolStatus -ComputerName <IP | HOSTNAME>
