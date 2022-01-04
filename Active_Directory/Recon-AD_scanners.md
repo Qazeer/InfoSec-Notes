@@ -10,7 +10,9 @@ impossible to quickly identify.
 The official installation procedure is available on the `GitHub` repository:
 `https://github.com/BloodHoundAD/BloodHound/wiki/Getting-started`
 
-###### Ingestors (SharpHound and BloodHound-python)
+###### BloodHound ingestors
+
+*SharpHound*
 
 `SharpHound` is a C# data ingestor used by `BloodHound` to enumerate the Active
 Directory targeted domain. A PowerShell script `SharpHound.ps1`, in-lining the
@@ -42,7 +44,7 @@ Multiples collection methods are available:
 
 Usage:
 
-```
+```bash
 # PowerShell SharpHound.ps1 collector.
 # The SharpHound.ps1 PowerShell collector script in-lines the SharpHound C# DLL.
 # Multiple ways can be used to import or directly inject into memory the SharpHound.ps1 script.
@@ -61,6 +63,8 @@ SharpHound.exe -v -c <all | DcOnly | COLLECTION_METHOD>
 SharpHound.exe -v --Domain '<DOMAIN_FQDN>' --domaincontroller '<DC_IP | DC_HOSTNAME>' --ldapusername '<USERNAME>' --ldappassword '<PASSWORD>' -c <all | DcOnly | COLLECTION_METHOD>
 ```
 
+*BloodHound.py*
+
 `bloodhound-python.py` is a Python based ingestor for `BloodHound`, based on
 the `Impacket` suite and only compatible with `BloodHound 3.0`, or newer
 versions. `bloodhound-python.py` presents the main advantage of being usable on
@@ -70,7 +74,7 @@ Directory enumeration.
 `bloodhound-python.py` supports most of `SharpHound` collect methods, specified
 above, except `GPOLocalGroup` and `LocalGroup`.
 
-```
+```bash
 bloodhound-python -v -CollectionMethod  <all | DcOnly | <COLLECTION_METHOD>
 
 # The specified domain controller must be a hostname. The -ns must be specified to a DNS server IP if the DC hostname is not resolved by the local system.
@@ -78,12 +82,34 @@ bloodhound-python -v -CollectionMethod  <all | DcOnly | <COLLECTION_METHOD>
 bloodhound-python -v --dns-tcp -dc <DC_HOSTNAME> -ns <DNS_SERVER_IP> -d <DOMAIN_FQDN> -u <USERNAME> [-p <PASSWORD> | --hashes ':<NTLM>'] -CollectionMethod  <all | DcOnly | <COLLECTION_METHOD>
 ```
 
+*Sysinternals's AdExplorer and ADExplorerSnapshot.py*
+
+Active Directory domain snapshots taken with `AdExplorer` can be converted to
+`JSON` files supported by `BloodHound` using the
+[`ADExplorerSnapshot.py`](https://github.com/c3c/ADExplorerSnapshot.py) Python
+script. `AdExplorer` can thus be used as an ingestor for `BloodHound`. Refer to
+the `[ActiveDirectory] Recon - Domain Recon` note for more information on
+`AdExplorer`.
+
+A few limitations are however to be noted:
+  - the snapshot only contains information on Active Directory objects
+    (assimilable to a `DcOnly` collection made with `SharpHound`).
+  - `Organizational Units` and `Group Policy Objects` information will be
+    missing.
+
+```
+ADExplorerSnapshot.py [-o <OUTPUT_FOLDER>] <ADEXPLORER_SNAPSHOT>
+```
+
+The resulting `JSON` files can be imported normally through the `BloodHound`
+graphical interface.
+
 ###### BloodHound GUI
 
 The following commands can be used to start `BloodHound`. The default neo4j
 credentials are `neo4j:neo4j` and must be changed for the first login.
 
-```
+```bash
 # Windows
 net start neo4j
 .\BloodHound.exe
@@ -350,7 +376,7 @@ resources accessible to following groups:
 The following bash script can be used to convert the one-line JSON result of
 `SharpHound` to a more human readable format:
 
-```
+```bash
 #!/bin/bash
 for filename in *.json; do
   echo $filename
@@ -358,7 +384,7 @@ for filename in *.json; do
 done
 ```
 
-```
+```bash
 grep -A 10 -B 10 -rin "S-1-1-0\|S-1-5-7\|S-1-5-11\|S-1-5-32-545" *.jq
 ```
 
@@ -367,14 +393,14 @@ grep -A 10 -B 10 -rin "S-1-1-0\|S-1-5-7\|S-1-5-11\|S-1-5-32-545" *.jq
 The `bh-owned.rb` ruby script can be used to automatically tag the provided
 users from a file as owned or blacklist.
 
-```
+```bash
 ruby bh-owned.rb -u neo4j -p <NEO4J_DB_PASSWORD> -a <COMPROMISED_USERS_FILE>
 ```
 
 Note that the usernames must correspond to the `BloodHound` expected node
 format: `UPPERCASE_USERNAME@UPPERCASE_DOMAIN_FQDN`.
 
-```
+```bash
 #!/bin/bash
 
 users_file='<USERNAMES_FILE>'
@@ -466,7 +492,7 @@ Before running the `PingCastle`'s `healthcheck` mode, it is recommended to
 remove the limitation of 100 users in the generated `HTML` report:
 `5-advanced -> 4-noenumlimit`.
 
-```
+```bash
 # Runs PingCastle in interactive mode.
 PingCastle.exe
 
@@ -498,6 +524,9 @@ foreach ($module in $modules) {
 ### References
 
 https://www.ernw.de/download/BloodHoundWorkshop/ERNW_DogWhispererHandbook.pdf#page=45&zoom=100,92,390
+
 https://beta.hackndo.com/bloodhound/
+
 https://hausec.com/2019/09/09/bloodhound-cypher-cheatsheet/
+
 https://neo4j.com/docs/cypher-manual/current/clauses/match/

