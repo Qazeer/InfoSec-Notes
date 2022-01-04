@@ -22,12 +22,12 @@ current system:
 | **Hostname**  | `hostname` | `$env:ComputerName` | `wmic computersystem  get name` <br> (PS) `(Get-WmiObject Win32_ComputerSystem).Name`|
 | **Fully qualified hostname** | `net config workstation \| findstr /C:"Full Computer name"` | `[System.Net.Dns]::GetHostByName($env:computerName)` | |
 | **Drives** | | `[System.IO.DriveInfo]::getdrives()` <br> `Get-PSDrive -PSProvider FileSystem` | |
-| **Curent Domain** | `echo %userdomain%` | `$env:UserDomain` | (PS) `(Get-WmiObject Win32_ComputerSystem).Domain` |
+| **Curent Domain** | `echo %userdomain%` <br> `systeminfo \| findstr "Domain"` | `$env:UserDomain` <br> `systeminfo \| Select-String Domain` | (PS) `(Get-WmiObject Win32_ComputerSystem).Domain` |
 | **Curent User** | `whoami /all` <br/> `net user %username%`  | `$env:UserName` | (PS) `(Get-WmiObject Win32_ComputerSystem).UserName` |
 | **Local users** | `net users` <br/> `net users <USERNAME>` | `Get-LocalUser` | `wmic USERACCOUNT list full` <br> (PS) `Get-WMIObject Win32_UserAccount -NameSpace "root\CIMV2" -Filter "LocalAccount='$True'"` |
 | **Local groups** | `net localgroup` | *(Win10+)* `Get-LocalGroup` | `wmic group list full` |
 | **Local groups' member(s)** | `net localgroup Administrators` <br/> `net localgroup <GROUPNAME>` | `Get-LocalGroupMember -Name "<GROUPNAME>"` <br/><br/> `foreach ($group in Get-LocalGroup) { [PSCustomObject]@{ Group = $group.Name; User = (($group \| Get-LocalGroupMember).Name \| Out-String) } \| fl }` | |
-| **Connected users** | `qwinsta` | | |
+| **Connected users** | `qwinsta` <br> `query user` | | |
 | **Powershell version**  | `Powershell  $psversiontable` | `$psversiontable` | |
 | **Environement variables** | `set` | `Get-ChildItem Env: \| ft Key,Value` | |
 | **Mounted disks** | `fsutil fsinfo drives` | `Get-PSDrive \| where {$_.Provider -like "Microsoft.PowerShell.Core\FileSystem"}` | `wmic volume get DriveLetter,FileSystem,Capacity` |
