@@ -118,7 +118,7 @@
 ## Red Team specifics
 
 * [Phishing - Office Documents](Red_Team/Phishing_OfficeDocuments.md)
-* [OpSec Operating System](Red_Team/OpSec_OperatingSystem.md)
+* [OpSec Operating Systems environment](Red_Team/OpSec_OperatingSystems.md)
 * [Cobalt Strike](Red_Team/Cobalt_Strike.md)
 
 ## Web applications
