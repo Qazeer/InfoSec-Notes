@@ -104,6 +104,37 @@ ADExplorerSnapshot.py [-o <OUTPUT_FOLDER>] <ADEXPLORER_SNAPSHOT>
 The resulting `JSON` files can be imported normally through the `BloodHound`
 graphical interface.
 
+###### Multiple Neo4j databases to handle different environments
+
+The [`Neo4j Desktop`](https://neo4j.com/download/) application can be used to
+create and manage multiple databases. Due to `Neo4j Community` limitations, the
+usage of the thick client is required as having multiple databases is otherwise
+a feature of the `Enterprise` edition (as of 2022-01). Using multiple databases
+present the notable advantage of allowing oneself to work on different
+environments without requiring clears of the database and data reuploads.
+
+The procedure to create multiple Neo4j databases through the `Neo4j Desktop`
+application is as follow:
+
+  1. Create a new project: `Projects (left menu) -> New`.
+
+  2. Adds a `Local DBMS` per environment, forest or domain (depending on the
+     level of separation wished):
+     `Newly created project right panel -> (+) Add -> Local DBMS`. The name
+     specified for the `DBMS` can match the environment / forest / domain (for
+     example), and the password should be identical between `DBMS`.
+
+     Each `Local DBMS` will be composed of the default `system` and `neo4j`
+     databases.
+
+  3. Switch between `DBMS`
+     (`Mouse over the DBMS in the project right panel -> Start`) and add data as
+     needed through the `BloodHound` interface.
+
+Once the different databases are populated, simply starting a `DBMS` through the
+`Neo4j Desktop` application allows to switch to a different environment in
+`BloodHound` (without having to login / logoff or restart `BloodHound`).
+
 ###### BloodHound GUI
 
 The following commands can be used to start `BloodHound`. The default neo4j
