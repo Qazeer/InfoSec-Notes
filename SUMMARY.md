@@ -119,6 +119,7 @@
 
 * [Phishing - Office Documents](Red_Team/Phishing_OfficeDocuments.md)
 * [OpSec Operating Systems environment](Red_Team/OpSec_OperatingSystems.md)
+* [EDR bypass with EDRSandBlast](Red_Team/EDR_bypass_with_EDRSandBlast.md)
 * [Cobalt Strike](Red_Team/Cobalt_Strike.md)
 
 ## Web applications
