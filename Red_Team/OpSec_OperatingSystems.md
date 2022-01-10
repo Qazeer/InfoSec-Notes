@@ -20,7 +20,7 @@ In the aforementioned configuration:
   - The host operating system should not leak network traffic on the targeted
     network.
   - Only the Linux VM is bridged on the network, limiting to a single `MAC`
-    address being used in the targated network. Switches might otherwise detect
+    address being used in the targeted network. Switches might otherwise detect
     that multiple MAC addresses are used over a single physical port (such as
     through `DHCP` requests).
 
@@ -28,9 +28,229 @@ In the aforementioned configuration:
 
 ###### Hyper-V virtual switches configuration
 
+Two virtual `Hyper-V` switches should be configured for the setup: an
+`External` virtual switch bridged on the host system network adapter, and a
+`Private` virtual switch, that will only be used by the virtual machines.
+
+The procedure to create virtual switches in `Hyper-V` using the
+`Hyper-V Manager` graphical utility is as follow:
+
+```
+Right click on the Hyper-V server -> Virtual Swith Manager... -> Create Virtual Switch
+  # Bridged switch.
+  -> Check "External network":
+  -> Specify the network adapter.
+
+  # Private switch
+  -> Check "Private network"
+```
+
 ###### Disabling IPv4 and IPv6 connectivity
 
+### Linux VM guest configuration
+
+As described in the setup above, the Linux VM will have two network interfaces:
+  - `<ETH_EXTERNAL>` (example: `eth0`) that will be bridged to the targeted
+    network.
+  - `<ETH_INTERNAL>` (example: `eth1`) that will be internal / private to the
+    host.
+
+###### Updating the machine's hostname (to match the environment / context)
+
+It is recommended to update the hostname of the system that will connect to the
+internal network, to help blend in normal traffic.
+
+The Linux VM hostname can be updated by editing the `/etc/hostname` file. The
+system must be rebooted for the hostname change to be effective.
+
+###### Updating the network interface MAC address
+
+It is recommenced to change the `MAC address` associated with the
+`<ETH_EXTERNAL>` network adapter, in order to bypass simple
+`Network Access Control (NAC)` solutions and blend in the usual network
+traffic. The `MAC` address of the `<ETH_EXTERNAL>` network adapter should be
+changed through both the hypervisor and the guest operating system.
+
+The `ifconfig` utility can be used to change the `MAC address` (on the Linux
+VM):
+
+```bash
+ifconfig <ETH_EXTERNAL> hw ether <MAC_ADDRESS>
+```
+
+###### Avoiding DNS request leaks
+
+*Avoiding self-hostname DNS requests*
+
+By default, the Linux operating system may try to retrieve the current machine
+`IP`. In order to avoid leaking unwanted `DNS` requests on the targeted
+network, an entry for the system's hostname should be added in the
+`/etc/hosts` file:
+
+```
+echo '127.0.0.1 <HOSTNAME>' | sudo tee -a /etc/hosts
+```
+
+*Setting DNS nameservers to localhost*
+
+It is recommended to set the system-wide `DNS` nameservers to `localhost`, in
+order to avoid leaking `DNS` requests (from the operating system, Web browsers,
+or security products) that may indicate an unusual traffic and generate alerts
+(from solutions such as `DarkTrace` or `Vectra`).
+
+Setting the `DNS nameservers` through the `/etc/resolv.conf` is not sufficient
+as the file is indirectly managed by the `systemd-resolved` service as well as
+the `networking.service` (for instance for updates made through the
+`NetworkManager`).
+
+The `reolvconf` utility can be used to permanently define the system's
+`DNS nameservers` (and so even if no network adapters are configured):
+
+```bash
+# Installs the reolvconf utility.
+sudo apt update && sudo apt install resolvconf
+
+# Enables and starts the resolvconf.service service.
+sudo systemctl enable resolvconf.service
+sudo systemctl start resolvconf.service
+
+# Checks the status of the resolvconf.service service.
+sudo systemctl status resolvconf.service
+
+# Defines the system DNS nameservers.
+mv /etc/resolvconf/resolv.conf.d/ /etc/resolvconf/resolv.conf.d_backup/
+mkdir /etc/resolvconf/resolv.conf.d/ && echo 'nameserver 127.0.0.1' > /etc/resolvconf/resolv.conf.d/head
+
+# Updates the resolv.conf file.
+sudo resolvconf -u
+
+# Validates that the DNS nameservers modification is effective.
+cat /etc/resolv.conf
+```
+
+By default, `glibc` sends all `DNS` requests to the first `DNS nameserver`
+specified in the `/etc/resolv.conf` file. Using the aforementioned command,
+the `nameserver 127.0.0.1` entry should be defined at the top of the
+`resolv.conf` file, superseding eventual other `DNS nameservers` (notably the
+eventual `DNS nameservers` provided by the targeted network `DHCP` servers).
+
+###### Disabling IPv6 connectivity (if not needed)
+
+If `IPv6` is not used in the target environment, it is recommended to disable
+its support at a system level. `IPv6` can be disabled by adding the following
+entries in the `/etc/sysctl.conf` file:
+
+```bash
+net.ipv6.conf.all.disable_ipv6 = 1
+net.ipv6.conf.default.disable_ipv6 = 1
+net.ipv6.conf.lo.disable_ipv6 = 1
+```
+
+Following the modification of the `/etc/sysctl.conf` file, a reboot of the
+system if required. The deactivation of `IPv6` support can be validated
+using the `/proc/sys/net/ipv6/conf/all/disable_ipv6` file: if it contains `0`,
+`IPv6` is enabled and if it contains `1`, `IPv6` is correctly disabled.
+
+###### Network configuration
+
+The `<ETH_EXTERNAL>` adapter should be configured appropriately depending on
+the context of the operation, and only after the Linux and Windows VMs are
+configured. For instance, the `<ETH_EXTERNAL>` adapter could rely on the target
+network `DHCP` servers to obtain an `IPv4` or a static `IPv4` could be
+specified.
+
+A static `IPv4` should be configured on the `<ETH_INTERNAL>` adapter. The
+static `IP` can be assigned by modifying the `/etc/network/interfaces` file:
+
+```
+# Example configuration with <ETH_INTERNAL> being eth1.
+
+# The settings for the loopback network interface should be left unchanged.
+
+auto eth1
+iface eth1 inet static
+  address 192.168.125.1
+  netmask 255.255.255.0
+  gateway 192.168.125.254
+  dns-nameservers 127.0.0.1
+```
+
+Following the modification of the `/etc/network/interfaces` file, the
+`networking` service must be restarted for the change to be effective:
+`sudo systemctl restart networking`.
+
+Then `routes` should be configured to route all network traffic through
+`<ETH_EXTERNAL>`, except for network traffic on the VMs private subnet. The
+`ip` built-in can be used to this end:
+
+```bash
+# Deletes the current default route(s).
+ip route del default
+
+# Adds a new default to route network traffic through <ETH_EXTERNAL>.
+ip route add default via <ETH_EXTERNAL_GATEWAY> dev <ETH_EXTERNAL>
+
+# Adds a specific route for network traffic between VMs.
+# For the example above: ip route add 192.168.125.0/24 via 192.168.125.254 dev eth1
+ip route add <ETH_INTERNAL_SUBNET> via <ETH_INTERNAL_GATEWAY> dev <ETH_INTERNAL>
+
+# Displays the routes in effect.
+netstat -rt
+```
+
+*Note: the Windows VM firewall may block inbound `ICMP` packets, thus `ping`
+should not be used to determine if the VMs can communicate with each others.*
+
+###### Forwarding of network traffic from the Windows VM
+
+`IP Forwarding` should be enabled to allow the transfer of network packets
+received from the Windows VM (on the `<ETH_INTERNAL>` network adapter) to the
+targeted network (through the `<ETH_EXTERNAL>` network adapter):
+
+```bash
+sudo echo 1 > /proc/sys/net/ipv4/ip_forward
+```
+
+Then `iptables` rules can be configured to route packets from `<ETH_INTERNAL>`
+to `<ETH_EXTERNAL>`:
+
+```bash
+# Example: iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+iptables -t nat -A POSTROUTING -o  -j MASQUERADE
+
+# Example: iptables -A FORWARD -i eth0 -o eth1 -mstate --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i <ETH_EXTERNAL> -o <ETH_INTERNAL> -mstate --state RELATED,ESTABLISHED -j ACCEPT
+
+# Example: iptables -A FORWARD -i eth1 -o eth0 -j ACCEPT
+iptables -A FORWARD -i <ETH_INTERNAL> -o <ETH_EXTERNAL> -j ACCEPT
+```
+
 ### Windows VM guest configuration
+
+As described in the setup above, the Windows VM will only have a network
+interface internal / private to the host. The network traffic from the Windows
+VM will be routed to the targeted network through the Linux VM.
+
+###### Network configuration and routing traffic to the Linux VM
+
+*Not required for standalone Windows VM configuration.*
+
+The default gateway of the Windows VM should be configured to point the
+the `IP` of the Linux VM (of the Linux VM's internal network interface).
+
+```
+Run (Win + R) -> ncpa.cpl (-> OK) -> Right click on the adapter (identifiable by its description: "Hyper-V Virtual Ethernet Adapter") -> Properties
+  -> Internet Protocol Version 4 (TCP/IPv4) -> Properties
+    -> Set a static IPv4 address ("Use the following IP address:")
+      # Example.
+      -> IP address: 192.168.125.2
+      -> Subnet mask: 255.255.255.0
+      -> Default gateway: 192.168.125.1
+
+    -> Advanced -> Default gateways... -> Add -> <LINUX_VM_IP> (example: 192.168.125.1)
+
+    -> Check "Validate settings upon exit"
+```
 
 ###### Updating the machine's hostname (to match the environment / context)
 
@@ -52,10 +272,12 @@ Restart-Computer
 *Not required if the Windows VM is not bridged to the targeted network (as
 described in the setup specified in this note).*
 
-It is recommenced to change the `MAC address` of the virtual machine, in order
-to bypass simple `Network Access Control (NAC)` solutions and blend in the
-usual network traffic. The `MAC` address of a virtual machine should be changed
-through both the hypervisor and the guest operating system.
+If the Windows VM is bridged to the targeted network, it is recommenced to
+change the `MAC address` associated with the network adapter bridged to the
+network, in order to bypass simple `Network Access Control (NAC)` solutions
+and blend in the usual network traffic. The `MAC` address of the network
+adapter should be changed through both the hypervisor and the guest operating
+system.
 
 ```
 # Shows the network interfaces and their respective MAC address ("Physical Address").
@@ -114,7 +336,7 @@ adapter basis), as it may leak `Extensible Authentication Protocol (EAP)`
 responses on the network:
 
 ```
-Run (Win + R) -> type ncpa.cpl (-> OK) -> Right click on the adapter -> Properties -> Authentication tab -> Uncheck "Enable IEEE 802.1X authentication"
+Run (Win + R) -> ncpa.cpl (-> OK) -> Right click on the adapter -> Properties -> Authentication tab -> Uncheck "Enable IEEE 802.1X authentication"
 ```
 
 ###### Disabling File and Printer Sharing & Link Layer Topology Discovery
@@ -128,10 +350,11 @@ requests will be leaked.
 It is also recommended to disable File and Printer Sharing at a adapter level.
 
 ```
-Run (Win + R) -> type ncpa.cpl (-> OK) -> Right click on the adapter -> Properties -> Networking tab
-  -> Uncheck "Link-Layer Topology Discovery Responder"
-  -> Uncheck "Link-Layer Topology Discovery Mapper I/O Driver"
-  -> Uncheck "File and Printer Sharing for Microsoft Networks"
+Run (Win + R) -> ncpa.cpl (-> OK) -> Right click on the adapter -> Properties
+  -> Networking tab
+    -> Uncheck "Link-Layer Topology Discovery Responder"
+    -> Uncheck "Link-Layer Topology Discovery Mapper I/O Driver"
+    -> Uncheck "File and Printer Sharing for Microsoft Networks"
 ```
 
 ###### Disabling the Simple Service Discovery Protocol
@@ -175,15 +398,15 @@ netsh advfirewall firewall add rule name="Block outbound IGMP" dir=out action=bl
 New-NetFirewallRule -DisplayName "Block outbound IGMP" -Direction Outbound -Action Block -Protocol 2
 ```
 
-###### Avoiding DNS request leaks by setting DNS servers to localhost
+###### Avoiding DNS request leaks by setting DNS nameservers to localhost
 
-It is recommended to set the system-wide `DNS` nameservers to `localhost`, in
+It is recommended to set the system-wide `DNS nameservers` to `localhost`, in
 order to avoid leaking `DNS` requests (from Windows, Web browsers, or security
 products) that may indicate an unusual traffic and generate alerts (from
 solutions such as `DarkTrace` or `Vectra`).
 
 Then [`Name Resolution Policy Table (NRPT)`](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/dn593632(v=ws.11))
-rules, `host` file entries, or tools that allow `DNS` nameservers
+rules, `host` file entries, or tools that allow `DNS nameservers`
 specification can be used to make controlled `DNS` requests.
 
 ```bash
@@ -249,19 +472,11 @@ netsh advfirewall reset
 (New-Object -ComObject HNetCfg.FwPolicy2).RestoreLocalFirewallDefaults()
 ```
 
-### Linux VM guest configuration
-
-###### Updating the machine's hostname (to match the environment / context)
-
-###### Updating the network interface MAC address
-
-###### Avoiding DNS request leaks by setting DNS servers to localhost
-
-###### Forwarding of network traffic from the Windows VM
-
 --------------------------------------------------------------------------------
 
 ### References
+
+https://www.tecmint.com/set-permanent-dns-nameservers-in-ubuntu-debian/
 
 http://woshub.com/manage-windows-firewall-powershell/
 
