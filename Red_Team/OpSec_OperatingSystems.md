@@ -4,12 +4,12 @@
 
 The following setup is described in the present note:
   - An host Windows operating system using an `Hyper-V` hypervisor. the `IPv4`
-    and `IPv6` connectivity is disabled for each network adapters on the host.
+    and `IPv6` connectivity is disabled on the host.
 
   - A Linux virtual machine (such as [`Kali Linux`](https://www.kali.org/)).
     The VM is configured with two network adapters: one bridged on the targeted
     network and the other as an internal / private adapter that can only be
-    used by VMs on the host.
+    used by local VMs on the host.
 
   - A `Windows 10` virtual machine
     (such as [`CommandoVM`](https://github.com/mandiant/commando-vm)). The VM is
@@ -19,9 +19,9 @@ The following setup is described in the present note:
 In the aforementioned configuration:
   - The host operating system should not leak network traffic on the targeted
     network.
-  - Only the Linux VM is bridged on the network, limiting to a single `MAC`
-    address being used in the targeted network. Switches might otherwise detect
-    that multiple MAC addresses are used over a single physical port (such as
+  - Only the Linux VM is bridged on the network, limiting the use of a single
+    `MAC` address in the targeted network. Switches might otherwise detect that
+    multiple MAC addresses are used over a single physical port (such as
     through `DHCP` requests).
 
 ### Host configuration
@@ -29,23 +29,54 @@ In the aforementioned configuration:
 ###### Hyper-V virtual switches configuration
 
 Two virtual `Hyper-V` switches should be configured for the setup: an
-`External` virtual switch bridged on the host system network adapter, and a
-`Private` virtual switch, that will only be used by the virtual machines.
+`External` virtual switch bridged on the host system network adapter
+(`<HYPERV_EXTERNAL_BRIDGED>`), and a `Private` virtual switch
+(`<HYPERV_PRIVATE>`), that will only be used by the local virtual machines.
 
 The procedure to create virtual switches in `Hyper-V` using the
 `Hyper-V Manager` graphical utility is as follow:
 
 ```
-Right click on the Hyper-V server -> Virtual Swith Manager... -> Create Virtual Switch
+Right click on the Hyper-V server -> Virtual Switch Manager... -> Create Virtual Switch
   # Bridged switch.
+  -> Name: <HYPERV_EXTERNAL_BRIDGED>
   -> Check "External network":
   -> Specify the network adapter.
 
   # Private switch
+  -> Name: <HYPERV_PRIVATE>
   -> Check "Private network"
 ```
 
 ###### Disabling IPv4 and IPv6 connectivity
+
+The connectivity of the host operating system to the targeted network should be
+disabled, so that only the Linux VM is (directly) connected to the targeted
+network. In order to do so, `IPv4` and `IPv6` support on both the physical
+Ethernet network adapter and the `Hyper-V` bridged external virtual switch
+`<HYPERV_EXTERNAL_BRIDGED>` should be disabled.
+
+```
+# Should be done for both the physical Ethernet and Hyper-V virtual <HYPERV_EXTERNAL_BRIDGED> network adapters.
+Run (Win + R) -> ncpa.cpl (-> OK) -> Right click on the adapter -> Properties
+-> Networking tab
+  -> Uncheck "File and Printer Sharing for Microsoft Networks"
+  -> Uncheck "Internet Protocol Version 4 (TCP/IPv4)"
+  -> Uncheck "Internet Protocol Version 6 (TCP/IPv6)"
+  -> Uncheck "Link-Layer Topology Discovery Responder"
+  -> Uncheck "Link-Layer Topology Discovery Mapper I/O Driver"
+```
+
+It is also recommended to disable the `Wi-Fi` network adapter (on systems
+having such network adapter):
+
+```bash
+# Disables the "Wi-Fi" network adapter.
+Disable-NetAdapter -Name "Wi-Fi"
+
+# Enables the "Wi-Fi" network adapter to restore Wi-Fi connectivity.
+Enable-NetAdapter -Name "Wi-Fi"
+```
 
 ### Linux VM guest configuration
 
@@ -78,6 +109,22 @@ VM):
 ifconfig <ETH_EXTERNAL> hw ether <MAC_ADDRESS>
 ```
 
+###### Disabling IPv6 connectivity (if not needed)
+
+If `IPv6` is not used in the target environment, it is recommended to disable
+its support at a system level. `IPv6` can be disabled from `grub` as the Linux
+kernel has a boot option to disable `IPv6` from startup. The `grub`
+configuration file should be modified to add the `ipv6.disable=1` boot option:
+
+```
+sudo vim /etc/default/grub
+
+Replace the GRUB_CMDLINE_LINUX_DEFAULT="quiet" line by GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1 quiet"
+```
+
+Following the modification, `grub` should be updated using `sudo update-grub`
+and the system rebooted.
+
 ###### Avoiding DNS request leaks
 
 *Avoiding self-hostname DNS requests*
@@ -87,7 +134,7 @@ By default, the Linux operating system may try to retrieve the current machine
 network, an entry for the system's hostname should be added in the
 `/etc/hosts` file:
 
-```
+```bash
 echo '127.0.0.1 <HOSTNAME>' | sudo tee -a /etc/hosts
 ```
 
@@ -95,8 +142,8 @@ echo '127.0.0.1 <HOSTNAME>' | sudo tee -a /etc/hosts
 
 It is recommended to set the system-wide `DNS` nameservers to `localhost`, in
 order to avoid leaking `DNS` requests (from the operating system, Web browsers,
-or security products) that may indicate an unusual traffic and generate alerts
-(from solutions such as `DarkTrace` or `Vectra`).
+security products, ...) that may indicate an unusual traffic and generate
+alerts (from solutions such as `DarkTrace` or `Vectra`).
 
 Setting the `DNS nameservers` through the `/etc/resolv.conf` is not sufficient
 as the file is indirectly managed by the `systemd-resolved` service as well as
@@ -104,7 +151,8 @@ the `networking.service` (for instance for updates made through the
 `NetworkManager`).
 
 The `reolvconf` utility can be used to permanently define the system's
-`DNS nameservers` (and so even if no network adapters are configured):
+`DNS nameservers` (and so even if no network adapters are configured at the of
+configuration):
 
 ```bash
 # Installs the reolvconf utility.
@@ -134,22 +182,108 @@ the `nameserver 127.0.0.1` entry should be defined at the top of the
 `resolv.conf` file, superseding eventual other `DNS nameservers` (notably the
 eventual `DNS nameservers` provided by the targeted network `DHCP` servers).
 
-###### Disabling IPv6 connectivity (if not needed)
+As the Linux operating system does natively not support the definition of
+`DNS nameservers` for specific domains. A third-party utility such as `dnsmasq`
+must thus be used to associate specific `DNS nameservers` with specific
+domains.
 
-If `IPv6` is not used in the target environment, it is recommended to disable
-its support at a system level. `IPv6` can be disabled by adding the following
-entries in the `/etc/sysctl.conf` file:
+The following configuration file restrict can be used as a template for
+`/etc/dnsmasq.conf` that configure `127.0.0.1` as the default `DNS server`
+while defining specific domain and `DNS` mappings as required.
 
-```bash
-net.ipv6.conf.all.disable_ipv6 = 1
-net.ipv6.conf.default.disable_ipv6 = 1
-net.ipv6.conf.lo.disable_ipv6 = 1
+```
+# Never forward plain names (without a dot or domain part).
+domain-needed
+
+# Never forward addresses in the non-routed address spaces.
+bogus-priv
+
+# Use the nameservers define in its own configuration (rather than the /etc/resolv.conf file).
+no-resolv
+
+# Define localhost as the main DNS nameserver.
+server=127.0.0.1
+
+# Answer query for the specified domain (machine hostname) only from the /etc/hosts file or DHCP.
+local=/<SYSTEM_HOSTNAME>/
+
+# Associates a specific DNS nameserver for queries to a specific domain.
+# Example for Internet domain: server=/google.com/1.1.1.1
+# Example for Active Direcory name resolution: server=/domain.loc/<DC_IP>
+server=/<DOMAIN>/<DNS_NAMESERVER_IP>
 ```
 
-Following the modification of the `/etc/sysctl.conf` file, a reboot of the
-system if required. The deactivation of `IPv6` support can be validated
-using the `/proc/sys/net/ipv6/conf/all/disable_ipv6` file: if it contains `0`,
-`IPv6` is enabled and if it contains `1`, `IPv6` is correctly disabled.
+The `dnsmasq` service should then be enabled and started / restarted for the
+configuration to be effective:
+
+```
+sudo systemctl enable dnsmasq
+
+sudo systemctl start dnsmasq
+sudo systemctl restart dnsmasq
+```
+
+###### Blocking inbound / outbound network traffic using UFW
+
+The `Uncomplicated Firewall (UFW)` utility can be used to block all inbound /
+outbound connections that do not match a rule, which allow to strictly control
+the network footprint of the system on the targeted network. `UFW` translates
+rules into an `iptables` chain, which follows the first-match policy.
+
+`IPv6` support for `UFW` should first be enabled by adding `IPV6=yes` to the
+`UFW` configuration file `/etc/default/ufw`:
+
+```
+echo 'IPV6=yes' | sudo tee -a /etc/default/ufw
+```
+
+The following commands can then be used as a template to configure blocking
+inbound / outbound rules with rules to allow network traffic through the
+`<ETH_INTERNAL>`.
+
+```bash
+# Disables UFW while setting rules.
+ufw disable
+
+# Resets all the current firewall rules.
+ufw reset
+
+# Deny rules.
+# Place holder for deny rules that should supersede any allow rules.
+# Blocks the Simple Service Discovery Protocol (SSDP) protocol that emit multicast SSDP messages.
+ufw deny 1900
+
+# Allow all inbound and outbound traffic on the the <ETH_INTERNAL> interface.
+ufw allow in on <ETH_INTERNAL>
+ufw allow out on <ETH_INTERNAL>
+
+# Example rules to allow traffic to a specific DNS server.
+# ufw allow out to <DNS_NAMESERVER_IP> port 53
+
+# Example rule to allow inbound connections <REMOTE_IP> on the local specified port.
+# ufw allow in from <REMOTE_IP> to any port <PORT>
+
+# Example rule to outbound connections to the specified host.
+# ufw allow out to <REMOTE_IP>
+
+# Example rules to allow network traffic on private networks.
+ufw allow out to 10.0.0.0/8
+ufw allow in from 10.0.0.0/8
+ufw allow out to 172.16.0.0/16
+ufw allow in from 172.16.0.0/16
+ufw allow out to 192.168.0.0/24
+ufw allow in from 192.168.0.0/24
+
+# Sets default rules: deny all incoming traffic, deny all outgoing traffic.
+ufw default deny incoming
+ufw default deny outgoing
+
+# Enables UFW back.
+ufw enable
+
+# Lists all UFW rules.
+ufw status verbose
+```
 
 ###### Network configuration
 
@@ -181,7 +315,8 @@ Following the modification of the `/etc/network/interfaces` file, the
 
 Then `routes` should be configured to route all network traffic through
 `<ETH_EXTERNAL>`, except for network traffic on the VMs private subnet. The
-`ip` built-in can be used to this end:
+`ip` built-in utility can be used to this end. **The routes configured this way
+will not persist across reboots.**
 
 ```bash
 # Deletes the current default route(s).
@@ -215,21 +350,28 @@ Then `iptables` rules can be configured to route packets from `<ETH_INTERNAL>`
 to `<ETH_EXTERNAL>`:
 
 ```bash
+# Adds a masquerade rule so that the network packets received from the Windows VM are modified in real-time to appear to be originating from the Linux VM.
+# By doing so, receiving hosts on the targeted network will be able to send back their responses to the Linux VM instead of attempting to join the inaccessible Windows VM.
 # Example: iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-iptables -t nat -A POSTROUTING -o  -j MASQUERADE
+iptables -t nat -A POSTROUTING -o <ETH_INTERNAL> -j MASQUERADE
 
+# Adds a forwarding rule so that the network packets associated with an existing connection received on the <ETH_EXTERNAL> interface are sent to the <ETH_INTERNAL> interface.
+# By doing so, the responses from remote hosts on the targeted network received for requests emitted by the Windows VM will be able to be transferred back.
 # Example: iptables -A FORWARD -i eth0 -o eth1 -mstate --state RELATED,ESTABLISHED -j ACCEPT
 iptables -A FORWARD -i <ETH_EXTERNAL> -o <ETH_INTERNAL> -mstate --state RELATED,ESTABLISHED -j ACCEPT
 
+# Adds a forwarding rule so that all the network packets received on the  <ETH_INTERNAL> interface are sent to the <ETH_EXTERNAL> interface.
+# By doing so, all network packets received on the <ETH_INTERNAL> interface will be sent through the <ETH_EXTERNAL> interface.
 # Example: iptables -A FORWARD -i eth1 -o eth0 -j ACCEPT
 iptables -A FORWARD -i <ETH_INTERNAL> -o <ETH_EXTERNAL> -j ACCEPT
 ```
 
 ### Windows VM guest configuration
 
-As described in the setup above, the Windows VM will only have a network
-interface internal / private to the host. The network traffic from the Windows
-VM will be routed to the targeted network through the Linux VM.
+As described in the setup above, the Windows VM will only have a
+`<ETH_INTERNAL>` network adapter internal / private to the host (example
+`Ethernet 1`). The network traffic from the Windows VM will be routed to the
+targeted network through the Linux VM.
 
 ###### Network configuration and routing traffic to the Linux VM
 
@@ -239,7 +381,7 @@ The default gateway of the Windows VM should be configured to point the
 the `IP` of the Linux VM (of the Linux VM's internal network interface).
 
 ```
-Run (Win + R) -> ncpa.cpl (-> OK) -> Right click on the adapter (identifiable by its description: "Hyper-V Virtual Ethernet Adapter") -> Properties
+Run (Win + R) -> ncpa.cpl (-> OK) -> Right click on the <ETH_INTERNAL> network adapter (identifiable by its description: "Hyper-V Virtual Ethernet Adapter") -> Properties
   -> Internet Protocol Version 4 (TCP/IPv4) -> Properties
     -> Set a static IPv4 address ("Use the following IP address:")
       # Example.
@@ -294,7 +436,11 @@ If `IPv6` is not used in the target environment, it is recommended to disable
 its support at a network interface level.
 
 ```bash
-Set-NetAdapterBinding -Name "<INTERFACE>" -ComponentID ms_tcpip6 -Enabled $False
+# Lists the network interfaces.
+ipconfig.exe
+
+# Disables IPV6 on the specified network interface.
+Set-NetAdapterBinding -Name "<ETH_INTERNAL>" -ComponentID ms_tcpip6 -Enabled $False
 ```
 
 ###### Disabling the LLMNR and NetBIOS protocols
@@ -326,17 +472,20 @@ Settings -> Network & Internet -> Proxy -> Untoggle "Automatically detect settin
 Or Control Panel -> Network and Internet -> Internet Options -> Connections tab -> LAN settings > Uncheck "Automatically detect settings"
 
 # host file entry
-Edit %SystemRoot%\system32\drivers\etc\hosts -> Add "255.255.255.255 wpad."
+Add-Content '255.255.255.255 wpad.' -Path "$Env:SystemRoot\system32\drivers\etc\hosts"
 ```
 
-###### Disabling 802.1x authentication
+###### Disabling 802.1x authentication (if supported by the network adapter)
 
 It is recommended to disable `802.1x` authentication (on a network interface /
 adapter basis), as it may leak `Extensible Authentication Protocol (EAP)`
-responses on the network:
+responses on the network. If `802.1x` authentication is not supported by the
+`<ETH_INTERNAL>` network adapter, the `Authentication` tab will not appear in
+the adapter properties.
 
 ```
-Run (Win + R) -> ncpa.cpl (-> OK) -> Right click on the adapter -> Properties -> Authentication tab -> Uncheck "Enable IEEE 802.1X authentication"
+Run (Win + R) -> ncpa.cpl (-> OK) -> Right click on the <ETH_INTERNAL> network adapter -> Properties
+  -> Authentication tab -> Uncheck "Enable IEEE 802.1X authentication"
 ```
 
 ###### Disabling File and Printer Sharing & Link Layer Topology Discovery
@@ -350,11 +499,11 @@ requests will be leaked.
 It is also recommended to disable File and Printer Sharing at a adapter level.
 
 ```
-Run (Win + R) -> ncpa.cpl (-> OK) -> Right click on the adapter -> Properties
+Run (Win + R) -> ncpa.cpl (-> OK) -> Right click on the <ETH_INTERNAL> network adapter -> Properties
   -> Networking tab
+    -> Uncheck "File and Printer Sharing for Microsoft Networks"
     -> Uncheck "Link-Layer Topology Discovery Responder"
     -> Uncheck "Link-Layer Topology Discovery Mapper I/O Driver"
-    -> Uncheck "File and Printer Sharing for Microsoft Networks"
 ```
 
 ###### Disabling the Simple Service Discovery Protocol
@@ -415,7 +564,7 @@ netsh interface ip show config
 
 # Statically sets the primary DNS server for the given interface to the loopback address.
 # The following error message may be returned with no incidence: "The configured DNS server is incorrect or does not exist".
-netsh interface ip set dns "Ethernet 0 | <INTERFACE>" static 127.0.0.1
+netsh interface ip set dns "<ETH_INTERNAL>" static 127.0.0.1
 
 # Creates a NRPT rule so that any domains that match "*.<DOMAIN>" will be resolved using the specified nameserver(s).
 # Example: Add-DnsClientNrptRule -Namespace "*.google.com" -NameServers "8.8.8.8"
@@ -425,8 +574,8 @@ Add-DnsClientNrptRule -Namespace "*.<DOMAIN>" -NameServers "<NAMESERVER_IP>"
 ###### Blocking inbound / outbound network traffic using the Windows Firewall
 
 The Windows Firewall can be configured to block all inbound / outbound
-connections that do not match a rule, which allow to stricly control the
-network footprint of the system on the internal network.
+connections that do not match a rule, which allow to strictly control the
+network footprint of the system on the targeted network.
 
 The following `netsh` commands or PowerShell cmdlets can be used to enable the
 Windows Firewall, and block all inbound / outbound traffic:
@@ -477,6 +626,12 @@ netsh advfirewall reset
 ### References
 
 https://www.tecmint.com/set-permanent-dns-nameservers-in-ubuntu-debian/
+
+https://github.com/imp/dnsmasq/blob/master/dnsmasq.conf.example
+
+https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-with-ufw-on-ubuntu-18-04
+
+https://www.marmosetelectronics.com/computing/ufw-allow-outbound-connections/
 
 http://woshub.com/manage-windows-firewall-powershell/
 
