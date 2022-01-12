@@ -19,9 +19,10 @@ The following setup is described in the present note:
 In the aforementioned configuration:
   - The host operating system should not leak network traffic on the targeted
     network.
+
   - Only the Linux VM is bridged on the network, limiting the use of a single
     `MAC` address in the targeted network. Switches might otherwise detect that
-    multiple MAC addresses are used over a single physical port (such as
+    multiple `MAC` addresses are used over a single physical port (such as
     through `DHCP` requests).
 
 ### Host configuration
@@ -116,7 +117,7 @@ its support at a system level. `IPv6` can be disabled from `grub` as the Linux
 kernel has a boot option to disable `IPv6` from startup. The `grub`
 configuration file should be modified to add the `ipv6.disable=1` boot option:
 
-```
+```bash
 sudo vim /etc/default/grub
 
 Replace the GRUB_CMDLINE_LINUX_DEFAULT="quiet" line by GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1 quiet"
@@ -127,7 +128,7 @@ and the system rebooted.
 
 ###### Avoiding DNS request leaks
 
-*Avoiding self-hostname DNS requests*
+*Avoiding self-hostname DNS requests.*
 
 By default, the Linux operating system may try to retrieve the current machine
 `IP`. In order to avoid leaking unwanted `DNS` requests on the targeted
@@ -138,7 +139,7 @@ network, an entry for the system's hostname should be added in the
 echo '127.0.0.1 <HOSTNAME>' | sudo tee -a /etc/hosts
 ```
 
-*Setting DNS nameservers to localhost*
+*Setting DNS nameservers to localhost.*
 
 It is recommended to set the system-wide `DNS` nameservers to `localhost`, in
 order to avoid leaking `DNS` requests (from the operating system, Web browsers,
@@ -176,6 +177,8 @@ sudo resolvconf -u
 cat /etc/resolv.conf
 ```
 
+*Deploying a third-party local DNS server.*
+
 By default, `glibc` sends all `DNS` requests to the first `DNS nameserver`
 specified in the `/etc/resolv.conf` file. Using the aforementioned command,
 the `nameserver 127.0.0.1` entry should be defined at the top of the
@@ -191,7 +194,7 @@ The following configuration file restrict can be used as a template for
 `/etc/dnsmasq.conf` that configure `127.0.0.1` as the default `DNS server`
 while defining specific domain and `DNS` mappings as required.
 
-```
+```bash
 # Never forward plain names (without a dot or domain part).
 domain-needed
 
@@ -216,7 +219,7 @@ server=/<DOMAIN>/<DNS_NAMESERVER_IP>
 The `dnsmasq` service should then be enabled and started / restarted for the
 configuration to be effective:
 
-```
+```bash
 sudo systemctl enable dnsmasq
 
 sudo systemctl start dnsmasq
@@ -233,13 +236,12 @@ rules into an `iptables` chain, which follows the first-match policy.
 `IPv6` support for `UFW` should first be enabled by adding `IPV6=yes` to the
 `UFW` configuration file `/etc/default/ufw`:
 
-```
+```bash
 echo 'IPV6=yes' | sudo tee -a /etc/default/ufw
 ```
 
-The following commands can then be used as a template to configure blocking
-inbound / outbound rules with rules to allow network traffic through the
-`<ETH_INTERNAL>`.
+Before adding any new rules, `UFW` configuration should be restored to its
+inital state using:
 
 ```bash
 # Disables UFW while setting rules.
@@ -247,7 +249,34 @@ ufw disable
 
 # Resets all the current firewall rules.
 ufw reset
+```
 
+The following entries in the `UFW` default configuration file
+`/etc/ufw/before.rules` (rules added before any other rule) should be deleted
+/ commented out:
+
+```
+# If DHCP is not needed (allow dhcp client to work).
+# -A ufw-before-input -p udp --sport 67 --dport 68 -j ACCEPT
+
+# allow MULTICAST mDNS for service discovery.
+# -A ufw-before-input -p udp -d 224.0.0.251 --dport 5353 -j ACCEPT
+
+# allow MULTICAST UPnP for service discovery.
+# -A ufw-before-input -p udp -d 239.255.255.250 --dport 1900 -j ACCEPT
+```
+
+**If `UFW` is deployed and the Linux VM is used to forward network traffic from
+the Windows VM, the `/etc/ufw/before.rules` file should be modified (as
+detailed in the "Forwarding of network traffic from the private interface"
+section below) at this stage (after the `reset` operation and before applying
+any other rule).**
+
+The following commands can then be used as a template to configure blocking
+inbound / outbound rules with rules to allow network traffic through the
+`<ETH_INTERNAL>`.
+
+```bash
 # Deny rules.
 # Place holder for deny rules that should supersede any allow rules.
 # Blocks the Simple Service Discovery Protocol (SSDP) protocol that emit multicast SSDP messages.
@@ -285,7 +314,86 @@ ufw enable
 ufw status verbose
 ```
 
-###### Network configuration
+###### Forwarding of network traffic from the private network
+
+`IP Forwarding` should be enabled to allow the transfer of network packets
+received from the Windows VM (on the `<ETH_INTERNAL>` network adapter) to the
+targeted network (through the `<ETH_EXTERNAL>` network adapter):
+
+```bash
+sudo echo 1 > /proc/sys/net/ipv4/ip_forward
+```
+
+If `UFW` is used on the system, `iptables` rules - first option below - should
+be created directly but added in the `/etc/ufw/before.rules` file - second
+option below - (as existing `iptables` rules are overwritten by the `UFW`
+utility).
+
+*If UFW is not used to filter network traffic.*
+
+The following `iptables` rules can be configured to route packets from
+`<ETH_INTERNAL>` to `<ETH_EXTERNAL>`:
+
+```bash
+# Adds a masquerade rule so that the network packets received from the Windows VM are modified in real-time to appear to be originating from the Linux VM.
+# By doing so, receiving hosts on the targeted network will be able to send back their responses to the Linux VM instead of attempting to join the inaccessible Windows VM.
+# Example: iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+iptables -t nat -A POSTROUTING -o <ETH_INTERNAL> -j MASQUERADE
+
+# Adds a forwarding rule so that the network packets associated with an existing connection received on the <ETH_EXTERNAL> interface are sent to the <ETH_INTERNAL> interface.
+# By doing so, the responses from remote hosts on the targeted network received for requests emitted by the Windows VM will be able to be transferred back.
+# Example: iptables -A FORWARD -i eth0 -o eth1 -mstate --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -i <ETH_EXTERNAL> -o <ETH_INTERNAL> -mstate --state RELATED,ESTABLISHED -j ACCEPT
+
+# Adds a forwarding rule so that all the network packets received on the  <ETH_INTERNAL> interface are sent to the <ETH_EXTERNAL> interface.
+# By doing so, all network packets received on the <ETH_INTERNAL> interface will be sent through the <ETH_EXTERNAL> interface.
+# Example: iptables -A FORWARD -i eth1 -o eth0 -j ACCEPT
+iptables -A FORWARD -i <ETH_INTERNAL> -o <ETH_EXTERNAL> -j ACCEPT
+```
+
+*If UFW is used to filter network traffic.*
+
+To configure equivalent forwarding using `UFW`, the following settings should
+be configured:
+
+  - In the default `UFW` configuration file `/etc/default/ufw`, the
+    `DEFAULT_FORWARD_POLICY` parameter should be set to `ACCEPT`:
+
+    ```bash
+    DEFAULT_FORWARD_POLICY="ACCEPT"
+    ```
+
+  - In the `/etc/ufw/sysctl.conf` file, `IPv4` and (if required) `IPv6`
+    forwarding should be enabled by uncommenting the following entries:
+
+    ```bash
+    net.ipv4.ip_forward=1
+    net/ipv6/conf/default/forwarding=1
+    net/ipv6/conf/all/forwarding=1
+    ```
+
+  - In the `/etc/ufw/before.rules` file, the following `iptables` forwarding
+    rules should be added at the top of the file:
+
+    ```bash
+    *nat
+    :POSTROUTING ACCEPT [0:0]
+    # Example: -A POSTROUTING -o eth0 -j MASQUERADE
+    -A POSTROUTING -o <ETH_INTERNAL> -j MASQUERADE
+    COMMIT
+
+    *filter
+    :INPUT ACCEPT [0:0]
+    :FORWARD DROP [0:0]
+    :OUTPUT ACCEPT [0:0]
+    # Example: -A FORWARD -i eth0 -o eth1 -mstate --state RELATED,ESTABLISHED -j ACCEPT
+    -A FORWARD -i <ETH_EXTERNAL> -o <ETH_INTERNAL> -mstate --state RELATED,ESTABLISHED -j ACCEPT
+    # Example: -A FORWARD -i eth1 -o eth0 -j ACCEPT
+    -A FORWARD -i <ETH_INTERNAL> -o <ETH_EXTERNAL> -j ACCEPT
+    COMMIT
+    ```
+
+###### Network interfaces configuration
 
 The `<ETH_EXTERNAL>` adapter should be configured appropriately depending on
 the context of the operation, and only after the Linux and Windows VMs are
@@ -296,7 +404,7 @@ specified.
 A static `IPv4` should be configured on the `<ETH_INTERNAL>` adapter. The
 static `IP` can be assigned by modifying the `/etc/network/interfaces` file:
 
-```
+```bash
 # Example configuration with <ETH_INTERNAL> being eth1.
 
 # The settings for the loopback network interface should be left unchanged.
@@ -335,36 +443,6 @@ netstat -rt
 
 *Note: the Windows VM firewall may block inbound `ICMP` packets, thus `ping`
 should not be used to determine if the VMs can communicate with each others.*
-
-###### Forwarding of network traffic from the Windows VM
-
-`IP Forwarding` should be enabled to allow the transfer of network packets
-received from the Windows VM (on the `<ETH_INTERNAL>` network adapter) to the
-targeted network (through the `<ETH_EXTERNAL>` network adapter):
-
-```bash
-sudo echo 1 > /proc/sys/net/ipv4/ip_forward
-```
-
-Then `iptables` rules can be configured to route packets from `<ETH_INTERNAL>`
-to `<ETH_EXTERNAL>`:
-
-```bash
-# Adds a masquerade rule so that the network packets received from the Windows VM are modified in real-time to appear to be originating from the Linux VM.
-# By doing so, receiving hosts on the targeted network will be able to send back their responses to the Linux VM instead of attempting to join the inaccessible Windows VM.
-# Example: iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-iptables -t nat -A POSTROUTING -o <ETH_INTERNAL> -j MASQUERADE
-
-# Adds a forwarding rule so that the network packets associated with an existing connection received on the <ETH_EXTERNAL> interface are sent to the <ETH_INTERNAL> interface.
-# By doing so, the responses from remote hosts on the targeted network received for requests emitted by the Windows VM will be able to be transferred back.
-# Example: iptables -A FORWARD -i eth0 -o eth1 -mstate --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A FORWARD -i <ETH_EXTERNAL> -o <ETH_INTERNAL> -mstate --state RELATED,ESTABLISHED -j ACCEPT
-
-# Adds a forwarding rule so that all the network packets received on the  <ETH_INTERNAL> interface are sent to the <ETH_EXTERNAL> interface.
-# By doing so, all network packets received on the <ETH_INTERNAL> interface will be sent through the <ETH_EXTERNAL> interface.
-# Example: iptables -A FORWARD -i eth1 -o eth0 -j ACCEPT
-iptables -A FORWARD -i <ETH_INTERNAL> -o <ETH_EXTERNAL> -j ACCEPT
-```
 
 ### Windows VM guest configuration
 
@@ -549,10 +627,25 @@ New-NetFirewallRule -DisplayName "Block outbound IGMP" -Direction Outbound -Acti
 
 ###### Avoiding DNS request leaks by setting DNS nameservers to localhost
 
-It is recommended to set the system-wide `DNS nameservers` to `localhost`, in
-order to avoid leaking `DNS` requests (from Windows, Web browsers, or security
-products) that may indicate an unusual traffic and generate alerts (from
-solutions such as `DarkTrace` or `Vectra`).
+It is recommended to set the system-wide `DNS nameservers` to `localhost` or
+the `DNS` server hosted by the Linux VM, in order to avoid leaking `DNS`
+requests (from Windows, Web browsers, or security products) that may indicate
+an unusual traffic and generate alerts (from solutions such as `DarkTrace` or
+`Vectra`).
+
+*Windows VM configuration for setup with a Linux VM hosting a DNS service.*
+
+```
+```bash
+# Shows the network interfaces settings. Can be used to retrieve the interface name and validate settings updates.
+netsh interface ip show config
+
+# Statically sets the primary DNS server for the given interface to the Linux VM IP address.
+# Example: netsh interface ip set dns "Ethernet 1" static 192.168.125.1
+netsh interface ip set dns "<ETH_INTERNAL>" static <LINUX_VM_IP>
+```
+
+*Standalone Windows VM configuration.*
 
 Then [`Name Resolution Policy Table (NRPT)`](https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/dn593632(v=ws.11))
 rules, `host` file entries, or tools that allow `DNS nameservers`
@@ -576,6 +669,10 @@ Add-DnsClientNrptRule -Namespace "*.<DOMAIN>" -NameServers "<NAMESERVER_IP>"
 The Windows Firewall can be configured to block all inbound / outbound
 connections that do not match a rule, which allow to strictly control the
 network footprint of the system on the targeted network.
+
+**Even if the `UFW` firewall is used to define firewalling `iptables` rules on
+the Linux VM, the Windows VM network traffic will be forwarded directly and
+will not be subject to network filtering defined on the Linux VM.**
 
 The following `netsh` commands or PowerShell cmdlets can be used to enable the
 Windows Firewall, and block all inbound / outbound traffic:
@@ -606,8 +703,8 @@ New-NetFirewallRule -DisplayName "Open inbound port <PORT>" -Direction Inbound -
 
 # Allows outbound connections to the specified host(s).
 # ! Make sure that traffic to internal DNS servers is not allowed if the DNS servers are configured system-wide. Otherwise Windows / browser / tools DNS requests will leak !
-netsh advfirewall firewall add rule name="Open to hosts <XXX>" dir=out action=allow remoteip=<IPv4 | IPv6 | SUBNET (ex: 1.2.3.4/24 | 1.2.3.4/255.255.255.0) | RANGE (ex: 1.2.3.4-1.2.3.7)>
-New-NetFirewallRule -DisplayName "Open to hosts <XXX>" -Direction Outbound -Action Allow -RemoteAddress <IPv4 | IPv6 | SUBNET (ex: 1.2.3.4/24 | 1.2.3.4/255.255.255.0) | RANGE (ex: 1.2.3.4-1.2.3.7)>
+netsh advfirewall firewall add rule name="Open outbound to hosts <XXX>" dir=out action=allow remoteip=<IPv4 | IPv6 | SUBNET (ex: 1.2.3.4/24 | 1.2.3.4/255.255.255.0) | RANGE (ex: 1.2.3.4-1.2.3.7)>
+New-NetFirewallRule -DisplayName "Open outbound to hosts <XXX>" -Direction Outbound -Action Allow -RemoteAddress <IPv4 | IPv6 | SUBNET (ex: 1.2.3.4/24 | 1.2.3.4/255.255.255.0) | RANGE (ex: 1.2.3.4-1.2.3.7)>
 
 # Allows outbound connections of the specified program.
 netsh advfirewall firewall add rule name="<APPLICATION> outbound" dir=out action=allow program="<BINARY_FULL_PATH>"
@@ -632,6 +729,10 @@ https://github.com/imp/dnsmasq/blob/master/dnsmasq.conf.example
 https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-with-ufw-on-ubuntu-18-04
 
 https://www.marmosetelectronics.com/computing/ufw-allow-outbound-connections/
+
+https://gist.github.com/kimus/9315140
+
+https://help.ubuntu.com/community/Router#Enable_IP_forwarding_and_Masquerading
 
 http://woshub.com/manage-windows-firewall-powershell/
 
