@@ -101,10 +101,25 @@ It is recommenced to change the `MAC address` associated with the
 `<ETH_EXTERNAL>` network adapter, in order to bypass simple
 `Network Access Control (NAC)` solutions and blend in the usual network
 traffic. The `MAC` address of the `<ETH_EXTERNAL>` network adapter should be
-changed through both the hypervisor and the guest operating system.
+changed through the hypervisor (or eventually the guest operating system).
 
-The `ifconfig` utility can be used to change the `MAC address` (on the Linux
-VM):
+By default `Hyper-V` assign a `MAC` address to virtual machines from a range
+defined globally and common to all virtual switches. The default `MAC`
+addresses range start with `00-15-5D` (associated with Microsoft), and so even
+Linux VMs will appear to have a network adapter manufactured by Microsoft.
+
+A custom static `MAC` address can be assigned to a (shutdown) specific virtual
+machine through `Hyper-V`::
+
+```
+In the VM settings (right click on the VM, Settings) -> Network Adapter -> + -> Advanced Features
+  -> MAC address -> Static -> <MAC_ADDRESS>
+  -> Check "Enable MAC address spoofing" (to eventually allow easier modification of the MAC address)
+```
+
+The `ifconfig` utility can be used to change the `MAC address` from the Linux
+guest operating system (if spoofing of `MAC` address is enabled from
+`Hyper-V`):
 
 ```bash
 ifconfig <ETH_EXTERNAL> hw ether <MAC_ADDRESS>
@@ -241,7 +256,7 @@ echo 'IPV6=yes' | sudo tee -a /etc/default/ufw
 ```
 
 Before adding any new rules, `UFW` configuration should be restored to its
-inital state using:
+initial state using:
 
 ```bash
 # Disables UFW while setting rules.
@@ -296,12 +311,12 @@ ufw allow out on <ETH_INTERNAL>
 # ufw allow out to <REMOTE_IP>
 
 # Example rules to allow network traffic on private networks.
-ufw allow out to 10.0.0.0/8
 ufw allow in from 10.0.0.0/8
-ufw allow out to 172.16.0.0/16
-ufw allow in from 172.16.0.0/16
-ufw allow out to 192.168.0.0/24
-ufw allow in from 192.168.0.0/24
+ufw allow out to 10.0.0.0/8
+ufw allow in from 172.16.0.0/12
+ufw allow out to 172.16.0.0/12
+ufw allow in from 192.168.0.0/16
+ufw allow out to 192.168.0.0/16
 
 # Sets default rules: deny all incoming traffic, deny all outgoing traffic.
 ufw default deny incoming
@@ -496,8 +511,21 @@ If the Windows VM is bridged to the targeted network, it is recommenced to
 change the `MAC address` associated with the network adapter bridged to the
 network, in order to bypass simple `Network Access Control (NAC)` solutions
 and blend in the usual network traffic. The `MAC` address of the network
-adapter should be changed through both the hypervisor and the guest operating
-system.
+adapter should be changed through the hypervisor (or eventually the guest
+operating system).
+
+A custom static `MAC` address can be assigned to a (shutdown) specific virtual
+machine through `Hyper-V`:
+
+```
+In the VM settings (right click on the VM, Settings) -> Network Adapter -> + -> Advanced Features
+  -> MAC address -> Static -> <MAC_ADDRESS>
+  -> Check "Enable MAC address spoofing" (to eventually allow easier modification of the MAC address)
+```
+
+The `ipconfig` utility can be used to change the `MAC address` from the Windows
+guest operating system (if spoofing of `MAC` address is enabled from
+`Hyper-V`):
 
 ```
 # Shows the network interfaces and their respective MAC address ("Physical Address").
@@ -684,7 +712,7 @@ Set-NetFirewallProfile -All -Enabled True
 
 # Block all inbound and outbound traffic for all Windows firewall profiles.
 # The firewall can be configured to block all inbound connections or only block inbound connections that do not match an inbound rule.
-netsh advfirewall set allprofiles firewallpolicy [blockinboundalways | blockinbound],blockoutbound
+netsh advfirewall set allprofiles firewallpolicy <blockinboundalways | blockinbound>,blockoutbound
 Set-NetFirewallProfile –All [-AllowInboundRules False] –DefaultInboundAction Block –DefaultOutboundAction Block
 
 # Delete every inbound and outbound rules currently defined.
@@ -703,6 +731,7 @@ New-NetFirewallRule -DisplayName "Open inbound port <PORT>" -Direction Inbound -
 
 # Allows outbound connections to the specified host(s).
 # ! Make sure that traffic to internal DNS servers is not allowed if the DNS servers are configured system-wide. Otherwise Windows / browser / tools DNS requests will leak !
+# Example to allow traffic to the private subnet: netsh advfirewall firewall add rule name="Open outbound to internal subnet" dir=out action=allow remoteip=192.168.125.0/24
 netsh advfirewall firewall add rule name="Open outbound to hosts <XXX>" dir=out action=allow remoteip=<IPv4 | IPv6 | SUBNET (ex: 1.2.3.4/24 | 1.2.3.4/255.255.255.0) | RANGE (ex: 1.2.3.4-1.2.3.7)>
 New-NetFirewallRule -DisplayName "Open outbound to hosts <XXX>" -Direction Outbound -Action Allow -RemoteAddress <IPv4 | IPv6 | SUBNET (ex: 1.2.3.4/24 | 1.2.3.4/255.255.255.0) | RANGE (ex: 1.2.3.4-1.2.3.7)>
 
