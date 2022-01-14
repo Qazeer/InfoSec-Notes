@@ -87,6 +87,39 @@ As described in the setup above, the Linux VM will have two network interfaces:
   - `<ETH_INTERNAL>` (example: `eth1`) that will be internal / private to the
     host.
 
+###### Hyper-V Enhanced Session Mode for Linux
+
+`Hyper-V`'s `Enhanced Session Mode` provides a number of feature (shared
+drives, better screen resolution,...) and gives a better user experience with
+the virtual machine guest. To more easily install the `Enhanced Session Mode`
+feature in a Linux VM, it is recommended to use a `Kali Linux` distro,
+[as support for the feature is provided by the `Kali` mainteners](https://www.kali.org/docs/virtualization/install-hyper-v-guest-enhanced-session-mode/).
+
+The `kali-tweaks` utility can be used from `kali` to install the
+`hyperv-daemons` and enable support for `Enhanced Session Mode`:
+
+```
+# Virtualization -> Configure the system for Hyper-V enhanced session mode.
+sudo kali-tweaks
+```
+
+The Linux VM should then be shutdown and the following PowerShell cmdlet
+executed (with Administrators privileges):
+
+```
+Set-VM "<VM_NAME>" -EnhancedSessionTransportType HVSocket
+```
+
+Futher access to the Linux VM will be done through the
+`Remote Desktop Protocol (RDP)` with the `xrdp` utility. If the session is
+opened with user privileges, the `root` user must be given access control to
+the current session in order to be able to open graphical utility. Otherwise
+an `cannot open display: :1.0` error message may arise.
+
+```
+xhost +SI:localuser:root
+```
+
 ###### Updating the machine's hostname (to match the environment / context)
 
 It is recommended to update the hostname of the system that will connect to the
@@ -140,6 +173,13 @@ Replace the GRUB_CMDLINE_LINUX_DEFAULT="quiet" line by GRUB_CMDLINE_LINUX_DEFAUL
 
 Following the modification, `grub` should be updated using `sudo update-grub`
 and the system rebooted.
+
+`IPv6` connectivity can also be disabled on a network adapter basis, for
+example using the `Network Manager`:
+
+```
+sudo nm-connection-editor
+```
 
 ###### Avoiding DNS request leaks
 
