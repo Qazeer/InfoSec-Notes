@@ -6,15 +6,15 @@ The repository behind the notes can be found at:
 
 {% hint style="warning" %}
 * These notes are distributed in the hope that they will be useful, but without warranty of any kind.
-* Quality of each note may greatly vary (notably depending on the time spent on the note).
-* Some content may be outdated as the first note was written over 4 years ago.
+* Some notes are work in progress and quality of each note may greatly vary (notably depending on the time spent on the note).
+* Some content may be outdated as the first note was written over 4 years ago and tradecraft has evolved since.
 {% endhint %}
 
 As this project / documentation was initially started with no goal of being
 published, credit may not be properly given where credit is due. While efforts
 have been made to rectify this, feel free to contact me at
-`<qazeer at gmail dot com>` if you think a source that should be is not
-mentioned on a subject.
+`<qazeer at protonmail dot com>` if you think a source that should be is not
+mentioned on a subject (or for any other contact).
 
 --------------------------------------------------------------------------------
 
