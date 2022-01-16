@@ -289,7 +289,7 @@ entity.
 # As asnrecon.py requires Python2 and a number of dependencies, it is recommended to use the Docker file provided in the repository to  build a Docker container.
 docker build -f Dockerfile -t asnrecon .
 
-# Either chose 1. to scan by domain name or 2. to only conduct the SSL / TLS subject name extraction on a given IP range.  
+# Either chose 1. to scan by domain name or 2. to only conduct the SSL / TLS subject name extraction on a given IP range.
 docker run -it asnrecon
 ```
 
@@ -335,7 +335,9 @@ https://transparencyreport.google.com/https/certificates
 
 ###### [Active] SSL / TLS certificates grabbing
 
+```
 nmap -v -sT -T 2 -Pn -p 443 -sV -sC -oA <OUTPUT_FILES> [-iL <INPUT_FILE> | <HOST | IP | CIDR | IP_RANGE>
+```
 
 ###### [Active] Forward / reverse DNS brute force
 
@@ -398,6 +400,8 @@ interlace -tL <INPUT_DOMAIN_FILE> -o <OUTPUT_FOLDER> -cL Sublist3r_cmd_file.txt
 
 ###### Shodan
 
+TODO
+
 ### Code repository enumeration and research
 
 TODO
@@ -457,10 +461,67 @@ json_file.close()
 csv_file.close()
 ```
 
+### Username enumeration and password bruteforce / spraying
+
+###### Externally facing Exchange server
+
+If an Internet facing `Outlook Web Access (OWA)` / `Exchange Web Services` /
+`Exchange Active Sync (EAS)` portal is identified, it may be possible to
+validate usernames (in a time-based attack) or to bruteforce credentials.
+  - `OWA` is a browser client web application designed for users to access
+    their mailboxes. Allows to both validate usernames and conduct bruteforcing
+    attacks.
+  - `EWS` is a non-user facing service allowing applications to communicate
+    with the `Exchange` server. Can be leveraged for (faster) bruteforcing
+    attacks.
+  - `EAS` is a proprietary protocol designed for the synchronization of email,
+    contacts, calendar (etc.) from Exchange servers. Allows to both validate
+    usernames and conduct bruteforcing attacks. The portal is usually exposed
+    at `https://<EXCHANGE_SERVER>/Microsoft-Server-ActiveSync/`.
+
+Note that the usernames validation technique against `OWA` / `EAS` rely on a
+time difference between response time for authentication attempts with a valid
+or invalid username. An unsuccessful authentication will thus be triggered for
+any valid account found. As the accounts are (most likely) subject to the
+Active Directory domain password policy, precautions should be taken to avoid
+locking out the accounts by limiting the enumeration / password guessing
+attempts.
+
+The PowerShell [`MailSniper`](https://github.com/dafthack/MailSniper) toolkit
+and the [`SprayingToolkit`](https://github.com/byt3bl33d3r/SprayingToolkit)
+Python script can be used to conduct password spraying attacks against `OWA`
+/ `EWS` portals.
+
+```bash
+# Determines a the domain name associated with the Exchange instance.
+Invoke-DomainHarvestOWA -ExchHostname <EXCHANGE_HOSTNAME | EXCHANGE_IP>
+
+# Attempts to valid usernames through a time-based attack.
+Invoke-UsernameHarvestOWA -ExchHostname <EXCHANGE_HOSTNAME | EXCHANGE_IP> -Domain <DOMAIN_NAME> -UserList <USER_FILE> -OutFile <OUTPUT_FILE>
+Invoke-UsernameHarvestEAS -ExchHostname <EXCHANGE_HOSTNAME | EXCHANGE_IP> -Domain <DOMAIN_NAME> -UserList <USER_FILE> -OutFile <OUTPUT_FILE>
+
+# According to tests performed by the MailSniper author, bruteforcing through EWS is significantly faster than bruteforcing through OWA / EAS.
+Invoke-PasswordSprayOWA -ExchHostname <EXCHANGE_HOSTNAME | EXCHANGE_IP> -UserList <USER_FILE> -Password <PASSWORD>
+Invoke-PasswordSprayEAS -ExchHostname <EXCHANGE_HOSTNAME | EXCHANGE_IP> -UserList <USER_FILE> -Password <PASSWORD>
+Invoke-PasswordSprayEWS [-ExchangeVersion <Exchange2013_SP1 | EXCHANGE_VERSION>] -ExchHostname <EXCHANGE_HOSTNAME | EXCHANGE_IP> -UserList <USER_FILE> -Password <PASSWORD>
+```
+
+If valid credentials are found, `MailSniper`'s `MailSniper` cmdlet can be used
+to harvest email addresses. The cmdlet will first attempt to connect to an
+`OWA` portal to use the `FindPeople` method (available starting from
+`Exchange2013`). If this attempt does not succeed, the cmdlet will attempt to
+retrieve the `Global Address List` over `EWS`.
+
+```bash
+Get-GlobalAddressList -ExchHostname <EXCHANGE_HOSTNAME | EXCHANGE_IP> -UserName <DOMAIN>\<USERNAME> -Password <PASSWORD> -OutFile <OUTPUF_FILE>
+```
+
 --------------------------------------------------------------------------------
 
 ### References
 
 https://github.com/appsecco/the-art-of-subdomain-enumeration
+
 https://www.whatismyip.com/asn/
+
 https://www.twelve21.io/getting-started-with-recon-ng/
