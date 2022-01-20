@@ -20,7 +20,7 @@ missing and the files appearing in red are usually not digitally signed or
 not by a known editor.
 
 Note that `Autoruns` **DOES NOT check the loaded DLL** by the programs that are
-run from ASEP.   
+run from ASEP.
 
 ###### CLI AutorunsC
 
@@ -99,10 +99,10 @@ associated user logs in (`Current Users` start up folders).
 ###### Filesystem
 
 ```
-# All Users startup folder
+# All Users startup folder.
 C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup
 
-# Current Users startup folders
+# Current Users startup folders.
 C:\Users\<USERNAME>\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
 ```
 
@@ -123,10 +123,10 @@ Get-StartupFoldersLnkTargets -Drive "F:"
 ```
 <#
     .SYNOPSIS
-        Get all the starting programs through start up folders  
+        Get all the starting programs through start up folders
 
     .DESCRIPTION
-      Enumerate all the startup folders lnk using Get-ChildItem and retrieve the lnk targets  
+      Enumerate all the startup folders lnk using Get-ChildItem and retrieve the lnk targets
 
     .EXAMPLE
         Get-StartupFoldersLnk -Drive D:
@@ -163,11 +163,11 @@ function Get-StartupFoldersLnkTargets {
 
 ### ASEP registry keys
 
-Windows runs keys and services are registry entries that run whenever the
-system is booted or a specific user logs in. The ASEP
-`HKEY_LOCAL_MACHINE (HKLM)` keys are run every time the system is started while
-ASEP `HKEY_CURRENT_USER (HKCU)` keys are only executed when the user associated
-with the keys logs on to the system.
+A number of registry keys, known as `Auto-Start Extensibility Points (ASEP)`
+registry keys, are run whenever the system is booted or a specific user logs
+in. The `ASEP` keys under `HKEY_LOCAL_MACHINE (HKLM)` are run every time the
+system is started, while the `ASEP` keys under `HKEY_CURRENT_USER (HKCU)` are
+only executed when the user associated with the keys logs on to the system.
 
 Indeed, each user with a configured profile has an associated `HKCU\<USERNAME>`
 sub key, which contains the registries keys of the user. The `HKCU` keys are
@@ -196,7 +196,7 @@ registry entries.
 RECmd.exe -d <NTFS_VOLUME | FOLDER_CONTAINING_REGISTRY_HIVES> --bn .\BatchExamples\RegistryASEPs.reb --csv <OUTPUT_FOLDER>
 ```
 
-The following run keys are commonly used for persistence:  
+The following run keys are commonly used for persistence:
 
 ```
 HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
