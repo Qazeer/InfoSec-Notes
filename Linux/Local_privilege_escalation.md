@@ -270,6 +270,13 @@ find / -newermt "<START-DATE>" ! -newermt '<END-DATE>' -exec ls -lah {} \; 2>/de
 user or group owner of the file. A number of misconfigurations of `SUID` /
 `SGID` binaries can be leveraged for privilege escalation.
 
+Note that execution of `SUID` / `SGID` binaries only set the
+`effective uid (euid)` (to the one of the owner of the binary) and not the
+`real uid (ruid)`. The `euid` is the `uid` used by the current process, and the
+`ruid` is the "true" `uid` of the user, used to restore the original `uid`
+upon termination of the process. Some utilities, such as `sh` or `bash`, will
+drop the `euid` if it's not equal to the `ruid` for security reason.
+
 ###### Find SUID/GUID files and directories
 
 The `find` utility can be used to list the `SUID` / `GUID` binaries present on
@@ -490,6 +497,10 @@ of an existing library.
 
 ### Privilege escalation through sudo
 
+Note that, contrary to `SUID` / `SGID` binaries, the `sudo` utility set both
+the `effective uid (euid)` and the `real uid (ruid)` (to the `uid` of the user
+whose identity is assumed through `sudo`).
+
 ###### "GTFOBins"
 
 Similarly to `SUID` / `GUID` binaries, any `GTFOBins` program that allows
@@ -508,11 +519,10 @@ be possible to obtain code execution under the privileges assumed through
 the utility executed through `sudo` (with hopefully higher privileges) to load
 an arbitrary shared library (`.so`).
 
-The following code example executes `/bin/sh` under the identity of the user
-executing the binary (identified with the `effective uid`, retrieved using
-`geteuid`), and can be leveraged to elevate privilege (if loaded by a binary
-executed under a more privileged user through `sudo`). The `_init` special
-function gets called as the library is first opened.
+The following code example simply executes `/bin/bash` under the identity of
+the user executing the binary, and can be leveraged to elevate privilege (if
+loaded by a binary executed under a more privileged user through `sudo`). The
+`_init` special function gets called as the library is first opened.
 
 ```c
 #include <stdio.h>
@@ -521,8 +531,6 @@ function gets called as the library is first opened.
 
 void _init() {
   unsetenv("LD_PRELOAD");
-  setuid(geteuid());
-  setgid(getegid());
   system("/bin/sh");
 }
 ```
