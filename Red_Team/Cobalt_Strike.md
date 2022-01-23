@@ -4,34 +4,48 @@
 
 ###### TeamServer Overview
 
-Cobalt Strike is split into a server, named the `team server`, and client
-components. The `team server` is at the core of the `Cobalt Strike`
+`Cobalt Strike` is split into a server, named the `teamserver`, and client
+components. The `teamserver` is at the core of the `Cobalt Strike`
 infrastructure, with the `beacons` calling back (directly or through a
-redirector) to the `team server` for actions.
+redirector) to the `teamserver` for actions.
 
-The `team server` expose the `TCP` port 50050 for clients access (using the
+The `teamserver` expose the `TCP` port 50050 for clients access (using the
 `Cobalt Strike` client component). The port should not be publicly exposed on
 the Internet, notably because scans are conducted by blue teams to identify
-Internet-facing `Cobalt Strike` `team servers`. A remote access service
+Internet-facing `Cobalt Strike` `teamservers`. A remote access service
 (`SSH`, `VPN`, etc.) should be used instead for collaborative access.
 
 Additionally, the `beacons` should not call back directly to the
-`team server`, but should instead call back to a redirector (such as
+`teamserver`, but should instead call back to a redirector (such as
 `Azure CDN` for example). This  greatly limit the exposure of the
-`team server`, and reduce the risk of the `team server` being identified by
+`teamserver`, and reduce the risk of the `teamserver` being identified by
 the blue team.
 
 ```
-# Starts the team server over the given IP and with the specified shared password (for clients access).
+# Starts the teamserver over the given IP and with the specified shared password (for clients access).
 
 ./teamserver <LISTENING_IP> <PASSWORD> [<C2_PROFILE_PATH>] [<BEACON_KILL_DATE_YYYY-MM-DD>]
 ```
 
+Note that exposure of the `teamserver` (port `TCP` 50050) should be restricted
+at a network level (for example through a `security group` in `AWS` or a
+`network security group` in `Azure`). An Internet-facing `teamserver` could be
+leveraged by blue teams to retrieve the `beacons` configuration by emulating
+staged `beacons` callbacks. This can be for instance achieved using
+[`melting-cobalt`](https://github.com/splunk/melting-cobalt). `ssh` may be
+used, for example, to forward the `teamserver` `TCP` port on attacking systems:
+
+```bash
+# forwards locally the Cobalt Strike teamserver on port TCP 50050.
+# The Cobalt Strike client can then be used on attacking systems to connect to the teamserver (at 127.0.0.1).
+ssh [-i <PRIVATE_KEY>] -nNT -L 50050:127.0.0.1:50050 <USERNAME>@<TEAMSERVER_PUBLIC_IP>
+```
+
 ###### Malleable C2 Profiles overview
 
-The way `Cobalt Strike` beacons interact with the `team server` can be
+The way `Cobalt Strike` beacons interact with the `teamserver` can be
 customized through an optional `Malleable C2 profile`, chosen upon the start of
-the `team server`. **A custom `Malleable C2 profile` should always be used for
+the `teamserver`. **A custom `Malleable C2 profile` should always be used for
 operations, in order to limit the risk of detection.**
 
 The `Malleable C2 Profile` notably controls:
@@ -40,7 +54,7 @@ The `Malleable C2 Profile` notably controls:
 
   - Staging process, which is recommended to keep disabled
     (`set host_stage "false"`) for OPSEC issues (identification of
-    `team server` by simulating a staged beacons). If disabled, only stageless
+    `teamserver` by simulating a staged beacons). If disabled, only stageless
     `beacons` will be usable.
 
   - The `SSL` / `TLS` certificate used by `HTTPS` listeners.
@@ -77,7 +91,7 @@ used as is, due to known markers being already defined by security products).
 `Cobalt Strike`'s `c2lint` utility can be used to check the validity of the
 specified profile: `c2lint <C2_PROFILE_PATH>`.
 
-### Beacons
+### Beacons obfuscation
 
 ###### Arsenal kit overview
 
@@ -122,20 +136,231 @@ Cobalt Strike -> Script Manager -> Load / Reload -> resources.cna
 
 TODO
 
-###### Custom beacon shellcode and loader
-
-*Custom shellcode generation*
+###### Custom beacon shellcode generator
 
 The [`Cobalt Strike Shellcode Generator`](https://github.com/RCStep/CSSG)
 aggressor script can be used to generate and format `beacon` shellcode. The
 generated shellcode can be encrypted using `XOR` or `AES-256-CBC`, as well as
 encoded in `base64` or compressed (in `gzip`).
 
+###### Custom beacon shellcode loader
+
+Refer to the `[Windows] - Shellcode and PE loader` note for more information
+on shellcode loaders that can be leveraged to execute `Cobalt Strike` beacons.
+
+### Beacons commands (built-in and with third party Aggressor script)
+
+Numerous beacon commands are available, allowing a number of actions to be
+performed through `Cobalt Strike`'s `beacons`. The commands arguments and
+description were largely taken from `Cobalt Strike` help message, while the
+artefacts were established using public references (listed at this end of the
+present note) and [`DetectionLab`](https://github.com/clong/DetectionLab).
+
+###### Beacon Object Files OpSec considerations
+
+A number of `beacon` commands are implemented as `Beacon Object Files (BOF)`.
+`BOF` are compiled C programs, with certain limitations, that execute within a
+`beacon` process. After completion of the execution, `BOF` are cleaned from
+memory. **`BOF` leverage by default `RWX` memory, which is suspicious and may
+get flagged by security products.** This behavior can be changed through the
+`Malleable C2`'s profile `process-inject block` section:
+
+```bash
+process-inject {
+     # [...]
+     set startrwx "true";
+     set userwx    "false";
+     # [...]
+}
+```
+
+Additionally, the built-in commands can be overridden / supplemented with
+`Aggressor` scripts and third-party `Beacon Object File (BOF)`.
+
+###### Spawn / fork and run pattern OpSec considerations
+
+A number of `beacon` commands (`execute-assembly`, `powerpick`, ...) spawn a
+sacrificial process and inject code in the newly created process to conduct
+the operation.
+
+A number of considerations should be taken into account for commands using the
+spawn and run pattern:
+  - By default, `rundll.exe` is spawned as the sacrificial process, which can
+    (and should) be changed using the `spawnto <x86 | x64> <BINARY_FULL_PATH>`
+    command.
+  - By default, the sacrificial process will be spawned as a child of the
+    `beacon` process. This behavior can (and in most case should) be changed
+    using the `ppid <PID>` command.
+
+
+###### General commands
+
+| Command | Description | OpSec considerations |
+|-------------|---------|---------------------|
+| `help` <br><br> `help <COMMAND>` | Print the help menu. | None (no communication with the `beacon`). |
+| `checkin` | Call home and post data | |
+| `sleep` | Set beacon sleep time | |
+| `note` | Assign a note to this Beacon | |
+| `history` | Show the command history | |
+| `jobs` | List long-running post-exploitation tasks | |
+| `jobkill` | Kill a long-running post-exploitation task | |
+| `kill` | Kill a process | |
+| `unlink` | Disconnect from parent Beacon | |
+| `clear` | Clear beacon queue | |
+| `exit` | Terminate the beacon session | |
+| `screenshot` | Take a single screenshot | |
+| `printscreen` | Take a single screenshot via `PrintScr` method | |
+| `screenwatch` | Take periodic screenshots of desktop | |
+| `spawnto <x86 \| x64> <BINARY_FULL_PATH>` | Set the executable used to spawn processes into for spawn and run commands. <br><br> If spawning a process from `%SystemRoot%\System32`, the path should be specified using `%SystemRoot%\sysnative\` or `%SystemRoot%\syswow64\` instead. <br> The `%SystemRoot%\System32` path is indeed resolved differently for `x86` and `x64` processes ([`%SystemRoot%\System32` is mapped to `%SystemRoot%\syswow64\` for `x86` processes on 64 bits systems](https://docs.microsoft.com/en-us/windows/win32/winprog64/file-system-redirector)). | |
+
+###### Local system enumeration and interaction commands
+
+| Command | Description | OpSec considerations |
+|-------------|---------|---------------------|
+| `ps` | Show process list | |
+| `net` | Network and host enumeration tool | `BOF` using `RWX` memory by default. |
+| `reg` | Query the registry | `BOF` using `RWX` memory by default. |
+| `setenv` | Set an environment variable | |
+
+###### Filesystem interaction commands
+
+| Command | Description | OpSec considerations |
+|-------------|---------|---------------------|
+| `pwd` | Print current directory | |
+| `drives` | List drives on target | |
+| `ls` | List files | |
+| `cd` | Change directory | |
+| `mkdir` | Make a directory | |
+| `mv` | Move a file | |
+| `cp` | Copy a file | |
+| `rm` | Remove a file or folder | |
+| `desktop` | View and interact with target's desktop | |
+| `upload <LOCAL_FILE_PATH>` | Upload a file to the current working directory. <br><br> The [`better-upload.cna`](https://github.com/mgeeky/cobalt-arsenal/blob/master/better-upload.cna) Aggressor Script can be used to override the `upload` command with an alternative allowing the specification of the output file path: <br> `upload <LOCAL_FILE_PATH> <OUTPUT_FILE_PATH>`. | |
+| `download` | Download a file | |
+| `downloads` | Lists file downloads in progress | |
+| `cancel` | Cancel a download that's in-progress | |
+
+###### Command / code execution commands
+
+| Command | Description | OpSec considerations |
+|-------------|---------|---------------------|
+| `shell <COMMAND> [<ARGUMENTS>]` | Execute the specified command via `cmd.exe`. | Not OpSec friendly and should generally be avoid. <br><br> The `beacon` process will spawn a new `cmd.exe` process, which in turn may spawn a third process executing the specified binary. |
+| `execute` | Execute a program on target (no output) |
+| `runu` | Execute a program under another PID |
+| `spawn` | Spawn a session |
+| `spawnu` | Spawn a session under another process |
+
+*PowerShell*
+
+| Command | Description | OpSec considerations |
+|-------------|---------|---------------------|
+| `powershell` | Execute a command via powershell.exe | |
+| `powerpick` | Execute a command via Unmanaged PowerShell | Spawn and run pattern. |
+| `psinject` | Execute PowerShell command in specific process | |
+| `powershell-import` | Import a PowerShell script | |
+
+*In memory code injection*
+
+| Command | Description | OpSec considerations |
+|-------------|---------|---------------------|
+| `inject` | Spawn a session in a specific process | |
+| `inline-execute` | Run a Beacon Object File in this session | |
+| `execute-assembly <ASSEMBLY_FULL_PATH> [<ARGUMENTS>]` | Execute a local `.NET` assembly in-memory through a newly spawned sacrificial process. The main advantage of the sacrificial process is to prevent the `beacon` being impacted by crash or killing (if detected) of the executed `.NET` assembly. <br><br> (Very) Simplified overview of a `.NET` assembly execution via unmanaged code as (possibly) implemented by `execute-assembly`: <br><br> 1. Spawning of a new process and injection of code in the new process. All the next steps described below will be done by the injected code in this new process. <br><br> 2. Loading, if available, of the appropriate version of the `Common Language Runtime (CLR)` for the `.NET` assembly executed (`CLR 2.X` for <= `.NET Framework 3.5` or `CLR 4.X` for `.NET Framework 4.0+` assemblies). <br><br> 3. Instantiation of an `AppDomain` object and loading of the assembly using `AppDomain.Load(byte[] assembly)` or `_AppDomain->Load_3((SAFEARRAY) assembly, _Assembly** pRetVal)`) methods. <br><br> 4. Retrieval of the assembly `EntryPoint` (for example with `Assembly->EntryPoint`) and invocation of the `EntryPoint` with `MethodInfo->Invoke_3`. | Spawn and run pattern. <br><br> The `InlineExecute-Assembly` `BOF` may be used to avoid this pattern (with potential `beacon` stability impact as a tradeoff). |
+| [`InlineExecute-Assembly`](https://github.com/anthemtotheego/InlineExecute-Assembly) <br><br> `inlineExecute-Assembly --dotnetassembly <ASSEMBLY_FULL_PATH> [--assemblyargs <ARGUMENTS>]`| Execute a local `.NET` assembly in-memory directly in the `beacon` process. | `InlineExecute-Assembly` helps avoiding the spawn and run of `execute-assembly` that may be detected by security products. <br><br> As the `.NET` assembly is loaded and executed directly in the `beacon` process however, any crash or detection inducing a kill of the process will result in losing the `beacon`. |
+
+*Shellcode / code injection*
+
+| Command | Description | OpSec considerations |
+|-------------|---------|---------------------|
+| `shinject` | Inject shellcode into a process | |
+| `shspawn` | Spawn process and inject shellcode into it | |
+| `dllinject` | Inject a Reflective DLL into a process | |
+| `dllload` | Load DLL into a process with LoadLibrary() | `BOF` using `RWX` memory by default. |
+
+###### Defense evasion commands
+
+| Command | Description | OpSec considerations |
+|-------------|---------|---------------------|
+| `timestomp` | Apply timestamps from one file to another | `BOF` using `RWX` memory by default. |
+| `ppid` | Set parent PID for spawned post-ex jobs | |
+| `argue` | Spoof arguments for matching processes | |
+| `blockdlls` | Block non-Microsoft DLLs in child processes | |
+
+###### Credentials usage commands
+
+| Command | Description | OpSec considerations |
+|-------------|---------|---------------------|
+| `runas` | Execute a program as another user | |
+| `runasadmin` | Execute a program in an elevated context | `BOF` using `RWX` memory by default. |
+| `spawnas` | Spawn a session as another user | |
+| `pth` | Pass-the-hash using Mimikatz | |
+| `kerberos_ccache_use` | Apply Kerberos ticket from cache to this session | `BOF` using `RWX` memory by default. |
+| `kerberos_ticket_purge` | Purge Kerberos tickets from this session | `BOF` using `RWX` memory by default. |
+| `kerberos_ticket_use` | Apply Kerberos ticket to this session | `BOF` using `RWX` memory by default. |
+
+###### Privileges and local privilege escalation commands
+
+| Command | Description | OpSec considerations |
+|-------------|---------|---------------------|
+| `make_token` | Create a token to pass credentials | |
+| `steal_token` | Steal access token from a process | |
+| `rev2self` | Revert to original token | |
+| `elevate` | Spawn a session in an elevated context | `BOF` using `RWX` memory by default. |
+
+###### Lateral movement commands
+
+| Command | Description | OpSec considerations |
+|-------------|---------|---------------------|
+| `portscan` | Scan a network for open services | |
+| `run` | Execute a program on target (returns output) | |
+| `jump` | Spawn a session on a remote host | `BOF` using `RWX` memory by default. |
+| `link` | Connect to a Beacon peer over a named pipe | |
+| `connect` | Connect to a Beacon peer over TCP | |
+| `remote-exec` | Run a command on a remote host | `BOF` using `RWX` memory by default. |
+
+###### Pivoting commands
+
+| Command | Description | OpSec considerations |
+|-------------|---------|---------------------|
+| `browserpivot` | Setup a browser pivot session | |
+| `rportfwd` | Setup a reverse port forward | |
+| `rportfwd_local` | Setup a reverse port forward via Cobalt Strike client | |
+| `covertvpn` | Deploy Covert VPN client | Spawn and run pattern. |
+| `spunnel` | Spawn and tunnel an agent via rportfwd | |
+| `spunnel_local` | Spawn and tunnel an agent via Cobalt Strike client rportfwd | |
+| `ssh` | Use SSH to spawn an SSH session on a host | |
+| `ssh-key` | Use SSH to spawn an SSH session on a host | |
+| `socks` | Start SOCKS4a server to relay traffic | |
+| `socks stop` | Stop SOCKS4a server ||
+
+###### Post-exploitation commands
+
+| Command | Description | OpSec considerations |
+|-------------|---------|---------------------|
+| `keylogger` | Start a keystroke logger | |
+| `chromedump` | Recover credentials from Google Chrome | |
+| `hashdump` | Dump password hashes | |
+| `logonpasswords` | Dump credentials and hashes with mimikatz | |
+| `dcsync` | Extract a password hash from a DC | |
+| `mimikatz` | Runs a mimikatz command | |
+
+--------------------------------------------------------------------------------
+
+`mode dns`                  Use DNS A as data channel (DNS beacon only)
+
+`mode dns-txt`              Use DNS TXT as data channel (DNS beacon only)
+
+`mode dns6`                 Use DNS AAAA as data channel (DNS beacon only)
+
+
+
 --------------------------------------------------------------------------------
 
 ### References
 
 https://www.cobaltstrike.com/help-start-cobaltstrike
+
+https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/welcome_main.htm
 
 https://www.ired.team/offensive-security/red-team-infrastructure/cobalt-strike-101-installation-and-interesting-commands
 
@@ -144,3 +369,7 @@ https://www.cobaltstrike.com/help-malleable-c2
 https://github.com/threatexpress/malleable-c2
 
 https://posts.specterops.io/a-deep-dive-into-cobalt-strike-malleable-c2-6660e33b0e0b
+
+https://github.com/S1ckB0y1337/Cobalt-Strike-CheatSheet
+
+https://hausec.com/2021/07/26/cobalt-strike-and-tradecraft/
