@@ -21,7 +21,7 @@ Additionally, the `beacons` should not call back directly to the
 `teamserver`, and reduce the risk of the `teamserver` being identified by
 the blue team.
 
-```
+```bash
 # Starts the teamserver over the given IP and with the specified shared password (for clients access).
 
 ./teamserver <LISTENING_IP> <PASSWORD> [<C2_PROFILE_PATH>] [<BEACON_KILL_DATE_YYYY-MM-DD>]
@@ -150,11 +150,13 @@ on shellcode loaders that can be leveraged to execute `Cobalt Strike` beacons.
 
 ### Beacons commands (built-in and with third party Aggressor script)
 
-Numerous beacon commands are available, allowing a number of actions to be
+Numerous `beacon` commands are available, allowing a number of actions to be
 performed through `Cobalt Strike`'s `beacons`. The commands arguments and
 description were largely taken from `Cobalt Strike` help message, while the
-artefacts were established using public references (listed at this end of the
-present note) and [`DetectionLab`](https://github.com/clong/DetectionLab).
+OpSec considerations were established using the
+[official Cobalt Strike documentation](https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/appendix-a_beacon-opsec-considerations.htm),
+public resources (referenced at the end of the present note), and tests done in
+[`DetectionLab`](https://github.com/clong/DetectionLab).
 
 ###### Beacon Object Files OpSec considerations
 
@@ -163,35 +165,126 @@ A number of `beacon` commands are implemented as `Beacon Object Files (BOF)`.
 `beacon` process. After completion of the execution, `BOF` are cleaned from
 memory. **`BOF` leverage by default `RWX` memory, which is suspicious and may
 get flagged by security products.** This behavior can be changed through the
-`Malleable C2`'s profile `process-inject block` section:
+`Malleable C2`'s profile `process-inject` section:
 
 ```bash
 process-inject {
      # [...]
-     set startrwx "true";
+     set startrwx "false";
      set userwx    "false";
      # [...]
 }
 ```
 
 Additionally, the built-in commands can be overridden / supplemented with
-`Aggressor` scripts and third-party `Beacon Object File (BOF)`.
+`Aggressor` scripts and third-party `BOFs`.
 
 ###### Spawn / fork and run pattern OpSec considerations
 
 A number of `beacon` commands (`execute-assembly`, `powerpick`, ...) spawn a
 sacrificial process and inject code in the newly created process to conduct
-the operation.
+their operations.
 
 A number of considerations should be taken into account for commands using the
 spawn and run pattern:
   - By default, `rundll.exe` is spawned as the sacrificial process, which can
     (and should) be changed using the `spawnto <x86 | x64> <BINARY_FULL_PATH>`
     command.
+
   - By default, the sacrificial process will be spawned as a child of the
     `beacon` process. This behavior can (and in most case should) be changed
     using the `ppid <PID>` command.
 
+  - The spawned process may be monitored by security products through userland
+    `DLL` hooking even if the parent process is in an "unhooked" state. Under
+    certain circumstances, the `blockdlls start` command can be used to prevent
+    userland hooking by leveraging a signature policy that blocks non-Microsoft
+    `DLLs` from loading in the child process memory space.
+
+###### Code injection OpSec considerations
+
+Some commands will default to spawning a new process (fork and run pattern) but
+will allow for the specification of an existing target process to inject into.
+Limited commands will also require injection into a remote process
+(`browserpivot` and `psinject`) with no possible alternative.
+
+A number of considerations should be taken into account for code injection (and
+the `beacon` commands build around it):
+  - Injection across process arch require the use of more visible / monitored
+    Windows `APIs`. As some commands require to be executed in a `x64` process
+    on a `x64` system, it is recommended to make use of `x64` beacons as much
+    as possible (to avoid `x86` -> `x64` noisy injections).
+
+  - Self-injection uses the much less scrutinized `CreateThread` `API` (by
+    default). Specifying the current `beacon` process for commands allowing the
+    specification of a target process will result in self-injection. The
+    tradeoff of self-injection is a potential `beacon` lose if the injected
+    code crashes or get detected and induce a kill of the process.
+
+  - While having other OpSec tradeoffs, the `spawnu` and `runu` commands can be
+    used to avoid code injection by spawning, respectively, a new `beacon` or
+    binary under another parent process. The child process created will inherit
+    the security context of the parent process.
+
+The `Windows API` leveraged for the code injection are defined in the
+`Malleable C2`'s profile `process-inject->execute` section:
+
+```bash
+# More information on the configuration can be found in the official Cobalt Strike documentation at:
+# https://www.cobaltstrike.com/blog/cobalt-strikes-process-injection-the-details-cobalt-strike/
+process-inject {
+    # Set the remote memory allocation API.
+    set allocator "NtMapViewOfSection";
+
+    # Set the content and properties of the injected memory section.
+    set min_alloc "16384";
+    set startrwx "false";
+    set userwx    "false";
+
+    # Set padding instructions, used if needed to reach minimal allocation size.
+    transform-x86 {
+        prepend "\x90";
+    }
+
+    transform-x64 {
+        prepend "\x90";
+    }
+
+    # Specify the Windows API used for starting the code execution.
+    # The API will be used in order if prerequisites are matched.
+    # The execute section should cover the following cases: self injection, injection into suspended temporary processes, cross-session remote process injection, x86 -> x64 / x64 -> x86 injection, and injection with or without passing an argument.
+    execute {
+
+        # Self injection attempted only if the target process is equal to the current process.
+        CreateThread "ntdll!RtlUserThreadStart";
+        CreateThread;
+
+        # Only called if the targeted process is suspended.
+        # Process arch limitations: x86 -> x86, x64 -> x64, or x64 -> x86.
+        # Can be choosen over NtQueueApcThread-s.
+        # SetThreadContext
+
+        # Only called if the targeted process is suspended.
+        # Current and targeted process should be of the same arch (x86 -> x86 or x64 -> x64).
+        NtQueueApcThread-s;
+
+        # Creates a RWX stub and register it to the APC queue of every thread in the remote process.
+        # If a thread enters an "alertable" state, the stub will execute and call CreateThread on the injected code (to quickly let the original thread continue its normal execution).
+        # Current and targeted process should be of the same arch (x86 -> x86 or x64 -> x64).
+        # NtQueueApcThread
+
+        # Very visible / monitored API.
+        # Process arch limitations: x86 -> x86, x64 -> x64, or x64 -> x86.
+        CreateRemoteThread;
+
+        # Very visible / monitored API.
+        # No process arch limitation (covers x86 -> x86, x86 -> x64, x64 -> x64, and x64 -> x86).
+        # Uses RWX memory for x86 -> x64 injection.
+        # Allows code injection across session boundaries.
+        RtlCreateUserThread;
+    }
+}
+```
 
 ###### General commands
 
@@ -266,7 +359,7 @@ spawn and run pattern:
 | `inject` | Spawn a session in a specific process | |
 | `inline-execute` | Run a Beacon Object File in this session | |
 | `execute-assembly <ASSEMBLY_FULL_PATH> [<ARGUMENTS>]` | Execute a local `.NET` assembly in-memory through a newly spawned sacrificial process. The main advantage of the sacrificial process is to prevent the `beacon` being impacted by crash or killing (if detected) of the executed `.NET` assembly. <br><br> (Very) Simplified overview of a `.NET` assembly execution via unmanaged code as (possibly) implemented by `execute-assembly`: <br><br> 1. Spawning of a new process and injection of code in the new process. All the next steps described below will be done by the injected code in this new process. <br><br> 2. Loading, if available, of the appropriate version of the `Common Language Runtime (CLR)` for the `.NET` assembly executed (`CLR 2.X` for <= `.NET Framework 3.5` or `CLR 4.X` for `.NET Framework 4.0+` assemblies). <br><br> 3. Instantiation of an `AppDomain` object and loading of the assembly using `AppDomain.Load(byte[] assembly)` or `_AppDomain->Load_3((SAFEARRAY) assembly, _Assembly** pRetVal)`) methods. <br><br> 4. Retrieval of the assembly `EntryPoint` (for example with `Assembly->EntryPoint`) and invocation of the `EntryPoint` with `MethodInfo->Invoke_3`. | Spawn and run pattern. <br><br> The `InlineExecute-Assembly` `BOF` may be used to avoid this pattern (with potential `beacon` stability impact as a tradeoff). |
-| [`InlineExecute-Assembly`](https://github.com/anthemtotheego/InlineExecute-Assembly) <br><br> `inlineExecute-Assembly --dotnetassembly <ASSEMBLY_FULL_PATH> [--assemblyargs <ARGUMENTS>]`| Execute a local `.NET` assembly in-memory directly in the `beacon` process. | `InlineExecute-Assembly` helps avoiding the spawn and run of `execute-assembly` that may be detected by security products. <br><br> As the `.NET` assembly is loaded and executed directly in the `beacon` process however, any crash or detection inducing a kill of the process will result in losing the `beacon`. |
+| [`InlineExecute-Assembly`](https://github.com/anthemtotheego/InlineExecute-Assembly) <br><br> `inlineExecute-Assembly --dotnetassembly <ASSEMBLY_FULL_PATH> [--assemblyargs <ARGUMENTS>]` <br><br> Additional options: <br> `--amsi`: disable `AMSI` <br> | Execute a local `.NET` assembly in-memory directly in the `beacon` process. | `InlineExecute-Assembly` helps avoiding the spawn and run of `execute-assembly` that may be detected by security products. <br><br> As the `.NET` assembly is loaded and executed directly in the `beacon` process however, any crash or detection inducing a kill of the process will result in losing the `beacon`. |
 
 *Shellcode / code injection*
 
@@ -351,8 +444,6 @@ spawn and run pattern:
 `mode dns-txt`              Use DNS TXT as data channel (DNS beacon only)
 
 `mode dns6`                 Use DNS AAAA as data channel (DNS beacon only)
-
-
 
 --------------------------------------------------------------------------------
 
