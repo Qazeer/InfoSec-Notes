@@ -68,7 +68,13 @@
 
 ## Windows
 
-* [Lateral movements](Windows/Lateral_movements.md)
+* [Lateral movements](Windows/Lateral_movements/README.md)
+  * [Local credentials re-use](Windows/Lateral_movements/Local_credentials_reuse.md)
+  * [Over SMB](Windows/Lateral_movements/Over_SMB.md)
+  * [Over WinRM](Windows/Lateral_movements/Over_WinRM.md)
+  * [Over WMI](Windows/Lateral_movements/Over_WMI.md)
+  * [Over DCOM](Windows/Lateral_movements/Over_DCOM.md)
+  * [CrackMapExec](Windows/Lateral_movements/CrackMapExec.md)
 * [Local privilege escalation](Windows/Local_privilege_escalation.md)
 * [Shellcode and PE loader](Windows/Shellcode_and_PE_loader.md)
 * [Bypass AppLocker](Windows/Bypass_AppLocker.md)
