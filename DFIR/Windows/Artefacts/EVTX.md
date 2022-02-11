@@ -189,3 +189,34 @@ q -H -d '<DELIMITER>' "<SQL_STATEMENT>"
 # Query example
 q -d "," -H "SELECT TimeCreated,EventId,Provider,Channel,Computer,UserId,MapDescription,ChunkNumber,UserName,RemoteHost,PayloadData1 FROM <CSV_FILE> WHERE TimeCreated LIKE '2020-04-07%' AND (Provider='Microsoft-Windows-Security-Auditing' OR Provider='Microsoft-Windows-TaskScheduler' OR Provider='Microsoft-Windows-TerminalServices-RemoteConnectionManager')"
 ```
+
+### Automated analysis with DeepBlueCLI
+
+The [`DeepBlueCLI`](https://github.com/sans-blue-team/DeepBlueCLI) PowerShell
+script can be used to automate a basic analysis of Windows events logs. A
+number of detection cases are implemented, related to:
+
+  - Suspicious account behavior (user creation and group membership operations,
+    bruteforce attempts, etc.)
+
+  - Command line / Sysmon / PowerShell auditing (long command line, PowerShell
+    obfuscated command or download gradlle, etc.)
+
+  - Service operations (suspicious service creation, Windows Event Log service
+    stating / stoping, etc.)
+
+
+The following Windows event logs / providers are supported:
+  - Windows Security (`Security.evtx`)
+  - Windows System (`System.evtx`)
+  - Windows Application (`Application.evtx`)
+  - Windows PowerShell
+  - Sysmon
+
+```powershell
+# Process the specified EVTX file.
+.\DeepBlue.ps1 <EVTX_PATH>
+
+# Process logs of the current system (must be executed with sufficient privileges to access the logs).
+.\DeepBlue.ps1 [-log Security | System | Application | Powershell | Sysmon]
+```
