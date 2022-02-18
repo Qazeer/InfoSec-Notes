@@ -300,8 +300,8 @@ information, in addition to exposed shares, such as local users, groups,
 password policy information, etc. For more information, refer to the
 `[L7] MSRPC` note.
 
-`Interlace` is used in combination with `WhatWeb` to manage multi-threading and
-parameterize output.
+`Interlace` is used in combination with `enum4linux-ng` to manage
+multi-threading and parameterize output.
 
 ```
 # Command to instruct interlace to execute enum4linux-ng, to place in a file.
@@ -383,6 +383,16 @@ sslscan _target_ > _output_/_cleantarget_-sslscan.txt
 testssl.sh _target_ > _output_/_cleantarget_-testssl.txt
 
 interlace -tL <INPUT_HTTPS_URLS> -o <OUTPUT_FOLDER> -cL <SSL_COMMANDS_FILE>
+```
+
+###### Vulnerabilities / misconfigurations scans with nuclei
+
+[`nuclei`](https://github.com/projectdiscovery/nuclei) is a template based
+scanner that can be used to discover vulnerabilities or misconfigurations on
+web services.
+
+```
+nohup ./nuclei -list <URLS_FILE> -severity critical,high -irr -markdown-export nuclei_reports.md -metrics &
 ```
 
 --------------------------------------------------------------------------------

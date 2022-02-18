@@ -363,6 +363,7 @@ TODO
 #### [Windows] Cobalt Strike
 
 `Cobalt Strike` supports the following pivoting mechanisms:
+  - Ports forwarding
   - Pivot listeners
   - Dynamic ports forwarding through a SOCKS proxy
   - VPN access
