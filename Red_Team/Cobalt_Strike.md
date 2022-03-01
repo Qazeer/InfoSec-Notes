@@ -153,8 +153,8 @@ on shellcode loaders that can be leveraged to execute `Cobalt Strike` beacons.
 Numerous `beacon` commands are available, allowing a number of actions to be
 performed through `Cobalt Strike`'s `beacons`. The commands arguments and
 description were largely taken from `Cobalt Strike` help message, while the
-OpSec considerations were established using the
-[official Cobalt Strike documentation](https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/topics/appendix-a_beacon-opsec-considerations.htm),
+OpSec considerations were established using the very comprehensive
+[official Cobalt Strike documentation](https://hstechdocs.helpsystems.com/manuals/cobaltstrike/current/userguide/content/cobalt-4-5-user-guide.pdf),
 public resources (referenced at the end of the present note), and tests done in
 [`DetectionLab`](https://github.com/clong/DetectionLab).
 
@@ -179,7 +179,10 @@ process-inject {
 Additionally, the built-in commands can be overridden / supplemented with
 `Aggressor` scripts and third-party `BOFs`.
 
-###### Spawn / fork and run pattern OpSec considerations
+The commands build around an internal `BOF` will be specified in the following
+sections (as `Beacon Object Files OpSec considerations`).
+
+###### Spawn and run pattern OpSec considerations
 
 A number of `beacon` commands (`execute-assembly`, `powerpick`, ...) spawn a
 sacrificial process and inject code in the newly created process to conduct
@@ -201,7 +204,10 @@ spawn and run pattern:
     userland hooking by leveraging a signature policy that blocks non-Microsoft
     `DLLs` from loading in the child process memory space.
 
-###### Code injection OpSec considerations
+The commands build around the spawn / fork and run pattern will be specified in
+the following sections (as `Spawn and run pattern OpSec considerations`).
+
+###### Process injection OpSec considerations
 
 Some commands will default to spawning a new process (fork and run pattern) but
 will allow for the specification of an existing target process to inject into.
@@ -286,6 +292,37 @@ process-inject {
 }
 ```
 
+The commands build around process injection (both optional or required) will be
+specified in the following sections (as
+`Process injection OpSec considerations`).
+
+###### PowerShell OpSec considerations
+
+As specified in the "Resource kit: custom beacons scripts" section above, a
+number of commands rely on executing `powershell.exe`.
+
+###### Opsec Aggressor Profiles
+
+A number of
+[Opsec Aggressor Profiles](https://github.com/bluscreenofjeff/AggressorScripts/tree/master/OPSEC%20Profiles)
+can be loaded to overwrite and disable some of the built-in `beacon` commands.
+Each profile disable a class of commands relying an a (potentially) dangerous
+/ expensive OpSec pattern (such as execution of `cmd.exe` or process
+injection). Note that these `Aggressor` scripts do NOT limit the operations
+that are conducted through the `Cobalt Strike` GUI client.
+
+The following profiles are available:
+  - `cmd-execution.cna`: prevents commands that rely on `cmd.exe`.
+  - `powershell.cna`: prevents commands that rely on `powershell.exe`
+  - `process-execution.cna`: prevents commands that spawn a new process.
+  - `process-injection.cna`: prevents commands that rely on process injection.
+  - `service-creation.cna`: prevents commands that create new services.
+  - `template.cna`: template that may be used for any custom commands enabling
+    / disabling.
+
+The `Aggressor` scripts also had a `opsec` command that can be used to list all
+the `beacon` commands and their activation status.
+
 ###### General commands
 
 | Command | Description | OpSec considerations |
@@ -301,9 +338,9 @@ process-inject {
 | `unlink` | Disconnect from parent Beacon | |
 | `clear` | Clear beacon queue | |
 | `exit` | Terminate the beacon session | |
-| `screenshot` | Take a single screenshot | |
-| `printscreen` | Take a single screenshot via `PrintScr` method | |
-| `screenwatch` | Take periodic screenshots of desktop | |
+| `screenshot` | Take a single screenshot | Default to [spawn and run pattern](#spawn-and-run-pattern-opsec-considerations), supports explicit [process injection](#process-injection-opsec-considerations). |
+| `printscreen` | Take a single screenshot via `PrintScr` method | Default to [spawn and run pattern](#spawn-and-run-pattern-opsec-considerations), supports explicit [process injection](#process-injection-opsec-considerations). |
+| `screenwatch` | Take periodic screenshots of desktop | Default to [spawn and run pattern](#spawn-and-run-pattern-opsec-considerations), supports explicit [process injection](#process-injection-opsec-considerations). |
 | `spawnto <x86 \| x64> <BINARY_FULL_PATH>` | Set the executable used to spawn processes into for spawn and run commands. <br><br> If spawning a process from `%SystemRoot%\System32`, the path should be specified using `%SystemRoot%\sysnative\` or `%SystemRoot%\syswow64\` instead. <br> The `%SystemRoot%\System32` path is indeed resolved differently for `x86` and `x64` processes ([`%SystemRoot%\System32` is mapped to `%SystemRoot%\syswow64\` for `x86` processes on 64 bits systems](https://docs.microsoft.com/en-us/windows/win32/winprog64/file-system-redirector)). | |
 
 ###### Local system enumeration and interaction commands
@@ -311,8 +348,9 @@ process-inject {
 | Command | Description | OpSec considerations |
 |-------------|---------|---------------------|
 | `ps` | Show process list | |
-| `net` | Network and host enumeration tool | `BOF` using `RWX` memory by default. |
-| `reg` | Query the registry | `BOF` using `RWX` memory by default. |
+| `net` | Network and host enumeration tool | [Beacon Object Files OpSec considerations.](#beacon-object-files-opsec-considerations) <br><br> Default to [spawn and run pattern](#spawn-and-run-pattern-opsec-considerations), supports explicit [process injection](#process-injection-opsec-considerations). |
+| `reg query <x86 \| x64> <HIVEROOT\PATH>` <br><br> `reg queryv <x86 \| x64> <HIVEROOT\PATH> <subkey>` | Query the specified key in the registry registry. The `breg` `BOF` should be used for registry modifications. <br><br> Query the specified subkey in the registry registry. <br><br> The `HIVEROOT` should be: <br>`HKLM`, `HKCR`, `HKCC`, `HKCU`, or `HKU`. | [Beacon Object Files OpSec considerations.](#beacon-object-files-opsec-considerations) |
+| `breg <COMMAND> <HIVEROOT\PATH> [/v <VALUE>] [/t <TYPE>] [/d <DATA>] [/a <x32 \| x64>]` <br><br> Supported commands: `query`, `add`, or `delete`. <br><br> The specified key can be local (`HIVEROOT` = `HKLM`, `HKCR`, `HKCC`, `HKCU`, or `HKU`) or on a remote computer (`\\<HOSTNAME \| IP\HIVEROOT[\<PATH]>`). <br><br> Supported types: `REG_SZ`, `REG_NONE`, `REG_DWORD`, `REG_QWORD`, and `REG_EXPAND_SZ`. | Query, add, or delete keys/values in the registry. | [Beacon Object Files OpSec considerations.](#beacon-object-files-opsec-considerations) <br><br> Specific OpSec considerations depending on the key modified (such as persistence operations through `ASEP` registry keys). |
 | `setenv` | Set an environment variable | |
 
 ###### Filesystem interaction commands
@@ -335,46 +373,58 @@ process-inject {
 
 ###### Command / code execution commands
 
+*New local beacon session*
+
+| Command | Description | OpSec considerations |
+|-------------|---------|---------------------|
+| `spawn [<x86 \| x64>] <LISTENER>` | Spawn a new process and inject a shellcode for a `beacon` session (calling back to the specified listener). | [Spawn and run pattern OpSec considerations.](#spawn-and-run-pattern-opsec-considerations) |
+| `spawnu <PID> <LISTENER>` | Similar to `spawn` except the `beacon` process is spawned as a child of the process specified by `PID`. | While not fully following the spawn and run pattern, the process spawned will default to `rundll.exe` and should be updated using the `spawnto` command. |
+| `inject <PID> <x86 \| x64> <LISTENER>` | Spawn a new `beacon` session by injecting a shellcode in the process specified by <PID>. | [Process injection OpSec considerations.](#process-injection-opsec-considerations) |
+
+*Basic commands / programs execution*
+
 | Command | Description | OpSec considerations |
 |-------------|---------|---------------------|
 | `shell <COMMAND> [<ARGUMENTS>]` | Execute the specified command via `cmd.exe`. | Not OpSec friendly and should generally be avoid. <br><br> The `beacon` process will spawn a new `cmd.exe` process, which in turn may spawn a third process executing the specified binary. |
 | `execute` | Execute a program on target (no output) |
 | `runu` | Execute a program under another PID |
-| `spawn` | Spawn a session |
-| `spawnu` | Spawn a session under another process |
 
 *PowerShell*
 
 | Command | Description | OpSec considerations |
 |-------------|---------|---------------------|
-| `powershell` | Execute a command via powershell.exe | |
-| `powerpick` | Execute a command via Unmanaged PowerShell | Spawn and run pattern. |
-| `psinject` | Execute PowerShell command in specific process | |
+| `powershell` | Execute a command via powershell.exe | [PowerShell OpSec considerations.](#powerShell-ppsec-considerations) |
+| `powerpick` | Execute a command via Unmanaged PowerShell | [Spawn and run pattern OpSec considerations.](#spawn-and-run-pattern-opsec-considerations) |
+| `psinject` | Execute PowerShell command in specific process | [Process injection OpSec considerations.](#process-injection-opsec-considerations) |
 | `powershell-import` | Import a PowerShell script | |
 
-*In memory code injection*
+*In memory .NET assembly execution*
 
 | Command | Description | OpSec considerations |
 |-------------|---------|---------------------|
-| `inject` | Spawn a session in a specific process | |
-| `inline-execute` | Run a Beacon Object File in this session | |
-| `execute-assembly <ASSEMBLY_FULL_PATH> [<ARGUMENTS>]` | Execute a local `.NET` assembly in-memory through a newly spawned sacrificial process. The main advantage of the sacrificial process is to prevent the `beacon` being impacted by crash or killing (if detected) of the executed `.NET` assembly. <br><br> (Very) Simplified overview of a `.NET` assembly execution via unmanaged code as (possibly) implemented by `execute-assembly`: <br><br> 1. Spawning of a new process and injection of code in the new process. All the next steps described below will be done by the injected code in this new process. <br><br> 2. Loading, if available, of the appropriate version of the `Common Language Runtime (CLR)` for the `.NET` assembly executed (`CLR 2.X` for <= `.NET Framework 3.5` or `CLR 4.X` for `.NET Framework 4.0+` assemblies). <br><br> 3. Instantiation of an `AppDomain` object and loading of the assembly using `AppDomain.Load(byte[] assembly)` or `_AppDomain->Load_3((SAFEARRAY) assembly, _Assembly** pRetVal)`) methods. <br><br> 4. Retrieval of the assembly `EntryPoint` (for example with `Assembly->EntryPoint`) and invocation of the `EntryPoint` with `MethodInfo->Invoke_3`. | Spawn and run pattern. <br><br> The `InlineExecute-Assembly` `BOF` may be used to avoid this pattern (with potential `beacon` stability impact as a tradeoff). |
+| `execute-assembly <ASSEMBLY_FULL_PATH> [<ARGUMENTS>]` | Execute a local `.NET` assembly in-memory through a newly spawned sacrificial process. The main advantage of the sacrificial process is to prevent the `beacon` being impacted by crash or killing (if detected) of the executed `.NET` assembly. <br><br> (Very) Simplified overview of a `.NET` assembly execution via unmanaged code as (possibly) implemented by `execute-assembly`: <br><br> 1. Spawning of a new process and injection of code in the new process. All the next steps described below will be done by the injected code in this new process. <br><br> 2. Loading, if available, of the appropriate version of the `Common Language Runtime (CLR)` for the `.NET` assembly executed (`CLR 2.X` for <= `.NET Framework 3.5` or `CLR 4.X` for `.NET Framework 4.0+` assemblies). <br><br> 3. Instantiation of an `AppDomain` object and loading of the assembly using `AppDomain.Load(byte[] assembly)` or `_AppDomain->Load_3((SAFEARRAY) assembly, _Assembly** pRetVal)`) methods. <br><br> 4. Retrieval of the assembly `EntryPoint` (for example with `Assembly->EntryPoint`) and invocation of the `EntryPoint` with `MethodInfo->Invoke_3`. | [Spawn and run pattern OpSec considerations.](#spawn-and-run-pattern-opsec-considerations) <br><br> The `InlineExecute-Assembly` `BOF` may be used to avoid this pattern (with potential `beacon` stability impact as a tradeoff). |
 | [`InlineExecute-Assembly`](https://github.com/anthemtotheego/InlineExecute-Assembly) <br><br> `inlineExecute-Assembly --dotnetassembly <ASSEMBLY_FULL_PATH> [--assemblyargs <ARGUMENTS>]` <br><br> Additional options: <br> `--amsi`: disable `AMSI` <br> | Execute a local `.NET` assembly in-memory directly in the `beacon` process. | `InlineExecute-Assembly` helps avoiding the spawn and run of `execute-assembly` that may be detected by security products. <br><br> As the `.NET` assembly is loaded and executed directly in the `beacon` process however, any crash or detection inducing a kill of the process will result in losing the `beacon`. |
 
-*Shellcode / code injection*
+*Beacon Object File (BOF) execution*
+
+| Command | Description | OpSec considerations |
+|-------------|---------|---------------------|
+| `inline-execute` | Run a Beacon Object File in this session | |
+
+*Shellcode / process injection*
 
 | Command | Description | OpSec considerations |
 |-------------|---------|---------------------|
 | `shinject` | Inject shellcode into a process | |
 | `shspawn` | Spawn process and inject shellcode into it | |
 | `dllinject` | Inject a Reflective DLL into a process | |
-| `dllload` | Load DLL into a process with LoadLibrary() | `BOF` using `RWX` memory by default. |
+| `dllload` | Load DLL into a process with LoadLibrary() | [Beacon Object Files OpSec considerations.](#beacon-object-files-opsec-considerations) |
 
 ###### Defense evasion commands
 
 | Command | Description | OpSec considerations |
 |-------------|---------|---------------------|
-| `timestomp` | Apply timestamps from one file to another | `BOF` using `RWX` memory by default. |
+| `timestomp` | Apply timestamps from one file to another | [Beacon Object Files OpSec considerations.](#beacon-object-files-opsec-considerations) |
 | `ppid` | Set parent PID for spawned post-ex jobs | |
 | `argue` | Spoof arguments for matching processes | |
 | `blockdlls` | Block non-Microsoft DLLs in child processes | |
@@ -384,12 +434,12 @@ process-inject {
 | Command | Description | OpSec considerations |
 |-------------|---------|---------------------|
 | `runas` | Execute a program as another user | |
-| `runasadmin` | Execute a program in an elevated context | `BOF` using `RWX` memory by default. |
+| `runasadmin` | Execute a program in an elevated context | [Beacon Object Files OpSec considerations.](#beacon-object-files-opsec-considerations) |
 | `spawnas` | Spawn a session as another user | |
-| `pth` | Pass-the-hash using Mimikatz | |
-| `kerberos_ccache_use` | Apply Kerberos ticket from cache to this session | `BOF` using `RWX` memory by default. |
-| `kerberos_ticket_purge` | Purge Kerberos tickets from this session | `BOF` using `RWX` memory by default. |
-| `kerberos_ticket_use` | Apply Kerberos ticket to this session | `BOF` using `RWX` memory by default. |
+| `pth` | Pass-the-hash using Mimikatz | Default to [spawn and run pattern](#spawn-and-run-pattern-opsec-considerations), supports explicit [process injection](#process-injection-opsec-considerations). |
+| `kerberos_ccache_use` | Apply Kerberos ticket from cache to this session | [Beacon Object Files OpSec considerations.](#beacon-object-files-opsec-considerations) |
+| `kerberos_ticket_purge` | Purge Kerberos tickets from this session | [Beacon Object Files OpSec considerations.](#beacon-object-files-opsec-considerations) |
+| `kerberos_ticket_use` | Apply Kerberos ticket to this session | [Beacon Object Files OpSec considerations.](#beacon-object-files-opsec-considerations) |
 
 ###### Privileges and local privilege escalation commands
 
@@ -398,31 +448,31 @@ process-inject {
 | `make_token` | Create a token to pass credentials | |
 | `steal_token` | Steal access token from a process | |
 | `rev2self` | Revert to original token | |
-| `elevate` | Spawn a session in an elevated context | `BOF` using `RWX` memory by default. |
+| `elevate` | Spawn a session in an elevated context | [Beacon Object Files OpSec considerations.](#beacon-object-files-opsec-considerations) |
 
 ###### Lateral movement commands
 
 | Command | Description | OpSec considerations |
 |-------------|---------|---------------------|
-| `portscan` | Scan a network for open services | |
+| `portscan` | Scan a network for open services | Default to [spawn and run pattern](#spawn-and-run-pattern-opsec-considerations), supports explicit [process injection](#process-injection-opsec-considerations). |
 | `run` | Execute a program on target (returns output) | |
-| `jump` | Spawn a session on a remote host | `BOF` using `RWX` memory by default. |
+| `jump` | Spawn a session on a remote host | [Beacon Object Files OpSec considerations.](#beacon-object-files-opsec-considerations) |
 | `link` | Connect to a Beacon peer over a named pipe | |
 | `connect` | Connect to a Beacon peer over TCP | |
-| `remote-exec` | Run a command on a remote host | `BOF` using `RWX` memory by default. |
+| `remote-exec` | Run a command on a remote host | [Beacon Object Files OpSec considerations.](#beacon-object-files-opsec-considerations) |
 
 ###### Pivoting commands
 
 | Command | Description | OpSec considerations |
 |-------------|---------|---------------------|
-| `browserpivot` | Setup a browser pivot session | |
+| `browserpivot` | Setup a browser pivot session | [Process injection OpSec considerations.](#process-injection-opsec-considerations) |
 | `rportfwd` | Setup a reverse port forward | |
 | `rportfwd_local` | Setup a reverse port forward via Cobalt Strike client | |
-| `covertvpn` | Deploy Covert VPN client | Spawn and run pattern. |
+| `covertvpn` | Deploy Covert VPN client | [Spawn and run pattern OpSec considerations.](#spawn-and-run-pattern-opsec-considerations) |
 | `spunnel` | Spawn and tunnel an agent via rportfwd | |
 | `spunnel_local` | Spawn and tunnel an agent via Cobalt Strike client rportfwd | |
-| `ssh` | Use SSH to spawn an SSH session on a host | |
-| `ssh-key` | Use SSH to spawn an SSH session on a host | |
+| `ssh` | Use SSH to spawn an SSH session on a host | Default to [spawn and run pattern](#spawn-and-run-pattern-opsec-considerations), supports explicit [process injection](#process-injection-opsec-considerations). |
+| `ssh-key` | Use SSH to spawn an SSH session on a host | Default to [spawn and run pattern](#spawn-and-run-pattern-opsec-considerations), supports explicit [process injection](#process-injection-opsec-considerations). |
 | `socks` | Start SOCKS4a server to relay traffic | |
 | `socks stop` | Stop SOCKS4a server ||
 
@@ -430,12 +480,12 @@ process-inject {
 
 | Command | Description | OpSec considerations |
 |-------------|---------|---------------------|
-| `keylogger` | Start a keystroke logger | |
-| `chromedump` | Recover credentials from Google Chrome | |
-| `hashdump` | Dump password hashes | |
-| `logonpasswords` | Dump credentials and hashes with mimikatz | |
-| `dcsync` | Extract a password hash from a DC | |
-| `mimikatz` | Runs a mimikatz command | |
+| `keylogger` | Start a keystroke logger | Default to [spawn and run pattern](#spawn-and-run-pattern-opsec-considerations), supports explicit [process injection](#process-injection-opsec-considerations). |
+| `chromedump` | Recover credentials from Google Chrome | Default to [spawn and run pattern](#spawn-and-run-pattern-opsec-considerations), supports explicit [process injection](#process-injection-opsec-considerations). |
+| `hashdump` | Dump password hashes | Default to [spawn and run pattern](#spawn-and-run-pattern-opsec-considerations), supports explicit [process injection](#process-injection-opsec-considerations). |
+| `logonpasswords` | Dump credentials and hashes with mimikatz | Default to [spawn and run pattern](#spawn-and-run-pattern-opsec-considerations), supports explicit [process injection](#process-injection-opsec-considerations). |
+| `dcsync` | Extract a password hash from a DC | Default to [spawn and run pattern](#spawn-and-run-pattern-opsec-considerations), supports explicit [process injection](#process-injection-opsec-considerations). |
+| `mimikatz` | Runs a mimikatz command | Default to [spawn and run pattern](#spawn-and-run-pattern-opsec-considerations), supports explicit [process injection](#process-injection-opsec-considerations). |
 
 --------------------------------------------------------------------------------
 
