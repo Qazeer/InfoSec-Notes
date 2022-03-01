@@ -246,6 +246,41 @@ mkdir <TFTPFOLDER>
 atftpd --daemon --port <PORT> <TFTPFOLDER>
 ```
 
+###### [Linux] NFS server
+
+The [`docker-nfs-server`](https://github.com/ehough/docker-nfs-server) project
+can be used to host a `NFS` server in a docker container and expose the `NFS`
+server on the host.
+
+If `AppArmor` is installed and enabled on the host running docker (can be
+checked with `sudo aa-status`),
+[the documented additional steps](https://github.com/ehough/docker-nfs-server/blob/develop/doc/feature/apparmor.md)
+must be followed to start the NFS server.
+
+```bash
+# Export example allowing the specified IP / CIDR range to mount <NFS_SERVER>:/nfs/
+# The directory exported correspond to a directory inside the container (and not a directory on the host itself).
+echo '/nfs/ <IP | CIDR>(rw,insecure,no_subtree_check,fsid=0,no_root_squash)' > <HOST_PATH_EXPORTS_FILE>
+
+# Launch the docker container erichough/nfs-server and expose the NFS server on the host TCP port 2049.
+docker run                                            \
+  -v <HOST_SHARED_FOLDER>:/nfs                        \
+  -v <HOST_PATH_EXPORTS_FILE>:/etc/exports:rw         \
+  -e NFS_LOG_LEVEL=DEBUG                              \
+  --cap-add SYS_ADMIN                                 \
+  -p 2049:2049                                        \
+  erichough/nfs-server
+```
+
+The `mount` utility can then be used to validate that the `NFS` directory is
+available:
+
+```bash
+# If using NFS 4.x+ versions, the NFS directory should not be specified (i.e <HOST_IP>:/ should be used, and not <HOST_IP>:/nfs).
+
+mount -o vers=4.2 -t nfs <HOST_IP>:/ /mnt/test2
+```
+
 ###### [Windows] PowerShell HTTP PUT request
 
 The PowerShell cmdlets `Invoke-WebRequest` and `Invoke-RestMethod` can be used

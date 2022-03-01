@@ -431,8 +431,14 @@ the `beacon` commands and their activation status.
 
 ###### Credentials usage commands
 
+Refer to `[Windows] Lateral movement - Local credentials reuse` note for more
+information on `Cobalt Strike` credentials usage capabilites (`make_token`,
+`runas` / `spawnas`, and `runu` / `spawnu` commands).
+
 | Command | Description | OpSec considerations |
 |-------------|---------|---------------------|
+| `make_token <DOMAIN>\<USERNAME> <PASSWORD>` | Replace the `Logon Session` in the current
+beacon Windows `Access Token`, which is used for authentication over the network (and does not impact the local security context). | |
 | `runas` | Execute a program as another user | |
 | `runasadmin` | Execute a program in an elevated context | [Beacon Object Files OpSec considerations.](#beacon-object-files-opsec-considerations) |
 | `spawnas` | Spawn a session as another user | |
@@ -445,7 +451,6 @@ the `beacon` commands and their activation status.
 
 | Command | Description | OpSec considerations |
 |-------------|---------|---------------------|
-| `make_token` | Create a token to pass credentials | |
 | `steal_token` | Steal access token from a process | |
 | `rev2self` | Revert to original token | |
 | `elevate` | Spawn a session in an elevated context | [Beacon Object Files OpSec considerations.](#beacon-object-files-opsec-considerations) |
@@ -456,18 +461,22 @@ the `beacon` commands and their activation status.
 |-------------|---------|---------------------|
 | `portscan` | Scan a network for open services | Default to [spawn and run pattern](#spawn-and-run-pattern-opsec-considerations), supports explicit [process injection](#process-injection-opsec-considerations). |
 | `run` | Execute a program on target (returns output) | |
-| `jump` | Spawn a session on a remote host | [Beacon Object Files OpSec considerations.](#beacon-object-files-opsec-considerations) |
+| `jump <psexec \| psexec64 \| psexec_psh \| winrm \| winrm64> <TARGET> <LISTENER>` | Spawn a session on a remote host using the current access token. | [Beacon Object Files OpSec considerations.](#beacon-object-files-opsec-considerations) |
 | `link` | Connect to a Beacon peer over a named pipe | |
 | `connect` | Connect to a Beacon peer over TCP | |
 | `remote-exec` | Run a command on a remote host | [Beacon Object Files OpSec considerations.](#beacon-object-files-opsec-considerations) |
 
 ###### Pivoting commands
 
+Refer to `[General] Pivoting - Cobalt Strike` for more information on
+`Cobalt Strike` pivoting capabilites (`rportfwd` / `rportfwd_local`,
+`covertvpn`, and `socks` commands).
+
 | Command | Description | OpSec considerations |
 |-------------|---------|---------------------|
 | `browserpivot` | Setup a browser pivot session | [Process injection OpSec considerations.](#process-injection-opsec-considerations) |
-| `rportfwd` | Setup a reverse port forward | |
-| `rportfwd_local` | Setup a reverse port forward via Cobalt Strike client | |
+| `rportfwd <LOCAL_BIND_PORT> <FORWARD_HOST> <FORWARD_PORT>` | Setup a reverse port forward by redirecting requests on the compromised host's `LOCAL_BIND_PORT` to `FORWARD_HOST`:`FORWARD_PORT`. <br><br> The traffic is routed through the TeamServer, and thus `rportfwd` gives the ability to grant access to hosts accessible by the TeamServer itself on the compromised host. | |
+| `rportfwd_local` | Setup a reverse port forward by redirecting requests on the compromised host's `LOCAL_BIND_PORT` to `FORWARD_HOST`:`FORWARD_PORT`. <br><br> The traffic is routed through the TeamServer, and thus `rportfwd` gives the ability to grant access to hosts accessible by the TeamServer itself on the compromised host. | |
 | `covertvpn` | Deploy Covert VPN client | [Spawn and run pattern OpSec considerations.](#spawn-and-run-pattern-opsec-considerations) |
 | `spunnel` | Spawn and tunnel an agent via rportfwd | |
 | `spunnel_local` | Spawn and tunnel an agent via Cobalt Strike client rportfwd | |
