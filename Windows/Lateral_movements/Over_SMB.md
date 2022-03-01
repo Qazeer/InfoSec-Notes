@@ -1,4 +1,4 @@
-### Windows - Lateral movement - Over SMB
+# Windows - Lateral movement - Over SMB
 
 ### PsExec-like utilities
 

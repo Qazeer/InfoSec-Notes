@@ -123,7 +123,7 @@ $file = Get-Item "Accessibility.dll"
 [System.Diagnostics.FileVersionInfo]::GetVersionInfo($file).FileVersion
 ```
 
-### Defense and supervision
+### Defense and supervision scouting
 
 Before attempting a local privilege escalation, notably in a covert scenario,
 establishing a precise vision on the system security defense and supervision

