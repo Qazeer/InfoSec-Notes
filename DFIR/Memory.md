@@ -597,6 +597,39 @@ volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> sockets
 volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> sockscan
 ```
 
+###### In memory file objects enumeration and retrieval
+
+Files present in memory, i.e files currently loaded by processes, can be
+listed and extracted using, respectively, the `filescan` /
+`windows.filescan.FileScan` and `dumpfiles` / `windows.dumpfiles.DumpFiles`
+plugins.
+
+The plugins scan the memory image for `_FILE_OBJECT` structures, and thus
+present the advantage of being able to locate / dump files possibly hidden by
+malware (as opposed to walking structures such as `_LDR_DATA_TABLE_ENTRY`).
+
+```bash
+# Scan the given memory image for FILE_OBJECT structures.
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> filescan
+volatility3 -f <MEMORY_DUMP_FILE> windows.filescan.FileScan
+
+# Extract all the files (_FILE_OBJECT structures) present in the given memory dump.
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> dumpfiles -n --dump-dir=<OUTPUT_FOLDER> -S <OUTPUT_SUMMARRY_FILE>
+volatility3 -f <MEMORY_DUMP_FILE> windows.dumpfiles.DumpFiles
+
+# Extract the files (_FILE_OBJECT structures) whose names match the specified regex.
+# Regex example: -r ".*\.doc"
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> dumpfiles -n --dump-dir=<OUTPUT_FOLDER> -r <REGEX>
+
+# Extract the files (_FILE_OBJECT structures) present in the specified process(es) memory space.
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> dumpfiles -n --dump-dir=<OUTPUT_FOLDER> -S <OUTPUT_SUMMARRY_FILE> --pid=<PID | PID_COMMA_LIST>
+volatility3 -f <MEMORY_DUMP_FILE> windows.dumpfiles.DumpFiles --pid <PID>
+
+# Extrat a single file (_FILE_OBJECT structure) at the given virtual / physical offset.
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> dumpfiles -n --dump-dir=<OUTPUT_FOLDER> -Q <PHYSICAL_ADDRESS>
+volatility3 -f <MEMORY_DUMP_FILE> windows.dumpfiles.DumpFiles [--virtaddr <VIRTUAL_ADDRESS> | --physaddr <PHYSICAL_ADDRESS>]
+```
+
 ###### Malware finder
 
 *malfind plugin*
