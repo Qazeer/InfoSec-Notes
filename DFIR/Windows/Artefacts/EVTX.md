@@ -200,10 +200,10 @@ number of detection cases are implemented, related to:
     bruteforce attempts, etc.)
 
   - Command line / Sysmon / PowerShell auditing (long command line, PowerShell
-    obfuscated command or download gradlle, etc.)
+    obfuscated command or download one-liner, etc.)
 
   - Service operations (suspicious service creation, Windows Event Log service
-    stating / stoping, etc.)
+    stating / stopping, etc.)
 
 
 The following Windows event logs / providers are supported:

@@ -3,10 +3,11 @@
 *The present note is a copy of the
 [EDRSandBlast project's README](https://github.com/wavestone-cdt/EDRSandblast).*
 
-`EDRSandBlast` is a tool written in `C` that weaponize a vulnerable signed
-driver to bypass `EDR` detections (Kernel callbacks and `ETW TI` provider) and
-`LSASS` protections. Multiple userland unhooking techniques are also
-implemented to evade userland monitoring.
+[`EDRSandBlast`](https://github.com/wavestone-cdt/EDRSandblast/) is a tool
+written in `C` that weaponize a vulnerable signed driver to bypass `EDR`
+detections (Kernel callbacks and `ETW TI` provider) and `LSASS` protections.
+Multiple userland unhooking techniques are also implemented to evade userland
+monitoring.
 
 As of release, combination of userland (`--usermode`) and Kernel-land
 (`--kernelmode`) techniques were used to dump `LSASS` memory under `EDR`

@@ -1,5 +1,3 @@
-# Windows - Lateral movement - Over Distributed Component Object Model (DCOM)
-
 ### DCOM overview
 
 `Component Object Model (COM)` is a Microsoft standard for inter-process

