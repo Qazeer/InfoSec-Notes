@@ -5,11 +5,11 @@
 The `TCP` port 3128 is commonly used by web proxy servers, such as `Squid`. A
 proxy server is simply a component that acts as an intermediary relay for
 clients accessing network resources. Instead of connecting directly to the
-resource, the client makes requests to the proxy server that fulfill, or not,
+resource, the client makes requests to the proxy server that fulfil, or not,
 the requests and transmit the result back to the client.
 
 Web proxies, also known as HTTP proxies, forward `HTTP` requests or `TCP`
-sessions. The later are tunneled using the `CONNECT` `HTTP` verb.   
+sessions. The later are tunnelled using the `CONNECT` `HTTP` verb.
 As stated in the `Squid` documentation for `CONNECT` tunnel: "the proxy
 establishes a `TCP` connection to the specified server, responds with an `HTTP
 200` (Connection Established) response, and then shovels packets back and forth
@@ -20,7 +20,7 @@ tunneled traffic".
 
 An open proxy is a proxy server that will forward unauthenticated client's
 requests, which may be leveraged to access services exposed on the proxy
-server's loopback interface or network resources otherwise inaccessible.   
+server's loopback interface or network resources otherwise inaccessible.
 
 ### Network enumeration
 
