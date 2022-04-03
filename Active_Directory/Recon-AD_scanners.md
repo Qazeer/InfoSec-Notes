@@ -180,7 +180,7 @@ very basic query looking like:
 `Cypher` implements two basic clauses, `MATCH` and `RETURN`:
   - The `MATCH` clause specify the patterns `Neo4j` will search for in the
   database. `MATCH` is often coupled to a `WHERE` conditional statement that
-  adds restrictions to the data retrieved.  
+  adds restrictions to the data retrieved.
   - The `RETURN` clause defines what to include in the query result
   set, which can be nodes, relationships, or nodes / relationships properties.
 
@@ -189,7 +189,7 @@ instance, the following link `-[r:MemberOf]->` specify that the starting node
 should be a direct member of the group ending node, while the link
 `-[r:MemberOf*1..]->` indicate that the `MemberOf` relationship may repeat any
 number of time and thus the starting node may be recursively a member of the
-group ending node.     
+group ending node.
 
 `Neo4j` `Cypher` also implements the `shortestPath` and `allShortestPaths`
 functions that return, respectively, the shortest path and all the shortest
@@ -351,6 +351,9 @@ MATCH (u:User) WHERE ANY (x IN u.serviceprincipalnames WHERE toUpper(x) CONTAINS
 # Find all users that do not require Kerberos pre-authentication SPN (AS_REP roastable users).
 MATCH (n:User) WHERE n.dontreqpreauth=true RETURN n
 
+# Computers using an unsupported operating system, with a logon in the last 6 months.
+MATCH (c:Computer) WHERE c.operatingsystem =~ "(?i).*(2000|2003|2008|xp|vista|7|me).*" AND (c.lastlogontimestamp < (datetime().epochseconds - (6 * 30 * 86400)) OR c.lastlogon < (datetime().epochseconds - (6 * 30 * 86400))) RETURN c.name,c.operatingsystem
+
 # Sessions enumeration.
 # Domains Admins and Enterprise Admins sessions opened on computers except Domain Controllers.
 OPTIONAL MATCH (c:Computer)-[:MemberOf*1..]->(t:Group) WHERE NOT t.objectid ENDS WITH '-516' WITH c as NonDC MATCH p=(NonDC)-[:HasSession]->(n:User)-[:MemberOf*1..]->(g:Group) WHERE g.objectid ENDS WITH '-512' OR g.objectid ENDS WITH '-519' RETURN DISTINCT (n.name) as Username, COUNT(DISTINCT(NonDC)) as Connexions ORDER BY COUNT(DISTINCT(NonDC)) DESC
@@ -375,6 +378,8 @@ MATCH (g:Group) WHERE g.objectid ENDS WITH '-513' OR g.objectid ENDS WITH 'S-1-5
 # Kerberos delegations.
 # Computers, except Domain Controllers, that are trusted to perform unconstrained delegation.
 MATCH (c1:Computer)-[:MemberOf*1..]->(g:Group) WHERE g.objectid ENDS WITH "-516" WITH COLLECT(c1.name) AS domainControllers MATCH (c2:Computer {unconstraineddelegation:true}) WHERE NOT c2.name IN domainControllers RETURN c2.name,c2.operatingsystem ORDER BY c2.name ASC
+# Users trusted that are trusted to perform unconstrained delegation.
+MATCH (u:User {unconstraineddelegation:true}) RETURN u.name,u.description,u.serviceprincipalnames,u.lastlogon,u.lastlogontimestamp
 
 # Advanced control paths.
 # Shortest path from Everyone, Anonymous, Authenticated Users, Domain Users or Domain Computers to Enterprise Admins, Domain Admins, KRBTGT, domain built-in Administrator, Domain Controllers,	Cert Publishers, Schema Admins, Key Admins, Enterprise Key Admins, Account Operators, Server Operators, Print Operators or Backup Operators.
@@ -453,7 +458,7 @@ ruby bh-owned.rb -u neo4j -p <NEO4J_DB_PASSWORD> -a <COMPROMISED_USERS_FILE>
 `PingCastle` is an `C#` application designed to run a number of security
 checks, targeting the most common Active Directory security issues.
 `PingCastle` generates an `HTLM` report summarizing the findings for the
-`healthcheck` mode or produces text files for the individual modules.  
+`healthcheck` mode or produces text files for the individual modules.
 
 Note that the licensing model of `PingCastle` specify the following:
   - "Except if a license is purchased, you are not allowed to make any profit

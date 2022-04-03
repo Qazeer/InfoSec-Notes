@@ -80,7 +80,8 @@ The `Remote Server Administration Tools (RSAT)` suite includes a number of
 utilities useful for Active Directory reconnaissance and notably the
 `Active-Directory` module for Windows PowerShell. The `Active-Directory` module
 consolidates a group of cmdlets, that can be used to retrieve information and
-manage Active Directory domains.
+manage Active Directory domains. The cmdlets of `ActiveDirectory` module
+rely on the `Active Directory Web Services (ADWS)` over port `TCP` 9389.
 
 ```
 Import-Module ActiveDirectory
@@ -618,6 +619,28 @@ Get-ADPrincipalGroupMembership <IDENTITY> | Where-Object {$_.name -like '*adm*'}
 
 # PowerView
 Get-NetGroup -UserName <USERNAME>
+```
+
+###### Sites and subnets
+
+The sites and subnets registered in Active Directory can provide information
+about the network topology and physical location of computers of the
+environment.
+
+The sites and subnets can be listed, and exported in a text format, using the
+`Active Directory Sites and Services` snap-in (`dssite.msc`). The snap-in can
+be used for enumeration from domain-joined and non-domain joined machine.
+
+```
+File -> Add/Remove Snap-in (Ctrl + M) -> Selection of Active Directory Sites and Services
+  -> Sites -> Subnets -> Right Click -> Export List...
+```
+
+The PowerShell cmdlet `Get-ADReplicationSubnet` of the `ActiveDirectory` module
+can also be used to enumerate the subnets:
+
+```
+Get-ADReplicationSubnet -Server <DC_HOSTNAME | DC_IP> [-Credential <PSCredential>] -Filter * -Properties * | Select-Object Name, Site, Location, Description
 ```
 
 ###### Local groups

@@ -130,7 +130,8 @@ Get-SQLInstanceDomain -DomainController <DC_IP> -Username <DOMAIN>\<USERNAME> -P
 
 ###### Authentication spraying
 
-A combination of the `PowerUpSQL`'s `Get-SQLInstanceDomain` and `Get-SQLConnectionTestThreaded` PowerShell cmdlets can be used to:
+A combination of the `PowerUpSQL`'s `Get-SQLInstanceDomain` and
+`Get-SQLConnectionTestThreaded` PowerShell cmdlets can be used to:
   - first enumerate the `SQL Server` instances of an `Active Directory` domain
   - then attempt authentication using the current security context or the
     specified (local or windows) credentials on the discovered instances.

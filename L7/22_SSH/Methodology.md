@@ -5,7 +5,7 @@
 [`nmap`](https://nmap.org/) can be used to scan the network for `SSH` services:
 
 ```
-nmap -v -p 22 -A -oA nmap_smb <IP | RANGE | CIDR>
+nmap -v -p 22 -A -oA nmap_ssh <IP | RANGE | CIDR>
 ```
 
 ### User enumeration (CVE-2018-15473)
@@ -28,14 +28,7 @@ msf> use auxiliary/scanner/ssh/ssh_enumusers
 
 ### Supported authentication methods
 
-A verbose connection attempt will display the authentication methods supported
-by the server (under `debug1: Authentications that can continue:`):
-
-```
-ssh -v <HOST>
-```
-
-###### Authentication methods available
+###### Authentication methods overview
 
 The following authentication methods are possible:
 
@@ -44,7 +37,7 @@ The following authentication methods are possible:
 
   - `keyboard interactive`: more complex request for arbitrary number of pieces
     of information. Can be hooked to two-factor (or multi-factor)
-    authentications (PAM, Kerberos, etc.).  
+    authentications (PAM, Kerberos, etc.).
 
   - `public key authentication`: clients must provide a public key in the list
     of allowed keys on the server and encrypts a certain data packet using the
@@ -56,6 +49,23 @@ The following authentication methods are possible:
     public key authentication; however, the server additionally maintains a
     list of hosts mapped to their public keys and will only accept connection
     with the keys from the pre recorded host.
+
+###### Supported authentication methods enumeration
+
+A verbose connection attempt will display the authentication methods supported
+by the server (under `debug1: Authentications that can continue:`):
+
+```
+ssh -vvv <HOST>
+```
+
+The authentication methods supported by given `SSH` servers can also be
+enumerated more automatically using the `nmap`'s `ssh-auth-methods` `NSE`
+script:
+
+```
+nmap -v -Pn -sT -p 22 -sV --script ssh-auth-methods --script-args="ssh.user=<root | USERNAME>" [-iL <INPUT_FILE> | <IP | RANGE | CIDR>]
+```
 
 ###### Legacy DSA public key authentication
 

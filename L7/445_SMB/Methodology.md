@@ -320,6 +320,9 @@ The tool supports regex use, such as follow:
 ```
 <KEYWORD1> OR <KEYWORD2>
 <KEYWORD1> AND <KEYWORD2>
+
+# Keywords search example.
+pass OR secret pwd OR SecureString OR NetworkCredential OR credential OR Authorization: Basic OR key OR root:$ OR <DOMAIN_NAME>
 ```
 
 ### Authentication brute force
