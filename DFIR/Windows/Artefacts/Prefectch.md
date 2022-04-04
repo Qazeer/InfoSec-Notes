@@ -2,7 +2,7 @@
 
 ### Overview
 
-Location: `%systemroot%\Prefetch\<EXECUTABLE.EXE>-<RANDOM_ID>.pf`  
+Location: `%systemroot%\Prefetch\<EXECUTABLE.EXE>-<RANDOM_ID>.pf`
 Filename example: `POWERSHELL.EXE-022A1004.pf`
 
 Yield Information related to **programs execution**.
@@ -33,7 +33,7 @@ The `Prefecth` files can yield the following information of forensic interest:
   - the first and last eight executions timestamps
   - run count (number of time the binary was executed)
   - list of files and directories accessed during the first ten seconds of
-    execution (including the eventual `DLL` loaded).  
+    execution (including the eventual `DLL` loaded).
     The full path to executable file can often be determined from the list of
     files accessed (duplicate possible if a given binary access another binary
     with the same name).
@@ -62,8 +62,8 @@ parse `Prefecth` file(s):
 
 ```
 # Parses the specified Prefecth file.
-PECmd [-q --csv <CSV_DIRECTORY_OUTPUT>] -f <PF_FILE>
+PECmd.exe [-q --csv <CSV_DIRECTORY_OUTPUT>] -f <PF_FILE>
 
 # Recursively retrieves and parses the Prefecth files in the specified directory.
-PECmd [-q --csv <CSV_DIRECTORY_OUTPUT>] -d <C:\Windows\Prefetch | C:\ | DIRECTORY>
+PECmd.exe [-q --csv <CSV_DIRECTORY_OUTPUT>] -d <C:\Windows\Prefetch | C:\ | DIRECTORY>
 ```

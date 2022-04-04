@@ -2,7 +2,7 @@
 
 ### Overview
 
-Location: `%systemroot%\Windows\System32\Logfiles\SUM\` folder.
+Location: `%SystemRoot%\Windows\System32\Logfiles\SUM\` folder.
 
 Yield Information related to **user access and activity**. <br>
 On Domain Controllers, yield information on **sessions opening on domain-joined
