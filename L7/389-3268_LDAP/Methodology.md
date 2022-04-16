@@ -59,7 +59,7 @@ ldapsearch -x -h <HOSTNAME | IP> -p <PORT> -D "CN=<USERNAME>,OU=<OU>[...],<ROOT>
 ldapsearch -H <ldap | ldaps>://<HOSTNAME | IP>:<PORT> -D "CN=<USERNAME>,OU=<OU>[...],<ROOT>" -w <PASSWORD> [...]
 
 # Retrieves the namingContexts
-# The base scope option - specified using "-s base" - indicates that only the entries at the level specified by the base DN (and none of its child entries) should be considered   
+# The base scope option - specified using "-s base" - indicates that only the entries at the level specified by the base DN (and none of its child entries) should be considered.
 ldapsearch -x -h <HOSTNAME | IP> -s base namingcontexts
 
 # Retrieves all objects in the specified base DN

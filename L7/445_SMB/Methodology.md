@@ -35,7 +35,7 @@ nmap -sU -sS --script smb-os-discovery.nse -p U:137,T:139 <HOST>
 A null session refers to an unauthenticated NetBIOS session and allows
 unauthenticated access to the shared files as well as a large amounts of
 information about the machine, such as password policies, usernames, group
-names, machine names, user and host SIDs.  
+names, machine names, user and host SIDs.
 This Microsoft feature existed in SMB1 by default and was later restricted in
 subsequent versions of SMB.
 
@@ -310,10 +310,13 @@ net use <DRIVELETTER>: \\<HOSTNAME | IP>\<SHARE> /user:"<WORKGROUP | DOMAIN>\<US
 *Agent Ransack*
 
 The `Agent Ransack` GUI file searching tool can be used to conduct `grep` like
-searches using the current Windows user identity and access rights.
+searches using the current Windows user identity and access rights. Both file
+names or content can be searched, and one or multiple local or remote locations
+may be specified.
 
-Both file names or content can be searched, and one or multiple local or remote
-locations may be specified.
+`Agent Ransack` presents the advantage of displaying 4 lines surrounding the
+hits and allowing easy access to files through the Windows explorer and any
+other application defined in the context menu of the local system.
 
 The tool supports regex use, such as follow:
 
@@ -323,6 +326,39 @@ The tool supports regex use, such as follow:
 
 # Keywords search example.
 pass OR secret pwd OR SecureString OR NetworkCredential OR credential OR Authorization: Basic OR key OR root:$ OR <DOMAIN_NAME>
+```
+
+*Snaffler*
+
+[`Snaffler`](https://github.com/SnaffCon/Snaffler) is a C# utility to enumerate
+and search sensitive data (mostly credentials) in a Active Directory
+environment. `Snaffler` can also be used to search on a local filesystem.
+
+`Snaffler` bundles a number of detection rules, detecting:
+  - specific file extensions (such as `.vmdk`, `.vhdx`, `.kdbx`, `.ppk`, etc.)
+  - exact file names (such as `id_rsa`, `shadow`, `NTDS.DIT`, etc.)
+  - partial file names containing substring such as `secret`, `password`, etc.
+  - sensitive content (such as `password`, `connectionString`, etc.) in
+    text-based (by default) files.
+
+More information on how `Snaffler` detect sensitive information can be found
+on the project repository `README`.
+
+```bash
+# -s: Displays hits to stdout.
+# -m <OUTPUT_DIR>: Automatically download matching files in the specified directory.
+# -l <SIZE>: Limit the size of files in bytes to download. Defaults to 10MB (10485760 bytes).
+# -u: Retrieve a list of interesting-looking accounts from the domain and uses them in searches.
+# -r <XXXMB | SIZE>: Set the maximum size file (in bytes) to search inside for interesting strings. Defaults to 500k (524288 bytes).
+
+# Enumerates computers and searches for files in the specified Active Directory domain.
+Snaffler.exe [-s | -o <OUTPUT_PATH>] [-m <OUTPUT_DIR> [-l <SIZE>]] -u -r "<100000000 | SIZE>" -d <DOMAIN> -c <DC_IP | DC_HOSTNAME>
+
+# Targets the specified computer(s).
+Snaffler.exe [-s | -o <OUTPUT_PATH>] [-m <OUTPUT_DIR> [-l <SIZE>]] -u -r "<100000000 | SIZE>" -n <COMPUTER | COMPUTERS_LIST>
+
+# Searches in the specified local folder.
+Snaffler.exe [-s | -o <OUTPUT_PATH>] [-m <OUTPUT_DIR> [-l <SIZE>]] -u -r "<100000000 | SIZE>" -i <LOCAL_FOLDER>
 ```
 
 ### Authentication brute force

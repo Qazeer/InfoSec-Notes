@@ -52,7 +52,7 @@ since `J2SE 1.2` (1998).
 ###### RMI registry and invocation process
 
 The `Java RMI registry` is a naming service that hold information about the
-remote objects registered by `Java RMI` servers.  
+remote objects registered by `Java RMI` servers.
 
 The `Java RMI` servers call the `Java RMI registry` to register (remote)
 object(s) and  associate a name with each registered object, an operation known
@@ -142,7 +142,7 @@ servers allow remote class loading.
 Note however that the aforementioned tooling are, as of March 2021, [prone to
 false-positives](https://github.com/rapid7/metasploit-framework/issues/10090)
 likely due to the original exploit code dating back to before the `JDK 7u21`
-default configuration hardening.  
+default configuration hardening.
 
 ```
 nmap -v -p <PORT> -sV --script rmi-vuln-classloader <IP | RANGE | CIDR>

