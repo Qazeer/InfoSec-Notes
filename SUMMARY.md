@@ -110,6 +110,7 @@
     * [Shimcache](DFIR/Windows/Artefacts/Shimcache.md)
     * [Timestamps](DFIR/Windows/Artefacts/Timestamps.md)
     * [UsnJrnl](DFIR/Windows/Artefacts/UsnJrnl.md)
+    * [User Access Logging](DFIR/Windows/Artefacts/User_Access_Logging.md)
   * [TTPs analysis](DFIR/Windows/TTPs_Analysis/README.md)
     * [Accounts usage](DFIR/Windows/TTPs_Analysis/Accounts_usage.md)
     * [Local persistence](DFIR/Windows/TTPs_Analysis/Local_persistence.md)

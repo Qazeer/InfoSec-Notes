@@ -62,7 +62,7 @@ on the version of the Windows operating system in use:
 
   - Introduced in the `Windows Vista` and `Windows Server
     2008`, **the (undocumented) `Process Execution Flag` flag** which seems to
-    indicate whether the entry was executed.  
+    indicate whether the entry was executed.
 
   - On `Windows XP 32-bit`, the file `Last Update Time` timestamp.
 
@@ -83,7 +83,9 @@ AppCompatCacheParser.exe --csv <OUTPUT_FOLDER>
 python ShimCacheParser.py --local -o <OUTPUT_FILE>
 
 # Parses the specified SYSTEM hive.
-AppCompatCacheParser.exe -f <SYSTEM_HIVE_FILE> --csv <OUTPUT_FOLDER>
+# --nl: option to force the parsing of the hive even if the even is in a "dirty" state and no transaction logs are available.
+AppCompatCacheParser.exe [--nl] -f <SYSTEM_HIVE_FILE> --csv <OUTPUT_FOLDER>
+
 python ShimCacheParser.py [--hive <SYSTEM_HIVE_FILE> | --reg <EXPORTED_SYSTEM_FILE>] -o <OUTPUT_FILE>
 ```
 
@@ -93,7 +95,7 @@ The `Volatility2`'s `shimcache` plugin can be used to extract the `Shimcache`
 entries living in memory (generated since the last system boot).
 
 For more information on how to capture memory and use `Volatility` for memory
-analysis, refer to the `[DFIR] Memory` note.  
+analysis, refer to the `[DFIR] Memory` note.
 
 ```
 vol.py -f win7.vmem --profile=Win7SP1x86 shimcache

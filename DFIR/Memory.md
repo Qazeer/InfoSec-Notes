@@ -618,7 +618,7 @@ volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> dumpfiles -n --
 volatility3 -f <MEMORY_DUMP_FILE> windows.dumpfiles.DumpFiles
 
 # Extract the files (_FILE_OBJECT structures) whose names match the specified regex.
-# Regex example: -r ".*\.doc"
+# Regex examples: -r ".*\.doc" | -r ".*\.[op]st.*"
 volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> dumpfiles -n --dump-dir=<OUTPUT_FOLDER> -r <REGEX>
 
 # Extract the files (_FILE_OBJECT structures) present in the specified process(es) memory space.

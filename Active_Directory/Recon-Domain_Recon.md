@@ -250,8 +250,8 @@ or domain.
 
 A trust relationship can be:
   - one-way, given by one forest or domain, the trusting object, to another
-  domain or forest, the trusted object
-  - two-way, meaning permissions extend mutually from both objects
+    domain or forest, the trusted object
+  - two-way, meaning permissions extend mutually from both objects.
 
 *Transitivity*
 

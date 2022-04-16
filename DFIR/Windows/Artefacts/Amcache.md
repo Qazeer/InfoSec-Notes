@@ -23,5 +23,6 @@ Get-ForensicAmcache | Out-File <OUTPUT_FILE>
 
 # From hive / mounted disk image
 Get-ForensicAmcache -HivePath "<C:\Windows\AppCompat\Programs\Amcache.hve | EXPORTED_HIVE_PATH>" | Out-File <OUTPUT_FILE>
+
 AmcacheParser.exe -f "<C:\Windows\AppCompat\Programs\Amcache.hve | EXPORTED_HIVE_PATH>" -i on --csv <OUTPUTDIR_PATH>
 ```
