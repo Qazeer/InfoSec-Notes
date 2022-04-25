@@ -10,36 +10,6 @@ of the presupposed attack timeframe.
 This technique is identified by
 [MITRE ATT&CK T1070.006](https://attack.mitre.org/techniques/T1070/006/).
 
-###### $STANDARD_INFORMATION & $FILENAME MACB timestamps
-
-On `NTFS` filesystems, each file posses (at least) two attributes that hold
-(among other information) `Modification, Access, Change and Birth (MACB)`
-timestamps:
-  - `$STANDARD_INFORMATION`
-  - `$FILENAME`
-
-Depending on its filename length, a given file may have one or two `$FILENAME`
-attributes:
-  - file with short name will have a single `$FILENAME` attribute.
-  - file with long name will be associated to two `$FILENAME` attributes,
-    one for the long file name and a second for the MS-DOS-compatible short
-    file name (`FILENA~1.TXT` for example).
-
-Additionally, another `$FILENAME` attribute can be found for each file in the
-directory index of their directory of residency. Indeed directory are stored
-on `NTFS` partitions as `B+ tree data structure` with the keys, representing
-files and subdirectories, stored as `$FILENAME` attributes. `MACB` timestamps
-for each files and subdirectories of a given directory can thus be found in the
-directory index. The directory index are stored in `NTFS Index Attribute`
-files, also known as `INDX` files and named `$I30` on disk.
-
-A given file may thus be associated with either:
-  - **12 timestamps**: `$STANDARD_INFORMATION` + `$FILENAME` + `NTFS $I30`'s
-    `$FILENAME`.
-  - **20 timestamps**: `$STANDARD_INFORMATION` + 2 * `$FILENAME` +
-    2 * `NTFS $I30`'s `$FILENAME` (duplicate timestamps for files with long
-    name).
-
 The `MACB` timestamps in the `$STANDARD_INFORMATION` attributes can be modified
 by standard users while the `$FILENAME` attributes can only be modified by /
 through the Windows kernel. The modification of a file `$STANDARD_INFORMATION`
@@ -51,16 +21,91 @@ Note that in addition to being the ones that can be easily modified, the
 `MACB` timestamps from the `$STANDARD_INFORMATION` attribute are conveniently
 the ones (generally) displayed by the `Windows Explorer`.
 
+For more information on Windows timestamps, refer to the
+`[DFIR] Windows - Artefacts - Timestamps` note.
+
+### Timestomping detection
+
+Most of timestomping detections below rely on information stored in the `$MFT`
+file. Refer to the `[DFIR] Windows - MFT` note for more information on how to
+parse the `$MFT` artefact.
+
+###### MFT $STANDARD_INFORMATION vs $FILENAME
+
+Timestomping can be detected by comparing the `$STANDARD_INFORMATION` and
+`$FILENAME` timestamps of a given file in the `MFT`. Indeed, if the timestamps
+from `$STANDARD_INFORMATION` (easily modifiable) are older than the `$FILENAME`
+timestamps (not (easily) modifiable), the file timestamps may have been
+timestomped.
+
+This detection method is however prone to false-positives as some applications
+or installers may modify the `$STANDARD_INFORMATION` timestamps.
+
+`MFTECmd` can be used to parse the `MFT` of a `NTFS` volume and automatically
+highlight the files having `$STANDARD_INFORMATION` timestamps older than their
+`$FILENAME` timestamps.
+
+###### UsnJrnl records
+
+Data from the `UsnJrnl` artefact may reveal recent operations on timestomped
+files. For instance, a `USN_REASON_FILE_CREATE` record logged in the `UsnJrnl`
+for a seemingly older file could be an indicator of timestomping.
+
+Additionally, an `USN_REASON_BASIC_INFO_CHANGE` (+ `USN_REASON_CLOSE`) record
+would be logged in the `UsnJrnl` following the timestomping of a file. The
+presence of such indicator is however not necessarily a strong indicator of
+timestomping as many other attributes change would also trigger a similar
+record to be logged in the `UsnJrnl`.
+
+This detection method is however prone to false-negatives as the `UsnJrnl` has
+usually limited historical data.
+
+Refer to the `[DFIR] Windows - UsnJrnl` note for more information on how to
+parse the `UsnJrnl` artefact.
+
+###### MFT $STANDARD_INFORMATION timestamps precision
+
+The timestomping tool used may have limitation on the time precision they
+it for timestomped timestamps. For example, the tool may only allow precision
+down to the second level, while the `$STANDARD_INFORMATION` timestamps are
+precise down to the ten millionths of a second. In such case, the timestomped
+timestamps will be padded with zeros in place of the actual milli-seconds:
+`YYYY-MM-DD hh:mm:ss.0000000`.
+
+This detection method is however prone to false-positives as some utilities or
+file formats, such as file-archives, may truncate timestamps down the second
+level.
+
+###### MFT entry numbers
+
+`$MFT` entry numbers grow sequentially, with older files generally having lower
+entry numbers than more recent files. The `$MFT` entry numbers should thus grow
+linearly with the `$STANDARD_INFORMATION` created / birth timestamp (with usual
+exceptions in the days-range: files older by a few days may have slightly
+higher entry numbers than relatively more recent files).
+
+This detection method is however prone to false-positives as `$MFT` entry
+numbers of deleted files may be re-used (especially for `NTFS` partitions on
+SSDs).
+
 --------------------------------------------------------------------------------
 
 ### References
 
 https://dfir.ru/2021/01/10/standard_information-vs-file_name/
+
 https://medium.com/@bromiley/a-journey-into-ntfs-part-4-f2865c39ac83
+
 https://www.andreafortuna.org/2017/10/06/macb-times-in-windows-forensic-analysis/
+
 https://www.sans.org/security-resources/posters/windows-forensic-analysis/170/download
+
 https://www.sans.org/blog/digital-forensics-detecting-time-stamp-manipulation/
+
 https://www.osforensics.com/faqs-and-tutorials/how-to-scan-ntfs-i30-entries-deleted-files.html
+
 https://alexsta-cybersecurity.com/how-to-detect-timestomping-on-a-windows-system/
+
 https://www.sans.org/blog/ntfs-i30-index-attributes-evidence-of-deleted-and-overwritten-files/
+
 https://www.youtube.com/watch?v=XzoYNOlJ37s
