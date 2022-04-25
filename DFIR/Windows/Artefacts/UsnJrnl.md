@@ -5,8 +5,8 @@ activated by default on Vista and later, which maintains a record of changes
 made to the NTFS volume. The creation, deletion or modification of files or
 directories are for instance journalized.
 
-Similarly to the MFT, entries for deleted files are progressively overwritten
-in the UsnJrnl.
+Similarly to the `MFT`, entries for deleted files are progressively overwritten
+in the `UsnJrnl`.
 
 The journal is located in `\$Extend\$UsnJrnl` (`$Max` and `$J` data streams)
 but can not be accessed through the Windows explorer as it is a system file.
@@ -21,7 +21,7 @@ The change log records are notably composed of:
   - the reason the record was logged (`USN_REASON_FILE_CREATE`,
     `USN_REASON_FILE_DELETE`, `USN_REASON_DATA_OVERWRITE`,
     `USN_REASON_RENAME_NEW_NAME`, etc.)
-  - MFT reference and reference sequence number   
+  - MFT reference and reference sequence number
 
 The Windows `fsutil` and the PowerShell cmdlet `Get-ForensicUsnJrnlInformation`
 of the `PowerForensics` suite can be used to retrieve metadata about the

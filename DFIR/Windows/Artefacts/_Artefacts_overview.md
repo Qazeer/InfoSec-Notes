@@ -1,13 +1,13 @@
 # DFIR - Windows artefacts overview
 
-A more detailed explanation of the artefacts, and associated parsing tools, are / will be available in dedicated sub-notes.
+A more detailed explanation of the artefacts, and associated parsing tools, are
+/ will be available in dedicated sub-notes.
 
 | Name | Information relative to | Location |
 |------|-------------------------|----------|
 | `ActivitiesCache.db` <br><br> Introduced in Windows 10's version 1803.	| Programs execution. <br><br> Files and folders access. | `C:\Users\<USERNAME>\AppData\Local\ConnectedDevicesPlatform\L.<USERNAME>\ActivitiesCache.db` |
 | `Amcache` | Programs execution. | `%SystemRoot%\AppCompat\Programs\Amcache.hve` |
 | Common Dialogs - <br> `CIDSizeMRU` | Programs execution. | File: `%SystemDrive%:\Users\<USERNAME>\NTUSER.dat` <br> Registry key:  `HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\CIDSizeMRU` |
-| `Background Activity Moderator (BAM)` <br><br> Introduced in Windows 10's version 1709. | Programs execution. | File: `%SystemRoot%\System32\config\SYSTEM` <br> Registry key: `HKLM\SYSTEM\CurrentControlSet\Services\bam\UserSettings\<SID>\*` |
 | Common Dialogs - <br> `FirstFolder` | Programs execution. <br><br> Files and folders access. | File: `%SystemDrive%:\Users\<USERNAME>\NTUSER.dat` <br><br> Registry key: <br> `HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\FirstFolder` |
 | Common Dialogs - <br> `OpenSaveMRU` <br> `OpenSavePidlMRU` <br><br> Renamed in Windows Vista and later. | Files and folders access. | File: `%SystemDrive%:\Users\<USERNAME>\NTUSER.dat` <br><br> Registry key: <br> `HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\OpenSaveMRU` <br> `HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\OpenSavePidlMRU` |
 | Common Dialogs - <br> `LastVisitedMRU ` <br> `LastVisitedPidlMRU` <br> `LastVisitedPidlMRULegacy` <br><br> Renamed in Windows Vista and later. | Programs execution. <br><br> Files and folders access. | File: `%SystemDrive%:\Users\<USERNAME>\NTUSER.dat` <br><br> Registry key: <br> `HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\LastVisitedMRU` <br> `HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\LastVisitedPidlMRU` <br> `HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\LastVisitedPidlMRULegacy` |
@@ -23,6 +23,7 @@ A more detailed explanation of the artefacts, and associated parsing tools, are 
 | Network interfaces (`Interfaces` registry keys) | Basic information about network interfaces (interface name, associated IP address, default gateway, and DHCP lease and eventual domain) | File: `%SystemRoot%\System32\config\SYSTEM` <br> Registry keys: `HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\*` |
 | `PortProxy` registry key | `netsh` port forwarding activity: listening host / port and remote host / port. | File: `%SystemRoot%\System32\config\SYSTEM` <br> Registry key: `HKLM\SYSTEM\ControlSet001\Services\PortProxy\v4tov4\tcp\*` |
 | `Prefetch` | Programs execution. | `%SystemRoot%\Prefetch\*` |
+| `ProfileList` registry keys |  `SID` to username correspondence for accounts that have logged on the system (including for domain accounts). | File: `%SystemRoot%\System32\config\SOFTWARE` <br> Registry key: `HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList` |
 | `RDP Bitmap Cache` | Partial captures of the remote desktop screen for RDP sessions. | Windows XP / Windows Server 2003: <br> `%SystemDrive%:\Documents and Settings\<USERNAME>\Local Settings\Application Data\Microsoft\Terminal Server Client\Cache\*` <br><br> Windows 7 and later: `%SystemDrive%:\Users\<USERNAME>\AppData\Local\Microsoft\Terminal Server Client\Cache\*` |
 | `RecentApps` | Programs execution. <br><br> Files and folders access. | File: `%SystemDrive%:\Users\<USERNAME>\NTUSER.dat` <br> Registry key:  `HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Search\RecentApps\<GUID>` |
 | `RecentDocs` | Files and folders access. | File: `%SystemDrive%:\Users\<USERNAME>\NTUSER.dat`  <br> Registry key:  `HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs` |
@@ -40,7 +41,7 @@ A more detailed explanation of the artefacts, and associated parsing tools, are 
 | `UserAssist` | Programs execution. | File: `%SystemDrive%:\Users\<USERNAME>\NTUSER.dat` <br> Registry key:  `HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\UserAssist\<GUID>\Count` |
 | `User Access Logging (UAL)` <br><br> Windows Server only, introduced in Windows Server 2012. | User access and DNS resolution. <br><br> Sessions opening on domain-joined computers in Domain Controllers UAL files. | Databases files (`.mdb`) in `%SystemRoot%\Windows\System32\Logfiles\SUM\` |
 | `UsnJrnl` | Filesystem and limited filesystem history. | `\$Extend\$UsnJrnl` (`$Max` and `$J` data streams) |
-| `Windows Background Activity Moderator (BAM)` <br><br> Introduced in Windows 10's Fall Creators update - version 1709. | Programs execution. | File: `%SystemRoot%\System32\config\SYSTEM` <br><br> Registry key: <br> `HKLM\SYSTEM\CurrentControlSet\Services\bam\UserSettings\<SID>` <br> After from Win10 1809: `HKLM\SYSTEM\CurrentControlSet\Services\bam\State\UserSettings\<SID>` |
+| `Windows Background Activity Moderator (BAM)` <br><br> Introduced in Windows 10's Fall Creators update - version 1709. | Programs execution. | File: `%SystemRoot%\System32\config\SYSTEM` <br><br> Registry key: <br> `HKLM\SYSTEM\CurrentControlSet\Services\bam\UserSettings\<SID>\*` <br> After from Win10 1809: `HKLM\SYSTEM\CurrentControlSet\Services\bam\State\UserSettings\<SID>\*` |
 | Windows Search | Files and folders access. | `%SystemDrive%:\ProgramData\Microsoft\Search\Data\Applications\Windows\Windows.edb` |
 | `WordWheelQuery` | Files and folders access. <br><br> Potential Programs execution. | File: `%SystemDrive%:\Users\<USERNAME>\NTUSER.dat`  <br> Registry key:  `HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\WordWheelQuery` |
 

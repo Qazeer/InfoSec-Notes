@@ -1,4 +1,4 @@
-### Master File Table (MFT)
+# DFIR - Windows - Master File Table (MFT)
 
 ### Overview
 
@@ -18,6 +18,10 @@ The record entry includes:
   - the file creation, file last altered, file last read, file last MFT entry
   update datetimes in the `$FILE_NAME` attribute
   - access permissions
+
+The `$MFT` file has both the `Hidden (H)` and `System (S)` attributes and will
+thus not be shown by the Windows Explorer application or the `dir` utility by
+default.
 
 ###### $STANDARD_INFORMATION vs $FILE_NAME
 
@@ -95,3 +99,9 @@ Get-ForensicFileRecord -MftPath <EXPORTED_MFT_PATH> | Out-File <OUTPUT_FILE>
 
 Get-ForensicFileRecord -Path <FILE_TO_GET_RECORD_OF>
 ```
+
+--------------------------------------------------------------------------------
+
+### References
+
+https://docs.velociraptor.app/docs/forensic/ntfs/

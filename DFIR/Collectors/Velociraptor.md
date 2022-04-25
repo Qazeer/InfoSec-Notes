@@ -30,7 +30,7 @@ collected on the system drive (retrieved from the system environment variable).
 .\velociraptor.exe artifacts collect -v Windows.KapeFiles.Targets --output "$(hostname).zip" --args Device=$($Env:SystemDrive) --args KapeTriage=Y --args Avast=Y --args AviraAVLogs=Y --args Bitdefender=Y --args ESET=Y --args FSecure=Y --args HitmanPro=Y --args Kaseya=Y --args Malwarebytes=Y --args McAfee=Y --args McAfee_ePO=Y --args Kaseya=Y --args SentinelOne=Y --args Sophos=Y --args Symantec_AV_Logs=Y --args TeamViewerLogs=Y --args TrendMicro=Y --args VIPRE=Y --args WindowsDefender=Y
 ```
 
-### Standalone binary   
+### Standalone binary
 
 Standalone collector binary can be executed, without any argument, to conduct
 the artefacts collection on a live system.

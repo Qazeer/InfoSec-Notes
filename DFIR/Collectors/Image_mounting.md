@@ -38,6 +38,22 @@ The `guestmount` utility can be used to mount a `VMDK` image directly:
 guestmount -a <VMDK_FILE> -m </dev/sda1 | DEVICE> --ro </mnt/mounted_vmdk | MOUNT_POINT>
 ```
 
+###### Expert Witness/EnCase (EWF) image
+
+The following procedure can be following to mount disk images in the
+`Expert Witness/EnCase (EWF)` format:
+
+```bash
+# Mount the raw EWF image. Following the ewfmount, an "ewf1" file should be present in the <RAW_EWF_DIR_PATH> directory.
+# The ewfmount utility is part of the "ewf-tools" package on Debian / Kali Linux.
+mkdir <RAW_EWF_DIR>
+ewfmount <EWF_FILE_PATH> <RAW_EWF_DIR_PATH>
+
+# Mount the image as a loop device.
+mkdir <MOUNTPOINT>
+mount <RAW_EWF_DIR_PATH>/ewf1 <MOUNTPOINT_PATH> -o ro,loop,show_sys_files,streams_interace=windows,noatime,noexec,noload
+```
+
 ###### Other image types
 
 The image partitions can be first determined using the `TSK`'s `mmls` or
@@ -64,5 +80,5 @@ fdisk -l <IMAGE_FILE>
 
 # OFFSET = SECTOR_SIZE * PARTITION_START.
 
-sudo mount -o ro,noload,noatime,noexec,offset=<OFFSET> <IMAGE_FILE> </mnt/ | MOUNT_POINT>
+sudo mount -o ro,show_sys_files,noload,noatime,noexec,offset=<OFFSET> <IMAGE_FILE> </mnt/ | MOUNT_POINT>
 ```
