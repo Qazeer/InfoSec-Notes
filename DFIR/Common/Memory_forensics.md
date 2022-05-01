@@ -192,11 +192,20 @@ a good first step.
 The general, context-independent, steps below can be followed for investigating
 the memory of a system:
   - Suspicious process hierarchy, such as `outlook.exe` or `iexplorer.exe`
-  executing `cmd.exe` or `powershell.exe` process
-  - Identification of rogue / unlinked processes
-  - review of network artifacts, notably in correlation with known C2 IP
-  addresses
+    executing `cmd.exe` or `powershell.exe` process.
+
+  - Identification of rogue / unlinked processes and process injection using
+    `malfind`
+
+  - Review of network connections and artifacts, looking notably for suspicious
+    pattern for example:
+    - network traffic for process that do not normally interact over the
+      network.
+    - non-web ports connections established by web browsers.
+    - connections to known malicious IP addresses.
+
   - scan of memory for known pattern / strings using `Yara` rules
+
   - ...
 
 ######  Usage
@@ -255,6 +264,7 @@ systems memory image.
 | `getsids` <br> `getservicesids` | | Lists the `Security Identifiers (SID)` present, respectively, in each processes token or services. |
 | `handles` | | Lists the handles (and information about the handles) for each or the specified process. |
 | `hashdump` | | Dumps the local accounts `LM` / `NTLM` hashes from the `SAM` registry hive loaded in memory. |
+| `hivelist` | `windows.registry.hivelist.HiveList` | Lists the registry hives. |
 | `imagecopy` | | Converts a memory dump (such as a crashdump, hibernation file, `VirtualBox` core dump, `VMware` snapshot, etc.) to a `raw` memory image. |
 | `imageinfo` | `windows.verinfo.VerInfo` | Prints high level information about the memory image. |
 | `ldrmodules` | | Lists the `DLL` loaded by each or the specified process but, in contrary to `dlllist`, from a process's `VirtualAddressDescriptor (VAD)` which can be used to find unlinked `DLL`. |
@@ -628,6 +638,54 @@ volatility3 -f <MEMORY_DUMP_FILE> windows.dumpfiles.DumpFiles --pid <PID>
 # Extrat a single file (_FILE_OBJECT structure) at the given virtual / physical offset.
 volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> dumpfiles -n --dump-dir=<OUTPUT_FOLDER> -Q <PHYSICAL_ADDRESS>
 volatility3 -f <MEMORY_DUMP_FILE> windows.dumpfiles.DumpFiles [--virtaddr <VIRTUAL_ADDRESS> | --physaddr <PHYSICAL_ADDRESS>]
+```
+
+###### Registry hives
+
+The `Volatility` `hivelist` / `windows.registry.hivelist.HiveList` plugins can
+be used to list the registry hives present in a memory image. The plugins
+internally rely on the `hivescan` / `windows.registry.hivescan.HiveScan`
+plugins to scan the memory for registry hives. The scan plugins identify paged
+pool with the `CM10` pool tag as `_CMHIVE` data structures, used to represent
+hives in kernel memory, are allocated in paged pools with this tag. The
+`hivelist` / `windows.registry.hivelist.HiveList` plugins validate that the
+offset found by the scanner indeed match registry hives by validating the
+`_CMHIVE`->`_HHIVE`->`Signature` attribute (in structure offset `0x0`) to be
+`0xbee0bee0`.
+
+```bash
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> hivelist
+
+volatility3 -f <MEMORY_DUMP_FILE> windows.registry.hivelist.HiveList
+```
+
+The keys and subkeys (with their last written timestamp) in a registry hive can
+be recursively listed using the `hivedump` plugin. The hive virtual memory
+address of the targeted registry hive is required and can be retrieved using
+the `hivelist` plugin:
+
+```bash
+# Virtual offset example: 0xffff860c0e681000.
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> hivedump --hive-offset <HIVE_VIRTUAL_OFFSET>
+```
+
+The `printkey` / `windows.registry.printkey.PrintKey` plugins can be used to
+print either all or the specified registry key (and whether the key is volatile
+or stable). If a registry hive is not specified (through its virtual memory
+address), the plugins will first enumerate the registry hives using the
+`hivelist` / `windows.registry.hivelist.HiveList` plugins.
+
+```bash
+# Print all keys' subkeys and values.
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> printkey
+
+# Search all the registry hives to print the specified key's subkey(s) and value(s).
+# Key example: ControlSet001\Services.
+vol.py -f memory.dmp --profile <MEMORY_DUMP_PROFILE> printkey -K '<KEY>'
+
+# Print the key's subkey(s) and value(s) in the specified registry hives.
+vol.py -f memory.dmp --profile <MEMORY_DUMP_PROFILE> printkey --hive-offset <HIVE_VIRTUAL_OFFSET> -K '<KEY>'
+
 ```
 
 ###### Malware finder

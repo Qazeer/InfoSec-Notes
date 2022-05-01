@@ -93,8 +93,11 @@
 
 * [Collectors](DFIR/Collectors/README.md)
   * [Velociraptor](DFIR/Collectors/Velociraptor.md)
-* [Memory](DFIR/Memory.md)
-* [Image mounting](DFIR/Image_mounting.md)
+* [Common](DFIR/Common/README.md)
+  * [Memory forensics](DFIR/Common/Memory_forensics.md)
+  * [Image mounting](DFIR/Common/Image_mounting.md)
+  * [Browsers forensics](DFIR/Common/Browsers_forensics.md)
+  * [Web logs](DFIR/Web_logs.md)
 * [Windows](DFIR/Windows/README.md)
   * [Artefacts overview](DFIR/Windows/Artefacts/_Artefacts_overview.md)
     * [KAPE](DFIR/Windows/Artefacts/_KAPE.md)
@@ -127,7 +130,6 @@
     * [ActiveDirectory persistence](DFIR/Windows/TTPs_Analysis/ActiveDirectory_persistence.md)
 * [Linux](DFIR/Linux/README.md)
   * [Timestomping](DFIR/Linux/Timestomping.md)
-* [Web logs](DFIR/Web_logs.md)
 
 ## Red Team specifics
 
