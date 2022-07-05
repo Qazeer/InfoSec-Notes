@@ -19,7 +19,7 @@ The following events could be indicator of persistence on the system:
 | System   | 7045,4697 | `A service was installed in the system`. |
 | System   | 7035, 7036 | `The <SERVICE_NAME> service was successfully sent a <start/stop> control.` and `The <SERVICE_NAME> service entered the <running/stopped> state.` A run / stop signal is sent then the service is effectively started / stopped. |
 | Security | 4697 | `A service was installed in the system` from Windows Server 2016 and Windows 10 |
-| System   | 7040 | Service start type was changed |  
+| System   | 7040 | Service start type was changed |
 | System   | 1056 | DHCP server oddities |
 | Security | 4688 | `A new process has been created`. Occurs when a process is created and include information about the process: creator subject (SID, account domain and name as well as the Logon ID), creator PID, token elevation type. etc. If enabled, the "process command line" field include the command line of the process. |
 

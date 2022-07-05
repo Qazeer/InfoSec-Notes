@@ -22,7 +22,7 @@ current system:
 | **Hostname**  | `hostname` | `$env:ComputerName` | `wmic computersystem  get name` <br> (PS) `(Get-WmiObject Win32_ComputerSystem).Name`|
 | **Fully qualified hostname** | `net config workstation \| findstr /C:"Full Computer name"` | `[System.Net.Dns]::GetHostByName($env:computerName)` | |
 | **Drives** | | `[System.IO.DriveInfo]::getdrives()` <br> `Get-PSDrive -PSProvider FileSystem` | |
-| **Curent Domain** | `echo %userdomain%` <br> `systeminfo \| findstr "Domain"` | `$env:UserDomain` <br> `systeminfo \| Select-String Domain` | (PS) `(Get-WmiObject Win32_ComputerSystem).Domain` |
+| **Curent Domain** | `echo %userdomain%` <br> `systeminfo \| findstr "Domain"` | `$env:UserDomain` (NetBIOS domain name) <br> `$env:UserDomain` (fully qualified domain name) <br> `systeminfo \| Select-String Domain` | (PS) `(Get-WmiObject Win32_ComputerSystem).Domain` |
 | **Curent User** | `whoami /all` <br/> `net user %username%`  | `$env:UserName` | (PS) `(Get-WmiObject Win32_ComputerSystem).UserName` |
 | **Local users** | `net users` <br/> `net users <USERNAME>` | `Get-LocalUser` | `wmic USERACCOUNT list full` <br> (PS) `Get-WMIObject Win32_UserAccount -NameSpace "root\CIMV2" -Filter "LocalAccount='$True'"` |
 | **Local groups** | `net localgroup` | *(Win10+)* `Get-LocalGroup` | `wmic group list full` |
@@ -1803,20 +1803,37 @@ leveraged to the same end.
 ### References
 
 https://stackoverflow.com/questions/1331887/detect-antivirus-on-windows-using-c-sharp
+
 https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md
+
 https://sushant747.gitbooks.io/total-oscp-guide/privilege_escalation_windows.html
+
 https://ired.team/offensive-security/defense-evasion/av-bypass-with-metasploit-templates
+
 https://www.elastic.co/fr/blog/ten-process-injection-techniques-technical-survey-common-and-trending-process
+
 https://i.blackhat.com/USA-19/Thursday/us-19-Kotler-Process-Injection-Techniques-Gotta-Catch-Them-All-wp.pdf
+
 https://book.hacktricks.xyz/windows/windows-local-privilege-escalation
+
 https://docs.microsoft.com/fr-fr/windows/desktop/SecAuthZ/ace-strings
+
 https://blogs.msmvps.com/erikr/2007/09/26/set-permissions-on-a-specific-service-windows/
+
 http://www.alex-ionescu.com/publications/BlueHat/bluehat2016.pdf
+
 https://recon.cx/2018/brussels/resources/slides/RECON-BRX-2018-Linux-Vulnerabilities_Windows-Exploits--Escalating-Privileges-with-WSL.pdf
+
 https://resources.infosecinstitute.com/windows-subsystem-linux/#gref
+
 https://mspscripts.com/get-installed-antivirus-information-2/
+
 https://itm4n.github.io/printspoofer-abusing-impersonate-privileges/
+
 https://decoder.cloud/2019/12/06/we-thought-they-were-potatoes-but-they-were-beans/
+
 https://decoder.cloud/2018/10/29/no-more-rotten-juicy-potato/
+
 https://itm4n.github.io/localservice-privileges/
+
 https://docs.microsoft.com/en-us/windows/win32/services/service-security-and-access-rights
