@@ -130,6 +130,9 @@
     * [ActiveDirectory persistence](DFIR/Windows/TTPs_Analysis/ActiveDirectory_persistence.md)
 * [Linux](DFIR/Linux/README.md)
   * [Timestomping](DFIR/Linux/Timestomping.md)
+* [Cloud](DFIR/Cloud/README.md)
+  * [Azure](DFIR/Cloud/Azure.md)
+  * [AWS](DFIR/Cloud/AWS.md)
 
 ## Red Team specifics
 

@@ -18,7 +18,7 @@ nmap -v -p 512,513 -A <RANGE | CIDR>
 The nmap NSE scripts rexec-brute.nse and rlogin-brute.nse can be used to brute
 force the services, as well as the metasploit modules
 auxiliary/scanner/rservices/rexec_login and
-auxiliary/scanner/rservices/rlogin_login.  
+auxiliary/scanner/rservices/rlogin_login.
 If all tested credentials are returned as valid ("Valid
 credentials"), the services are vulnerable to unauthenticated access.
 

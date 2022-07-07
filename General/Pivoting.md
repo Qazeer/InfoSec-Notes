@@ -95,6 +95,22 @@ netsh winhttp dump
 netsh winhttp reset proxy
 ```
 
+The proxy can also be directly set in the registry, for instance using
+PowerShell:
+
+```
+# Enables the proxy server.
+REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v "ProxyEnable" /t REG_DWORD /d 1 /f
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings" -Name "ProxyEnable" -Value 1
+
+# Set the proxy server to the specified server.
+REG ADD "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v "ProxyServer" /t REG_SZ /d "<IP>:<PORT>" /f
+Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings' -name "ProxyServer" -Value "<IP>:<PORT>"
+
+# If needs be, set the proxy server to use the specified (remote) PAC file.
+Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings' -name "AutoConfigURL" -Value "<http | https>://<URL>"
+```
+
 Note that however both methods prove to be unreliable to proxy PowerShell
 cmdlets network traffic through the `SOCKS` proxy (while some cmdlets, such
 as `Invoke-Command` and `Enter-PSSession` can be reliably proxied through a

@@ -5,7 +5,7 @@
 The Active Directory replication metadata hold information about change made
 on an Active Directory object. Every object within Active Directory stores
 replication metadata, in their `msDS-ReplAttributeMetaData` and
-`msDS-ReplValueMetaData` attributes.  
+`msDS-ReplValueMetaData` attributes.
 
 The replication metadata is used by the Domain Controllers to replicate
 modifications and, as so, only attributes that are replicated will be logged in

@@ -191,7 +191,28 @@ q -H -d '<DELIMITER>' "<SQL_STATEMENT>"
 q -d "," -H "SELECT TimeCreated,EventId,Provider,Channel,Computer,UserId,MapDescription,ChunkNumber,UserName,RemoteHost,PayloadData1 FROM <CSV_FILE> WHERE TimeCreated LIKE '2020-04-07%' AND (Provider='Microsoft-Windows-Security-Auditing' OR Provider='Microsoft-Windows-TaskScheduler' OR Provider='Microsoft-Windows-TerminalServices-RemoteConnectionManager')"
 ```
 
-### Automated analysis with DeepBlueCLI
+### Automated analysis
+
+###### hayabusa
+
+[`hayabusa`](https://github.com/Yamato-Security/hayabusa) is a tool written in
+Rust that leverage Sigma-based rule, converted in the "hayabusa" `YML` format
+as well as custom detection rules to generate a timeline of notable events
+from Windows `EVTX` logs. The resulting timeline is exported in `CSV` format.
+
+`hayabusa` currently supports most the Sigma rule specification and delivers
+better results on default Windows events (without `Sysmon` notably) than
+[`Chainsaw`](https://github.com/countercept/chainsaw).
+
+```
+# Updates the Sigma and hayabusa rules from GitHub.
+hayabusa.exe -u
+
+# Generates a CSV-timeline from the specified EVTX file or EVTX in the specified folder.
+hayabusa.exe --utc --rfc-3339 -o <OUTPUT_CSV> -d <EVTX_FOLDER>
+```
+
+###### DeepBlueCLI
 
 The [`DeepBlueCLI`](https://github.com/sans-blue-team/DeepBlueCLI) PowerShell
 script can be used to automate a basic analysis of Windows events logs. A

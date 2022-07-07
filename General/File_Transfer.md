@@ -308,11 +308,21 @@ to larger files.
 
 ```
 Function Invoke-SimulateKeyboard ($FilePath) {
-    $EncodedData = [Convert]::ToBase64String([IO.File]::ReadAllBytes($FilePath))
+  $Data = [IO.File]::ReadAllBytes($FilePath)
 
-    TimeOut 2
+  $ms = New-Object System.IO.MemoryStream
+  $cs = New-Object System.IO.Compression.GZipStream($ms, [System.IO.Compression.CompressionMode]::Compress)
+  $cs.Write($Data, 0, $Data.Length)
+  $cs.Close()
 
-    $EncodedData.ToCharArray() | ForEach-Object {[System.Windows.Forms.SendKeys]::SendWait($_)}
+  $EncodedData = [System.Convert]::ToBase64String($ms.ToArray())
+
+  Write-Host "Uncompressed data size: " $Data.Length
+  Write-Host "Compressed data size (number of keystrokes required): " $EncodedData.Length
+
+  TimeOut 2
+
+  $EncodedData.ToCharArray() | ForEach-Object {[System.Windows.Forms.SendKeys]::SendWait($_)}
 }
 
 $FilePath = "<FILE_TO_TRANSFER>"
