@@ -15,10 +15,10 @@ The logs are retrieved in `JSON` from the following sources of information:
 
 | Source | Description | History | Mechanism used |
 |--------|-------------|---------|------------------|
-| [`Office 365 Unified Audit Logs`](https://docs.microsoft.com/en-us/microsoft-365/compliance/search-the-audit-log-in-security-and-compliance) | All Office 365 logs (including Azure AD logs with a more limited level of information). | 90 days	| `Exchange online PowerShell` |
-| [`Mailbox Audit Log`](https://docs.microsoft.com/en-us/microsoft-365/compliance/enable-mailbox-auditing) | Information about certain actions performed on mailboxes by mailbox owners, delegates, and admins. For instance, log entries can be generated upon mail data access, email deletion or sending, etc. | 90 days | `Exchange Online PowerShell` |
-| [`Azure AD sign-ins logs`](https://docs.microsoft.com/en-us/azure/active-directory/reports-monitoring/concept-sign-ins) | Information about Azure AD sign-ins and resources usage. | 30 days | `MS Graph API` |
-| [`Azure AD audit logs`](https://docs.microsoft.com/en-us/azure/active-directory/reports-monitoring/concept-audit-logs) | Information about changes applied to the Azure AD tenant, such as users or group management and updates. | 30 days | `MS Graph API` |
+| [`Office 365 Unified Audit Logs`](https://docs.microsoft.com/en-us/microsoft-365/compliance/search-the-audit-log-in-security-and-compliance) | All Office 365 logs (including Azure AD logs with a more limited level of information). <br><br> Entries are stored in `UTC+0`. | 90 days	| `Exchange online PowerShell` |
+| [`Mailbox Audit Log`](https://docs.microsoft.com/en-us/microsoft-365/compliance/enable-mailbox-auditing) | Information about certain actions performed on mailboxes by mailbox owners, delegates, and admins. For instance, log entries can be generated upon mail data access, email deletion or sending, etc. <br><br> **Entries are stored in the user's local time zone.** | 90 days | `Exchange Online PowerShell` |
+| [`Azure AD sign-ins logs`](https://docs.microsoft.com/en-us/azure/active-directory/reports-monitoring/concept-sign-ins) | Information about Azure AD sign-ins and resources usage. <br><br> Entries are stored in `UTC+0`. | 30 days | `MS Graph API` |
+| [`Azure AD audit logs`](https://docs.microsoft.com/en-us/azure/active-directory/reports-monitoring/concept-audit-logs) | Information about changes applied to the Azure AD tenant, such as users or group management and updates. <br><br> Entries are stored in `UTC+0`. | 30 days | `MS Graph API` |
 | [`Azure Activity logs`](https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log) | Information about activity in an Azure subscription, such as resource modification, virtual machine creation and start, etc. | 30 days | `Azure Monitor RESTAPI` |
 | [`Azure DevOps Activity logs`](https://docs.microsoft.com/en-us/azure/devops/organizations/audit/azure-devops-auditing) | Information about operations in the Azure DevOps organization(s), such as operations on resources, permissions changes, etc. | 90 days | `Azure DevOps services RESTAPI` |
 
@@ -77,9 +77,9 @@ Azure AD tenant. The authentication should be done using a web browser at the
 to the executed `DFIR-O365RC` cmdlet.
 
 ```
-$EndDate = Get-Date
-$StartDate30 = $EndDate.adddays(-30)
-$StartDate90 = $EndDate.adddays(-90)
+$EndDate = (Get-Date).ToUniversalTime()
+$StartDate30 = $EndDate.adddays(-31)
+$StartDate90 = $EndDate.adddays(-91)
 
 # Get a subset of Office 365 Unified audit logs (selection of operations of judged of interest).
 # Files produced:
@@ -97,6 +97,12 @@ Get-O365Full -StartDate [$StartDate90 | $StartDateLimited] -Enddate $EndDate
 Get-DefenderforO365 -StartDate $StartDate90 -Enddate $EndDate
 
 # Search for activity related to a particular user, IP address or freetext query in the Office 365 Unified audit logs.
+
+# To retrieve the default time zone of a given user's mailbox the ExchangeOnlineManagement PowerShell module can be used (in order to correlate the Mailbox logs with UTC+0).
+# Install-Module ExchangeOnlineManagement
+Connect-ExchangeOnline
+Get-MailboxRegionalConfiguration -Identity <USER_ID>
+
 # If a user is specified, Mailbox Audit Log will also be retrieved for the given user.
 # User ids example: "user.name1@domain.com", "user.name2@domain.com"
 Search-O365 -StartDate $StartDate90 -Enddate $EndDate -UserIds <USER_ID | USER_IDS_COMMA_LIST>
@@ -118,3 +124,9 @@ Get-AzRMActivityLogs -StartDate $StartDate90 -Enddate $EndDate [-SelectSubscript
 # Get all Azure DevOps activity logs available for all the DevOps organization(s) the account executing the cmdlet has access to or for the given DevOps organization.
 Get-AzDevOpsActivityLogs -StartDate $StartDate90 -Enddate $EndDate [-SelectOrg:$true]
 ```
+
+--------------------------------------------------------------------------------
+
+### References
+
+https://www.real-sec.com/2020/07/obscured-by-clouds-insights-into-office-365-attacks-and-how-mandiantmanaged-defense-investigates/
