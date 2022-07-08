@@ -50,8 +50,9 @@ mkdir <RAW_EWF_DIR>
 ewfmount <EWF_FILE_PATH> <RAW_EWF_DIR_PATH>
 
 # Mount the image as a loop device.
+# show_sys_files and streams_interace=windows are options for Windows NTFS partitions.
 mkdir <MOUNTPOINT>
-mount <RAW_EWF_DIR_PATH>/ewf1 <MOUNTPOINT_PATH> -o ro,loop,show_sys_files,streams_interace=windows,noatime,noexec,noload
+mount <RAW_EWF_DIR_PATH>/ewf1 <MOUNTPOINT_PATH> -o ro,loop,noatime,noexec,noload[,show_sys_files,streams_interace=windows]
 ```
 
 ###### Other image types
@@ -77,8 +78,9 @@ fdisk -l <IMAGE_FILE>
 # noexec : files from the mounted partition cannot be executed.
 # noload : prevent replaying of the partition journal to preserve integrity.
 # loop : explicitly tells mount to use a loop device (optional on newer version of mount).
+# show_sys_files and streams_interace=windows are options for Windows NTFS partitions.
 
 # OFFSET = SECTOR_SIZE * PARTITION_START.
 
-sudo mount -o ro,show_sys_files,noload,noatime,noexec,offset=<OFFSET> <IMAGE_FILE> </mnt/ | MOUNT_POINT>
+sudo mount -o ro,noload,noatime,noexec,[show_sys_files,streams_interace=windows,]offset=<OFFSET | $((<SECTOR_SIZE> * <PARTITION_START>))> <IMAGE_FILE> </mnt/ | MOUNT_POINT>
 ```
