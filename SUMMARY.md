@@ -181,3 +181,4 @@
 ## Miscellaneous
 
 * [Regex 101](Miscellaneous/Regex101.md)
+* [WinDbg Kernel](Miscellaneous/WinDbg_kernel.md)
