@@ -95,7 +95,7 @@
   * [Velociraptor](DFIR/Collectors/Velociraptor.md)
 * [Common](DFIR/Common/README.md)
   * [Memory forensics](DFIR/Common/Memory_forensics.md)
-  * [Image mounting](DFIR/Common/Image_mounting.md)
+  * [Image acquisition and mounting](DFIR/Common/Image_acquisition_and_mounting.md)
   * [Browsers forensics](DFIR/Common/Browsers_forensics.md)
   * [Web logs](DFIR/Web_logs.md)
 * [Windows](DFIR/Windows/README.md)
