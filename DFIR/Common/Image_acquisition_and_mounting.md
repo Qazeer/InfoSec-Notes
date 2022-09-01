@@ -80,9 +80,37 @@ sha256sum <DEVICE | PARTITION> > /dest_media/SHA256_original
 
 # The device / partition block size can be retrieved using the fdisk utility.
 # The "conv=noerror,sync" option instructs dd to continue the copy if a bad sector is encountered (otherwise dd terminates).
-dd if=<DEVICE> of=/dest_media/image.raw bs=<2k | 4k | BLOCK_SIZE> status=progress [conv=noerror,sync]
+dd if=<DEVICE | PARTITION> of=/dest_media/image.raw bs=<2k | 4k | BLOCK_SIZE> status=progress [conv=noerror,sync]
 
 sha256sum /dest_media/image.raw  > /dest_media/SHA256_image
+```
+
+*Imaging using dc3dd*
+
+`dc3dd` is a more forensic oriented utility, based on `dd`, to make disk or
+partition image. `dc3dd` automatically detects bad sectors, natively integrates
+hashing of the input and output bytes, and integrates logging functionalities,
+making it more suitable for forensic imaging.
+
+```bash
+# log option: output log files.
+# hlog option: output file that will contains the image hash(es).
+
+dc3dd if=<DEVICE | PARTITION> hof=/dest_media/image.raw log=<LOG_FILE> hash=sha256 hlog=<HASH_FILE>
+```
+
+*Imaging using Guymager*
+
+[`Guymager`](https://guymager.sourceforge.io/) is a GUI forensic imager, that
+can produce image files in raw, EWF, and AFF formats. `Guymager` is
+multi-threaded for faster collection and integrates hashing calculation.
+
+```
+Right click device -> Acquire image
+  -> Format selection (raw, EWF, AFF)
+  -> Evidence collection metadata
+  -> Selection of the image destination folder and name
+  -> Calculate SHA-256
 ```
 
 ### Image mounting
@@ -169,7 +197,7 @@ fdisk -l <IMAGE_FILE>
 
 # OFFSET = SECTOR_SIZE * PARTITION_START.
 
-sudo mount -o ro,noload,noatime,noexec,[show_sys_files,streams_interace=windows,]offset=<OFFSET | $((<SECTOR_SIZE> * <PARTITION_START>))> <IMAGE_FILE> </mnt/ | MOUNT_POINT>
+sudo mount -o ro,loop,noload,noatime,noexec,[show_sys_files,streams_interace=windows,]offset=<OFFSET | $((<SECTOR_SIZE> * <PARTITION_START>))> <IMAGE_FILE> </mnt/ | MOUNT_POINT>
 ```
 
 --------------------------------------------------------------------------------
@@ -179,3 +207,5 @@ sudo mount -o ro,noload,noatime,noexec,[show_sys_files,streams_interace=windows,
 https://www.linuxleo.com/Docs/LinuxLeo_4.95.1.pdf
 
 https://tmairi.github.io/posts/forensic-aquisition-with-dd-tools/
+
+https://www.youtube.com/watch?v=FoEO9p-J15w
