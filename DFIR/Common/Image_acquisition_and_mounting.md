@@ -150,6 +150,10 @@ Other utilities such as `FTK Imager` or `OSF Mount` may be used as well.
 The `guestmount` utility can be used to mount a `VMDK` image directly:
 
 ```bash
+# Attempts to automatically find the device(s) to mount.
+guestmount --ro -i -a <VMDK_FILE> </mnt/mounted_vmdk | MOUNT_POINT>
+
+# Requires knowledge of the device to mount.
 guestmount -a <VMDK_FILE> -m </dev/sda1 | DEVICE> --ro </mnt/mounted_vmdk | MOUNT_POINT>
 ```
 

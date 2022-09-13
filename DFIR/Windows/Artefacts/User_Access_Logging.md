@@ -2,7 +2,7 @@
 
 ### Overview
 
-Location: `%SystemRoot%\Windows\System32\Logfiles\SUM\` folder.
+Location: `%SystemRoot%\System32\Logfiles\SUM\` folder.
 
 Yield Information related to **user access and activity**. <br>
 On Domain Controllers, yield information on **sessions opening on domain-joined
@@ -45,7 +45,7 @@ information of interest:
 
   - Total number of access.
 
-  - First and last access timestamps.
+  - First, last, and daily access timestamps.
 
   - Client `IPv4` or `IPv6` address. On Domain Controllers, the hostname
     associated the `IP` address at that time may be retrievable as machine
@@ -72,7 +72,8 @@ Get-UalOverview
 # Retrieves UAL data for user access (data stored in the CLIENTS table).
 Get-UalUserAccess
 
-# Retrieves UAL data for user and machine accounts access, ordered by date (data stored in the CLIENTS table).
+# Retrieves UAL data for client access by device for a given service, ordered by date (data stored in the CLIENTS table).
+# The cmdlets returns the date that the client accessed the service and how many times the client accessed the service during that day.
 Get-UalDailyAccess
 
 # Retrieves information on DNS resolutions (data stored in the DNS table).

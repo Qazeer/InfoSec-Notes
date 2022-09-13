@@ -1,0 +1,82 @@
+# DFIR - Linux artefacts overview
+
+### Filesystem timelining
+
+###### Filesystem types supported timestamps
+
+| Filesystem | atime (access) | mtime (modification) | ctime (metadata change) | crtime (creation / birth) | Comment |
+|------------|----------------|----------------------|-------------------------|---------------------------|---------|
+| `ext2` <br> `ext3` | x | x | x | - | |
+| `ext4` | x | x | x | x | |
+| `XFS` | x | x | x | x* | * Since `XFS v5` |
+
+###### Timelining
+
+```bash
+find <DIRECTORY> -xdev -print0 | xargs -0 stat -c 'crtime="%w" crtime_epoch="%W" mtime="%y" mtime_epoch="%Y" ctime="%z" ctime_epoch="%Z" atime="%x" atime="%X" size_bytes="%s" userID="%u" username="%U" groupID="%g" groupname="%G" access="%a" access_pretty="%A" filetype="%F" filename="%n" filename_deref="%N"'
+```
+
+### Artefacts
+
+| Name | Information relative to | Location |
+|------|-------------------------|----------|
+| `alternatives` logs | System information. <br><br> Logs of the `update-alternatives` utility, used to manage *alternatives* (i.e symbolic links to a given command). | `/var/log/alternatives.log` |
+| `Apache` webserver logs | Logs of the `Apache` webserver. | Debian / Ubuntu: <br> ` /var/log/apache2/access.log` <br> `/var/log/apache2/error.log` <br><br> RHEL / Red Hat / CentOS / Fedora : <br> `/var/log/httpd/access_log` <br> `/var/log/httpd/error_log` <br><br> FreeBSD: <br> `/var/log/httpd-access.log` <br> `/var/log/httpd-error.log` <br><br> Custom definition for access (`CustomLog ` section) or error (`ErrorLog` section) logs: <br> `/etc/httpd/conf/httpd.conf` <br> `/etc/apache2/apache2.conf` <br> `/usr/local/etc/apache22/httpd.conf` |
+| `apt` / `apt-get` logs | Software installation. <br><br> Logs of `apt-get` / `apt` operations, including packets installation. | Current log file: <br> `/var/log/apt/history.log` <br><br> Rotated log archives: <br>`/var/log/apt/history.log.*.gz` |
+| `aptitude` logs | Software installation. <br><br> Logs of the `aptitude` utility (front-end to `apt`) operations, including packets installation. | `/var/log/aptitude` |
+| `dpkg` logs | Software installation. <br><br> Logs of `dpkg` operations, including packets installed / removed through the utility. | Current log files: <br> `/var/log/dpkg.log` <br> `/var/log/dpkg.log.1` <br><br> Rotated log archives: <br>`/var/log/dpkg.log.*.gz` |
+| `sudo` logs | Privileged command execution. <br><br> Logs of commands executed with elevated privileges using `sudo`. | Linux auth logs with the `sudo` APP-NAME: <br> `/var/log/auth.log` <br> `/var/log/auth.log.1` <br> `/var/log/auth.log.*.gz` |
+| Linux audit framework (`auditd`) logs | Non default, can be configured to log multiple types of operations, such as authentication successes or failures, process executions, file accesses, user commands executed in a TTY, etc. <br><br> Each record / log entry contain a `msg` field, composed of a timestamp and an unique ID. Multiple records generated as part of the same Auditd event can share the same `msg` field. For example, `cat /etc/passwd` can generate `SYSCALL` + `EXECVE` records for the execution of `cat` and a `PATH` record for the access to the `/etc/passwd` file. <br><br> The `type` field contains the type of the record: <br><br> - User authentication and access: `USER_LOGIN_SUCCESS`, `USER_LOGIN_FAILED`, `USER_AUTH_SUCCESS`, `USER_AUTH_FAILED`, `USER_START_SUCCESS`, `USER_START_FAILED`, `SESSION_TERMINATED`. <br><br> - Process execution: `EXECVE` and `SYSCALL`. <br><br> - Filesystem access: `PATH` (for relative or absolute file access), `CWD` (current working directory, useful to reconstruct full path if a relative path has been recorded in `PATH` records) and `OPENAT`. <br><br> - Commands entered in a `TTY` console: `TTY`. <br><br> - Full command-line of process: `PROCTITLE`. The associated `proctitle` field MAY be encoded in hexadecimal. <br><br> - Network socket connections: `SOCKADDR`. The associated `saddr` field contains IP and port information, and can be interpreted directly at event generation (if `log_format = ENRICHED` is set), or with `ausearch -i` or [simple scripting](https://gist.github.com/Qazeer/3aaa6be263380483d68159cae6f33fd2). <br><br> - More record types are listed in the [RedHat documentation](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/security_guide/sec-audit_record_types). <br><br> If present, the `auid` field defines the ID of the user upon login and remains the same even if the user's identity changes (for instance with `su`). <br><br> If present, `uid` / `gid` and `euid` / `egid` fields define the user / group IDs and the effective user / group IDs of the audited process. <br><br> If present, the `tty` and `ses` fields define respectively the terminal and session from which the audited process was invoked. <br><br> For `SYSCALL` records, the `aX` field(s) define the arguments / parameters of the syscall, represented by unsigned long long integers and as such cannot be used to determine the values taken by the arguments. | Configuration file notably defining the path of the log files: <br> `/etc/auditd.conf` <br><br> Configuration defining the rules to apply: <br> `/etc/audit/audit.rules` <br> Rules best practice: https://github.com/Neo23x0/auditd <br><br> Current log files (default location): <br> `/var/log/audit/audit.log` <br> `/var/log/audit/audit.log.1` <br><br> Rotated log archives (default location): <br> `/var/log/audit/audit.log.*.gz` <br><br> The `aureport` and `ausearch` utilities can (and if possible should) be used to search the `auditd` log files. <br><br> Example: <br> `aureport -i [--login \| --executable \| ...] [--summary] -if <AUDIT_LOG_FILE>` |
+| Shell initialization scripts | Persistence / system information. <br><br> System-wide or user scoped scripts that are executed by all shells during their initialization. | User scoped initialization script: <br> `~/.profile` <br><br> System-wide initialization scripts: <br> `/etc/profile` <br> `/etc/profile.d/*` <br> `/etc/skel/.profile` (Not used if `~/.bash_profile` or `~/.bash_login` exist). |
+| Environment variables information | System information. <br><br> Contains system-wide or user scoped persistent environment variables. | System-wide configuration file: <br> `/etc/environment` <br><br> Initialization scripts can also be used to define system-wide or user scoped environment variables. |
+| Mounted filesystems information | System information. <br><br> Contains information on the mounted file systems, such as partition types (ext3 / ext4, etc.). | Configuration: <br> `/etc/fstab` <br><br> Mount logs (such as `Mounting` operation / keyword): <br> `/var/log/dmesg` |
+| Timezone information | System information. <br><br> Contains the timezone of the system. | `/etc/timezone` |
+| `Syslog` daemon configuration | System information. <br><br> The `Syslog` deamon configuration file(s) notably define where the messages / events received by the `Syslog` daemon will be outputted. The messages are usually written as plaintext files under `/var/log/` but can also be sent over the network. <br><br> Example of a configuration file writing logs to common files: <br><br> auth,authpriv.* /var/log/auth.log <br> \*.\*;auth,authpriv.none -/var/log/syslog <br> kern.* -/var/log/kern.log <br> mail.* -/var/log/mail.log | `/etc/syslog.conf` <br> `/etc/rsyslog.conf` <br> `/etc/rsyslog.d/*.conf` <br> `/etc/syslog­ng.conf` <br> `/etc/syslog­ng/*` |
+
+TODO
+
+/etc/security/lastlog	Specifies the path to the lastlog file.
+
+/etc/group	Contains the basic attributes of groups.
+
+/etc/security/group	Contains the extended attributes of groups.
+
+/etc/passwd	Contains the basic attributes of users.
+
+/etc/security/passwd	Contains password information.
+
+/etc/security/environ	Contains the environment attributes of users.
+
+/etc/security/user	Contains the extended attributes of users.
+
+/etc/security/limits	Contains the process resource limits of users.
+https://www.ibm.com/docs/en/aix/7.1?topic=formats-lastlog-file-format
+
+/var/run/utmp – Contains currently logged in users.
+
+/var/log/wtmp – Contains all current and past logins and additional information about system reboots, etc.
+
+/var/log/btmp – Contains all bad login attempts.
+
+utmpdump /var/run/utmp
+
+utmpdump /var/log/wtmp
+
+utmpdump /var/log/btmp
+
+~/.ssh/known_hosts
+https://unix.stackexchange.com/questions/31549/is-it-possible-to-find-out-the-hosts-in-the-known-hosts-file
+
+--------------------------------------------------------------------------------
+
+### References
+
+https://wiki.debian-fr.xyz/Consulter_les_logs_:_quoi,_o%C3%B9_et_comment_chercher_%3F
+
+https://nostarch.com/download/samples/PracticalLinuxForensics_Ch5_072721.pdf
+
+https://blog.codeasite.com/how-do-i-find-apache-http-server-log-files/
+
+https://sematext.com/blog/auditd-logs-auditbeat-elasticsearch-logsene/
+
+https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/security_guide/sec-understanding_audit_log_files
