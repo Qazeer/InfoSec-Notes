@@ -441,6 +441,48 @@ Get-ADGroup "Exchange Trusted Subsystem" | Get-ADGroupMember
 Get-ADGroup "Exchange Trusted Subsystem" -Server <DC_IP> -Credential <PSCredential> | Get-ADGroupMember
 ```
 
+###### Sites and subnets
+
+The sites and subnets registered in Active Directory can provide information
+about the network topology and physical location of computers of the
+environment.
+
+The sites and subnets can be listed, and exported in a text format, using the
+`Active Directory Sites and Services` snap-in (`dssite.msc`). The snap-in can
+be used for enumeration from domain-joined and non-domain joined machine.
+
+```
+File -> Add/Remove Snap-in (Ctrl + M) -> Selection of Active Directory Sites and Services
+  -> Sites -> Subnets -> Right Click -> Export List...
+```
+
+The PowerShell cmdlet `Get-ADReplicationSubnet` of the `ActiveDirectory` module
+can also be used to enumerate the subnets:
+
+```
+Get-ADReplicationSubnet -Server <DC_HOSTNAME | DC_IP> [-Credential <PSCredential>] -Filter * -Properties * | Select-Object Name, Site, Location, Description
+```
+
+###### ADI DNS hostnames enumeration
+
+[`adidnsdump`](https://github.com/dirkjanm/adidnsdump) can be used to enumerate
+all `DNS records` in an Active Directory domain / forest by listing the child
+objects of the `DNS zones` containers and then using direct `DNS` queries to
+resolve the enumerated `DNS records`. Using a direct `DNS` resolution is
+required as the attributes of the `DNS record` object itself, including the
+associated `IP` address, may not be accessible to any authenticated users,
+while the name of the record (and thus the corresponding hostname) is.
+
+Leveraging `DNS` records instead of retrieving the `dNSHostName` attribute of
+machine account objects provide the advantage of allowing enumeration of
+systems that may have a DNS entry in the domain but are not directly joined to
+it.
+
+```bash
+# -r: resolve DNS records for which the associated IP address was not accessible with LDAP query through direct DNS queries.
+adidnsdump -u <DOMAIN>\\<USERNAME> [--print-zones | -r] <DC_HOSTNAME>
+```
+
 ###### Network scan
 
 AD queries can be used in combination with a network scan tool, such as nmap,
@@ -619,28 +661,6 @@ Get-ADPrincipalGroupMembership <IDENTITY> | Where-Object {$_.name -like '*adm*'}
 
 # PowerView
 Get-NetGroup -UserName <USERNAME>
-```
-
-###### Sites and subnets
-
-The sites and subnets registered in Active Directory can provide information
-about the network topology and physical location of computers of the
-environment.
-
-The sites and subnets can be listed, and exported in a text format, using the
-`Active Directory Sites and Services` snap-in (`dssite.msc`). The snap-in can
-be used for enumeration from domain-joined and non-domain joined machine.
-
-```
-File -> Add/Remove Snap-in (Ctrl + M) -> Selection of Active Directory Sites and Services
-  -> Sites -> Subnets -> Right Click -> Export List...
-```
-
-The PowerShell cmdlet `Get-ADReplicationSubnet` of the `ActiveDirectory` module
-can also be used to enumerate the subnets:
-
-```
-Get-ADReplicationSubnet -Server <DC_HOSTNAME | DC_IP> [-Credential <PSCredential>] -Filter * -Properties * | Select-Object Name, Site, Location, Description
 ```
 
 ###### Local groups

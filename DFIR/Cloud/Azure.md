@@ -15,8 +15,8 @@ The logs are retrieved in `JSON` from the following sources of information:
 
 | Source | Description | History | Mechanism used |
 |--------|-------------|---------|------------------|
-| [`Office 365 Unified Audit Logs`](https://docs.microsoft.com/en-us/microsoft-365/compliance/search-the-audit-log-in-security-and-compliance) | All Office 365 logs (including Azure AD logs with a more limited level of information). <br><br> Entries are stored in `UTC+0`. | 90 days	| `Exchange online PowerShell` |
-| [`Mailbox Audit Log`](https://docs.microsoft.com/en-us/microsoft-365/compliance/enable-mailbox-auditing) | Information about certain actions performed on mailboxes by mailbox owners, delegates, and admins. For instance, log entries can be generated upon mail data access, email deletion or sending, etc. <br><br> **Entries are stored in the user's local time zone.** | 90 days | `Exchange Online PowerShell` |
+| [`Office 365 Unified Audit Logs`](https://docs.microsoft.com/en-us/microsoft-365/compliance/search-the-audit-log-in-security-and-compliance) | All Office 365 logs (including Azure AD logs with a more limited level of information). <br><br> Entries are stored in `UTC+0`. <br><br> There can be a delay of around 30min for logs to be available in UAL and up to 24 hours for AAD logs. | 90 days (by default) <br><br> 1 year with a E5 licence.	| `Exchange online PowerShell` |
+| [`Mailbox Audit Log`](https://docs.microsoft.com/en-us/microsoft-365/compliance/enable-mailbox-auditing) | Information about certain actions performed on mailboxes by mailbox owners, delegates, and admins. For instance, log entries can be generated upon mail data access, email deletion or sending, etc. | 90 days | `Exchange Online PowerShell` |
 | [`Azure AD sign-ins logs`](https://docs.microsoft.com/en-us/azure/active-directory/reports-monitoring/concept-sign-ins) | Information about Azure AD sign-ins and resources usage. <br><br> Entries are stored in `UTC+0`. | 30 days | `MS Graph API` |
 | [`Azure AD audit logs`](https://docs.microsoft.com/en-us/azure/active-directory/reports-monitoring/concept-audit-logs) | Information about changes applied to the Azure AD tenant, such as users or group management and updates. <br><br> Entries are stored in `UTC+0`. | 30 days | `MS Graph API` |
 | [`Azure Activity logs`](https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log) | Information about activity in an Azure subscription, such as resource modification, virtual machine creation and start, etc. | 30 days | `Azure Monitor RESTAPI` |
@@ -126,6 +126,41 @@ Get-AzDevOpsActivityLogs -StartDate $StartDate90 -Enddate $EndDate [-SelectOrg:$
 ```
 
 --------------------------------------------------------------------------------
+
+### TTPs analysis
+
+###### Exchange Online Services
+
+  - Automated email forwarding
+  - Inbox rules (that can also be used to forward emails to a remote email address)
+  - Transport / Mail flow rules
+  - Delegations settings on user mailboxes such as "Full Access" or "SendAd"
+    - Full Access allows access to the mailbox and viewing of the emails, but not the ability to send emails.
+    - SendAs allows sending of emails.
+
+###### Microsoft Flow / Power Automate
+
+Allows forwarding emails, copy / dowload of files, etc.
+
+Emails forwarded through Microsoft Flow can be detected in workload "Exchange"
+and  operation "Send" in UAL logs. User agent will be "Microsoft Power Automate"
+and client IP a MS IP.
+
+###### Sharepoint
+
+  - Anonymous links
+
+###### Azure applications
+
+Can be used to maintain persistence in M365 as applications can access
+applications in the subscription with out MFA
+###### Others
+
+  - Application impersonation role to
+
+  - Consent grant allows applications to access resources in the tenant.
+    Permissions that can be granted: Application, Delegated, and Effective
+    permissions.
 
 ### References
 

