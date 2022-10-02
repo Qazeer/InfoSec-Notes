@@ -186,3 +186,4 @@
 
 * [Regex 101](Miscellaneous/Regex101.md)
 * [WinDbg Kernel](Miscellaneous/WinDbg_kernel.md)
+* [Basic coverage guided fuzzing](Miscellaneous/Coverage_guideded_fuzzing.md)
