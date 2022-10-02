@@ -9,7 +9,6 @@
 * [Bind / reverse shells](General/Shells.md)
 * [File transfer / exfiltration](General/File_Transfer.md)
 * [Pivoting](General/Pivoting.md)
-* [Data exfiltration](General/Data_exfiltration.md)
 * [Passwords cracking](General/Passwords_cracking.md)
 
 ## Active Directory
@@ -157,6 +156,7 @@
   * [Jira](WebApps/CMS_and_softwares/Jira.md)
   * [Ovidentia](WebApps/CMS_and_softwares/Ovidentia.md)
   * [WordPress](WebApps/CMS_and_softwares/WordPress.md)
+  * [WebDAV](WebApps/CMS_and_softwares/WebDAV.md)
 * [Exploitation - Overview](WebApps/Exploitation-Overview.md)
 * [Exploitation - Authentication](WebApps/Exploitation-Authentication.md)
 * [Exploitation - LDAP injections](WebApps/Exploitation-LDAP_injections.md)
