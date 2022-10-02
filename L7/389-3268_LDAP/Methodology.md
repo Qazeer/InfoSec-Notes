@@ -80,7 +80,7 @@ LDAPTLS_REQCERT=never ldapsearch -H ldaps://[...]
 ###### GUI
 
 The `Apache Directory Studio` or the more lightweight
-[`LdapAdmin.exe`](https://sourceforge.net/projects/ldapadmin/) (Windows only)  
+[`LdapAdmin.exe`](https://sourceforge.net/projects/ldapadmin/) (Windows only)
 can be used to retrieve and modify data stored in a `LDAP` directory through a
 graphical interface.
 

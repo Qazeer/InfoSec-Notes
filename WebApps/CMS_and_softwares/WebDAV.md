@@ -109,7 +109,7 @@ various types can be upload on a WebDAV server.
 The script attempts to:
 
    - PUT test files of various programming languages
-   - PUT files with .txt extension then MOVE them to executable file types      
+   - PUT files with .txt extension then MOVE them to executable file types
 
 Usage:
 
@@ -122,7 +122,7 @@ davtest -url <URL>
 `davtest` can also be used to upload a specific file on a WebDAV server:
 
 ```
-davtest -url <URL> -directory <UPLOAD_DIR> -uploadfile <LOCAL_FILE_PATH> --uploadloc <REMOTE_FILE_NAME>                                
+davtest -url <URL> -directory <UPLOAD_DIR> -uploadfile <LOCAL_FILE_PATH> --uploadloc <REMOTE_FILE_NAME>
 ```
 
 ###### Metasploit payload deploying
@@ -133,7 +133,7 @@ deploy a `Metasploit` payload.
 
 The module will firstly try to directly upload an `asp` executable and, if the
 upload is not permitted, try to upload a `txt` file and move / copy it to an
-`asp` executable.   
+`asp` executable.
 
 ```
 msf> use exploit/windows/iis/iis_webdav_upload_asp

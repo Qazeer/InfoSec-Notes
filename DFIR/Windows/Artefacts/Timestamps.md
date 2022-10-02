@@ -75,7 +75,8 @@ The last write / modified timestamp of a registry key correspond to the last
 time a write operation occurred on the key. Multiple types of write operation
 may trigger an update of the last write / modified timestamp of the key:
 
-  - Addition / modification of one (or multiple) values under the key.
+  - Addition / modification / deletion of one (or multiple) values under the
+    key.
 
   - Addition / deletion of a sub-key under the key.
 

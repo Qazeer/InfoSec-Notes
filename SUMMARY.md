@@ -6,10 +6,9 @@
 
 * [External recon](General/External_recon.md)
 * [Ports scan](General/Ports_scan.md)
-* [Shells](General/Shells.md)
-* [File transfer](General/File_Transfer.md)
+* [Bind / reverse shells](General/Shells.md)
+* [File transfer / exfiltration](General/File_Transfer.md)
 * [Pivoting](General/Pivoting.md)
-* [Data exfiltration](General/Data_exfiltration.md)
 * [Passwords cracking](General/Passwords_cracking.md)
 
 ## Active Directory
@@ -44,13 +43,12 @@
 * [22 - SSH](L7/22_SSH/Methodology.md)
 * [25 - SMTP](L7/25_SMTP/Methodology.md)
 * [53 - DNS](L7/53_DNS/Methodology.md)
-* [80 / 443 - HTTP/S ](L7/80-443_HTTP-S/Methodology.md)
 * [111 / 2049 - NFS](L7/111-2049_NFS/Methodology.md)
 * [113 - Ident](L7/113_Ident/Methodology.md)
 * [135 - MSRPC](L7/135_MSRPC/Methodology.md)
 * [137-139 - NetBIOS](L7/137-139_NetBIOS/Methodology.md)
 * [161 - SNMP](L7/161_SNMP/Methodology.md)
-* [389 / 3268 - LDAP](L7//Methodology.md)
+* [389 / 3268 - LDAP](L7/389-3268_LDAP/Methodology.md)
 * [445 - SMB](L7/445_SMB/Methodology.md)
 * [512 / 513 - REXEC / RLOGIN](L7/512-513_REXEC-RLOGIN/Methodology.md)
 * [554 - RTSP](L7/554_RTSP/Methodology.md)
@@ -95,9 +93,11 @@
   * [Velociraptor](DFIR/Collectors/Velociraptor.md)
 * [Common](DFIR/Common/README.md)
   * [Memory forensics](DFIR/Common/Memory_forensics.md)
-  * [Image mounting](DFIR/Common/Image_mounting.md)
+  * [Image acquisition and mounting](DFIR/Common/Image_acquisition_and_mounting.md)
   * [Browsers forensics](DFIR/Common/Browsers_forensics.md)
-  * [Web logs](DFIR/Web_logs.md)
+  * [Web logs](DFIR/Common/Web_logs.md)
+  * [Docker](DFIR/Common/Docker.md)
+  * [Splunk usage](DFIR/Common/Splunk.md)
 * [Windows](DFIR/Windows/README.md)
   * [Artefacts overview](DFIR/Windows/Artefacts/_Artefacts_overview.md)
     * [KAPE](DFIR/Windows/Artefacts/_KAPE.md)
@@ -129,7 +129,9 @@
     * [ActiveDirectory replication metadata](DFIR/Windows/TTPs_Analysis/ActiveDirectory_replication_metadata.md)
     * [ActiveDirectory persistence](DFIR/Windows/TTPs_Analysis/ActiveDirectory_persistence.md)
 * [Linux](DFIR/Linux/README.md)
-  * [Timestomping](DFIR/Linux/Timestomping.md)
+  * [Artefacts overview](DFIR/Linux/_Artefacts_overview.md)
+  * [TTPs analysis](DFIR/Linux/TTPs_Analysis/README.md)
+    * [Timestomping](DFIR/Linux/TTPs_Analysis/Timestomping.md)
 * [Cloud](DFIR/Cloud/README.md)
   * [Azure](DFIR/Cloud/Azure.md)
   * [AWS](DFIR/Cloud/AWS.md)
@@ -154,6 +156,7 @@
   * [Jira](WebApps/CMS_and_softwares/Jira.md)
   * [Ovidentia](WebApps/CMS_and_softwares/Ovidentia.md)
   * [WordPress](WebApps/CMS_and_softwares/WordPress.md)
+  * [WebDAV](WebApps/CMS_and_softwares/WebDAV.md)
 * [Exploitation - Overview](WebApps/Exploitation-Overview.md)
 * [Exploitation - Authentication](WebApps/Exploitation-Authentication.md)
 * [Exploitation - LDAP injections](WebApps/Exploitation-LDAP_injections.md)
@@ -176,7 +179,7 @@
 
 ## Android
 
-* [Static analysis](Android/Static_Analysis.md)
+* [Basic static analysis](Android/Static_Analysis.md)
 
 ## Miscellaneous
 

@@ -215,13 +215,18 @@ the memory of a system:
 ```bash
 volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> <PLUGIN>
 
+# If a custom profile is needed, for example for Linux memory image analysis (collected as a ZIP file).
+ python vol.py -f <MEMORY_DUMP_FILE> --plugins=<FOLDER_WITH_PROFILE.ZIP> --profile=<MEMORY_DUMP_PROFILE> <PLUGIN>
+
 # The Linux environments variables VOLATILITY_LOCATION and VOLATILITY_PROFILE may be used in place of command line options to specify the memory dump file path and the volatility profile to use
 export VOLATILITY_LOCATION=file://<MEMORY_DUMP_FILE_PATH>
 export VOLATILITY_PROFILE=<PROFILE>
 volatility <PLUGIN>
 ```
 
-###### Plugins overview
+### Volatility - Windows memory dump analysis
+
+###### Windows plugins overview
 
 `Volatility` implements two main types of plugins, each using a distinct
 approach:
@@ -257,6 +262,7 @@ systems memory image.
 | `consoles` | | Scans the memory image for `CONSOLE_INFORMATION` structures which contain the (limited) history of commands typed as well as the screen buffer (commands input and output). |
 | `dlldump` | | Extracts the DLL(s) loaded by each or the specified process. |
 | `dlllist` | | Lists the `DLL` loaded by each or the specified process. |
+| `impscan` | | Scan the calls to imported functions for a process or in a specific memory page. |
 | `dumpfiles` | | Dumps all the files mapped in memory (or the ones matching a specified regex). | `mftparser` | Scans the memory image for potential `Master File Table (MFT)` entries to reconstrcut the `MFT`. |
 | `dumpregistry` | | Dumps all or the specified (using its virtual offset) registry hive to a file. |
 | `envars` | | Displays the environment variables of each or the specified process. |
@@ -415,6 +421,21 @@ DLL(s).
 volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> ldrmodules -v
 
 volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> ldrmodules -v -p <PID>
+```
+
+The `impscan` module can be used to scan for calls to imported functions by a
+process or in a specified memory range. Scanning for calls in a memory can for
+instance be used to determine the functions called by a malware living only
+in memory.
+
+```
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> impscan -p <PID>
+
+# If malfind detects a PAGE_EXECUTE_READWRITE memory page for exemple:
+#   Process: IEXPLORE.EXE Pid: 2044 Address: 0x7ff80000
+#   Vad Tag: VadS Protection: PAGE_EXECUTE_READWRITE
+
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> impscan -p <PID> -b <ADDRESSE>
 ```
 
 *Handles*
@@ -734,6 +755,85 @@ volatility --plugins <VOLATILITY_AUTORUNS_FOLDER_PATH> -f <MEMORY_DUMP_FILE> --p
 
 volatility --plugins <VOLATILITY_AUTORUNS_FOLDER_PATH> -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> autoruns
 ```
+
+### Volatility - Linux memory dump analysis
+
+###### Linux plugins overview
+
+| Plugin | Plugin description |
+|--------|--------------------|
+| `limeinfo` | Dump Lime file format information |
+| `linux_apihooks` | Checks for userland apihooks |
+| `linux_arp` | Print the ARP table |
+| `linux_aslr_shift` | Automatically detect the Linux ASLR shift |
+| `linux_banner` | Prints the Linux banner information |
+| `linux_bash` | Recover bash history from bash process memory |
+| `linux_bash_env` | Recover a process' dynamic environment variables |
+| `linux_bash_hash` | Recover bash hash table from bash process memory |
+| `linux_check_afinfo` | Verifies the operation function pointers of network protocols |
+| `linux_check_creds` | Checks if any processes are sharing credential structures |
+| `linux_check_fop` | Check file operation structures for rootkit modifications |
+| `linux_check_idt` | Checks if the IDT has been altered |
+| `linux_check_inline_kernel` | Check for inline kernel hooks |
+| `linux_check_modules` | Compares module list to sysfs info, if available |
+| `linux_check_syscall` | Checks if the system call table has been altered |
+| `linux_check_tty` | Checks tty devices for hooks |
+| `linux_cpuinfo` | Prints info about each active processor |
+| `linux_dentry_cache` | Gather files from the dentry cache |
+| `linux_dmesg` | Gather dmesg buffer |
+| `linux_dump_map` | Writes selected memory mappings to disk |
+| `linux_dynamic_env` | Recover a process' dynamic environment variables |
+| `linux_elfs` | Find ELF binaries in process mappings |
+| `linux_enumerate_files` | Lists files referenced by the filesystem cache |
+| `linux_find_file` | Lists and recovers files from memory |
+| `linux_getcwd` | Lists current working directory of each process |
+| `linux_hidden_modules` | Carves memory to find hidden kernel modules |
+| `linux_ifconfig` | Gathers active interfaces |
+| `linux_info_regs` | It's like 'info registers' in GDB. It prints out all the |
+| `linux_iomem` | Provides output similar to /proc/iomem |
+| `linux_kernel_opened_files` | Lists files that are opened from within the kernel |
+| `linux_keyboard_notifiers` | Parses the keyboard notifier call chain |
+| `linux_ldrmodules` | Compares the output of proc maps with the list of libraries from libdl |
+| `linux_library_list` | Lists libraries loaded into a process |
+| `linux_librarydump` | Dumps shared libraries in process memory to disk |
+| `linux_list_raw` | List applications with promiscuous sockets |
+| `linux_lsmod` | Gather loaded kernel modules |
+| `linux_lsof` | Lists file descriptors and their path |
+| `linux_malfind` | Looks for suspicious process mappings |
+| `linux_memmap` | Dumps the memory map for linux tasks |
+| `linux_moddump` | Extract loaded kernel modules |
+| `linux_mount` | Gather mounted fs/devices |
+| `linux_mount_cache` | Gather mounted fs/devices from kmem_cache |
+| `linux_netfilter` | Lists Netfilter hooks |
+| `linux_netscan` | Carves for network connection structures |
+| `linux_netstat` | Lists open sockets |
+| `linux_pidhashtable` | Enumerates processes through the PID hash table |
+| `linux_pkt_queues` | Writes per-process packet queues out to disk |
+| `linux_plthook` | Scan ELF binaries' PLT for hooks to non-NEEDED images |
+| `linux_proc_maps` | Gathers process memory maps |
+| `linux_proc_maps_rb` | Gathers process maps for linux through the mappings red-black tree |
+| `linux_procdump` | Dumps a process's executable image to disk |
+| `linux_process_hollow` | Checks for signs of process hollowing |
+| `linux_psaux` | Gathers processes along with full command line and start time |
+| `linux_psenv` | Gathers processes along with their static environment variables |
+| `linux_pslist` | Gather active tasks by walking the task_struct->task list |
+| `linux_pslist_cache` | Gather tasks from the kmem_cache |
+| `linux_psscan` | Scan physical memory for processes |
+| `linux_pstree` | Shows the parent/child relationship between processes |
+| `linux_psxview` | Find hidden processes with various process listings |
+| `linux_recover_filesystem` | Recovers the entire cached file system from memory |
+| `linux_route_cache` | Recovers the routing cache from memory |
+| `linux_sk_buff_cache` | Recovers packets from the sk_buff kmem_cache |
+| `linux_slabinfo` | Mimics /proc/slabinfo on a running machine |
+| `linux_strings` | Match physical offsets to virtual addresses (may take a while, VERY verbose) |
+| `linux_threads` | Prints threads of processes |
+| `linux_tmpfs` | Recovers tmpfs filesystems from memory |
+| `linux_truecrypt_passphrase` | Recovers cached Truecrypt passphrases |
+| `linux_vma_cache` | Gather VMAs from the vm_area_struct cache |
+| `linux_volshell` | Shell in the memory image |
+| `linux_yarascan` | A shell in the Linux memory image |
+| `mbrparser` | Scans for and parses potential Master Boot Records (MBRs) |
+| `patcher` | Patches memory based on page scans |
 
 --------------------------------------------------------------------------------
 

@@ -415,13 +415,22 @@ Windows services:
 Permanent event subscriptions are composed of:
   - An `event filter`, which is the event of interest that will trigger the
   consumer. Such event can be, for example, a logon success or system startup.
+
   - An `event consumer`, which is the action to perform upon trigger of the
-  event filter. Five Consumer classes are available, the
-  `ActiveScriptEventConsumer` and `CommandLineEventConsumer` classes allowing,
-  respectively, for the execution of a predefined script or an arbitrary
-  program, in the local system context.
-  - A `filter to consumer binding` which is the registration mechanism binding
-  an event filter to an event consumer.
+  event filter. <br/>
+  Five Consumer classes are available:
+    - The `ActiveScriptEventConsumer` class that run arbitrary `VBScript`
+      or `JScript` code.
+    - The `CommandLineEventConsumer` class that run an arbitrary system
+      command.
+    - The `LogFileEventConsumer` class that write an arbitrary string to a
+      text-based log file.
+    - The `NtEventLogEventConsumer` class that write an arbitrary Windows `ETW`
+      event.
+    - The `SMTPEventConsumer` class that send an email.
+
+  - A `filter to consumer binding` (`FilterToConsumerBinding`) which is the
+    registration mechanism binding an event filter to an event consumer.
 
 ###### Live forensics
 
@@ -429,18 +438,83 @@ The `WMI` tab of the `Sysinternals`' `Autoruns` utility can be used to detect
 and delete WMI-related persistence. The WMI event subscriptions can also be
 enumerated with the PowerShell cmdlet `Get-WMIObject`:
 
-```
+```powershell
 # From PowerShell forensic framework Kansa
 ForEach ($NameSpace in "root\subscription","root\default") { Get-WMIObject -Namespace $Namespace -Query "SELECT * FROM __EventFilter" }
 ForEach ($NameSpace in "root\subscription","root\default") { Get-WMIObject -Namespace $Namespace -Query "SELECT * FROM __EventConsumer" }
 ForEach ($NameSpace in "root\subscription","root\default") { Get-WMIObject -Namespace $Namespace -Query "SELECT * FROM __FilterToConsumerBinding" }
 ```
 
+###### Process execution
+
+The following process are related to `WMI` activity:
+
+  - `wmic.exe`: command line utility to interact with `WMI` (locally or on a
+    remote computer). The `process call` can indicate that process creation is
+    done using `WMI` and `/node` can be used to specify a remote computer.
+
+  - `WmiPrvSE.exe`: `WMI Provider Host` process spawn as a result of
+    `WMI Event Subscription` execution. Suspicious child process of
+    `WmiPrvSE.exe` (such as `powershell.exe` or `cmd.exe`) can be an indicator
+    of persistence through `WMI`.
+
+  - `scrcons.exe`: `WMI Standard Event Consumer` process that spawn for
+    `ActiveScriptEventConsumer` execution.
+
+  - `wsmprovhost.exe`: indicator of PowerShell remoting activity (not
+    particularly relevant to detect local persistence).
+
+As `WMI` can be used legitimately in the environment, the execution of a `WMI`
+related program may not necessarily be an indicator of malicious activity.
+
+###### Filesystem
+
+The persistent `WMI Event Subscription` are written to disk in the
+(undocumented) `WMI` Repository files at `%WINDIR%\System32\wbem\Repository\` /
+`%WINDIR%\System32\wbem\Repository\FS\`:
+  - `OBJECTS.DATA`: contains the `CIM objects` with, among other things, the
+    event subscriptions data (event consumer, filter, and filter to consumer
+    binding).
+  - `INDEX.BTR`: paged file in B-tree struct, "used to efficiently lookup CIM
+     entities in the objects.data file". May contain
+  - `MAPPING<1-3>.MAP`: correlate / map pages from `OBJECTS.DATA` and
+    `INDEX.BTR`.
+
+All three files are required to properly conduct forensics analysis on WMI
+persistence.
+
+`WMI Event Subscription` data can be extracted from `OBJECTS.DATA` files using
+the [`PyWMIPersistenceFinder`](https://github.com/davidpany/WMI_Forensics)
+Python script (that rely on regexes to extract the data):
+
+```bash
+PyWMIPersistenceFinder.py <OBJECTS.DATA_FILE>
+```
+
+If a deeper analysis is required, for example if a consumer reference other
+`WMI` objects, [`python-cim`](https://github.com/mandiant/flare-wmi) can be
+leveraged to extract data from the `WMI` repository:
+
+```
+python3 samples/dump_class_layout.py win7 "<WMI_REPOSITORY_FOLDER>" "<ROOT\cimv2 | WMI_NAMESPACE>" "<WMI_CLASS_NAME>"
+```
+
+###### Windows EVTX / text logs
+
+| Hive     | Event ID | Conditions | Description | Information yield |
+|----------|----------|------------|-------------|------------------ |
+| `Security` | 4688 | Requires `Audit process tracking` to be enabled. <br><br> For the process arguments to be logged, `Include command line in process creation events` must be enabled as well. | Event `4688: A new process has been created`. <br><br> Can be used to track the execution of the aforementioned process related to `WMI` activity. | Current logged-on user's domain, username and `LogonID`. <br><br> Parent and child process. <br><br> Process command line if enabled. |
+| `Microsoft-Windows-WMI-Activity/Operational` | 5858 | | Event `5858: Operation_ClientFailure`. <br><br> | Client machine hostname, domain and username of the user, and details about the failed operation. |
+| `Microsoft-Windows-WMI-Activity/Operational` | 5859 | | Event `5859: Operation_EssStarted: `. | |
+| `Microsoft-Windows-WMI-Activity/Operational` | 5860 | | Event `5860: Operation_TemporaryEssStarted`. | |
+| `Microsoft-Windows-WMI-Activity/Operational` | 5861 | | Event `5861: Operation_ESStoConsumerBinding`. | |
+| Shimcache <br><br> Amcache <br><br> Other process execution artefacts. | `HKLM\SYSTEM` registry hive <br><br> `Amcache.hve` <br><br> ... | | Programs execution Windows artefacts. <br><br> Can be used to track the execution of the aforementioned binaries. | The information yield will depend on the given artifact, but will generally be limited. |
+
 ### Legitimate startup PE hooking
 
 One of the most covert technique to implement persistence on a system is
 through the hooking of a legitimate `Portable Executable (PE)` (executable and
-DLL) that normally starts up after boot time or whenever an user logs in.  
+DLL) that normally starts up after boot time or whenever an user logs in.
 
 For example, malicious code can be injected into a legitimate binary using a
 PE infector such as `Shellter`. If done correctly, the injection will not alter
@@ -464,3 +538,13 @@ the creation and modification of legitimate PE on the system. Refer to the
 malware strain could be retrieved, a reverse engineering of its functionalities
 may permit the identification of `Indice of Compromise (IoC)` for later
 detection.
+
+--------------------------------------------------------------------------------
+
+### References
+
+https://www.mandiant.com/resources/windows-management-instrumentation-wmi-offense-defense-and-forensics
+
+https://netsecninja.github.io/dfir-notes/wmi-forensics/
+
+https://www.mandiant.com/sites/default/files/2021-09/wp-windows-management-instrumentation.pdf

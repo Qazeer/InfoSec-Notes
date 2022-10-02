@@ -1,4 +1,6 @@
-### $UsnJrnl
+# DFIR - Windows - $UsnJrnl
+
+### Overview
 
 The `Update Sequence Number Journal (USN) Journal` is a feature of NTFS,
 activated by default on Vista and later, which maintains a record of changes
@@ -23,6 +25,8 @@ The change log records are notably composed of:
     `USN_REASON_RENAME_NEW_NAME`, etc.)
   - MFT reference and reference sequence number
 
+### UsnJrnl metadata
+
 The Windows `fsutil` and the PowerShell cmdlet `Get-ForensicUsnJrnlInformation`
 of the `PowerForensics` suite can be used to retrieve metadata about the
 `UsnJrnl`:
@@ -35,6 +39,24 @@ Get-ForensicUsnJrnlInformation
 Get-ForensicUsnJrnlInformation -VolumeName <NTFS_VOLUME>
 Get-ForensicUsnJrnlInformation -Path <USN_JRNL_PATH>
 ```
+
+### UsnJrnl extraction and parsing
+
+###### MFTECmd
+
+The `MFTECmd` utility can parse and extract information from the
+`UsnJrnl`'s `$J` stream (as well as other filesystem artefacts such as the
+`$MFT`, the file ownership `$Secure:$SDS` data stream, and the transaction log
+file `$Logfile`).
+
+```bash
+# A UsnJrnl's $J file on a mounted partition should be specified.
+# For instance, to extract UsnJrnl's $J data from a forensics image, the image should first be mounted and the UsnJrnl's $J file specified as <DRIVER_LETTER>:\$Extend\$J to MFTECmd.exe.
+
+MFTECmd.exe -f '<USNJRN_J$>' --csv <OUTPUTDIR_PATH>
+```
+
+###### ExtractUsnJrnl / UsnJrnl2Csv
 
 The `ExtractUsnJrnl.exe` with `UsnJrnl2Csv.exe` utilities as well as the
 PowerShell cmdlet `Get-ForensicFileRecord` of the `PowerForensics` suite can be
