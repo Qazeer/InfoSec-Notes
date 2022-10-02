@@ -89,15 +89,13 @@
 
 ## DFIR
 
-* [Collectors](DFIR/Collectors/README.md)
-  * [Velociraptor](DFIR/Collectors/Velociraptor.md)
 * [Common](DFIR/Common/README.md)
-  * [Memory forensics](DFIR/Common/Memory_forensics.md)
   * [Image acquisition and mounting](DFIR/Common/Image_acquisition_and_mounting.md)
+  * [Memory forensics](DFIR/Common/Memory_forensics.md)
+  * [Web logs analysis](DFIR/Common/Web_logs_analysis.md)
   * [Browsers forensics](DFIR/Common/Browsers_forensics.md)
-  * [Web logs](DFIR/Common/Web_logs.md)
-  * [Docker](DFIR/Common/Docker.md)
-  * [Splunk usage](DFIR/Common/Splunk.md)
+  * [Email forensics](DFIR/Common/Email_forensics.md)
+  * [Docker forensics](DFIR/Common/Docker_forensics.md)
 * [Windows](DFIR/Windows/README.md)
   * [Artefacts overview](DFIR/Windows/Artefacts/_Artefacts_overview.md)
     * [KAPE](DFIR/Windows/Artefacts/_KAPE.md)
@@ -135,6 +133,9 @@
 * [Cloud](DFIR/Cloud/README.md)
   * [Azure](DFIR/Cloud/Azure.md)
   * [AWS](DFIR/Cloud/AWS.md)
+* [Tools](DFIR/Tools/README.md)
+  * [Velociraptor](DFIR/Tools/Velociraptor.md)
+  * [Splunk usage](DFIR/Tools/Splunk.md)
 
 ## Red Team specifics
 
