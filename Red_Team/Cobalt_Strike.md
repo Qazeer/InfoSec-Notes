@@ -323,6 +323,20 @@ The following profiles are available:
 The `Aggressor` scripts also had a `opsec` command that can be used to list all
 the `beacon` commands and their activation status.
 
+###### Community Aggressor scripts and BOFs
+
+The [`Community Kit`](https://cobalt-strike.github.io/community_kit/) is
+repository of extensions, including Aggressor scripts and BOFs, written by the
+community to extend `Cobalt Strike` capabilities.
+
+| Repository | Description |
+|------------|-------------|
+| [`CS-Situational-Awareness-BOF`](https://github.com/trustedsec/CS-Situational-Awareness-BOF) | Collection of `BOFs` to gather information on the local host or remote services: `ifconfig`, users and groups, services and scheduled tasks, ldap request, ADCS enumeration, etc. |
+| [`CS-Remote-OPs-BOF`](https://github.com/trustedsec/CS-Remote-OPs-BOF) | Complementary collection of `BOFs`, `CS-Situational-Awareness-BOF` to conduct operations (services, scheduled tasks, registry operations, etc.). |
+| [`Chisel-Strike`](https://github.com/m3rcer/Chisel-Strike) | A .NET XOR encrypted aggressor script to execute in-memory `SharpChisel` (through the `NetLoader`, itself executed via `execute-assembly`).  |
+| [`nanodump`](https://github.com/helpsystems/nanodump) | Binary and aggressor script to dump a process memory. Refer -to the `[Windows] Post exploitation - Credentials dumping` for more information. |
+| [`HelpColor`](https://github.com/outflanknl/HelpColor) | Adds the `helpx` commands that lists beacon commands and highlight them based on OpSec considerations (Housekeeping, API-only, `BOF`, fork and run pattern, process spawning or injection, etc.). |
+
 ###### General commands
 
 | Command | Description | OpSec considerations |
@@ -442,7 +456,7 @@ beacon Windows `Access Token`, which is used for authentication over the network
 | `runas` | Execute a program as another user | |
 | `runasadmin` | Execute a program in an elevated context | [Beacon Object Files OpSec considerations.](#beacon-object-files-opsec-considerations) |
 | `spawnas` | Spawn a session as another user | |
-| `pth` | Pass-the-hash using Mimikatz | Default to [spawn and run pattern](#spawn-and-run-pattern-opsec-considerations), supports explicit [process injection](#process-injection-opsec-considerations). |
+| `pth pth <DOMAIN>\<USERNAME> <NTHASH>` | Pass-the-hash using Mimikatz | Default to [spawn and run pattern](#spawn-and-run-pattern-opsec-considerations), supports explicit [process injection](#process-injection-opsec-considerations). |
 | `kerberos_ccache_use` | Apply Kerberos ticket from cache to this session | [Beacon Object Files OpSec considerations.](#beacon-object-files-opsec-considerations) |
 | `kerberos_ticket_purge` | Purge Kerberos tickets from this session | [Beacon Object Files OpSec considerations.](#beacon-object-files-opsec-considerations) |
 | `kerberos_ticket_use` | Apply Kerberos ticket to this session | [Beacon Object Files OpSec considerations.](#beacon-object-files-opsec-considerations) |
@@ -459,10 +473,10 @@ beacon Windows `Access Token`, which is used for authentication over the network
 
 | Command | Description | OpSec considerations |
 |-------------|---------|---------------------|
-| `portscan` | Scan a network for open services | Default to [spawn and run pattern](#spawn-and-run-pattern-opsec-considerations), supports explicit [process injection](#process-injection-opsec-considerations). |
+| `portscan [<TARGET_PROCESS_PID>] [<TARGET_PROCESS_ARCH>] [<TARGET>] [<PORTS>] [<arp|icmp|none>]` | Scan a network for open services. <br><br> Targets format: comma separated list of IPs or IP ranges (CIDR notation or <IP1>-<IP2>). | Default to [spawn and run pattern](#spawn-and-run-pattern-opsec-considerations), supports explicit [process injection](#process-injection-opsec-considerations). |
 | `run` | Execute a program on target (returns output) | |
 | `jump <psexec \| psexec64 \| psexec_psh \| winrm \| winrm64> <TARGET> <LISTENER>` | Spawn a session on a remote host using the current access token. | [Beacon Object Files OpSec considerations.](#beacon-object-files-opsec-considerations) |
-| `link` | Connect to a Beacon peer over a named pipe | |
+| `link` | Connect to a Beacon peer over a named pipe. SMB Beacon usage: https://www.youtube.com/watch?v=lelRK-SDubc | |
 | `connect` | Connect to a Beacon peer over TCP | |
 | `remote-exec` | Run a command on a remote host | [Beacon Object Files OpSec considerations.](#beacon-object-files-opsec-considerations) |
 

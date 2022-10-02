@@ -145,16 +145,27 @@ Other utilities such as `FTK Imager` or `OSF Mount` may be used as well.
 
 ###### From Linux
 
-*VMDK image*
+*Virtual Machine disks*
 
-The `guestmount` utility can be used to mount a `VMDK` image directly:
+The `guestmount` utility can be used to mount a virtual machine disk (`vmdk`,
+`vhdx`, `qcow` / `qcow2`, `vdi`, etc.) directly:
 
 ```bash
 # Attempts to automatically find the device(s) to mount.
-guestmount --ro -i -a <VMDK_FILE> </mnt/mounted_vmdk | MOUNT_POINT>
+guestmount --ro -i -a <VM_DISK_FILE> </mnt/mounted | MOUNT_POINT>
 
 # Requires knowledge of the device to mount.
-guestmount -a <VMDK_FILE> -m </dev/sda1 | DEVICE> --ro </mnt/mounted_vmdk | MOUNT_POINT>
+guestmount -a <VM_DISK_FILE> -m </dev/sda1 | DEVICE> --ro </mnt/mounted_vmdk | MOUNT_POINT>
+
+# Unmounts the mounted device.
+guestunmount <MOUNT_POINT>
+```
+
+Alternatively, the `qemu-img` utility can be used to convert a virtual machine
+disk to a `raw` image:
+
+```
+qemu-img convert -O raw <VM_DISK_FILE> <OUTPUT_IMAGE>
 ```
 
 *Expert Witness/EnCase (EWF) image*

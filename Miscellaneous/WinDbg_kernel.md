@@ -25,7 +25,7 @@ Based on:
 | [lm (List Loaded Modules)](https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/lm--list-loaded-modules-) | `lm` <br><br> `lm <PATTERN>` | `lm nt*` | Displays all or the specified loaded modules. |
 | [x (Examine Symbols)](https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/x--examine-symbols-) | `x <MODULE>!*` <br><br> `x <MODULE>!<PATTERN>` |  `x nt!*` <br><br> `x nt!*process*` | Displays the symbols in the specified module. |
 | [ln (List Nearest Symbols)](https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/ln--list-nearest-symbols-) | `ln <ADDRESS>` | `ln fffff80705d4c9d4` | Displays the symbol(s) at or near the specified address. |
-| [dt (Display Type)](https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/dt--display-type-) | `dt <STRUCT>` <br><br> `dt nt*<PATTERN>*` | `dt nt!_EPROCESS` | Displays information about a local variable, global variable or data type. |
+| [dt (Display Type)](https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/dt--display-type-) | `dt <STRUCT>` <br><br> `dt nt!*<PATTERN>*` | `dt nt!_EPROCESS` | Displays information about a local variable, global variable or data type. |
 | [.printf](https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/-printf) | `.printf [<OPTIONS>] <FORMAT_STRING> <ARGUMENT \| ARGUMENT_LIST>` | `.printf "%y", <ADDRESS>` <br> displays the eventual symbol associated with the given address. | C printf-like function. |
 
 ###### Memory exploration
@@ -83,6 +83,8 @@ dx -r1 Debugger.Sessions.First().Processes[<DECIMAL_PID>].Threads[<DECIMAL_THREA
 dx @$process = Debugger.Sessions.First().Processes[<DECIMAL_PID>]
 dx @$process->Name
 dx @$process->Threads
+// Get process Ldr.
+dx -r2 (_PEB_LDR_DATA *) @$process.Environment.EnvironmentBlock.Ldr
 
 // Stores the specified process handles in a variable and display all or selected information about each handle.
 dx @$processHandles = Debugger.Sessions.First().Processes[<DECIMAL_PID>].Io.Handles
@@ -92,6 +94,9 @@ dx -g @$processHandles
 dx -g @$processHandles->Select(o => new { Handle = o->Handle, Type = o->Type, ObjectName = o->ObjectName})
 // Filters handles of type "Directory" and displays selected information.
 dx -g @$processHandles->Where(o => (o.Type == "Directory"))->Select(o => new { Handle = o->Handle, Type = o->Type, ObjectName = o->ObjectName})
+
+// Get process Ldr first entry (in memory order).
+dx -r1 @$process.Environment.EnvironmentBlock.Ldr->InMemoryOrderModuleList.Flink
 ```
 
 ###### Execution control flow

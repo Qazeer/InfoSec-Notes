@@ -262,6 +262,7 @@ systems memory image.
 | `consoles` | | Scans the memory image for `CONSOLE_INFORMATION` structures which contain the (limited) history of commands typed as well as the screen buffer (commands input and output). |
 | `dlldump` | | Extracts the DLL(s) loaded by each or the specified process. |
 | `dlllist` | | Lists the `DLL` loaded by each or the specified process. |
+| `impscan` | | Scan the calls to imported functions for a process or in a specific memory page. |
 | `dumpfiles` | | Dumps all the files mapped in memory (or the ones matching a specified regex). | `mftparser` | Scans the memory image for potential `Master File Table (MFT)` entries to reconstrcut the `MFT`. |
 | `dumpregistry` | | Dumps all or the specified (using its virtual offset) registry hive to a file. |
 | `envars` | | Displays the environment variables of each or the specified process. |
@@ -420,6 +421,21 @@ DLL(s).
 volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> ldrmodules -v
 
 volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> ldrmodules -v -p <PID>
+```
+
+The `impscan` module can be used to scan for calls to imported functions by a
+process or in a specified memory range. Scanning for calls in a memory can for
+instance be used to determine the functions called by a malware living only
+in memory.
+
+```
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> impscan -p <PID>
+
+# If malfind detects a PAGE_EXECUTE_READWRITE memory page for exemple:
+#   Process: IEXPLORE.EXE Pid: 2044 Address: 0x7ff80000
+#   Vad Tag: VadS Protection: PAGE_EXECUTE_READWRITE
+
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> impscan -p <PID> -b <ADDRESSE>
 ```
 
 *Handles*

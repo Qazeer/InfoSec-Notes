@@ -65,7 +65,7 @@ conduct a brute force attack against a `WinRM` service.
 Note that the account lockout policies for either local or domain joined account
 will apply. Vertical brute forcing attack will thus most likely result in
 account lockout. `WinRM` could however be used in passwords spraying attack,
-for more information refer to the `Active Directory - Passwords spraying` note.   
+for more information refer to the `Active Directory - Passwords spraying` note.
 
 ```
 msf> use auxiliary/scanner/winrm/winrm_login
