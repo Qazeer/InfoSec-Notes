@@ -11,12 +11,25 @@ the SMB ports of internal servers to conduct `PsExec` like connections directly
 from the attacking system without the need to deploy tools on the compromised
 server.
 
+For instance, if using `SSH` tunneling, the `SSH client` will listen on the
+specified port (locally) and will tunnel any connection to that port to the
+specified port on the remote `SSH server`. The remote `SSH server` then
+connects to a port on the destination machine which can be the remote SSH
+server itself or any other machine accessible from the remote SSH server.
+
 ###### Remote port forwarding
 
 Conceptually similar to the local port forwarding, the remote port forwarding
 can however be used for the opposite effect. Indeed, in remote port forwarding,
 the forwarding service will open a listening port on the server and will route
 any connection received on this port to the configured host and port.
+
+For instance, if using `SSH` tunneling, the `SSH server` will listen on the
+specified port and will tunnel any connection to that port to the specified
+port on the local `SSH client`. The local `SSH client` then connects to a port
+on the destination machine, which can be the local machine (i.e the machine
+running the `SSH client`) or any other machine accessible from the local
+machine.
 
 ###### Dynamic ports forwarding
 
@@ -155,7 +168,10 @@ The following command can be used to configure a remote port forwarding through
 an SSH service:
 
 ```bash
-ssh -R <TARGET_REMOTE_PORT>:<TARGET_HOSTNAME | TARGET_IP>:<SSH_SERVER_LOCAL_PORT> <USERNAME>@<SSH_HOSTNAME | SSH_IP>
+# By default the bind address will be localhost on the remote SSH, even if all interfaces are specified.
+# The SSHD daemon configuration (/etc/ssh/sshd_config) should be updated to allow client specified binding: GatewayPorts clientspecified
+
+ssh -nNT -R [<0.0.0.0 | REMOTE_INTERFACE>:]<TARGET_REMOTE_PORT>:<TARGET_HOSTNAME | TARGET_IP>:<SSH_SERVER_LOCAL_PORT> <USERNAME>@<SSH_HOSTNAME | SSH_IP>
 ```
 
 ###### SSH dynamic ports forwarding

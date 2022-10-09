@@ -336,6 +336,7 @@ community to extend `Cobalt Strike` capabilities.
 | [`Chisel-Strike`](https://github.com/m3rcer/Chisel-Strike) | A .NET XOR encrypted aggressor script to execute in-memory `SharpChisel` (through the `NetLoader`, itself executed via `execute-assembly`).  |
 | [`nanodump`](https://github.com/helpsystems/nanodump) | Binary and aggressor script to dump a process memory. Refer -to the `[Windows] Post exploitation - Credentials dumping` for more information. |
 | [`HelpColor`](https://github.com/outflanknl/HelpColor) | Adds the `helpx` commands that lists beacon commands and highlight them based on OpSec considerations (Housekeeping, API-only, `BOF`, fork and run pattern, process spawning or injection, etc.). |
+| [`Zipper`](https://github.com/outflanknl/Zipper) | Compress the specified file or folder (from local or `UNC` path) using a reflectively loaded `DLL`. The archive will be stored as a ZIP file with a random name under the executing user temp folder. |
 
 ###### General commands
 

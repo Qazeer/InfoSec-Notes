@@ -840,7 +840,7 @@ cmd.exe /c "for /f ""tokens=1,2,3"" %a in ('<COMMAND>') do nslookup %a.%b.%c <IP
 and directories to and from over 40 cloud storage providers. In addition to
 more classical file upload services (`FTP`, `SFTP` / `FTPS`, `Webdav`, etc.),
 `rclone` supports a number of cloud services: `MEGA`, `Google Drive`,
-`Microsoft OneDrive`, `Amazon S3 buckets`, `Azure Blob Storage`, etc.).  
+`Microsoft OneDrive`, `Amazon S3 buckets`, `Azure Blob Storage`, etc.).
 
 `rclone` provides cloud equivalents to the `unix` common commands `cat`, `ls`,
 `mkdir`, `cp`, `mv`, `mount`, etc. commands. It supports multi-retries and
@@ -859,7 +859,7 @@ rclone config
 # Lists all the configured remotes.
 rclone listremotes
 
-# Displays information of the configured remotes (by printing the decrypted config file).  
+# Displays information of the configured remotes (by printing the decrypted config file).
 rclone config show
 
 # Files operation to respectively list files, create a (product-specific) folder, print / upload / download / delete a file.
