@@ -3,21 +3,21 @@
 ### Overview
 
 The `Master File Table (MFT)` is a main element of any `New Technology File
-System (NTFS)` partition and the MFT, filename `$MFT`, is the first file of the
-partition.
+System (NTFS)` partition with the MFT, filename `$MFT`, being the first file of
+the partition.
 
 The MFT contains an entry for all existing files written on the partition.
 Deleted files that were once written on the partition may also still have a
 record in the MFT.
 
-The record entry includes:
-  - the filename
-  - the file size
-  - the file creation, file last altered, file last read, file last MFT entry
-  update datetimes in the `$STANDARD_INFORMATION` attribute
-  - the file creation, file last altered, file last read, file last MFT entry
-  update datetimes in the `$FILE_NAME` attribute
-  - access permissions
+Each record entry in the MFT notably includes:
+  - The filename.
+  - The file size.
+  - The file creation, last modified, last accessed, last XXX `SI` timestamps
+    in the `$STANDARD_INFORMATION` attribute.
+  - The file creation, last modified, last accessed, last XXX `FN` timestamps
+    in the `$FILE_NAME` attribute.
+  - The file access permissions.
 
 The `$MFT` file has both the `Hidden (H)` and `System (S)` attributes and will
 thus not be shown by the Windows Explorer application or the `dir` utility by
@@ -31,6 +31,9 @@ for a file creation, access, modification, renaming, etc. can be found on the
 SANS `Windows Forensic Analysis` poster:
 
 `https://www.sans.org/security-resources/posters/windows-forensic-analysis/170/download`
+
+For more information on Windows timestamps, refer to the
+`[DFIR] Windows - Timestamps` note.
 
 ### Parsing
 

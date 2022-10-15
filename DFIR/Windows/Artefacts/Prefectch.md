@@ -11,14 +11,11 @@ Yield Information related to **programs execution**.
 
 `Windows Prefetch` is a performance enhancement feature that enables
 prefetching of applications to make system boots or applications startups
-faster. `Prefetch` files, located as `.PF` files in the directory
-`%SystemRoot%\prefetch`, store data and files accessed during boot or
-application start-up.
-
-`Prefetch` files are created whenever a program is executed from a specific
-path. If the same binary is executed from different locations, separate
-`Prefetch` files will be created for each different location. A `Prefetch`
-file can be created even if the executable did not successfully run.
+faster. `Prefetch` files are created whenever a program is executed from a
+specific path. If the same binary is executed from different locations,
+separate `Prefetch` files will be created for each different location.
+A `Prefetch` file can be created even if the executable did not successfully
+run.
 
 ### Information of interest
 
