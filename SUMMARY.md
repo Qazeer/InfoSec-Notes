@@ -118,7 +118,6 @@
   * [TTPs analysis](DFIR/Windows/TTPs_Analysis/README.md)
     * [Accounts usage](DFIR/Windows/TTPs_Analysis/Accounts_usage.md)
     * [Local persistence](DFIR/Windows/TTPs_Analysis/Local_persistence.md)
-    * [ASEP](DFIR/Windows/TTPs_Analysis/ASEP.md)
     * [PowerShell activity](DFIR/Windows/TTPs_Analysis/PowerShell_activity.md)
     * [Program execution](DFIR/Windows/TTPs_Analysis/Program_execution.md)
     * [Timestomping](DFIR/Windows/TTPs_Analysis/Timestomping.md)
@@ -135,6 +134,7 @@
   * [AWS](DFIR/Cloud/AWS.md)
 * [Tools](DFIR/Tools/README.md)
   * [Velociraptor](DFIR/Tools/Velociraptor.md)
+  * [KAPE](DFIR/Tools/Kape.md)
   * [Splunk usage](DFIR/Tools/Splunk.md)
 
 ## Red Team specifics

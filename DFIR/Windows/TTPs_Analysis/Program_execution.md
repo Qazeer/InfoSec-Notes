@@ -1,8 +1,6 @@
 # DFIR - Windows - Program execution
 
-### Amcache, Shimcache, prefetch, prefetch files pf in MFT / UsnJrnl
-
-###### Processes
+### Security.evtx - 4688: A new process has been created
 
 Event: `4688: A new process has been created`.<br/>
 Location: victim `Security` hive.<br/>
@@ -36,6 +34,12 @@ command line specified at the process creation will be logged in the
 
 This event is followed by the `Security` event `4689: Process Termination:
 Success and Failure` upon the termination of the process.
+
+### Artefacts
+
+For an overview of the artefacts related to programs execution (`SRUM`,
+`UserAssist`, `BAM` / `DAM`, `Shimcache`, `Amcache`, `Prefetch`, ...), refer to
+the [artefacts overview note](../Artefacts/_Artefacts_overview.md).
 
 --------------------------------------------------------------------------------
 

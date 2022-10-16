@@ -30,7 +30,6 @@ similar to standard Windows systems (and are thus detailed in the sections
 [Destination machine](#destination-machine) and
 [Source machine](#source-machine) below).
 
-
 | Artefact | Location | Conditions | Description |
 |----------|----------|------------|-------------|
 | EVTX | `Security.evtx` | Default configuration. | [Event `4624: An account was successfully logged on`.](#security-event-id-4624) |

@@ -55,3 +55,9 @@ work:
 
 The [`Threathunting` application](https://splunkbase.splunk.com/app/4305/) can
 then be installed. and will index should be configured on the indexers.
+
+--------------------------------------------------------------------------------
+
+### References
+
+https://docs.splunk.com/Documentation/SplunkCloud/9.0.2208/SearchReference/ListOfSearchCommands
