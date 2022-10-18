@@ -74,6 +74,8 @@ PSDecode <ENCODED_POWERSHELL_FILE>
 | Microsoft-Windows-PowerShell\Operational | 4104 | PowerShell 5.0 <br/> Requires PowerShell `Script Block Logging` to be enabled | `Script block logging`: `Creating Scriptblock text [...]`.<br/>Logged upon the execution of PowerShell scripts and cmdlets.<br/>If the `Path` field is empty, the command was executed interactively through the PowerShell console.<br/>Includes, in the `ScriptBlockText` field, the script block (content of the PowerShell script or cmdlet and the commandline) being executed.<br/> This event provides valuable information but may be bypassed by malicious actors by starting PowerShell 2.0 (`powershell.exe -version 2.0`). |
 | Microsoft-Windows-PowerShell\Operational | 40961<br/>40962 | PowerShell 3.0 | `PowerShell console is starting up` (`EID 40961`) followed by `PowerShell console is ready for user input` (`EID 40962`).<br/> Logged upon the start of a PowerShell activity (execution of powershell.exe).<br/> Includes the `<DOMAIN>\<USER>` executing PowerShell in the `User` field. |
 | Microsoft-Windows-PowerShell\Operational | 53504 | PowerShell 3.0 | `Windows PowerShell has started an IPC listening thread on process: <PID> in `AppDomain`: <DOMAIN>`.<br/>Indicates that a PowerShell `AppDomain` was started.<br/> Usually logged upon the start of the PowerShell console, in between events `EID: 40961` and `EID: 40962`. |
+| Microsoft-Windows-WinRM\Operational <br><br> *WinRM events on destination host.* | 91 | - | `Creating WSMan shell on server with ResourceUri: <X>`. <br> Indicates that a remote `WinRM` session was opened. <br> Includes the domain and username of the user that opened the session but not the source host. |
+| Microsoft-Windows-WinRM\Operational <br><br> *WinRM events on source host.* | 6 <br> 8 <br> 15 <br> 16 <br> 31 <br> 33 | - | Event `6`: `Creating WSMan Session. The connection string is: <REMOTE_HOST>/wsman?PSVersion=XXX`. <br> Indicates that a `WinRM` session was opened on a remote host. <br> Includes the domain and username of the **currently logged-on user** (not necessarily the user that was used to open the session) and the remote host information. <br><br> Event `33`: `Closing WSMan Session completed successfuly` <br> Indicates that a `WinRM` session was closed, with no information on the session or the remote host, only the currently logged-on user. <br><br> Events `8`, `15`, `16`, and `31`: other events that occur during the life-cycle of the `WinRM session`.  |
 | Microsoft-Windows-AppLocker\MSI and Script | 8005 | Require `AppLocker` to be enabled and running in `Audit only` mode | `<SCRIPT_PATH> was allowed to run`.<br/>Logged upon the execution of a local PowerShell script. |
 | Microsoft-Windows-AppLocker\MSI and Script | 8006 | Require `AppLocker` to be enabled and running in `Audit only` mode | `<SCRIPT_PATH> was allowed to run but would have been prevented from running if the AppLocker policy were enforced`.<br/>Logged upon the execution of a local PowerShell script. |
 | Security | 4688 | Requires `Audit Process Creation` to be enabled | `A new process has been created`.<br/> Logged upon the creation of every process. The `NewProcessName` field stores the full path of the process's executable and will contain `powershell.exe` for PowerShell activity.<br/>Refer to the `Processes` section for more information on this event. |
@@ -83,11 +85,22 @@ PSDecode <ENCODED_POWERSHELL_FILE>
 ### References
 
 https://www.blackhat.com/docs/us-14/materials/us-14-Kazanciyan-Investigating-Powershell-Attacks.pdf
+
 https://www.jpcert.or.jp/english/pub/sr/20170612ac-ir_research_en.pdf
+
 http://jpcertcc.github.io/ToolAnalysisResultSheet/details/PowerSploit_Invoke-Mimikatz.htm
+
 https://www.eventsentry.com/blog/2018/01/powershell-p0wrh11-securing-powershell.html
+
 https://www.powershellmagazine.com/2014/07/16/investigating-powershell-attacks/
+
 https://nsfocusglobal.com/Attack-and-Defense-Around-PowerShell-Event-Logging
-https://static1.squarespace.com/static/552092d5e4b0661088167e5c/t/59c1814829f18782e24f1fe2/1505853768977/Windows+PowerShell+Logging+Cheat+Sheet+ver+Sept+2017+v2.1.pdf
+
+https://static1.squarespace.com/static/552092d5e4b0661088167e5c/t/59c1814829f18782e24f1fe2/1505853768977/
+Windows+PowerShell+Logging+Cheat+Sheet+ver+Sept+2017+v2.1.pdf
+
 https://www.eventtracker.com/EventTracker/media/EventTracker/Files/support-docs/Integration-Guide-Windows-PowerShell.pdf
+
 https://www.blackhat.com/docs/us-14/materials/us-14-Kazanciyan-Investigating-Powershell-Attacks-WP.pdf
+
+https://jpcertcc.github.io/ToolAnalysisResultSheet/details/WinRM.htm

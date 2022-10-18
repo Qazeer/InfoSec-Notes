@@ -98,7 +98,6 @@
   * [Docker forensics](DFIR/Common/Docker_forensics.md)
 * [Windows](DFIR/Windows/README.md)
   * [Artefacts overview](DFIR/Windows/Artefacts/_Artefacts_overview.md)
-    * [KAPE](DFIR/Windows/Artefacts/_KAPE.md)
     * [Amcache](DFIR/Windows/Artefacts/Amcache.md)
     * [EVTX](DFIR/Windows/Artefacts/EVTX.md)
     * [Jumplist](DFIR/Windows/Artefacts/Jumplist.md)
@@ -134,7 +133,7 @@
   * [AWS](DFIR/Cloud/AWS.md)
 * [Tools](DFIR/Tools/README.md)
   * [Velociraptor](DFIR/Tools/Velociraptor.md)
-  * [KAPE](DFIR/Tools/Kape.md)
+  * [KAPE](DFIR/Tools/KAPE.md)
   * [Splunk usage](DFIR/Tools/Splunk.md)
 
 ## Red Team specifics
