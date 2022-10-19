@@ -13,10 +13,10 @@ record in the MFT.
 Each record entry in the MFT notably includes:
   - The filename.
   - The file size.
-  - The file creation, last modified, last accessed, last XXX `SI` timestamps
-    in the `$STANDARD_INFORMATION` attribute.
-  - The file creation, last modified, last accessed, last XXX `FN` timestamps
-    in the `$FILE_NAME` attribute.
+  - The file creation, last modified, last accessed, and last changed `SI`
+    timestamps in the `$STANDARD_INFORMATION` attribute.
+  - The file creation, last modified, last accessed, and last changed `FN`
+    timestamps in the `$FILE_NAME` attribute.
   - The file access permissions.
 
 The `$MFT` file has both the `Hidden (H)` and `System (S)` attributes and will
