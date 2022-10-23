@@ -7,7 +7,23 @@ respectively, collect or parse, using independent utilities, artefacts.
 A comprehensive documentation can be found at:
 [ericzimmerman.github.io](https://ericzimmerman.github.io/KapeDocs/#!index.md).
 
-### Compound module
+### Collection - Targets
+
+The following commands can be used to collect artefacts from the current
+system's specified drive.
+
+The `RecycleBin` artefact can be removed to better control the resulting
+collection file.
+
+```
+# Semi-light collection (the deleted files from the RecycleBin can however greatly increase the collection size).
+.\kape.exe --tsource C: --tdest <DEST_FOLDER | DEST_FOLDER_%d> --tflush --target KapeTriage,Antivirus,$MFTMirr,RemoteAdmin,CloudStorage_Metadata, CombinedLogs,WebBrowsers,InternetExplorer,WebServers,Exchange,WSL,LinuxOnWindowsProfileFiles,RecycleBin,USBDetective,PowerShellConsole,MSSQLErrorLog,BITS,CertUtil,MicrosoftOneNote,MicrosoftStickyNotes,Notepad++,RDPCache,ScheduledTasks,StartupFolders,WinDefendDetectionHist,WindowsDefender,WindowsFirewall --vss
+
+# More comprehensive collection with PST / OST files and memory dumps notably. (the deleted files from the RecycleBin can however greatly increase the collection size).
+.\kape.exe --tsource C: --tdest C:\Temp\SURION-WIN10_KAPE%d --tflush --target KapeTriage,Antivirus,MiniTimelineCollection,$MFTMirr,RemoteAdmin,WebBrowsers,WebServers,WSL,LinuxOnWindowsProfileFiles,RecycleBin,USBDetective,PowerShellConsole,MSSQLErrorLog,BITS,CertUtil,MicrosoftOneNote,MicrosoftStickyNotes,Notepad++,RDPCache,ScheduledTasks,StartupFolders,WindowsFirewall,FileExplorerReplacements,OutlookPSTOST,GroupPolicy,LiveUserFiles,MemoryFiles,MOF --vss
+```
+
+### Parsing - Compound module
 
 The following `module` can be used to parse a number of artefacts on a
 collected data. The required tools are specified directly in the module and
