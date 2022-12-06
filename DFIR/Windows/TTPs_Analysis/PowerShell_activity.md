@@ -12,6 +12,14 @@ remoting, Windows may write events to the following hives:
   - `Microsoft-Windows-PowerShell\Operational.evtx`
   - `Microsoft-Windows-PowerShell\Analytic.etl` (non default)
 
+Starting with `PowerShell v5` on `Windows 10`, the commands entered in a
+PowerShell console will be logged by the `PSReadline` module to an user-scoped
+`ConsoleHost_history.txt` file. Console-less PowerShell sessions, such as
+the content of PowerShell script or commands execution through the
+`PowerShell ISE`, will not be logged in this file. By default, the
+`ConsoleHost_history.txt` file will be located under:
+`$env:APPDATA\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt`
+
 As PowerShell implements its remoting functionality through the `Windows Remote
 Management (WinRM)` service, remote PowerShell activity may induce events in
 the following hives:
