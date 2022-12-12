@@ -11,7 +11,7 @@ docker pull splunk/splunk:latest
 
 # Port 8000: Splunk web interface.
 # Port 8088: Splunk HTTP event collectors service.
-docker run -p 8000:8000 -p 8088:8088 -e "SPLUNK_PASSWORD=<PASSWORD>" -e "SPLUNK_START_ARGS=--accept-license" splunk/splunk:latest
+docker run -p [<IP>:]8000:8000 -p [<IP>:]8088:8088 -e "SPLUNK_PASSWORD=<PASSWORD>" -e "SPLUNK_START_ARGS=--accept-license" splunk/splunk:latest
 ```
 
 ### Splunk search Cheat Sheet
