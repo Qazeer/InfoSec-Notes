@@ -36,7 +36,73 @@ Exchange Online instance:
   - Azure DevOps organization (for retrieving `Azure DevOps Activity logs` for
     the given Azure DevOps organization): `Auditing\View audit log` permission.
 
-### DFIR-O365RC collector
+### Logs collection
+
+#### Log Analytics workspace or storage account with Diagnostic settings
+
+Through the `Diagnostic settings`, Azure logs at tenant, subscription(s), or
+resource(s) level can be either:
+
+  - Exported to json formatted files in a `storage account blob`. Logs exported
+    to a blob will be in `PT1H.json` files, and can be downloaded using the
+    `Azure Storage Explorer` utility (among others).
+
+  - Send to a `Log Analytics workspace` to be processed directly in the Cloud
+    with `KQL` queries.
+
+Once a `storage account` or `Log Analytics workspace` has been created, the
+procedure to export logs from different sources is as follow:
+
+  - `AzureAD` tenant logs (sign-ins and audit logs) - P1 / P2 license required:
+
+    ```
+    Azure Active Directory portal
+       => Diagnostic settings (left menu)
+          => Add diagnostic setting
+             => Check "AuditLogs", "SignInLogs", "NonInteractiveUserSignInLogs", "ServicePrincipalSignInLogs", "ManagedIdentitySignInLogs", "ADFSSignInLogs", "RiskyUsers", "UserRiskEvents"
+             => Archive to a storage account / Send to Log Analytics workspace
+    ```
+
+  - Subscription activity logs:
+
+    ```
+    Monitor portal
+       => Activity log (left menu)
+          => Export Activity logs (top menu)
+             => Add diagnostic setting
+                => Check all categories
+                => Archive to a storage account / Send to Log Analytics workspace
+    ```
+
+  - Resources logs:
+
+    ```
+    The given resource portal
+       => Diagnostic settings
+          => Add diagnostic setting
+             => Check all or the relevant categories
+             => Archive to a storage account / Send to Log Analytics workspace
+    ```
+
+If exported to a `storage account blob`, logs will be available in the
+following folders:
+  - Azure AD audit logs: `insights-logs-auditlogs`
+
+  - Azure AD sign-ins logs:
+    - `insights-logs-signinlogs`
+    - `insights-logs-noninteractiveusersigninlogs`
+    - `insights-logs-managedidentitysigninlogs`
+    - `insights-logs-serviceprincipalsigninlogs`
+
+  - Subscription: `insights-activity-logs`
+
+  - Resources:
+    - Storage accounts: `insights-logs-storageread`
+    - Key vaults: `insights-logs-auditevent`
+    - NSG flows: `insights-logs-networksecuritygroupflowevent`
+    - ...
+
+#### DFIR-O365RC collector
 
 [`DFIR-O365RC`](https://github.com/ANSSI-FR/DFIR-O365RC) is a PowerShell module
 that implement a number of cmdlets to retrieve Office 365 / Azure logs. As
@@ -134,7 +200,7 @@ Get-AzRMActivityLogs -StartDate $StartDate90 -Enddate $EndDate [-SelectSubscript
 Get-AzDevOpsActivityLogs -StartDate $StartDate90 -Enddate $EndDate [-SelectOrg:$true]
 ```
 
-### TTPs analysis
+### AzureAD / O365 TTPs analysis
 
 ###### Exchange Online Services workload
 
@@ -178,7 +244,52 @@ applications in the subscription with out MFA
 ###### Others
 
 Consent grant allows applications to access resources in the tenant.
-Permissions that can be granted: Application, Delegated, and Effective permissions.
+Permissions that can be granted: Application, Delegated, and Effective
+permissions.
+
+### Azure TTPs analysis
+
+###### Activity log key fields
+
+The key fields in the subscription / activity log schema are:
+
+  - `identity.claims`: nested JSON with information about the identity that
+    performed the action and its authentication method.
+
+     - `identity.claims.http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn`:
+       the `UPN` of the identity that performed the action.
+
+     - `identity.claims.groups`: the AzureAD groups of which the identity is a
+       member.
+
+    - `identity.claims.ipaddr`: the IP address the identity authenticated from.
+
+  - `callerIpAddress`: the IP address the action was performed from.
+
+  - `resourceId`: the unique resource identifier of the resource. The
+    `resourceId` follows the format:
+    `/SUBSCRIPTIONS/<SUBSCRIPTION_ID>/RESOURCEGROUPS/<RESOURCEGROUP_NAME>/PROVIDERS/<PROVIDER>/<RESOURCE_NAME>`.
+
+    The provider can for example be `/MICROSOFT.COMPUTE/VIRTUALMACHINES` or
+    `MICROSOFT.STORAGE/STORAGEACCOUNTS`.
+
+  - `operationName`: the name of the operation.
+
+    Examples:
+      - `MICROSOFT.AUTHORIZATION/ROLEASSIGNMENTS/WRITE`
+      - `MICROSOFT.COMPUTE/VIRTUALMACHINES/WRITE`
+      - `MICROSOFT.COMPUTE/VIRTUALMACHINES/START/ACTION`
+      - `MICROSOFT.COMPUTE/VIRTUALMACHINES/DELETE`
+      - `MICROSOFT.COMPUTE/DISKS/WRITE`
+      - `MICROSOFT.STORAGE/STORAGEACCOUNTS/LISTKEYS/ACTION`
+      - ...
+
+  - `resultType` and `resultSignature` (more verbose): the result of the operation.
+
+  - `correlationId`: an unique identifier that can be used to map the different
+    events associated with a single operation.
+
+--------------------------------------------------------------------------------
 
 ### References
 
