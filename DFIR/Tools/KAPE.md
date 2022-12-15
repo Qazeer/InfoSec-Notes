@@ -89,10 +89,6 @@ Processors:
         ExportFormat: ""
     # Requires hayabusa.exe (https://github.com/Yamato-Security/hayabusa/releases/) to be in "KAPE\Modules\bin\hayabusa.exe".
     -
-        Executable: hayabusa_UpdateRules.mkape
-        CommandLine: ""
-        ExportFormat: ""
-    -
         Executable: hayabusa_OfflineEventLogs.mkape
         CommandLine: ""
         ExportFormat: ""

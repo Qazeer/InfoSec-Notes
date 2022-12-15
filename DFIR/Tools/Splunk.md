@@ -38,6 +38,16 @@ docker run -p [<IP>:]8000:8000 -p [<IP>:]8088:8088 -e "SPLUNK_PASSWORD=<PASSWORD
 | `index=* sourcetype=xmlwineventlog EventCode=3 DestinationHostname=*<DOMAIN> \| stats count by DestinationHostname, Image` | Counts the number of hits on each subdomains of `<DOMAIN>` by Image (from Sysmon logs). |
 | `\| tstats min(_time) as latest max(_time) as earliest WHERE index="<* \| INDEX>" by index, source \| convert timeformat="%Y-%m-%d %H:%M:%S" ctime(earliest) ctime(latest)` | Retrieves the earliest and latest events of each given types for the specified or all index. |
 
+```
+# Find the successful logons from IPs with at least one failed logon attempt.
+index="<INDEX>" operationName="Sign-in activity" resultType=0
+[search index="<INDEX>" operationName="Sign-in activity" resultType IN (50074, 50126, 50140)
+| dedup properties.userPrincipalName,resultType,properties.ipAddress
+| fields properties.ipAddress]
+| dedup properties.userPrincipalName
+| table properties.userPrincipalName,resultType,properties.ipAddress
+```
+
 ### Splunk apps
 
 ###### olafhartong's ThreatHunting
