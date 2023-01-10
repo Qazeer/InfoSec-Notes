@@ -158,6 +158,15 @@ guest operating system (if spoofing of `MAC` address is enabled from
 ifconfig <ETH_EXTERNAL> hw ether <MAC_ADDRESS>
 ```
 
+If an `Device or resource busy - you may need to down the interface` error
+occurs, the network interface will need to be shutdown:
+
+```bash
+ifconfig <ETH_EXTERNAL> down
+
+ifconfig <ETH_EXTERNAL> up
+```
+
 ###### Disabling IPv6 connectivity (if not needed)
 
 If `IPv6` is not used in the target environment, it is recommended to disable

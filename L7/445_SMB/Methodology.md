@@ -252,6 +252,57 @@ ls <DIRECTORY>
 allinfo <FILE>
 ```
 
+Alternatively, `impacket`'s `smbclient.py` can be used as well:
+
+```
+# To connect to the remote server.
+
+# NTLM authentication
+smbclient.py [-target-ip <TARGET_IP>] [-port [<PORT>]] [<DOMAIN>/]<USERNAME>[:<PASSWORD>]@<HOSTNAME | IP>
+smbclient.py -hashes <LM_HASH:NT_HASH> [-target-ip <TARGET_IP>] [-port [<PORT>]] [[<DOMAIN>/]<USERNAME>@<HOSTNAME | IP>
+
+# Kerberos authentication
+export KRB5CCNAME=<TICKET_CCACHE_FILE_PATH>
+smbclient.py -k -no-pass -dc-ip <DC_IP> <HOSTNAME>
+```
+
+The following basic commands can be used through `smbclient.py` (partial list):
+
+```
+# Lists the available shares.
+shares
+
+# Connects to the specified share.
+use <SHARENAME>
+
+# Lists the files and directories in the current working directory (on remote).
+ls [<REGEX>]
+
+# Changes the current directory to the specified path.
+cd <PATH>
+
+
+```
+
+# Then commands can be used
+
+# shares
+ADMIN$
+C$
+D$
+IPC$
+NETLOGON
+SYSVOL
+# use SYSVOL
+# dir
+*** Unknown syntax: dir
+# ls
+drw-rw-rw-          0  Mon Aug 16 02:55:31 2021 .
+drw-rw-rw-          0  Mon Aug 16 02:55:31 2021 ..
+drw-rw-rw-          0  Wed Jun 29 08:51:48 2022 bycn.bouygues-construction.com
+
+```
+
 ###### Recursive download of shared files
 
 The `smbget` and `smbclient` utilities on Linux and the `PowerShell`

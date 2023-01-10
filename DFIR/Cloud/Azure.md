@@ -1,22 +1,11 @@
 # DFIR - Cloud - Azure
 
-### Azure logs
-
-###### DFIR-O365RC
-
-[`DFIR-O365RC`](https://github.com/ANSSI-FR/DFIR-O365RC) is a PowerShell module
-that implement a number of cmdlets to retrieve Office 365 / Azure logs. As
-`DFIR-O365RC` supports PowerShell Core, it can be used on both Windows or Linux
-endpoints.
-
-*Data sources*
-
-The logs are retrieved in `JSON` from the following sources of information:
+### Azure logs overview
 
 | Source | Description | History | Mechanism used |
 |--------|-------------|---------|------------------|
-| [`Office 365 Unified Audit Logs`](https://docs.microsoft.com/en-us/microsoft-365/compliance/search-the-audit-log-in-security-and-compliance) | All Office 365 logs (including Azure AD logs with a more limited level of information). <br><br> Entries are stored in `UTC+0`. <br><br> There can be a delay of around 30min for logs to be available in UAL and up to 24 hours for AAD logs. | 90 days (by default) <br><br> 1 year with a E5 licence.	| `Exchange online PowerShell` |
-| [`Mailbox Audit Log`](https://docs.microsoft.com/en-us/microsoft-365/compliance/enable-mailbox-auditing) | Information about certain actions performed on mailboxes by mailbox owners, delegates, and admins. For instance, log entries can be generated upon mail data access, email deletion or sending, etc. | 90 days | `Exchange Online PowerShell` |
+| [`Office 365 Unified Audit Logs`](https://docs.microsoft.com/en-us/microsoft-365/compliance/search-the-audit-log-in-security-and-compliance) | All Office 365 logs (including Azure AD logs with a more limited level of information). <br><br> Entries are stored in `UTC+0`. <br><br> There can be a delay of around 30min for logs to be available in UAL and up to 24 hours for AAD logs (and Power Automate, Power Apps, and Yammer logs). <br><br> As of October 2021, `Audit Logs` are by default turned on for newly created tenants. | 90 days (by default) <br><br> 1 year with a E5 license.	| `Exchange online PowerShell` |
+| [`Mailbox Audit Log`](https://docs.microsoft.com/en-us/microsoft-365/compliance/enable-mailbox-auditing) | Information about certain actions performed on mailboxes by mailbox owners, delegates, and admins. For instance, log entries can be generated upon mail data access, email deletion or sending, etc. <br><br> As of January 2019, `Mailbox Audit Logs` should be turned on by default for newly created tenants. <br><br> A predefined set of mailbox actions are audited by default for each logon type (`Admin`, `Delegate`, and `Owner`). The list of actions logged by default can be found in the [official Exchange documentation](https://learn.microsoft.com/en-us/microsoft-365/compliance/audit-mailboxes). Note that while mailbox auditing cannot be disabled for a specific mailbox if mailbox auditing is enabled tenant-wide, mailbox audit logging can still be bypassed by defined users. In such circumstances, mailbox `Owner` actions as well as `Delegate` (i.e on other users' mailboxes) and `Admin` actions performed by the bypassed users aren't logged. <br><br> Mailbox logon types: <br> - `Owner`: access by the mailbox owner. <br> - `Delegate`: access by another user being granted `SendAs`, `SendOnBehalf`, or `FullAccess` (access to everything but not the right to send mails) permission to the mailbox. <br> - `Admin`: mailbox is searched with a Microsoft eDiscovery tool or with the Microsoft Exchange Server MAPI Editor. <br><br> `MailItemsAccessed` mail access events will only be available with a `E5 license`. Unofficially, a single `E5 license` in the tenant is sufficient to generate the events for all users, even retroactively populating events for the retention period. | 90 days | `Exchange Online PowerShell` |
 | [`Azure AD sign-ins logs`](https://docs.microsoft.com/en-us/azure/active-directory/reports-monitoring/concept-sign-ins) | Information about Azure AD sign-ins and resources usage. <br><br> Entries are stored in `UTC+0`. | 30 days | `MS Graph API` |
 | [`Azure AD audit logs`](https://docs.microsoft.com/en-us/azure/active-directory/reports-monitoring/concept-audit-logs) | Information about changes applied to the Azure AD tenant, such as users or group management and updates. <br><br> Entries are stored in `UTC+0`. | 30 days | `MS Graph API` |
 | [`Azure Activity logs`](https://docs.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log) | Information about activity in an Azure subscription, such as resource modification, virtual machine creation and start, etc. | 30 days | `Azure Monitor RESTAPI` |
@@ -25,24 +14,110 @@ The logs are retrieved in `JSON` from the following sources of information:
 Note that accessing Azure AD logs through the `MS Graph API` requires at least
 **one user with an Azure `AD Premium P1` or `AD Premium P2` license**. These
 license can be included in other license plans, such as
-`Microsoft 365 E3 / E5 / F3`. The other to which is associated the licence does
+`Microsoft 365 E3 / E5 / F3`. The other to which is associated the license does
 not matter.
 
-*Minimal required privileges*
+### Minimal required privileges to access logs
 
 The following privileges / roles are required in the Azure AD tenant and
 Exchange Online instance:
   - Azure AD tenant: `Global Reader` ("Lecteur Général") role.
+
   - Exchange Online environment: `View-Only Audit Logs` role
     ("Journaux d’audit en affichage seul") role. This role is by default
     granted to the `Compliance Management` and `Organization Management` role
-    groups (for which members can be assigned).
+    groups (for which members can be assigned). Members can be assigned to the
+    aforementioned groups through the
+    [Exchange administration portal](https://admin.exchange.microsoft.com/).
+
   - Azure subscription (for retrieving `Azure Activity logs` for the given
     subscription): `Log Analytics Reader` role.
+
   - Azure DevOps organization (for retrieving `Azure DevOps Activity logs` for
     the given Azure DevOps organization): `Auditing\View audit log` permission.
 
-*Manual installation*
+### Logs collection
+
+#### Log Analytics workspace or storage account with Diagnostic settings
+
+Through the `Diagnostic settings`, Azure logs at tenant, subscription(s), or
+resource(s) level can be either:
+
+  - Exported to json formatted files in a `storage account blob`. Logs exported
+    to a blob will be in `PT1H.json` files, and can be downloaded using the
+    `Azure Storage Explorer` utility (among others).
+
+  - Send to a `Log Analytics workspace` to be processed directly in the Cloud
+    with `KQL` queries.
+
+Once a `storage account` or `Log Analytics workspace` has been created, the
+procedure to export logs from different sources is as follow:
+
+  - `AzureAD` tenant logs (sign-ins and audit logs) - P1 / P2 license required:
+
+    ```
+    Azure Active Directory portal
+       => Diagnostic settings (left menu)
+          => Add diagnostic setting
+             => Check "AuditLogs", "SignInLogs", "NonInteractiveUserSignInLogs", "ServicePrincipalSignInLogs", "ManagedIdentitySignInLogs", "ADFSSignInLogs", "RiskyUsers", "UserRiskEvents"
+             => Archive to a storage account / Send to Log Analytics workspace
+    ```
+
+  - Subscription activity logs:
+
+    ```
+    Monitor portal
+       => Activity log (left menu)
+          => Export Activity logs (top menu)
+             => Add diagnostic setting
+                => Check all categories
+                => Archive to a storage account / Send to Log Analytics workspace
+    ```
+
+  - Resources logs:
+
+    ```
+    The given resource portal
+       => Diagnostic settings
+          => Add diagnostic setting
+             => Check all or the relevant categories
+             => Archive to a storage account / Send to Log Analytics workspace
+    ```
+
+If exported to a `storage account blob`, logs will be available in the
+following folders:
+  - Azure AD audit logs: `insights-logs-auditlogs`
+
+  - Azure AD sign-ins logs:
+    - `insights-logs-signinlogs`
+    - `insights-logs-noninteractiveusersigninlogs`
+    - `insights-logs-managedidentitysigninlogs`
+    - `insights-logs-serviceprincipalsigninlogs`
+
+  - Subscription: `insights-activity-logs`
+
+  - Resources:
+    - Storage accounts: `insights-logs-storageread`
+    - Key vaults: `insights-logs-auditevent`
+    - NSG flows: `insights-logs-networksecuritygroupflowevent`
+    - ...
+
+#### DFIR-O365RC collector
+
+[`DFIR-O365RC`](https://github.com/ANSSI-FR/DFIR-O365RC) is a PowerShell module
+that implement a number of cmdlets to retrieve Office 365 / Azure logs. As
+`DFIR-O365RC` supports PowerShell Core, it can be used on both Windows or Linux
+endpoints.
+
+The logs are retrieved in `JSON` from the following sources of information:
+  - `Office 365 Unified Audit Logs`
+  - `Mailbox Audit Log`
+  - `Azure AD sign-ins logs`
+  - `Azure AD audit logs`
+  - `Azure Activity logs`
+  - `Azure DevOps Activity logs`
+
+###### Manual installation
 
 `DFIR-O365RC` depends on the [`MSAL.PS`](https://github.com/AzureAD/MSAL.PS)
 and [`PoshRSJob`](https://github.com/proxb/PoshRSJob) modules, that must be
@@ -68,7 +143,7 @@ The `DFIR-O365RC` directory of the `DFIR-O365RC` project can then be placed in
 in one of the system modules path (retrievable using `$env:PSModulePath`) and
 imported with `Import-Module DFIR-O365RC`.
 
-*DFIR-O365RC cmdlets*
+###### DFIR-O365RC cmdlets
 
 Note that whenever using PowerShell Core, the `-DeviceCode:$true` parameter
 must be specified for all `DFIR-O365RC` cmdlets in order to authenticate to the
@@ -125,43 +200,101 @@ Get-AzRMActivityLogs -StartDate $StartDate90 -Enddate $EndDate [-SelectSubscript
 Get-AzDevOpsActivityLogs -StartDate $StartDate90 -Enddate $EndDate [-SelectOrg:$true]
 ```
 
---------------------------------------------------------------------------------
+### AzureAD / O365 TTPs analysis
 
-### TTPs analysis
+###### Exchange Online Services workload
 
-###### Exchange Online Services
+The following operations are notable for the `Exchange` workload:
 
-  - Automated email forwarding
-  - Inbox rules (that can also be used to forward emails to a remote email address)
-  - Transport / Mail flow rules
-  - Delegations settings on user mailboxes such as "Full Access" or "SendAd"
-    - Full Access allows access to the mailbox and viewing of the emails, but not the ability to send emails.
-    - SendAs allows sending of emails.
+| Operation | Description | Default Scope | Default |
+|-----------|-------------|---------------|---------|
+| `MailItemsAccessed` | Access to mails in the mailbox. | `Owner`, `Delegate`, `Admin` | Yes with `E5` license |
+| `FolderBind` | Access to a mailbox folder. <br><br> Only One audit record is generated for individual folder access within a 24-hour period. | `Delegate`, `Admin` | No |
+| `Send` | Sending of an email. | `Owner`, `Admin` | Yes with `E5` license |
+| `SendAs` | Sending of an email using the `SendAs` permission. | `Delegate`, `Admin` | Yes |
+| `SendOnBehalf` | Sending of an email using the `SendOnBehalf` permission. | `Delegate`, `Admin` | Yes |
+| `Set-Mailbox` | Change to the mailbox parameters. Can notably be used to forward emails using the `ForwardingSmtpAddress` parameter. |
+| `New-InboxRule` | Creation of a new inbox rule in the mailbox. |
+| `Set-InboxRule` | Modification of an existing inbox rule in the mailbox. |
+| `UpdateInboxRules` | Creation or modification of a mailbox inbox rules, typically with the `Outlook Desktop` client using the `Exchange Web Services (EWS)` API. | `Owner`, `Delegate`, `Admin` | Yes |
+| `New-TransportRule` <br> `Set-TransportRule` <br><br> With the `BlindCopyTo` parameter. | Creation of a Transport / Mail Flow rule to send a copy of the mail to the defined address. |
+| `Remove-InboxRule` | Removal of a mailbox inbox rule. |
+| `Disable-InboxRule` | Disabling of a mailbox inbox rule. |
+| `Add-MailboxPermission` | Update of the permissions associated to the mailbox, such as `FullAccess` or `ChangePermission` permissions (in the `AccessRights` field). |
+| `Add-RecipientPermission` | Adding of the `SendAs` permission to user(s) for the mailbox. |
+| `Set-OwaMailboxPolicy` | Update to the OWA mailbox policies. |
+| `MoveToDeletedItems` | Deletion of a message (moved to the `Deleted Items` folder. |
+| `SoftDelete` | Permanent deletion of a message (or deletion from the `Deleted Items` folder). | `Owner`, `Delegate`, `Admin` | Yes |
 
-###### Microsoft Flow / Power Automate
+###### Microsoft Flow / Power Automate workload
 
-Allows forwarding emails, copy / dowload of files, etc.
+| Operation | Description |
+|-----------|-------------|
+| `CreateFlow` | Creation of a new flow. Flows can be used to forward emails, automatically copy or download files, etc. <br><br> Emails forwarded through `Microsoft Flow` can be identified in "Send" operation of the `UAL` logs' "Exchange" workload, as the user agent associated with the event will be "Microsoft Power Automate" (and the client IP will be an IP belonging to Microsoft). |
 
-Emails forwarded through Microsoft Flow can be detected in workload "Exchange"
-and  operation "Send" in UAL logs. User agent will be "Microsoft Power Automate"
-and client IP a MS IP.
+###### SharePoint workload
 
-###### Sharepoint
+Anonymous links
 
-  - Anonymous links
-
-###### Azure applications
+###### Azure applications in AAD audit logs
 
 Can be used to maintain persistence in M365 as applications can access
 applications in the subscription with out MFA
+
 ###### Others
 
-  - Application impersonation role to
+Consent grant allows applications to access resources in the tenant.
+Permissions that can be granted: Application, Delegated, and Effective
+permissions.
 
-  - Consent grant allows applications to access resources in the tenant.
-    Permissions that can be granted: Application, Delegated, and Effective
-    permissions.
+### Azure TTPs analysis
+
+###### Activity log key fields
+
+The key fields in the subscription / activity log schema are:
+
+  - `identity.claims`: nested JSON with information about the identity that
+    performed the action and its authentication method.
+
+     - `identity.claims.http://schemas.xmlsoap.org/ws/2005/05/identity/claims/upn`:
+       the `UPN` of the identity that performed the action.
+
+     - `identity.claims.groups`: the AzureAD groups of which the identity is a
+       member.
+
+    - `identity.claims.ipaddr`: the IP address the identity authenticated from.
+
+  - `callerIpAddress`: the IP address the action was performed from.
+
+  - `resourceId`: the unique resource identifier of the resource. The
+    `resourceId` follows the format:
+    `/SUBSCRIPTIONS/<SUBSCRIPTION_ID>/RESOURCEGROUPS/<RESOURCEGROUP_NAME>/PROVIDERS/<PROVIDER>/<RESOURCE_NAME>`.
+
+    The provider can for example be `/MICROSOFT.COMPUTE/VIRTUALMACHINES` or
+    `MICROSOFT.STORAGE/STORAGEACCOUNTS`.
+
+  - `operationName`: the name of the operation.
+
+    Examples:
+      - `MICROSOFT.AUTHORIZATION/ROLEASSIGNMENTS/WRITE`
+      - `MICROSOFT.COMPUTE/VIRTUALMACHINES/WRITE`
+      - `MICROSOFT.COMPUTE/VIRTUALMACHINES/START/ACTION`
+      - `MICROSOFT.COMPUTE/VIRTUALMACHINES/DELETE`
+      - `MICROSOFT.COMPUTE/DISKS/WRITE`
+      - `MICROSOFT.STORAGE/STORAGEACCOUNTS/LISTKEYS/ACTION`
+      - ...
+
+  - `resultType` and `resultSignature` (more verbose): the result of the operation.
+
+  - `correlationId`: an unique identifier that can be used to map the different
+    events associated with a single operation.
+
+--------------------------------------------------------------------------------
 
 ### References
 
 https://www.real-sec.com/2020/07/obscured-by-clouds-insights-into-office-365-attacks-and-how-mandiantmanaged-defense-investigates/
+
+Thirumalai Natarajan & Anurag Khanna - Threat Hunting in M365 Environment - DFIR Summit 2022
+
+https://redcanary.com/blog/email-forwarding-rules/

