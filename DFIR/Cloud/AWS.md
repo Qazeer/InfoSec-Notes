@@ -59,7 +59,7 @@ aws iam list-user-policies --user-name "<USERNAME>"
 aws iam list-group-policies --group-name "<GROUPNAME>"
 aws iam list-role-policies --role-name "<ROLENAME>"
 
-# Lists  all the IAM users, groups, and roles that the specified policy is attached to.
+# Lists all the IAM users, groups, and roles that the specified policy is attached to.
 # Example policy ARN: arn:aws:iam::aws:policy/service-role/AWSApplicationMigrationReplicationServerPolicy
 aws iam list-entities-for-policy --policy-arn "<POLICY_ARN>"
 
@@ -93,7 +93,7 @@ python3 scout.py aws [--access-key-id <ACCESS_KEY_ID>] [--secret-access-key <ACC
 
 ### AWS logs
 
-###### Overview
+#### Overview
 
 A number of log sources are available in `AWS` that can be useful for incident
 response purposes:
@@ -107,7 +107,37 @@ response purposes:
 | `VPC Flow Logs` | Logs `VPC`-level `IP` network traffic to `CloudWatch`. <br><br> Different version of `VPC Flow Logs`, 2 to 5 to date, can be enabled. Higher versions record an increased number of fields per record. The `version 2`, enabled by default, records the following fields (in order): <br> - version number. <br> - account id (AWS account ID of the owner of the source network interface for which traffic is recorded). <br> - interface id (ID of the network interface for which the traffic is recorded). <br> - source address. <br> - destination address. <br> - source port. <br> - destination port. <br> - network protocol. <br> - number of packets transferred during the "flow" log. <br> - number of bytes transferred during the "flow" log. <br> - start of the "flow" log. <br> - end of the flow log. <br> - whether the traffic was accepted (`ACCEPT`) or rejected (`REJECT`). <br> - status of the flow log. <br><br> For more information on `VPC Flow Logs`, refer to the official [AWS documentation](https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html). |
 | `WAF Logs` | Logs requests processed by the `AWS WAF` service. `WAF Logs` can notably be forwarded to `CloudWatch` or stored in a `S3` bucket. <br><br> Information about the request (source IP, eventual requests headers, eventual parameters, etc.) as well as the rule matched are logged. |
 
-###### [CloudWatch] awslogs
+#### Logs collection
+
+###### Multi-regions CloudTrail logs export
+
+The [`awsCloudTrailDownload.py`](https://github.com/dlcowen/sansfor509/blob/main/AWS/awsCloudTrailDownload.py)
+Python script can be used to download the `CloudTrail` logs across all regions.
+
+```bash
+python awsCloudTrailDownload.py
+```
+
+###### Automated logs export with Invictus-AWS
+
+The [`Invictus-AWS`](https://github.com/invictus-ir/Invictus-AWS) Python script
+can be used to retrieve information about the environment (service usage and
+configuration) and export logs from a number of sources (`CloudTrail`,
+`CloudWatch`, `S3 Access Logs`, ...) to an `S3` bucket. `Invictus-AWS` is
+region bound.
+
+```
+# Configures the required API access.
+aws configure
+
+# Exports the configuration and logs from the specified region (such as "us-east-1").
+python3 invictus-aws.py --region=<REGION>
+
+# Downlaods locally the exported / collected elements from invictus-aws.py.
+aws s3 cp --recursive s3://<INVICTUS_BUCKET> <EXPORT_FOLDER>
+```
+
+###### CloudWatch logs export with awslogs
 
 The [`awslogs`](https://github.com/jorgebastida/awslogs) utility can be used to
 access and filter the AWS `CloudWatch` logs. `awslogs` requires the permissions
@@ -127,20 +157,9 @@ awslogs streams <LOG_GROUP>
 awslogs get <ALL | LOG_GROUP> <ALL | LOG_GROUP_STREAM> -s <START> -e <END>
 ```
 
-###### CloudTrail logs export
+#### Logs analysis
 
-`CloudTrail` logs can be exported to an S3 bucket using the following
-procedure:
-
-```bash
-# 1. creation of an S3 bucket for the export.
-aws s3api create-bucket --bucket <BUCKET_NAME> --create-bucket-configuration LocationConstraint=<BUCKET_REGION>
-
-# 2. [Optional step] creation of an user with full access to S3 and CloudTrail.
-TODO
-```
-
-###### CloudTrail exported logs manual analysis with jq
+###### CloudTrail logs manual analysis with jq
 
 The `jq` utility supports querying JSON formatted data and can be used to
 select and filter events from `CloudTrail` exported logs.
