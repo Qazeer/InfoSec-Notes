@@ -157,9 +157,27 @@ awslogs streams <LOG_GROUP>
 awslogs get <ALL | LOG_GROUP> <ALL | LOG_GROUP_STREAM> -s <START> -e <END>
 ```
 
-#### Logs analysis
+### Logs analysis
 
-###### CloudTrail logs manual analysis with jq
+#### CloudTrail logs
+
+###### CloudTrail key fields
+
+| Field name | Description |
+|------------|-------------|
+| `eventTime` | Event timestamp in `UTC`. |
+| `awsRegion` | The region the request was made to, such as `us-east-1`. |
+| `eventSource` | The service the request was made to. <br><br> Such as `s3.amazonaws.com` for `S3` buckets, `sts.amazonaws.com` for the `Security Token Service (STS)` for temporary credentials request, etc. |
+| `eventName` | The request action, matching one of the API for that service. <br><br> For example, `AssumeRole`, `ListBuckets`, `SendCommand`, etc. |
+| `readOnly` | Whether the operation is a read-only operation (`true` or `false`). |
+| `userIdentity` | Information about the user that made the request. <br><br> * `userIdentity.type`: the type of the identity. <br> Possible types: <br> - `Root`: account root user. <br> - `IAMUser`: IAM user. <br> - `AssumedRole`: temporary security credentials obtained with a role by making a call to the `AWS STS`'s `AssumeRole` API. <br> - `Role`: <br> - `FederatedUser`: temporary security credentials for a federated user (`Active Directory`, `AWS Directory Service`, etc.), obtained via a call to the `AWS STS`'s `GetFederationToken` API. - `AWSAccount`: another AWS account. <br> - `AWSService`: AWS account that belongs to an AWS service. <br><br> * [Optional] `userIdentity.userName`: Human readable name of the identity that made the call. <br> Generally only available for `IAMUser` or `Root` identity. <br><br> * [Optional] `userIdentity.arn`: `ARN` of the entity (user or role) that made the call. <br><br> * [Optional] `userIdentity.principalId`: Unique identifier for the entity that made the call. <br> For temporary security credentials, this value includes the session name. <br><br> *  [Optional] `userIdentity.accountId`: The account that owns the entity that granted permissions for the request <br><br> * [Optional] `userIdentity.accessKeyId`: The eventual `access key ID` that was used to make the request. <br> `Access key IDs` beginning with `AKIA` are long-term credentials (for an `IAM user` or the AWS account root user) while `access key IDs` beginning with `ASIA` are temporary credentials (created using `AWS STS` operations). <br><br> * [Optional] `userIdentity.sessionContext`: Populated for requests made with temporary security credentials to contain information about the session that was created. <br> `userIdentity.sessionContext.creationDate`: when the session was created. <br> `userIdentity.sessionContext.mfaAuthenticated`: whether the initial credentials were authenticated MFA. <br> `userIdentity.sessionContext.`: <br> `userIdentity.sessionContext.sourceIdentity`: the original identity (user or role) making the request (with `type`, `arn`, `userName` sub-fields). |
+| `sourceIPAddress` | The IP address that the request was made from. <br><br> For requests from services within AWS, only the `DNS` name of the service (for example `ec2.amazonaws.com`) is displayed. |
+| `userAgent` | The `User-Agent` through which the request was made. |
+| `resources` | A list of resource(s) accessed in the event. <br><br> For each resource, the following fields may be available: <br> - `type`: resource type identifier (in the format: `AWS::<AWS_SERVICE_NAME>::<AWS_DATA_TYPE_NAME>`). <br> - `ARN`: `ARN` of the resource. <br> - `accountId`: account that owns the resource. |
+| `requestParameters` | The parameters, if any, that were sent with the request. <br><br> For example, `requestParameters.bucketName`, `requestParameters.userName`, etc. |
+| `responseElements` | The response element(s) for actions that make changes (create, update, or delete actions). <br><br> For example, `responseElements.user.createDate`, `responseElements.accessKey.accessKeyId`, etc. |
+
+###### CloudTrail manual analysis with jq
 
 The `jq` utility supports querying JSON formatted data and can be used to
 select and filter events from `CloudTrail` exported logs.
@@ -210,3 +228,5 @@ https://www.youtube.com/watch?v=VLIFasM8VbY
 https://docs.aws.amazon.com/whitepapers/latest/aws-security-incident-response-guide/logging-and-events.html
 
 https://www.datadoghq.com/blog/monitoring-cloudtrail-logs/
+
+https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-event-reference-record-contents.html
