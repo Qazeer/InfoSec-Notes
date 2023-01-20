@@ -28,8 +28,10 @@ docker run -p [<IP>:]8000:8000 -p [<IP>:]8088:8088 -e "SPLUNK_PASSWORD=<PASSWORD
 | `reverse` | Reverse the order in which events are displayed (more recent to oldest by default). | |
 | `sort [limit=<LIMIT_INT>] [+ \| -] <FIELD>` <br><br> `sort [+ \| -] <FIELD1> <FIELDN>` | Sort results by the specified field(s). The top 10 000 events are returned by default. <br><br> The `+` (default) and `-` sign can be used to sort respectively by ascending or descending order. <br><br> Cast functions (`nums`, `str`, etc.) can be applied to each fields if necessary. | `... \| sort -num(size)` <br> Sorts results by size in descending order. |
 | `stats count by <FIELD>` <br><br> `stats count by <FIELD1> <FIELDN>` | Count the number of events by field or for a combination of the specified fields. | |
-| `<SELECTION> \| stats earliest(_time) AS Earliest, latest(_time) AS Latest \| convert ctime(Earliest) ctime(Latest)` | Displays the timestamps of first and last events from the selection |
 | `where <CONDITION>` | Filter results based on the specified condition(s) |
+| `<SELECTION> \| stats earliest(_time) AS Earliest, latest(_time) AS Latest \| convert ctime(Earliest) ctime(Latest)` | Displays the timestamps of first and last events from the selection |
+| `eval <NEW_FIELD>=mvindex(<FIELD>,<0 \| INDEX_START>,<0 \| INDEX_END>)` | Extract a subset - `INDEX_START` to `INDEX_END` - from the multivalue field `<FIELD>` into `NEW_FIELD` |
+| `iplocation allfields=true <FIELD>` | Extracts location information (city, country, continent, ...) for the IP address <FIELD> by using a local copy of the `ip-to-city-lite.mmdb` IP geolocation database file |
 
 ###### Example / useful search queries
 
@@ -42,6 +44,8 @@ docker run -p [<IP>:]8000:8000 -p [<IP>:]8088:8088 -e "SPLUNK_PASSWORD=<PASSWORD
 | `index="<INDEX>" operationName="Sign-in activity" resultType=0` <br> `[search index="<INDEX>" operationName="Sign-in activity" resultType IN (50074, 50126, 50140) \| dedup properties.userPrincipalName,resultType,properties.ipAddress \| fields properties.ipAddress]`<br>`\| dedup properties.userPrincipalName \| table properties.userPrincipalName,resultType,properties.ipAddress` |
 | `<SEARCH> \| regex _raw=".*\*.*"` | Searching for the literal character `*`. |
 | `<SEARCH>` <br> `\| eval time_epoch=strptime(<TIMESTAMP_FIELD>, "[%Y-%m-%dT%T \| TIMESTAMP_FORMAT>")` <br> `\| eval time_diff=now() - time_epoch` <br> `\| search time_diff <= 2592000` <br> `\| sort 0 - time_epoch` | Sort events using another timestamp (`TIMESTAMP_FIELD`) of `TIMESTAMP_FORMAT` format, only keeping events newer than 30 days (30d * 24h * 3600s). |
+| `rex field=<FIELD_TO_EXTRACT_FROM> "(?<<NEW_FIELD>>\\d+\.\\d+\.\\d+\.\\d+)"` | `rex` command to extract an IPv4 from the specified field to the new field using an (dirty) regex. |
+| `<SELECTION> \| eventstats count AS Count by host \| eventstats earliest(_time) AS Earliest, latest(_time) AS Latest by host \| sort Earliest \| convert ctime(Earliest) ctime(Latest) \| table host,Earliest,Latest,Count` | Displays the timestamps of first and last events as well as the count of total events from the selection	by `host`. The `host` field can be replaced by any field(s). |
 
 ### Splunk apps
 
