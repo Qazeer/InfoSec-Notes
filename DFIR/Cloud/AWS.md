@@ -59,7 +59,7 @@ aws iam list-user-policies --user-name "<USERNAME>"
 aws iam list-group-policies --group-name "<GROUPNAME>"
 aws iam list-role-policies --role-name "<ROLENAME>"
 
-# Lists  all the IAM users, groups, and roles that the specified policy is attached to.
+# Lists all the IAM users, groups, and roles that the specified policy is attached to.
 # Example policy ARN: arn:aws:iam::aws:policy/service-role/AWSApplicationMigrationReplicationServerPolicy
 aws iam list-entities-for-policy --policy-arn "<POLICY_ARN>"
 
@@ -93,7 +93,7 @@ python3 scout.py aws [--access-key-id <ACCESS_KEY_ID>] [--secret-access-key <ACC
 
 ### AWS logs
 
-###### Overview
+#### Overview
 
 A number of log sources are available in `AWS` that can be useful for incident
 response purposes:
@@ -107,7 +107,37 @@ response purposes:
 | `VPC Flow Logs` | Logs `VPC`-level `IP` network traffic to `CloudWatch`. <br><br> Different version of `VPC Flow Logs`, 2 to 5 to date, can be enabled. Higher versions record an increased number of fields per record. The `version 2`, enabled by default, records the following fields (in order): <br> - version number. <br> - account id (AWS account ID of the owner of the source network interface for which traffic is recorded). <br> - interface id (ID of the network interface for which the traffic is recorded). <br> - source address. <br> - destination address. <br> - source port. <br> - destination port. <br> - network protocol. <br> - number of packets transferred during the "flow" log. <br> - number of bytes transferred during the "flow" log. <br> - start of the "flow" log. <br> - end of the flow log. <br> - whether the traffic was accepted (`ACCEPT`) or rejected (`REJECT`). <br> - status of the flow log. <br><br> For more information on `VPC Flow Logs`, refer to the official [AWS documentation](https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html). |
 | `WAF Logs` | Logs requests processed by the `AWS WAF` service. `WAF Logs` can notably be forwarded to `CloudWatch` or stored in a `S3` bucket. <br><br> Information about the request (source IP, eventual requests headers, eventual parameters, etc.) as well as the rule matched are logged. |
 
-###### [CloudWatch] awslogs
+#### Logs collection
+
+###### Multi-regions CloudTrail logs export
+
+The [`awsCloudTrailDownload.py`](https://github.com/dlcowen/sansfor509/blob/main/AWS/awsCloudTrailDownload.py)
+Python script can be used to download the `CloudTrail` logs across all regions.
+
+```bash
+python awsCloudTrailDownload.py
+```
+
+###### Automated logs export with Invictus-AWS
+
+The [`Invictus-AWS`](https://github.com/invictus-ir/Invictus-AWS) Python script
+can be used to retrieve information about the environment (service usage and
+configuration) and export logs from a number of sources (`CloudTrail`,
+`CloudWatch`, `S3 Access Logs`, ...) to an `S3` bucket. `Invictus-AWS` is
+region bound.
+
+```
+# Configures the required API access.
+aws configure
+
+# Exports the configuration and logs from the specified region (such as "us-east-1").
+python3 invictus-aws.py --region=<REGION>
+
+# Downlaods locally the exported / collected elements from invictus-aws.py.
+aws s3 cp --recursive s3://<INVICTUS_BUCKET> <EXPORT_FOLDER>
+```
+
+###### CloudWatch logs export with awslogs
 
 The [`awslogs`](https://github.com/jorgebastida/awslogs) utility can be used to
 access and filter the AWS `CloudWatch` logs. `awslogs` requires the permissions
@@ -127,20 +157,27 @@ awslogs streams <LOG_GROUP>
 awslogs get <ALL | LOG_GROUP> <ALL | LOG_GROUP_STREAM> -s <START> -e <END>
 ```
 
-###### CloudTrail logs export
+### Logs analysis
 
-`CloudTrail` logs can be exported to an S3 bucket using the following
-procedure:
+#### CloudTrail logs
 
-```bash
-# 1. creation of an S3 bucket for the export.
-aws s3api create-bucket --bucket <BUCKET_NAME> --create-bucket-configuration LocationConstraint=<BUCKET_REGION>
+###### CloudTrail key fields
 
-# 2. [Optional step] creation of an user with full access to S3 and CloudTrail.
-TODO
-```
+| Field name | Description |
+|------------|-------------|
+| `eventTime` | Event timestamp in `UTC`. |
+| `awsRegion` | The region the request was made to, such as `us-east-1`. |
+| `eventSource` | The service the request was made to. <br><br> Such as `s3.amazonaws.com` for `S3` buckets, `sts.amazonaws.com` for the `Security Token Service (STS)` for temporary credentials request, etc. |
+| `eventName` | The request action, matching one of the API for that service. <br><br> For example, `AssumeRole`, `ListBuckets`, `SendCommand`, etc. |
+| `readOnly` | Whether the operation is a read-only operation (`true` or `false`). |
+| `userIdentity` | Information about the user that made the request. <br><br> * `userIdentity.type`: the type of the identity. <br> Possible types: <br> - `Root`: account root user. <br> - `IAMUser`: IAM user. <br> - `AssumedRole`: temporary security credentials obtained with a role by making a call to the `AWS STS`'s `AssumeRole` API. <br> - `Role`: <br> - `FederatedUser`: temporary security credentials for a federated user (`Active Directory`, `AWS Directory Service`, etc.), obtained via a call to the `AWS STS`'s `GetFederationToken` API. - `AWSAccount`: another AWS account. <br> - `AWSService`: AWS account that belongs to an AWS service. <br><br> * [Optional] `userIdentity.userName`: Human readable name of the identity that made the call. <br> Generally only available for `IAMUser` or `Root` identity. <br><br> * [Optional] `userIdentity.arn`: `ARN` of the entity (user or role) that made the call. <br><br> * [Optional] `userIdentity.principalId`: Unique identifier for the entity that made the call. <br> For temporary security credentials, this value includes the session name. <br><br> *  [Optional] `userIdentity.accountId`: The account that owns the entity that granted permissions for the request <br><br> * [Optional] `userIdentity.accessKeyId`: The eventual `access key ID` that was used to make the request. <br> `Access key IDs` beginning with `AKIA` are long-term credentials (for an `IAM user` or the AWS account root user) while `access key IDs` beginning with `ASIA` are temporary credentials (created using `AWS STS` operations). <br><br> * [Optional] `userIdentity.sessionContext`: Populated for requests made with temporary security credentials to contain information about the session that was created. <br> `userIdentity.sessionContext.creationDate`: when the session was created. <br> `userIdentity.sessionContext.mfaAuthenticated`: whether the initial credentials were authenticated MFA. <br> `userIdentity.sessionContext.`: <br> `userIdentity.sessionContext.sourceIdentity`: the original identity (user or role) making the request (with `type`, `arn`, `userName` sub-fields). |
+| `sourceIPAddress` | The IP address that the request was made from. <br><br> For requests from services within AWS, only the `DNS` name of the service (for example `ec2.amazonaws.com`) is displayed. |
+| `userAgent` | The `User-Agent` through which the request was made. |
+| `resources` | A list of resource(s) accessed in the event. <br><br> For each resource, the following fields may be available: <br> - `type`: resource type identifier (in the format: `AWS::<AWS_SERVICE_NAME>::<AWS_DATA_TYPE_NAME>`). <br> - `ARN`: `ARN` of the resource. <br> - `accountId`: account that owns the resource. |
+| `requestParameters` | The parameters, if any, that were sent with the request. <br><br> For example, `requestParameters.bucketName`, `requestParameters.userName`, etc. |
+| `responseElements` | The response element(s) for actions that make changes (create, update, or delete actions). <br><br> For example, `responseElements.user.createDate`, `responseElements.accessKey.accessKeyId`, etc. |
 
-###### CloudTrail exported logs manual analysis with jq
+###### CloudTrail manual analysis with jq
 
 The `jq` utility supports querying JSON formatted data and can be used to
 select and filter events from `CloudTrail` exported logs.
@@ -191,3 +228,5 @@ https://www.youtube.com/watch?v=VLIFasM8VbY
 https://docs.aws.amazon.com/whitepapers/latest/aws-security-incident-response-guide/logging-and-events.html
 
 https://www.datadoghq.com/blog/monitoring-cloudtrail-logs/
+
+https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-event-reference-record-contents.html

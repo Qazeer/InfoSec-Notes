@@ -154,13 +154,4 @@ Processors:
     #    ExportFormat: ""
     # Requires Thor Lite (https://www.nextron-systems.com/thor-lite/, newsletter subscription required) to be in "KAPE\Modules\bin\thor-lite".
     # Refer to the Thor-Lite_Scan.mkape module documentation (in file-comments) for more information on the setup.
-    -
-        Executable: Thor-Lite_Scan.mkape
-        CommandLine: ""
-        ExportFormat: ""
-    # Requires DensityScout (https://www.cert.at/media/files/downloads/software/densityscout/files/densityscout_build_45_windows.zip) to be in "KAPE\Modules\bin\densityscout.exe".
-    -
-        Executable: DensityScout.mkape
-        CommandLine: ""
-        ExportFormat: ""
 ```
