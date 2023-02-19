@@ -185,6 +185,49 @@ mkdir <MOUNTPOINT>
 mount <RAW_EWF_DIR_PATH>/ewf1 <MOUNTPOINT_PATH> -o ro,loop,noatime,noexec,noload,norecovery[,show_sys_files,streams_interace=windows]
 ```
 
+*Logical Volume Manager image*
+
+`Logical Volume Manager (LVM)` is a device mapper framework that provides
+logical volume management (for the Linux kernel) to provide a system of
+partitions independent of underlying disk layout.
+
+The `LVM` feature is composed of the following building blocks:
+  - `Physical volume (PV)`: Unix block device node, such as a hard disk, an
+    `MBR` or `GPT` partition, usable for (physical) storage.
+
+  - `Volume group (VG)`: group of `physical volume(s)` that serves as a
+    container for `logical volume(s)`.
+
+  - `Logical volume (LV)`: virtual/logical partition that resides in a
+    `volume group` and is composed of `physical extents`. `LV` can be directly
+    formatted with a file system.
+
+  - `Physical extent (PE)`: smallest contiguous extent in a `physical volume`
+    that can be assigned to a `logical volume`.
+
+Examples:
+  - Physical disks: `/dev/sda1` and `/dev/sdb1`.
+  - Volume Group: `/dev/MyVolGroup/` = `/dev/sda1` + `/dev/sdb1`
+  - Logical volumes: `/dev/MyVolGroup/rootvol`, `/dev/MyVolGroup/homevol`,
+    `/dev/MyVolGroup/mediavol `
+
+The following commands can be used to mount a `LVM` disk image:
+
+```bash
+# Mappings for the LVM's volumes.
+kpartx -av <IMAGE_PATH>
+
+# Checks the LVM's PV(s) available.
+pvs
+
+# Checks the LVM's VG(s) and LV(s) available.
+lvdisplay
+
+# Mounts the specificed LV.
+# LV path example: /dev/<VG_NAME>/<root | LV_NAME>
+mount -o ro,noatime,noexec,noload,norecovery <LV_PATH> <MOUNT_POINT>
+```
+
 *Generic / other image types*
 
 The image partitions can be first determined using the `TSK`'s `mmls` or
