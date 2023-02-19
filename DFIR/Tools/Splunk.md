@@ -1,4 +1,4 @@
-# DFIR - Common - Splunk
+# DFIR - Tools - Splunk
 
 ### Quick deployment with Splunk docker container
 
