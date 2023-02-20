@@ -111,7 +111,6 @@ avml --put <URL> --delete <OUTPUT_DUMP_LIME>
 [`LiME`](https://github.com/504ensicsLabs/LiME) is another memory acquisition
 utility that can be used to capture memory of Linux systems.
 
-
 `LiME` is implemented as a `Loadable Kernel Module (LKM)` that can be loaded
 and executed using the `insmod` command.
 

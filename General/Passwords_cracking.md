@@ -1,7 +1,7 @@
 # Passwords cracking
 
 Password cracking is the process of recovering passwords from data that have
-been stored in or transmitted in a hashed form by a computer system.  
+been stored in or transmitted in a hashed form by a computer system.
 
 Passwords cracking can be attempted using a:
   - Brute-force attack, in which all possible passwords are exhaustively
@@ -22,7 +22,7 @@ The following word list can be used for passwords cracking:
 |------|-------------|-------------|
 | `darkweb2017-top` | 10/100/1000/10000 | Top X passwords. |
 | `rockyou.txt` | 14 millions | Usually considered sufficient for any CTF purpose, coupled if necessary with cracking rules. |
-| `CrackStation`’s 15GB | 1.5 billion | The publicly available most complete password wordlist to date. |  
+| `CrackStation`’s 15GB | 1.5 billion | The publicly available most complete password wordlist to date. |
 
 ###### kwprocessor
 
@@ -34,14 +34,14 @@ The `basechars` characters list consist of every characters that will be used
 as a starting point for the keyboard-walking sequences. The `tiny.base` list
 includes very limited, `QWERTY` keyboard based, starting points: `1q!Q`. The
 `full.base` file provides a more comprehensive `basechars` list and its use is
-recommended.  
+recommended.
 
 The `keymap` correspond to a keyboard layout, representing the physical
 disposition of the keyboard keys. A `keymap` file should consist of 12 lines:
 4 complete physical keyboard lines, represented as of (`azertyuiop^$`), and
 if pressed in combination with the modifier keys `Shift` (`AZERTYUIOP¨£`) and
 `AltGr` (`€¤`). Various keymaps (`en-us`, `en-gb`, `fr`, `es`, `de`, `ru`,
-etc.) are provided on the `kwprocessor` GitHub.    
+etc.) are provided on the `kwprocessor` GitHub.
 
 The `route` corresponds to the patterns used to generate the keyboard-walking
 sequences. A `route` is composed of a sequence of number(s), each number
