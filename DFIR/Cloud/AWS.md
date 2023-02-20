@@ -1,6 +1,8 @@
 # DFIR - Cloud - AWS
 
-### AWS CLI
+### AWS account information enumeration
+
+###### AWS CLI access
 
 The `AWS Command Line Interface (AWS CLI)` can be used to access AWS resources
 through a command line utility. To setup the `AWS CLI` environment, notably the
@@ -16,8 +18,6 @@ folder in the current's user home directory):
 
 To create a `Access key ID` and `secret access key`, refer to the
 [AWS official documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html).
-
-### AWS account information enumeration
 
 ###### Manual enumeration with AWS CLI
 
@@ -91,9 +91,7 @@ information on the attack surface of the AWS account across all regions.
 python3 scout.py aws [--access-key-id <ACCESS_KEY_ID>] [--secret-access-key <ACCESS_KEY_SECRET>]
 ```
 
-### AWS logs
-
-#### Overview
+### AWS logs overview
 
 A number of log sources are available in `AWS` that can be useful for incident
 response purposes:
@@ -107,7 +105,7 @@ response purposes:
 | `VPC Flow Logs` | Logs `VPC`-level `IP` network traffic to `CloudWatch`. <br><br> Different version of `VPC Flow Logs`, 2 to 5 to date, can be enabled. Higher versions record an increased number of fields per record. The `version 2`, enabled by default, records the following fields (in order): <br> - version number. <br> - account id (AWS account ID of the owner of the source network interface for which traffic is recorded). <br> - interface id (ID of the network interface for which the traffic is recorded). <br> - source address. <br> - destination address. <br> - source port. <br> - destination port. <br> - network protocol. <br> - number of packets transferred during the "flow" log. <br> - number of bytes transferred during the "flow" log. <br> - start of the "flow" log. <br> - end of the flow log. <br> - whether the traffic was accepted (`ACCEPT`) or rejected (`REJECT`). <br> - status of the flow log. <br><br> For more information on `VPC Flow Logs`, refer to the official [AWS documentation](https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html). |
 | `WAF Logs` | Logs requests processed by the `AWS WAF` service. `WAF Logs` can notably be forwarded to `CloudWatch` or stored in a `S3` bucket. <br><br> Information about the request (source IP, eventual requests headers, eventual parameters, etc.) as well as the rule matched are logged. |
 
-#### Logs collection
+### AWS logs collection
 
 ###### Multi-regions CloudTrail logs export
 
@@ -157,9 +155,7 @@ awslogs streams <LOG_GROUP>
 awslogs get <ALL | LOG_GROUP> <ALL | LOG_GROUP_STREAM> -s <START> -e <END>
 ```
 
-### Logs analysis
-
-#### CloudTrail logs
+### CloudTrail logs analysis
 
 ###### CloudTrail key fields
 
@@ -169,15 +165,61 @@ awslogs get <ALL | LOG_GROUP> <ALL | LOG_GROUP_STREAM> -s <START> -e <END>
 | `awsRegion` | The region the request was made to, such as `us-east-1`. |
 | `eventSource` | The service the request was made to. <br><br> Such as `s3.amazonaws.com` for `S3` buckets, `sts.amazonaws.com` for the `Security Token Service (STS)` for temporary credentials request, etc. |
 | `eventName` | The request action, matching one of the API for that service. <br><br> For example, `AssumeRole`, `ListBuckets`, `SendCommand`, etc. |
+| `errorCode` <br> | The error code and human-readable error message associated with an event if (and only if) the operation failed. |
 | `readOnly` | Whether the operation is a read-only operation (`true` or `false`). |
-| `userIdentity` | Information about the user that made the request. <br><br> * `userIdentity.type`: the type of the identity. <br> Possible types: <br> - `Root`: account root user. <br> - `IAMUser`: IAM user. <br> - `AssumedRole`: temporary security credentials obtained with a role by making a call to the `AWS STS`'s `AssumeRole` API. <br> - `Role`: <br> - `FederatedUser`: temporary security credentials for a federated user (`Active Directory`, `AWS Directory Service`, etc.), obtained via a call to the `AWS STS`'s `GetFederationToken` API. - `AWSAccount`: another AWS account. <br> - `AWSService`: AWS account that belongs to an AWS service. <br><br> * [Optional] `userIdentity.userName`: Human readable name of the identity that made the call. <br> Generally only available for `IAMUser` or `Root` identity. <br><br> * [Optional] `userIdentity.arn`: `ARN` of the entity (user or role) that made the call. <br><br> * [Optional] `userIdentity.principalId`: Unique identifier for the entity that made the call. <br> For temporary security credentials, this value includes the session name. <br><br> *  [Optional] `userIdentity.accountId`: The account that owns the entity that granted permissions for the request <br><br> * [Optional] `userIdentity.accessKeyId`: The eventual `access key ID` that was used to make the request. <br> `Access key IDs` beginning with `AKIA` are long-term credentials (for an `IAM user` or the AWS account root user) while `access key IDs` beginning with `ASIA` are temporary credentials (created using `AWS STS` operations). <br><br> * [Optional] `userIdentity.sessionContext`: Populated for requests made with temporary security credentials to contain information about the session that was created. <br> `userIdentity.sessionContext.creationDate`: when the session was created. <br> `userIdentity.sessionContext.mfaAuthenticated`: whether the initial credentials were authenticated MFA. <br> `userIdentity.sessionContext.`: <br> `userIdentity.sessionContext.sourceIdentity`: the original identity (user or role) making the request (with `type`, `arn`, `userName` sub-fields). |
+| `userIdentity` | Information about the user that made the request. <br><br> * `userIdentity.type`: the type of the identity. <br> Possible types: <br> - `Root`: account root user. <br> - `IAMUser`: IAM user. <br> - `AssumedRole`: temporary security credentials obtained with a role by making a call to the `AWS STS`'s `AssumeRole` API. <br> - `Role`: <br> - `FederatedUser`: temporary security credentials for a federated user (`Active Directory`, `AWS Directory Service`, etc.), obtained via a call to the `AWS STS`'s `GetFederationToken` API. - `AWSAccount`: An account from another tenant / AWS account. <br> - `AWSService`: AWS account that belongs to an AWS service. <br><br> * [Optional] `userIdentity.userName`: Human readable name of the identity that made the call. <br> Generally only available for `IAMUser` or `Root` identity. <br><br> * [Optional] `userIdentity.arn`: `ARN` of the entity (user or role) that made the call. <br><br> * [Optional] `userIdentity.principalId`: Unique identifier for the entity that made the call. <br> For temporary security credentials, this value includes the session name. For instance, for `AssumedRole` events, the `principalId` is the unique identifier that contains the role ID and the role session name returned in the `AssumeRole` event's `responseElements.assumedRoleUser.assumedRoleId`. <br><br> *  [Optional] `userIdentity.accountId`: The account that owns the entity that granted permissions for the request <br><br> * [Optional] `userIdentity.accessKeyId`: The eventual `access key ID` that was used to make the request. <br> `Access key IDs` beginning with `AKIA` are long-term credentials (for an `IAM user` or the AWS account root user) while `access key IDs` beginning with `ASIA` are temporary credentials (created using `AWS STS` operations). <br><br> * [Optional] `userIdentity.sessionContext`: Populated for requests made with temporary security credentials to contain information about the session that was created. <br> `userIdentity.sessionContext.creationDate`: when the session was created. <br> `userIdentity.sessionContext.mfaAuthenticated`: whether the initial credentials were authenticated MFA. <br> `userIdentity.sessionContext.`: <br> `userIdentity.sessionContext.sourceIdentity`: the original identity (user or role) making the request (with `type`, `arn`, `userName` sub-fields). |
 | `sourceIPAddress` | The IP address that the request was made from. <br><br> For requests from services within AWS, only the `DNS` name of the service (for example `ec2.amazonaws.com`) is displayed. |
 | `userAgent` | The `User-Agent` through which the request was made. |
+| `sessionCredentialFromConsole` | Whether the operation was conducted through the web console (`true` or `false`). |
 | `resources` | A list of resource(s) accessed in the event. <br><br> For each resource, the following fields may be available: <br> - `type`: resource type identifier (in the format: `AWS::<AWS_SERVICE_NAME>::<AWS_DATA_TYPE_NAME>`). <br> - `ARN`: `ARN` of the resource. <br> - `accountId`: account that owns the resource. |
 | `requestParameters` | The parameters, if any, that were sent with the request. <br><br> For example, `requestParameters.bucketName`, `requestParameters.userName`, etc. |
 | `responseElements` | The response element(s) for actions that make changes (create, update, or delete actions). <br><br> For example, `responseElements.user.createDate`, `responseElements.accessKey.accessKeyId`, etc. |
 
-###### CloudTrail manual analysis with jq
+###### CloudTrail notable API / events
+
+| `eventSource` | `eventName` | Type | Description |
+|-------------|-----------|------|-------------|
+| `sts.amazonaws.com` | `GetCallerIdentity` | Reconnaissance | Return details about the IAM user or role whose credentials are used to call the operation. |
+| `iam.amazonaws.com` | `ListUsers` | Reconnaissance | Enumerate the IAM users in the AWS account, that match the optional specified path prefix `requestParameters.pathPrefix`. |
+| `iam.amazonaws.com` | `ListRoles` | Reconnaissance | Enumerate the IAM roles in the AWS account, that match the optional specified path prefix `requestParameters.pathPrefix`. |
+| `iam.amazonaws.com` | `ListGroups` | Reconnaissance | Enumerate the IAM groups in the AWS account, that match the optional specified path prefix `requestParameters.pathPrefix`. |
+| `iam.amazonaws.com` | `ListGroupsForUser` | Reconnaissance | List the `IAM` groups that the specified `IAM` user (by `requestParameters.userName`) belongs to. |
+| `iam.amazonaws.com` | `ListPolicies` | Reconnaissance | Enumerate the IAM policies in the AWS account, that match the optional specified path prefix `requestParameters.pathPrefix`. |
+| `iam.amazonaws.com` | `ListAttachedUserPolicies` <br><br> `ListAttachedGroupPolicies` <br><br> `ListAttachedRolePolicies` | Reconnaissance | List the managed policies that are attached to the specified `IAM` user / group / role. <br><br> Notable fields: <br> *`ListAttachedUserPolicies`*: `requestParameters.userName` <br> *`ListAttachedGroupPolicies`*: `requestParameters.groupName` <br> *`ListAttachedRolePolicies`*: `requestParameters.roleName` |
+| `iam.amazonaws.com` | `ListUserPolicies` <br><br> `ListGroupPolicies` <br><br> `ListRolePolicies` | Reconnaissance | List the names of the inline policies embedded in the specified `IAM` user / group / role. <br><br> Notable fields: <br> *`ListUserPolicies`*: `requestParameters.userName` <br> *`ListGroupPolicies`*: `requestParameters.groupName` <br> *`ListRolePolicies`*: `requestParameters.roleName` |
+| `iam.amazonaws.com` | `GetPolicy` | Reconnaissance | Get information about the specified managed policy (by `requestParameters.policyArn`), including the policy's default version and the total number of `IAM` users, groups, and roles to the policy is attached to. |
+| `iam.amazonaws.com` | `GetPolicyVersion` | Reconnaissance | Get information about the specified version of the specified managed policy, including the policy document. <br><br> Notable fields: <br> `requestParameters.policyArn` <br> `requestParameters.versionId`|
+| `s3.amazonaws.com` | `ListBuckets` | Reconnaissance | List the buckets owned by the authenticated sender of the request. |
+| `ec2.amazonaws.com` | `GetConsoleScreenshot` | Reconnaissance | Take a screenshot of a running instance. <br><br> Notable fields: <br> `requestParameters.instanceId` <br> `requestParameters.wakeUp`: whether a keystroke input should be simulated to wake up an instance in standby. |
+| `ec2.amazonaws.com` | `DescribeInstances` | Reconnaissance | Enumerate and retrieve information on all or the specified instances. <br><br> Notable fields: <br> `requestParameters.instanceId`: optional list of instance id(s) to enumerate. <br> `requestParameters.filter`: optional filter(s). |
+| `sts.amazonaws.com` | `AssumeRole` | Privilege escalation | Return a set of temporary security credentials that can be used to access AWS resources under the privileges granted by the role. A role is a set of policies. <br><br> Can be called by `IAM` principal (user or role). <br><br> Notable fields: <br> `requestParameters.roleArn`: The `ARN` of the role to assume. <br> `requestParameters.roleSessionName`: a unique identifier (in the form of `i-089eb6ce74072ae1f`) to identify the session. <br> `requestParameters.durationSeconds`: the validity period of the temporary credentials. Minimum value of 900 seconds up to the maximum session duration set for the role (maximum 43200 seconds). <br><br> `responseElements.assumedRoleUser.arn`: the `ARN` of the temporary security credentials, that will be logged under `userIdentity.arn` (for API calls made during the session). <br> `responseElements.assumedRoleUser.assumedRoleId`: a unique identifier containing the role ID and the role session name, that will be logged under `userIdentity.principalId` (for API calls made during the session). <br> `responseElements.credentials.accessKeyId`: the access key ID that identifies the temporary security credentials, that will be logged under `userIdentity.accessKeyId` (for API calls made during the session). <br> `responseElements.credentials.expiration`: the date on which the current credentials expire. |
+| `sso.amazonaws.com` | `GetRoleCredentials` | Privilege escalation | Return a set of temporary security credentials. <br><br> Similar to `AssumeRole`, but can (and must) be called by `AWS SSO users`, which are not directly `IAM` principals. `AWS SSO users` can have permission to assume `IAM` roles and must do so through `GetRoleCredentials`. <br><br> Notable fields: `requestParameters.roleName` <br> `responseElements.credentials.roleCredentials.accessKeyId` <br> `responseElements.credentials.roleCredentials.expiration` |
+| `iam.amazonaws.com` | `AttachUserPolicy` <br><br> `AttachGroupPolicy` <br><br> `AttachRolePolicy` | Privilege escalation | Attach the specified managed policy to the specified `IAM` user / group / role. A policy is the most atomic level of privileges that can be granted. <br><br> As a privilege escalation path, the compromised user may be a member of the impacted group or may be able to assume the impacted role. <br><br> Notable fields: <br> `requestParameters.policyArn` <br><br> *`AttachUserPolicy`*: `requestParameters.userName` <br> *`AttachGroupPolicy`* `requestParameters.groupName`: <br> *`AttachRolePolicy`*: `requestParameters.roleName` |
+| `iam.amazonaws.com` | `PutUserPolicy` <br><br> `PutGroupPolicy` <br><br> `PutRolePolicy` | Privilege escalation | Add (or update) an inline policy embedded in the specified `IAM` user / group / role. A policy is the most atomic level of privileges that can be granted. <br><br> Notable fields: <br> `requestParameters.policyName` <br>  `requestParameters.policyDocument`: policy in JSON format. <br><br> *`PutUserPolicy`*: `requestParameters.userName` <br> *`PutGroupPolicy`*: `requestParameters.groupName` <br> *`PutRolePolicy`*: `requestParameters.roleName` |
+| `iam.amazonaws.com` | `CreatePolicyVersion` | Privilege escalation | Create a new version of the specified managed `IAM` policy, allowing the definition of new permissions (ultimately granted to `IAM` users, groups, or Roles the policy is linked to). <br><br> Notable fields: <br> `requestParameters.policyArn` <br> `requestParameters.policyDocument`: policy in JSON format. <br> `requestParameters.setAsDefault`: whether the new policy version should be set as default, i.e should become the operative version (`true` of `false`). |
+| `iam.amazonaws.com` | `SetDefaultPolicyVersion` | Privilege escalation | Set the specified preexisting version of the specified policy as the policy's default (operative) version. <br><br> The policy version set will impact the `IAM` users, groups, or Roles the policy is linked to, potentially opening privilege escalation vectors. <br><br> Notable fields: <br> `requestParameters.policyArn` <br> `requestParameters.versionId` |
+| `iam.amazonaws.com` | `AddUserToGroup` | Privilege escalation <br><br> Persistence | Add the specified user to the specified group. <br><br> Notable fields: <br> `requestParameters.userName` <br> `requestParameters.groupName` |
+| `iam.amazonaws.com` | `CreateAccessKey` | Privilege escalation <br><br> Persistence | Create a new AWS secret access key for the user specified by `requestParameters.userName`. <br><br> Notable fields: <br> `responseElements.accessKey.accessKeyId` <br> `responseElements.accessKey.createDate` <br> `responseElements.accessKey.status` <br> `responseElements.accessKey.userName` |
+| `iam.amazonaws.com` | `CreateLoginProfile` | Privilege escalation <br><br> Persistence | Create a password for the user specified by `requestParameters.userName` (to allow the user to access the AWS Management Console). <br><br> As a privilege escalation vector, a user (`userIdentity.userName`) can create a password for a (more privileged) user (`requestParameters.userName`) to connect as the user through the management console and elevate privileges. |
+| `iam.amazonaws.com` | `UpdateLoginProfile` | Privilege escalation <br><br> Persistence | Create a password for the user specified by `requestParameters.userName` (to allow the user to access the AWS Management Console). <br><br> As a privilege escalation vector, a user (`userIdentity.userName`) can reset the password of a (more privileged) user (`requestParameters.userName`) to compromise that user and elevate privileges. |
+| `ec2.amazonaws.com` | `RunInstances` | Execution <br><br> Persistence | Create and run new EC2 instance(s). <br><br> Notable fields: <br> `requestParameters.instanceType` <br><br> The `requestParameters.instancesSet.items{}` list contains (for each request instance): <br> `imageId` <br> `tags{}` list with a `Key`=`Name` with `Value`=`<INSTANCE_NAME>` <br> `keyName` for the key credentials associated with the instance. <br><br> The `responseElements.instancesSet.items{}` list contains (for each created instance): <br> `instanceId` <br> `keyName` <br> `subnetId` <br> `privateIpAddress` |
+| `ssm.amazonaws.com` | `SendCommand` | Execution | Run command(s) on one or more instances. <br><br> Notable fields: <br> `requestParameters.instanceIds` / `responseElements.command.instanceIds`: list of instance ids for the command execution. <br> `requestParameters.documentName` / `responseElements.documentName`: name of the SSM document to run (such as `AWS-RunShellScript` or `AWS-RunPowerShellScript`). <br> `requestParameters.parameters`: required and optional parameters specified in the document being run (can be `HIDDEN_DUE_TO_SECURITY_REASONS` for shell / powershell execution). |
+| `ssm.amazonaws.com` | `StartSession` | Execution | Initiate a connection to the target instance. <br><br> Notable fields: <br> `requestParameters.target`: target instance id. <br> `responseElements.sessionId`: identifier of the session. <br> `responseElements.streamUrl`: an URL on the target instance `SSM Agent` used by the `Session Manager client` to send commands and receive output. <br> `responseElements.tokenValue`: a token used to authenticate the connection (hidden in `CloudTrail`). |
+| `ssm.amazonaws.com` | `ResumeSession` | Execution | Reconnect a connection after it has been disconnected (but not terminated). <br><br> Notable fields: <br> `requestParameters.sessionId`: identifier of the disconnected session. <br> `responseElements.sessionId`: identifier of the session. <br> `responseElements.streamUrl`: an URL on the target instance `SSM Agent` used by the `Session Manager client` to send commands and receive output. <br> `responseElements.tokenValue`: a token used to authenticate the connection (hidden in `CloudTrail`). |
+| `ec2.amazonaws.com` | `GetPasswordData` | Execution <br><br> Persistence | Retrieves the **encrypted** administrator password for a running Windows instance. The password is encrypted with the key pair specified when the instance was launched. <br><br> Notable fields: <br> `requestParameters.instanceId` |
+| `ec2.amazonaws.com` | `ModifyInstanceAttribute` | Execution <br><br> Persistence | Modify the specified attribute of the specified instance. <br><br> A modification of the `userData` attribute can be used to execute code at boot time, requiring a restart of a running instance (`StopInstances` then `StartInstances`). <br><br> *Does not allow the modification of the long-terme key pair(s) associated with an instance. There is no AWS API to conduct such operation.* <br><br> Notable fields: <br> `requestParameters.instanceId` <br> `requestParameters.attribute` (`userData` for the user data). <br> `requestParameters.userData` (specified user data). |
+| `ec2.amazonaws.com` | `SendSSHPublicKey` | Execution | Push a temporary SSH public key to the specified EC2 instance for use by the specified user. The key remains for 60 seconds. Used by the `EC2 Instance Connect` service for `SSH` access (directly or through the service web-based interface). <br><br> Notable fields: <br> `requestParameters.instanceId` |
+| `lambda.amazonaws.com` | `CreateFunction` | Execution <br><br> Persistence | Create a new Lambda function. <br><br> Notable fields: <br> `requestParameters.functionName` <br> `requestParameters.code` but doesn't include the `ZipFile` parameter (that contains the base64-encoded contents of the deployment package). |
+| `lambda.amazonaws.com` | `UpdateFunctionCode` | Execution <br><br> Persistence | Update an existing Lambda function's code. <br><br> Notable fields: <br> `requestParameters.functionName` <br> `requestParameters.code` but doesn't include the `ZipFile` parameter (that contains the base64-encoded contents of the deployment package). |
+| `s3.amazonaws.com` | `PutBucketAcl` | Exfiltration | Set the `ACL` of the specified bucket. Note that the use of `ACL` for `S3` is generally deprecated (in favor of using policy). <br><br> Notable fields: <br> `requestParameters.bucket` <br> `requestParameters.AccessControlPolicy.AccessControlList.Grant.Grantee.URI` array : URIs for the container for the entity being granted permissions. <br> If the array contains the string `http://acs.amazonaws.com/groups/global/AuthenticatedUsers` or `http://acs.amazonaws.com/groups/global/AllUsers`, the specified bucket is made public. |
+| `s3.amazonaws.com` | `GetObject` | Data access | AWS CloudTrail supports `Amazon S3 Data Events`, but is not enabled by default. <br><br> Retrieve objects from `Amazon S3`, via the associated API. <br><br> Access through the web interface (or a static website leveraging a `S3 bucket`) will not be logged under `CloudTrail` (but can be logged in `S3 server access logs`). |
+| `ses.amazonaws.com` | `GetAccount` <br><br> `ListIdentities` <br><br> `VerifyEmailIdentity` <br><br> `UpdateAccountSendingEnabled` <br><br> | Impact (phishing) | Obtain information about the email-sending status and capabilities of the `Amazon SES` account (in the current region). <br><br> Return a list containing all of the identities (email addresses and domains) of the `Amazon SES` account (in the current region). <br><br> Add an email address to the list of identities `Amazon SES` account (in the current region) and attempt to verify it. <br><br> Enable (or disables email) sending across the entire `Amazon SES account` in the current AWS Region. <br><br> Usage of these APIs by threat actors [have been identified in the wild](https://unit42.paloaltonetworks.com/compromised-cloud-compute-credentials/) to conduct phishing campaigns following an identity compromise. |
+| `iam.amazonaws.com` | `CreateUser` | Persistence | Create a new AWS user in the account. <br><br> Notable fields: <br> `responseElements.user.arn` <br> `responseElements.user.createDate` <br> `responseElements.user.userId` <br> `responseElements.user.userName` |
+| `ec2.amazonaws.com` | `CreateKeyPair` | Persistence | Create a key pair with the specified name in the AWS Region. <br><br> Notable fields: <br> `requestParameters.keyName` / `responseElements.keyName` <br> `responseElements.keyFingerprint` <br> `responseElements.keyPairId` |
+| `ec2.amazonaws.com` | `ImportKeyPair` | Persistence | Import the public key (previously created), only providing the public key to AWS. <br><br> Notable fields: <br> `requestParameters.keyName` / `responseElements.keyName` <br> `responseElements.keyFingerprint` <br> `responseElements.keyPairId` |
+| `sts.amazonaws.com` | `GetSessionToken` | Credentials access <br><br> Persistence | Return a set of temporary credentials for an `AWS account` or `IAM user`. <br><br> The temporary security credentials created by `GetSessionToken` can be used to make API calls to any AWS service with the following exceptions: <br> - Calls to `IAM` API operations are prohibited unless MFA authentication information is included in the request. <br> - Calls to `STS` API are prohibited (except `AssumeRole` and `GetCallerIdentity`). <br><br> Notable fields: <br> `responseElements.accessKeyId` <br> `responseElements.expiration` |
+
+###### CloudTrail logs manual analysis with jq
 
 The `jq` utility supports querying JSON formatted data and can be used to
 select and filter events from `CloudTrail` exported logs.
@@ -227,6 +269,28 @@ https://www.youtube.com/watch?v=VLIFasM8VbY
 
 https://docs.aws.amazon.com/whitepapers/latest/aws-security-incident-response-guide/logging-and-events.html
 
+https://www.chrisfarris.com/post/aws-ir/
+
 https://www.datadoghq.com/blog/monitoring-cloudtrail-logs/
 
 https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-event-reference-record-contents.html
+
+https://www.wiz.io/blog/hunting-for-signs-of-persistence-in-the-cloud-an-ir-guide
+
+https://docs.datadoghq.com/fr/security/default_rules/#cat-cloud-siem-log-detection
+
+https://docs.sekoia.io/xdr/features/collect/integrations/cloud_and_saas/aws/aws_cloudtrail/
+
+https://docs.aws.amazon.com/fr_fr/lambda/latest/dg/logging-using-cloudtrail.html
+
+https://easttimor.github.io/aws-incident-response/
+
+https://stackoverflow.com/questions/61257189/ec2-instance-connect-and-iam-public-keys
+
+https://docs.datadoghq.com/fr/security/default_rules/aws-bucket-acl-made-public/
+
+https://cloud.hacktricks.xyz/pentesting-cloud/aws-pentesting/aws-privilege-escalation/aws-iam-privesc
+
+https://unit42.paloaltonetworks.com/compromised-cloud-compute-credentials/
+
+https://gist.github.com/kmcquade/33860a617e651104d243c324ddf7992a

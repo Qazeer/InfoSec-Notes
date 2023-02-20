@@ -1,22 +1,8 @@
-### Sources
+# Miscellaneous - WinDbg cheatsheet
 
-Based on:
+### Kernel exploration
 
-  - Microsoft Windows Debugging Tools official documentation
-
-    https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/
-
-  - "Modern Debugging with WinDbg Preview" DEFCON 27 workshop by hugsy and
-    0vercl0k
-
-    https://github.com/hugsy/defcon_27_windbg_workshop
-
-  - "WinDbg — the Fun Way: Part 1 / 2" by Yarden Shafir
-
-    https://medium.com/@yardenshafir2/windbg-the-fun-way-part-1-2e4978791f9b
-    https://medium.com/@yardenshafir2/windbg-the-fun-way-part-2-7a904cba5435
-
-### CheatSheet
+#### CheatSheet
 
 ###### Symbols and types
 
@@ -106,3 +92,34 @@ dx -r1 @$process.Environment.EnvironmentBlock.Ldr->InMemoryOrderModuleList.Flink
 | [bp, bu, bm (Set Breakpoint)](https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/bp--bu--bm--set-breakpoint-) |
 | [bl (Breakpoint List)](https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/bl--breakpoint-list-) |
 | [g (Go)](https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/g--go-) |
+
+
+### Userland process crashdump / dump analysis
+
+| Command | Description |
+|---------|-------------|
+| `!analyze -v` | Provides an overview of the dump: process name, error code, stack trace, etc. <br><br> More useful for crashdump, limited use for voluntarily taken process dump. |
+| `!peb` | Parses the `Process Environment Block (PEB)` of the process, notably retrieving: the process image file and command line, current directory, loaded `DLLs`, windows title, environment variables. |
+| `lm f` | Lists the loaded `DLLs`, with the possibility to click on any `DLL` to retrieve more information on a specific `DLL`: size, file / product version, metadata, etc. |
+| `lmDv` | Prints verbose information (as mentioned on `lm f`) for all loaded `DLLs`. |
+| `!address` | Lists the address pages and associated information: <br> - Page type (`MEM_IMAGE`, `MEM_MAPPED`, `MEM_PRIVATE`) <br> - Page state (`MEM_COMMIT`, `MEM_RESERVE`, `MEM_FREE`) <br> - Page protection (`PAGE_READWRITE`, `PAGE_EXECUTE_READ`, `PAGE_EXECUTE_READWRITE`, etc.) <br> - Eventual associated file on disk <br><br> Can be useful to detect a number of suspicious indicators / anomalies: <br> - In memory `PE` (`MZ` header) not backed by an on-disk file. <br> - Suspicious `PAGE_EXECUTE_READWRITE` protection. <br> - Modification of modules usually patched to bypass security mechanism (such as the patching of the `amsi.dll` to bypass `AMSI`). Indeed a modification of a module memory will result in the page to change from `MEM_IMAGE` to `MEM_PRIVATE`. |
+| `!address -f:<FILTER>` <br><br> Examples: <br><br> `!address -f:PAGE_EXECUTE_READWRITE` <br><br> `!address -f:MEM_PRIVATE,MEM_COMMIT` | Filters memory pages based on the specified filter. <br><br> All filters in the list are AND-combined. |
+
+--------------------------------------------------------------------------------
+
+### References
+
+  - Microsoft Windows Debugging Tools official documentation
+
+    https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/
+
+  - "Modern Debugging with WinDbg Preview" DEFCON 27 workshop by hugsy and
+    0vercl0k"
+
+    https://github.com/hugsy/defcon_27_windbg_workshop
+
+  - "WinDbg — the Fun Way: Part 1 / 2" by Yarden Shafir
+
+    https://medium.com/@yardenshafir2/windbg-the-fun-way-part-1-2e4978791f9b
+
+    https://medium.com/@yardenshafir2/windbg-the-fun-way-part-2-7a904cba5435

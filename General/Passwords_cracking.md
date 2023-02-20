@@ -57,11 +57,27 @@ GitHub documentation: `https://github.com/hashcat/kwprocessor`
 # -s: include characters reachable by holding Shift. Default to false.
 # -a: include characters reachable by holding AltGr. Default to false.
 # -n: minimum allowed distance between keys. Default to 1.
-# -x: maximum allowed distance between keys. Default to 1.    
+# -x: maximum allowed distance between keys. Default to 1.
 # --keywalk-all: enable all --keywalk-* directions (keywalk-north, keywalk-south, keywalk-west, keywalk-east, keywalk-north-west, keywalk-north-east, keywalk-south-west, keywalk-south-east and keywalk-repeat).
 # Default keywalk routes are the cardinal geographic directions: north, south, west and east, with out repetition.
 
 kwp -s 1 -a 1 ./basechars/full.base <KEYBOARD_LAYOUT_FILE> <ROUTES> > <OUTPUT_FILE>
+```
+
+### Python EXREX
+
+The Python `EXREX` module can be used to generate wordlists from the
+specified regular expression.
+
+```
+# pip install exrex
+
+import exrex
+
+# Example regex to generate variation around the password keyword:
+# ((p|P)(a|A|@)(s|S|\$){2}(w|W)(o|O|0)(r|R)(d|D)\d{0,3}!{0,3})
+
+print '\n'.join(exrex.generate('<REGEXW'))
 ```
 
 ### Hash types

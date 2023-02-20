@@ -1,4 +1,4 @@
-# DFIR - Common - Splunk
+# DFIR - Tools - Splunk
 
 ### Quick deployment with Splunk docker container
 
@@ -24,13 +24,14 @@ docker run -p [<IP>:]8000:8000 -p [<IP>:]8088:8088 -e "SPLUNK_PASSWORD=<PASSWORD
 | `\| eventcount [index=<* \| INDEX>]` | Returns the number of events in the specified indexes. | |
 | `fields [+\|-] <FIELD>` <br><br> `fields <FIELD1> <FIELDN>` | Keeps or removes the specified fields. <br><br> Default to keeping fields (`+`). | |
 | `rare [limit=<INT>] <FIELD>` <br><br> `rare <FIELD1> <FIELDN>` <br><br> `rare <FIELD> by <FIELD_GROUP_BY> [<FIELD_GROUP_BYN>]` | Displays the least common value of the specified field or the least common combination of values of the specified fields. <br><br> With the `group by` close, rare field(s) for each field(s) in the given grouped by fields are returned. | `... \| rare Process_Command_Line` <br> Returns the rare `Process_Command_Line` fields. <br><br> `... \| rare Process_Command_Line Account_Name` <br> Returns the rare combination of `Process_Command_Line` and `Account_Name` fields. <br><br> `... \| rare Process_Command_Line by Account_Name` <br> Returns the rare `Process_Command_Line` fields for each different `Account_Name`. |
-| `rename <FIELD_NAME> AS <NEW_FIELD_NAME>` | Rename the specified field. <br><br> Can be used in a nested `search` query to rename the pivoting field. | Rename `FIELD` to `NEW_FIELD` to filter on `NEW_FIELD=FIELD_VALUE` in the main search: <br> `index=* [search index=* \| dedup FIELD \| rename FIELD AS NEW_FIELD`] <br><br> Rename `FIELD` to the `search` keyword to use `FIELD_VALUE` as a plain text filter in the main search: <br> `index=* [search index=* \| dedup FIELD \| rename FIELD AS search`] |
-| `reverse` | Reverse the order in which events are displayed (more recent to oldest by default). | |
-| `sort [limit=<LIMIT_INT>] [+ \| -] <FIELD>` <br><br> `sort [+ \| -] <FIELD1> <FIELDN>` | Sort results by the specified field(s). The top 10 000 events are returned by default. <br><br> The `+` (default) and `-` sign can be used to sort respectively by ascending or descending order. <br><br> Cast functions (`nums`, `str`, etc.) can be applied to each fields if necessary. | `... \| sort -num(size)` <br> Sorts results by size in descending order. |
-| `stats count by <FIELD>` <br><br> `stats count by <FIELD1> <FIELDN>` | Count the number of events by field or for a combination of the specified fields. | |
-| `where <CONDITION>` | Filter results based on the specified condition(s) |
+| `rename <FIELD_NAME> AS <NEW_FIELD_NAME>` | Renames the specified field. <br><br> Can be used in a nested `search` query to rename the pivoting field. | Rename `FIELD` to `NEW_FIELD` to filter on `NEW_FIELD=FIELD_VALUE` in the main search: <br> `index=* [search index=* \| dedup FIELD \| rename FIELD AS NEW_FIELD`] <br><br> Rename `FIELD` to the `search` keyword to use `FIELD_VALUE` as a plain text filter in the main search: <br> `index=* [search index=* \| dedup FIELD \| rename FIELD AS search`] |
+| `reverse` | Reverses the order in which events are displayed (more recent to oldest by default). | |
+| `sort [limit=<LIMIT_INT>] [+ \| -] <FIELD>` <br><br> `sort [+ \| -] <FIELD1> <FIELDN>` | Sorts results by the specified field(s). The top 10 000 events are returned by default. <br><br> The `+` (default) and `-` sign can be used to sort respectively by ascending or descending order. <br><br> Cast functions (`nums`, `str`, etc.) can be applied to each fields if necessary. | `... \| sort -num(size)` <br> Sorts results by size in descending order. |
+| `stats count by <FIELD>` <br><br> `stats count by <FIELD1> <FIELDN>` | Counts the number of events by field or for a combination of the specified fields. | |
+| `where <CONDITION>` | Filters results based on the specified condition(s) |
 | `<SELECTION> \| stats earliest(_time) AS Earliest, latest(_time) AS Latest \| convert ctime(Earliest) ctime(Latest)` | Displays the timestamps of first and last events from the selection |
-| `eval <NEW_FIELD>=mvindex(<FIELD>,<0 \| INDEX_START>,<0 \| INDEX_END>)` | Extract a subset - `INDEX_START` to `INDEX_END` - from the multivalue field `<FIELD>` into `NEW_FIELD` |
+| `eval match=if(match(<FIELD_1>,<FIELD_2>), 1, 0) \| search match=<0 \| 1>` | Filters events if `FIELD_1` and `FIELD_2` match (`match=1`) / do not match (`match=0`). |
+| `eval <NEW_FIELD>=mvindex(<FIELD>,<0 \| INDEX_START>,<0 \| INDEX_END>)` | Extracts a subset - `INDEX_START` to `INDEX_END` - from the multivalue field `<FIELD>` into `NEW_FIELD` |
 | `iplocation allfields=true <FIELD>` | Extracts location information (city, country, continent, ...) for the IP address <FIELD> by using a local copy of the `ip-to-city-lite.mmdb` IP geolocation database file |
 
 ###### Example / useful search queries
