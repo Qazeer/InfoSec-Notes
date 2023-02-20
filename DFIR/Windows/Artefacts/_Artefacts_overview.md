@@ -127,6 +127,14 @@ The [SANS institute "Windows Third-Party Apps Forensics" poster](https://www.san
 can be consulted for a list of artefacts from a number of popular Windows
 third-party applications.
 
+### Others
+
+| Name | Type | Description | Information / interpretation | Location | Tool(s) |
+|------|------|-------------|------------------------------|----------|---------|
+| `EVTX` <br> - <br> `Microsoft-Windows-VHDMP-Operational.evtx` <br> - <br> `ISO` mounting events | Phishing / malware execution | `ISO` image can be leveraged in phishing scenarios where the loader is packed in an `ISO` file to avoid the `Mark-of-the-Web` (on unpatched system). | Upon the mouting of an `ISO` image, the following events, containing the full path to the `ISO` and the responsible user, will be generated: <br><br> - Event `22`: `Starting to create the handle for the file backing virtual disk <ISO_PATH>` <br><br> - Event `23`: `Handle for the file backing virtual disk <ISO_PATH> created successfully` <br><br> - Event `12`: `Handle for virtual disk <ISO_PATH> created successfully [...]` <br><br> - Event `25`: `Beginning to bring the <ISO_PATH> online (surface)` | `Microsoft-Windows-VHDMP-Operational.evtx` | |
+| `EVTX` <br> - <br> `Application.evtx` <br> - <br> `ESENT` events | AD post exploitation | Active Directory `ntds.dit` dump with `ntdsutil`. | Upon execution of the `ntdsutil` command to dump the Active Directory `ntds.dit` database, the following events (containing the `ntds` keyword) will be generated: <br><br> - Event `325`: `The database engine created a new database [...]` <br><br> - Event `326`: `The database engine attached a database [...]` <br><br> - Event `327`: `The database engine detached a database [...]` <br><br> - Event `206`: `A database location change was detected [...]` | `Application.evtx` | |
+| `EVTX` <br> - <br> `Security.evtx` <br> - <br> `DRSUAPI` replication | AD post exploitation | Active Directory `ntds.dit` dump through `DRSUAPI` replication functions (`DCSync`). | Upon replication operations, such as the retrieval of Active Directory secrets (`DCSync` attack), the following events will be generated *if the operation was not conducted under a `Domain Controller` identity*: <br><br> - Event `4662`: `An operation was performed on an object` with the `Property` attribute egal to the `1131f6aa-9c07-11d1-f79f-00c04fc2dcd2` or `1131f6ad-9c07-11d1-f79f-00c04fc2dcd2` `GUID`. | `Security.evtx` | |
+
 ### TODO
 
 - Add tools
@@ -136,8 +144,6 @@ third-party applications.
 - IconCache.db
 
 - USB activity
-
-- Ntdsutil Application.evtx 216|325|326|327 https://docs.velociraptor.app/exchange/artifacts/pages/ntdsutil/
 
 - Hidden local account HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\SpecialAccounts\UserList
 
@@ -150,8 +156,6 @@ third-party applications.
 - Syscache hive
 
 - Small memory dumps: hiberfil.sys, pagefile.sys, swapfile.sys
-
-- ISO mounting EVTX
 
 - hiberfil.sys, pagefile.sys, swapfile.sys
 
@@ -196,3 +200,5 @@ https://www.istrosec.com/blog/windows-10-timeline/
 https://kacos2000.github.io/WindowsTimeline/WindowsTimeline.pdf
 
 https://bohops.com/2021/03/16/investigating-net-clr-usage-log-tampering-techniques-for-edr-evasion/
+
+https://www.youtube.com/watch?v=rioVumJB0Fo
