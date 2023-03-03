@@ -87,9 +87,11 @@ be enumerated.
 ```
 .\AD-timeline.ps1 -Server <GLOBAL_CATALOG_FQDN>
 
-# Offline mode, with the NTDS database being mounted using dsamain (requires ADLDS and RSAT to be installed)
+# Offline mode, with the NTDS database being mounted using dsamain (requires AD LDS and RSAT to be installed)
+# If it also necessary for the AD WS service to be running, which may not be the case by default.
 
 dsamain.exe -dbpath <NTDS_DIT_PATH> -ldapport 3266 -allownonadminaccess
+
 .\AD-timeline.ps1 -server "127.0.0.1:3266"
 ```
 
