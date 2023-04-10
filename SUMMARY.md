@@ -113,7 +113,6 @@
     * [Timestamps](DFIR/Windows/Artefacts/Timestamps.md)
     * [User Access Logging (UAL)](DFIR/Windows/Artefacts/User_Access_Logging.md)
     * [UsnJrnl](DFIR/Windows/Artefacts/UsnJrnl.md)
-    * [User Access Logging](DFIR/Windows/Artefacts/User_Access_Logging.md)
     * [Miscellaneous](DFIR/Windows/Artefacts/MISC.md)
   * [TTPs analysis](DFIR/Windows/TTPs_Analysis/README.md)
     * [Accounts usage](DFIR/Windows/TTPs_Analysis/Accounts_usage.md)
@@ -136,6 +135,8 @@
 * [Tools](DFIR/Tools/README.md)
   * [Velociraptor](DFIR/Tools/Velociraptor.md)
   * [KAPE](DFIR/Tools/KAPE.md)
+  * [Dissect](DFIR/Tools/Dissect.md)
+  * [plaso](DFIR/Tools/plaso.md)
   * [Splunk usage](DFIR/Tools/Splunk.md)
 
 ## Red Team specifics

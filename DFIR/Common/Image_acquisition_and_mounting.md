@@ -223,7 +223,10 @@ pvs
 # Checks the LVM's VG(s) and LV(s) available.
 lvdisplay
 
-# Mounts the specificed LV.
+# If the LV does not appear, the associated VG may need to be activated.
+vgchange -ay <VG_NAME>
+
+# Mounts the specified LV.
 # LV path example: /dev/<VG_NAME>/<root | LV_NAME>
 mount -o ro,noatime,noexec,noload,norecovery <LV_PATH> <MOUNT_POINT>
 ```
