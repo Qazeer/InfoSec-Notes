@@ -128,4 +128,7 @@ target-query -s --json -f <FUNCTION> <TARGET>
 # Uses rdump to transform the records outputs as CSV or JSON.
 # --multi-timestamp: deduplicate a record if it contains multiple timestamps to create a timeline.
 target-query [--multi-timestamp] -f <FUNCTION> <TARGET> | rdump <--csv | --json | --jsonlines> [--fields <FIELDS_FOR_OUTPUT>]
+
+# Example Linux functions.
+target-query --multi-timestamp -f bashhistory,browser.history,capability_binaries,cronjobs,dpkg,audit,btmp,lastlog,messages,wtmp,services,ssh.authorized_keys,ssh.known_hosts,ssh.private_keys,suid <TARGET>
 ```
