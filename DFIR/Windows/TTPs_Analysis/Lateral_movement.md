@@ -24,7 +24,7 @@ presented below are associated with a given lateral movement technique.**
 | Artefact | Location | Conditions | Description | Information yield |
 |----------|----------|------------|-------------|-------------------|
 | EVTX | `Security.evtx` | Default configuration. <br><br> Only logged if `NLA` is enabled on the destination AND alternate credentials are used. | Event `4648: A logon was attempted using explicit credentials`. <br><br> Legacy: <br> Events `552: Logon attempt using explicit credentials`.  | Current logged-on user's domain and username. <br><br> Alternate user's domain and username. <br><br> Destination machine's hostname. The `Network Information` section only yields information about the client. |
-| EVTX | `Microsoft-WindowsTerminalServicesRDPClient%4Operational.evtx` | Default configuration. | Event `1024: RDP ClientActiveX is trying to connect to the server (<HOSTNAME>)`. <br><br> Event `1102: The client has initiated a multi-transport connection to the server <IP>.` | Current logged-on user's domain and username. <br><br> Event `1024`: destination machine's hostname. <br><br> Event `1102`: destination machine's IP. |
+| EVTX | `Microsoft-WindowsTerminalServicesRDPClient%4Operational.evtx` | Default configuration. | Event `1024: RDP ClientActiveX is trying to connect to the server (<HOSTNAME>)`. <br><br> Event `1102: The client has initiated a multi-transport connection to the server <IP>`. <br><br> Event `1029: Base64(SHA256(UserName)) is = <HASH>`. <br> [This `CyberChef` formula](https://gchq.github.io/CyberChef/#recipe=Decode_text('UTF-8%20(65001)')Encode_text('UTF-16LE%20(1200)')SHA2('256',64,160)From_Hex('Space')To_Base64('A-Za-z0-9%2B/%3D')&input=QWRtaW5pc3RyYXRvcg) can be used to compute the hash. | Current logged-on user's domain and username. <br><br> Event `1024`: destination machine's hostname. <br><br> Event `1102`: destination machine's IP. |
 | Registry | `C:\Users\<USERNAME>\NTUSER.DAT` <br> `NTUSER\Software\Microsoft\Terminal Server Client\Servers` | Default configuration. |
 | EVTX | `Security.evtx` | Requires `Audit process tracking` to be enabled. <br><br> For the process arguments to be logged, `Include command line in process creation events` must be enabled as well. | Event `4688: A new process has been created`. <br><br> `New Process Name`: `C:\Windows\System32\mstsc.exe`. | Current logged-on user's domain, username and `LogonID`. <br><br> Parent process. <br><br> If the destination machine is specified in the command line, and the command line logged, yields the destination machine's hostname / IP. |
 
@@ -122,13 +122,25 @@ WinRM Operational event log entries indicating authentication prior to PowerShel
 ### References
 
 https://dfironthemountain.wordpress.com/2019/02/15/rdp-event-log-dfir/
+
 https://digital-forensics.sans.org/media/SANS_Poster_2018_Hunt_Evil_FINAL.pdf
+
 https://jpcertcc.github.io/ToolAnalysisResultSheet/details/mstsc.htm
+
 https://nullsec.us/windows-rdp-related-event-logs-the-client-side-of-the-story/
+
 https://ponderthebits.com/2018/02/windows-rdp-related-event-logs-identification-tracking-and-investigation/
+
 https://purerds.org/remote-desktop-security/auditing-remote-desktop-services-logon-failures-1/
+
 https://repo.zenk-security.com/Forensic/A-forensic-analysis-of-apt-lateral-movement-in-windows-environment.pdf
+
 https://salt4n6.com/2019/09/22/event-id-1024/
+
 https://www.13cubed.com/downloads/rdp_flowchart.pdf
+
 https://www.andreafortuna.org/2020/06/04/windows-forensic-analysis-some-thoughts-on-rdp-related-event-ids/
+
 https://www.manageengine.com/products/active-directory-audit/kb/windows-security-log-event-id-X.html
+
+https://www.youtube.com/watch?v=qxPoKNmnuIQ
