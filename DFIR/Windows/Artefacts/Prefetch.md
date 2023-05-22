@@ -17,6 +17,13 @@ separate `Prefetch` files will be created for each different location.
 A `Prefetch` file can be created even if the executable did not successfully
 run.
 
+Whether the `Prefect` feature is enabled is configured by the
+`EnablePrefetcher` registry key:
+  - `0` / undefined: disabled (default on Windows Server Operating Systems).
+  - `0x1`: Partially enabled (application prefetching only).
+  - `0x2`: Partially enabled (boot prefetching only).
+  - `0x3`: Enabled (application and boot prefetching).
+
 ### Information of interest
 
 `Prefetch` files are not automatically deleted if the related executable is
@@ -25,15 +32,25 @@ deleted and can thus be a source of historical information. However, as the
 and 1024 entries starting from `Windows 8`, Prefetch files may be overwritten
 and information lost.
 
+The `Prefecth` filenames are based on the executed program name and a hash,
+computed using a proprietary algorithm and based on the full path (and
+for some binaries, such as `dllhost.exe` or `svchost.exe`, command line
+parameters) of the executed program.
+
 The `Prefecth` files can yield the following information of forensic interest:
-  - the file name and size of the binary executed
-  - the first and last eight executions timestamps
-  - run count (number of time the binary was executed)
-  - list of files and directories accessed during the first ten seconds of
+  - The file name and size of the binary executed.
+  - The first and, starting from Windows 8, last eight executions timestamps.
+  - The `Prefecth` file `NTFS` created and last modified timestamps also
+    indicate the first and last time the program was executed.
+  - Run count (number of time the binary was executed).
+  - List of files and directories accessed during the first ten seconds of
     execution (including the eventual `DLL` loaded).
     The full path to executable file can often be determined from the list of
     files accessed (duplicate possible if a given binary access another binary
     with the same name).
+
+Note that the `Prefecth` files can be easily deleted, potentially invalidating
+the trace of execution and timestamps (notably of first execution).
 
 *Prefecth files indirect information*
 
