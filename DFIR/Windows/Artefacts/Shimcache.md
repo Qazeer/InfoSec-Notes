@@ -13,7 +13,8 @@
   - `Windows XP 32-bit` <br>
     `HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\AppCompatibility\AppCompatCache`
 
-Yield information related to **programs execution**.
+Yield information related to **programs execution**, for Windows operating
+systems before the Windows 10 / Windows Server 2016 operating systems.
 
 The `Application Compatibility Cache`, also known as `Shimcache`, was
 introduced in `Windows XP` as part of the `Application Compatibility
@@ -37,7 +38,8 @@ A `Shimcache` entry is created whenever a program is executed from a specific
 path. However, starting from the `Windows Vista` and `Windows Server 2008`
 operating systems, entries may also be created for files in a directory that is
 accessed interactively. Indeed, browsing a directory using `explorer.exe` will
-generate `Shimcache` entries for the executables stored within the directory.
+generate `Shimcache` entries for the executables stored within the directory
+(if the executable was visible in the `Windows Explorer` windows).
 
 **`Shimcache` entries are only written to the registry upon shutdown of the
 system. The `Shimcache` entries generated since the last system boot are
@@ -45,24 +47,36 @@ thus only stored in memory.**
 
 While the `Shimcache` entry is not removed upon deletion of the associated
 file, `Shimcache` entries may be overwritten and information lost as the oldest
-entries are replaced by new data. A maximum of 512 `Shimcache` entries are
-stored in `Windows Server 2003` and up to 1024 entries starting can be stored
-starting from the `Windows Vista` and `Windows Server 2008` operating systems.
+entries are replaced by new data. A maximum of 96 `Shimcache` entries are
+stored in `Windows XP` / `Windows Server 2003` and up to 1024 entries starting
+can be stored starting from the `Windows Vista` and `Windows Server 2008`
+operating systems.
 
 ### Information of interest
 
 Each `Shimcache` entries contain the following information, varying depending
 on the version of the Windows operating system in use:
-  - The associated **file full path**.
 
-  - The **`LastModifiedTime` (`$Standard_Information`) timestamp** of the file,
-    which does not necessarily reflect the execution time.
+  - The associated **file full path**.
 
   - On `Windows 2003 and XP 64-bit` and older, **the file size**.
 
-  - Introduced in the `Windows Vista` and `Windows Server
-    2008`, **the (undocumented) `Process Execution Flag` flag** which seems to
-    indicate whether the entry was executed.
+  - The **`LastModifiedTime` (`$Standard_Information`) timestamp of the file**,
+    which **does not necessarily reflect the execution time**. Indeed,
+    `Shimcache` entries are not directly associated with an insert / executed
+    timestamp.
+
+  - The cache entry position, as a numerical value starting from 0, which
+    represents the insertion position in the `Shimcache`.
+    **The lower the value, the more recently the program was shimmed.**
+
+  - From `Windows Vista` / `Windows Server 2008` up to `Windows 8.1` /
+    `Windows Server 2012 R2`, the (undocumented) `Insert Flag` flag which, when
+    set, seems to indicate that the entry was executed. This flag is no
+    longer present starting from Windows 10 / Windows Server 2016, and thus a
+    `Shimcache` entry does not necessarily reflect an execution** (as entries
+    may also be created for files in a directory that is accessed
+    interactively).
 
   - On `Windows XP 32-bit`, the file `Last Update Time` timestamp.
 
