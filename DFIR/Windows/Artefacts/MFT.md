@@ -2,17 +2,21 @@
 
 ### Overview
 
-The `Master File Table (MFT)` is a main element of any `New Technology File
-System (NTFS)` partition with the MFT, filename `$MFT`, being the first file of
-the partition.
+The `Master File Table (MFT)`, filename `$MFT`, is the main element of any
+`New Technology File System (NTFS)` partition. The `Partition Boot Sector`
+`$Boot` metadata file, which starts at sector 0 and can be up to 16 sectors
+long, describes the basic `NTFS` volume information and indicates the location
+of the `$MFT`.
 
-The MFT contains an entry for all existing files written on the partition.
-Deleted files that were once written on the partition may also still have a
-record in the MFT.
+The `MFT` contains an entry for all existing files written on the partition.
+Deleted files that were once written on the partition may also (temporally)
+still have a record in the `MFT`.
 
-Each record entry in the MFT notably includes:
+Each record entry in the `MFT` notably includes:
   - The filename.
   - The file size.
+  - The file unique (under the `NTFS` volume) `Security ID` in the
+    `$STANDARD_INFORMATION` attribute.
   - The file creation, last modified, last accessed, and last changed `SI`
     timestamps in the `$STANDARD_INFORMATION` attribute.
   - The file creation, last modified, last accessed, and last changed `FN`
@@ -23,14 +27,45 @@ The `$MFT` file has both the `Hidden (H)` and `System (S)` attributes and will
 thus not be shown by the Windows Explorer application or the `dir` utility by
 default.
 
+###### $Secure
+
+The `$Secure` file contains the `security descriptor` for all the files and
+folders on a `NTFS` volume. The `security descriptors` are stored within the
+`$SDS` named data stream of the `$Secure` file. The `$Secure` file additionally
+defines two other named streams (`$SDH` and `$SII`) for lookup in the `$SDS`
+stream.
+
+Each file or folder is referenced in the `$Secure` file with its volume-unique
+`Security ID` and `security descriptor`. The `Security ID` of the file is
+referenced in the `MFT` file record associated with the file (in the
+`$STANDARD_INFORMATION` attribute). While no metadata information are present
+in the `$Secure` file (only the file's `security descriptor`), the file's
+`Security ID` can be used to map the file's information / data from the `MFT`
+to its `security descriptor` in the `$Secure` file.
+
+The `security descriptor` (`SECURITY_DESCRIPTOR` data structure) references:
+  - The owner of the file (as a pointer to a `SID` structure).
+  - The access rights to the file in the
+    `Discretionary Access Control List (DACL)` attribute.
+  - The audit rights that control how access is audited (which access will
+    generate events) in the `System Access Control List (SACL)` attribute.
+
+###### $LogFile
+
+The `$LogFile` is part of a journaling feature of `NTFS`, activated by default,
+which maintains a low-level record of changes made to the `NTFS` volume.
+Every disk operation is journalized prior to being committed. In case of
+failure, such as a crash during an update, the `$LogFile` can be used to revert
+disk operations. As low-level operations are journalized, the `$LogFile`
+contains very limited historical data, usually only of the last few hours at
+most.
+
 ###### $STANDARD_INFORMATION vs $FILE_NAME
 
 The `$STANDARD_INFORMATION` and `$FILE_NAME` attributes are updated
 differently for the same file action. The changes produced on the attributes
 for a file creation, access, modification, renaming, etc. can be found on the
-SANS `Windows Forensic Analysis` poster:
-
-`https://www.sans.org/security-resources/posters/windows-forensic-analysis/170/download`
+[SANS `Windows Forensic Analysis` poster](https://www.sans.org/security-resources/posters/windows-forensic-analysis/170/download).
 
 For more information on Windows timestamps, refer to the
 `[DFIR] Windows - Timestamps` note.
