@@ -38,8 +38,12 @@ from `$STANDARD_INFORMATION` (easily modifiable) are older than the `$FILENAME`
 timestamps (not (easily) modifiable), the file timestamps may have been
 timestomped.
 
-This detection method is however prone to false-positives as some applications
-or installers may modify the `$STANDARD_INFORMATION` timestamps.
+****However, as the `$FILENAME` `MAB` timestamps are updated / copied from the
+`$STANDARD_INFORMATION` `MAB` timestamps on file rename or volume-local file
+move, `$FILENAME` timestamps can also be (undirectly) tampered.**
+
+Additionally, This detection method is however prone to false-positives as some
+applications or installers may modify the `$STANDARD_INFORMATION` timestamps.
 
 `MFTECmd` can be used to parse the `MFT` of a `NTFS` volume and automatically
 highlight the files having `$STANDARD_INFORMATION` timestamps older than their

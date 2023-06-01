@@ -12,19 +12,26 @@ The impact of a number of operations on each timestamps for the
 `$STANDARD_INFORMATION` and `$FILENAME` attributes are detailed in the
 [SANS's `Windows Time Rules` poster](https://www.sans.org/security-resources/posters/windows-forensic-analysis/170/download).
 Globally, the following points should be noted:
+
   - `$FILENAME` `MACB` timestamps are updated on file creation / copy / volume
     move with the date of the operation itself but are not reliability updated
     on regular file operations (access, modification, rename, deletion).
+    **However as the `$FILENAME` `MAB` timestamps are updated / copied from the
+    `$STANDARD_INFORMATION` `MAB` timestamps on file rename or volume-local
+    file move, they are prone to false-negatives.** Indeed, by timestomping the
+    `$STANDARD_INFORMATION` timestamps then renaming or moving the file, the
+    `$FILENAME` timestamps will be indirectly timestomped as well.
 
   - On file copy (between two `NTFS` partitions): the `$STANDARD_INFORMATION`
     `MC` timestamps are inherited from the original file but the
     `$STANDARD_INFORMATION` `AB` timestamps (and the `$FILENAME` `MACB`
     timestamps) are the ones of the copy itself.
 
-  - On local file moves (on the same `NTFS` partition), only the
-    `$STANDARD_INFORMATION` `C` timestamp is updated. On file moves (between
-    `NTFS` partitions), the `$STANDARD_INFORMATION` `AC` timestamps are updated
-    (with the timestamp of the move).
+  - On local file moves (on the same `NTFS` partition), the
+    `$STANDARD_INFORMATION` `C` `$FILENAME` `C` timestamps are updated with the
+    timestamp of the move). On file moves (between `NTFS` partitions), the
+    `$STANDARD_INFORMATION` `AC` timestamps are updated, also with the
+    timestamp of the move.
 
   - The update of the `$STANDARD_INFORMATION` `A` timestamp is unreliable and
     depends on the value of the
