@@ -27,6 +27,12 @@ The `$MFT` file has both the `Hidden (H)` and `System (S)` attributes and will
 thus not be shown by the Windows Explorer application or the `dir` utility by
 default.
 
+###### $Bitmap
+
+The `$Bitmap` file tracks the allocation statut (allocated or unused) of the
+clusters of the volume. Each cluster is associated with a bit, set to `0x1` if
+the cluster is in use.
+
 ###### $Secure
 
 The `$Secure` file contains the `security descriptor` for all the files and
