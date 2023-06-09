@@ -10,18 +10,28 @@ of the `$MFT`.
 
 The `MFT` contains an entry for all existing files written on the partition.
 Deleted files that were once written on the partition may also (temporally)
-still have a record in the `MFT`.
+still have a `file record` in the `MFT`.
 
-Each record entry in the `MFT` notably includes:
+Each `file record` in the `MFT` notably includes:
   - The filename.
+
   - The file size.
+
   - The file unique (under the `NTFS` volume) `Security ID` in the
     `$STANDARD_INFORMATION` attribute.
+
   - The file creation, last modified, last accessed, and last changed `SI`
     timestamps in the `$STANDARD_INFORMATION` attribute.
+
   - The file creation, last modified, last accessed, and last changed `FN`
     timestamps in the `$FILE_NAME` attribute.
-  - The file access permissions.
+
+  - Whether the `file record` is in use. When a file is deleted from the
+    volume, its associated `MFT` `file record` is set as no longer in use, but
+    is not directly deleted during the file deletion process. Metadata
+    information, and content for `MFT` resident files, can thus be retrieved
+    for recently deleted files (as long as the `file record` is not overwritten
+    by a new entry).
 
 The `$MFT` file has both the `Hidden (H)` and `System (S)` attributes and will
 thus not be shown by the Windows Explorer application or the `dir` utility by
@@ -29,9 +39,14 @@ default.
 
 ###### $Bitmap
 
-The `$Bitmap` file tracks the allocation statut (allocated or unused) of the
+The `$Bitmap` file tracks the allocation status (allocated or unused) of the
 clusters of the volume. Each cluster is associated with a bit, set to `0x1` if
 the cluster is in use.
+
+Upon deletion of a non resident file, the `$Bitmap` file is updated to tag the
+cluster(s) associated with the file as free. The clusters are not overwritten
+during the deletion process, and the file data can thus be carved as long as
+the cluster(s) are not re-used.
 
 ###### $Secure
 
