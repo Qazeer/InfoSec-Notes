@@ -627,6 +627,15 @@ volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> sockets
 volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> sockscan
 ```
 
+The `vol2`'s `yarascan` and `vol3`'s `yarascan.YaraScan` plugins can be used to
+scan the memory image for `URLs`:
+
+```
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> yarascan -Y "http://"
+
+volatility3 -f <MEMORY_DUMP_FILE> yarascan.YaraScan --yara-rules="http://"
+```
+
 ###### In memory file objects enumeration and retrieval
 
 Files present in memory, i.e files currently loaded by processes, can be
@@ -701,11 +710,22 @@ volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> printkey
 
 # Search all the registry hives to print the specified key's subkey(s) and value(s).
 # Key example: ControlSet001\Services.
-vol.py -f memory.dmp --profile <MEMORY_DUMP_PROFILE> printkey -K '<KEY>'
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> printkey -K '<KEY>'
 
 # Print the key's subkey(s) and value(s) in the specified registry hives.
-vol.py -f memory.dmp --profile <MEMORY_DUMP_PROFILE> printkey --hive-offset <HIVE_VIRTUAL_OFFSET> -K '<KEY>'
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> printkey --hive-offset <HIVE_VIRTUAL_OFFSET> -K '<KEY>'
+```
 
+###### Strings identification
+
+The `vol2`'s `strings` and `vol3`'s `windows.strings.Strings` plugins can be
+used to determine to which process given strings belong to:
+
+```
+strings <MEMORY_DUMP_FILE> > <STRING_FILE>
+
+volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> strings --strings-file <STRING_FILE>
+volatility3 -f <MEMORY_DUMP_FILE> windows.strings.Strings --strings-file <STRING_FILE>
 ```
 
 ###### Malware finder
