@@ -243,6 +243,34 @@ ForEach ($MailBox in $MailBoxes) {
 }
 ```
 
+###### OAuth Permissions
+
+`OAuth` is a protocol to delegate access and grant third party websites or
+applications access to users data and perform operations on their behalf. With
+`OAuth`, users don't have to reveal their credentials to the third party
+service, as access is granted through the `Identity Provider (IdP)`
+(`Azure AD` in `Azure` case). In an `OAuth` abuse attack, a victim authorizes
+a malicious third-party application to access their account data.
+
+Microsoft Graph supports two access types, delegated permissions and
+application permissions. With delegated permissions, the application calls
+Microsoft Graph on behalf of a signed-in user. With application permissions,
+the application calls Microsoft Graph with its own identity, without a signed
+in user.
+
+The delegated and application permissions available are referenced in the
+[Microsoft documentation](https://learn.microsoft.com/en-us/graph/permissions-reference).
+
+[`Microsoft-Extractor-Suite`](https://github.com/invictus-ir/Microsoft-Extractor-Suite)'s
+`Get-OAuthPermissions` PowerShell cmdlet can be used to enumerate delegated
+permissions (`OAuth2PermissionGrants`) and application permissions
+(`AppRoleAssignments`) for all accounts:
+
+
+```bash
+Get-OAuthPermissions
+```
+
 ### Azure AD, Office365, and Azure logs overview
 
 | Source | Description | History | Mechanism used |
@@ -298,6 +326,16 @@ Search-UnifiedAuditLog -ResultSize 5000 -RecordType <RECORD_TYPES>
 # Retrieves events for the specified operation(s).
 # Operation examples for the Exchange workload: "MailboxLogin","MailItemsAccessed","FolderBind","Send","SendAs","SendOnBehalf","Set-Mailbox","New-InboxRule","Set-InboxRule","UpdateInboxRules","New-TransportRule","Set-TransportRule","Remove-InboxRule","Disable-InboxRule","Add-MailboxPermission","AddFolderPermissions","Add-RecipientPermission","Remove-MailboxPermission","RemoveFolderPermissions","Remove-RecipientPermission","Set-OwaMailboxPolicy","MoveToDeletedItems","SoftDelete","HardDelete","Hard Delete user","Set-CASMailbox","SearchCreated","SearchExported"
 Search-UnifiedAuditLog -ResultSize 5000 -Operations <OPERATIONS>
+
+# Retrieves all Azure AD sign-in logs.
+Get-ADSignInLogs
+# Retrieves Azure AD sign-in logs before and / or after the specified date(s) (no timestamp support, date with day precision only).
+Get-ADSignInLogs -Before <YYYY-MM-DD> -After <YYYY-MM-DD>
+
+# Retrieves all Azure AD Audit logs.
+Get-ADAuditLogs
+# Retrieves Azure AD Audit logs before and / or after the specified date(s) (no timestamp support, date with day precision only).
+Get-ADAuditLogs -Before <YYYY-MM-DD> -After <YYYY-MM-DD>
 ```
 
 ###### [Azure AD, Office365, & Azure] Microsoft-Extractor-Suite
@@ -309,6 +347,10 @@ PowerShell module can be used to extract logs from Azure AD and Office365.
 # If necessary, installs the required PowerShell modules.
 Install-Module -Name ExchangeOnlineManagement
 Install-Module -Name AzureADPreview
+
+# The AzureADPreview module MUST be imported (in place of the AzureAD module), as Get-AzureADAuditSignInLogs is updated to allow the retrieval of all events (instead of 1.000 entries with the AzureAD version).
+Remove-Module -Name 'AzureAD' -Force
+Import-Module -Name 'AzureADPreview' -Force
 
 Import-Module .\Microsoft-Extractor-Suite.psd1
 
@@ -326,7 +368,14 @@ Get-UALStatistics -UserIds "<EMAIL>" -StartDate <YYYY-MM-DDT00:00:00Z> -EndDate 
 # By default retrieve data for the last 90 days for all users.
 Get-UALAll [-Output JSON]
 # For the specified user(s) and / or in the given timeframe.
-Get-UALAll [-Output JSON] -UserIds "<EMAIL>" -StartDate <YYYY-MM-DDT00:00:00Z> -EndDate <YYYY-MM-DDT00:00:00Z>
+Get-UALAll [-Output JSON] -UserIds "<EMAIL | EMAILS_LIST>" -StartDate <YYYY-MM-DDT00:00:00Z> -EndDate <YYYY-MM-DDT00:00:00Z>
+
+# Retrieves MailBox audit logs for the specified or all mailboxes.
+Get-MailboxAuditLog [-StartDate <YYYY-MM-DDT00:00:00Z>] [-EndDate <YYYY-MM-DDT00:00:00Z>]
+Get-MailboxAuditLog -UserIds "<EMAIL | EMAILS_LIST>"
+
+# Retrieves the Azure Active Directory sign-in log,
+Get-ADSignInLogs
 ```
 
 ###### [Azure AD, Office365, & Azure] DFIR-O365RC collector
