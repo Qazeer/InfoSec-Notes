@@ -120,11 +120,67 @@ sudo insmod lime.ko path=<OUTPUT_DUMP_LIME> format=<raw | lime>
 
 ###### RAM acquisition of Virtual machines
 
-*VMWare*
+Memory of virtual machines should be acquired directly through the hypervisor,
+to preserve the data, using snapshots.
 
-*Hyper-V*
+Detailed procedures for `VMWare ESXi`, `Microsoft HyperV`, `Proxmox VE`, and
+`KVM` are available on
+[Kaspersky forum post "How to get a memory dump of a virtual machine from its hypervisor"](https://forum.kaspersky.com/topic/how-to-get-a-memory-dump-of-a-virtual-machine-from-its-hypervisor-36407/).
 
-*Oracle VM VirtualBox*
+*VMWare ESXi*
+
+Memory of virtual machine should be captured through a snapshot and not by
+suspending the virtual machine (as suspending the machine does not preserve the
+network connections state). Snapshotting a VM will produce a `vmem` file and a
+`vmsn` file, which are both needed to conduct memory analysis. The `vmem` file
+contains the memory while the `vmsn` file contains information about the VM and
+the particular snapshot.
+
+Snapshot procedure:
+  1. Select the (running) virtual machine.
+  2. Actions -> Snapshots -> Take snapshot.
+  3. Specify the snapshot name and keep "Snapshot the virtual machine's memory"
+     checked.
+
+Then the `vmem` (`<VM_NAME>-Snapshot<NUMBER>.vmem`) and `vmsn`
+(`<VM_NAME>-Snapshot<NUMBER>.vmsn`) files can be downloaded from the datastore:
+  - Storage -> datastore -> Datastore browser -> `<DATASTORE>` -> `<VM>` folder
+ -> Download the `vmem` and `vmsn` files.
+
+*Microsoft Hyper-V*
+
+The [Sysinternals `LiveKd`](https://learn.microsoft.com/en-us/sysinternals/downloads/livekd)
+utility should be used to dump the memory of an HyperV virtual machine, as
+Hyper-V native checkpoints are not supported by all memory analysis tools (but
+are by `MemProcFS`).
+
+`LiveKD` requires the
+[`Debugging Tools for Windows`](https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/debugger-download-tools)
+to be installed on the local system.
+The installer can be retrieved at: https://go.microsoft.com/fwlink/?linkid=2237387
+and the `Debugging Tools` installed with:
+
+```bash
+winsdksetup.exe /features OptionId.WindowsDesktopDebuggers /q /norestart
+```
+
+The Microsoft's symbol server should also be configured on the host:
+
+```bash
+# Requires a new session opening to be effective.
+set _NT_SYMBOL_PATH "srv*c:\symbols*http://msdl.microsoft.com/download/symbols"
+```
+
+Before execution, the `LiveKD` should be copied to the `Debugging Tools`
+folder (by default `C:\Program Files (x86)\Windows Kits\10\Debuggers\x64`).
+
+```bash
+# Lists the VM running on the system.
+livekd.exe -hvl
+
+# Dump the specified VM memory to file.
+livekd.exe -hv "<VM_NAME>" -p -o "<DUMP_FILE_PATH>"
+```
 
 ### Volatility
 
@@ -879,3 +935,5 @@ https://github.com/volatilityfoundation/volatility/wiki/Command-Reference-Mal
 https://volatility3.readthedocs.io/en/develop/_modules/volatility3/plugins/windows/netstat.html
 
 http://redplait.blogspot.com/2016/06/tcpip-port-pools-in-fresh-windows-10.html
+
+https://forum.kaspersky.com/topic/how-to-get-a-memory-dump-of-a-virtual-machine-from-its-hypervisor-36407/
