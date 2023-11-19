@@ -326,16 +326,6 @@ Search-UnifiedAuditLog -ResultSize 5000 -RecordType <RECORD_TYPES>
 # Retrieves events for the specified operation(s).
 # Operation examples for the Exchange workload: "MailboxLogin","MailItemsAccessed","FolderBind","Send","SendAs","SendOnBehalf","Set-Mailbox","New-InboxRule","Set-InboxRule","UpdateInboxRules","New-TransportRule","Set-TransportRule","Remove-InboxRule","Disable-InboxRule","Add-MailboxPermission","AddFolderPermissions","Add-RecipientPermission","Remove-MailboxPermission","RemoveFolderPermissions","Remove-RecipientPermission","Set-OwaMailboxPolicy","MoveToDeletedItems","SoftDelete","HardDelete","Hard Delete user","Set-CASMailbox","SearchCreated","SearchExported"
 Search-UnifiedAuditLog -ResultSize 5000 -Operations <OPERATIONS>
-
-# Retrieves all Azure AD sign-in logs.
-Get-ADSignInLogs
-# Retrieves Azure AD sign-in logs before and / or after the specified date(s) (no timestamp support, date with day precision only).
-Get-ADSignInLogs -Before <YYYY-MM-DD> -After <YYYY-MM-DD>
-
-# Retrieves all Azure AD Audit logs.
-Get-ADAuditLogs
-# Retrieves Azure AD Audit logs before and / or after the specified date(s) (no timestamp support, date with day precision only).
-Get-ADAuditLogs -Before <YYYY-MM-DD> -After <YYYY-MM-DD>
 ```
 
 ###### [Azure AD, Office365, & Azure] Microsoft-Extractor-Suite
@@ -374,8 +364,15 @@ Get-UALAll [-Output JSON] -UserIds "<EMAIL | EMAILS_LIST>" -StartDate <YYYY-MM-D
 Get-MailboxAuditLog [-StartDate <YYYY-MM-DDT00:00:00Z>] [-EndDate <YYYY-MM-DDT00:00:00Z>]
 Get-MailboxAuditLog -UserIds "<EMAIL | EMAILS_LIST>"
 
-# Retrieves the Azure Active Directory sign-in log,
+# Retrieves all Azure AD sign-in logs.
 Get-ADSignInLogs
+# Retrieves Azure AD sign-in logs before and / or after the specified date(s) (no timestamp support, date with day precision only).
+Get-ADSignInLogs -Before <YYYY-MM-DD> -After <YYYY-MM-DD>
+
+# Retrieves all Azure AD Audit logs.
+Get-ADAuditLogs
+# Retrieves Azure AD Audit logs before and / or after the specified date(s) (no timestamp support, date with day precision only).
+Get-ADAuditLogs -Before <YYYY-MM-DD> -After <YYYY-MM-DD>
 ```
 
 ###### [Azure AD, Office365, & Azure] DFIR-O365RC collector
