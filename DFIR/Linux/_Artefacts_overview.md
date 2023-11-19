@@ -85,7 +85,9 @@ find <DIRECTORY> -xdev -print0 | xargs -0 stat -c 'crtime="%w" crtime_epoch="%W"
 
 | Name | Type | Description | Information / interpretation | Location | Tool(s) |
 |------|------|-------------|------------------------------|----------|---------|
-| `at` jobs (`atd` daemon) | Persistence | Scheduled jobs that are configured using the `at` command-line utility to be run exactly one time. By default, any user can create `at` jobs. The jobs are executed as shell (bash, zsh, etc.) scripts. | Each `at` jobs is represented by a file, which contains metadata information as comments, the environment variables for the execution, and the configured shell script / commands. <br><br> The filename follows a specific format (`[a=]<JOB_NUMBER_5_CHAR><TIMESAMP_8_CHAR>`) and gives additional information about the job. The following information can be deduced from the file name and the file itself: <br> - File created or last modified timestamp => when the `at` job was created. <br> - Username, `uid`, and `gid` of the user that created the job as shell comments in the file. <br> - Filename first char: `a` => job is pending or `=` => job is running. <br> - Filename 5 next chars => job id. <br> - Filename 8 next (and last) chars => hex-encoded minutes since `epoch` timestamp. Can be converted to retrieve the `epoch` timestamp of execution by converting to decimal and multiplying by 60. | Configured `at` jobs locations, each files representing a single `at` job: <br> `/var/spool/at/` <br> `/var/spool/cron/atjobs/` <br><br> Configuration files that define the users that can or cannot create `at` jobs: <br> `/etc/at.allow` <br> `/etc/at.deny` <br><br> Output of currently running `at` jobs, saved as email text files: <br> `/var/spool/at/spool/` <br> `/var/spool/cron/atspool/` <br><br> Number of `at` jobs that have been created (already executed, executing, or scheduled): <br> `/var/spool/at/.SEQ` <br> `/var/spool/cron/atjobs/.SEQ` <br><br> Trace of previous `at` jobs execution can be found in: <br> - Session opening by the `atd` daemon events in `syslog` or `journal` logs. <br> - `at` jobs email sent events in local email logs. | |
+| `at` jobs (`atd` daemon) | Persistence | Scheduled jobs that are configured using the `at` command-line utility to be run exactly one time. The jobs are executed as shell (bash, zsh, etc.) scripts. <br><br> By default, any user can create `at` jobs.  | Each `at` jobs is represented by a file, which contains metadata information as comments, the environment variables for the execution, and the configured shell script / commands. <br><br> The filename follows a specific format (`[a=]<JOB_NUMBER_5_CHAR><TIMESAMP_8_CHAR>`) and gives additional information about the job. The following information can be deduced from the file name and the file itself: <br> - File created or last modified timestamp => when the `at` job was created. <br> - Username, `uid`, and `gid` of the user that created the job as shell comments in the file. <br> - Filename first char: `a` => job is pending or `=` => job is running. <br> - Filename 5 next chars => job id. <br> - Filename 8 next (and last) chars => hex-encoded minutes since `epoch` timestamp. Can be converted to retrieve the `epoch` timestamp of execution by converting to decimal and multiplying by 60. | Configured `at` jobs locations, each files representing a single `at` job: <br> `/var/spool/at/` <br> `/var/spool/cron/atjobs/` <br><br> Configuration files that define the users that can or cannot create `at` jobs: <br> `/etc/at.allow` <br> `/etc/at.deny` <br><br> Output of currently running `at` jobs, saved as email text files: <br> `/var/spool/at/spool/` <br> `/var/spool/cron/atspool/` <br><br> Number of `at` jobs that have been created (already executed, executing, or scheduled): <br> `/var/spool/at/.SEQ` <br> `/var/spool/cron/atjobs/.SEQ` <br><br> Trace of previous `at` jobs execution can be found in: <br> - Session opening by the `atd` daemon events in `syslog` or `journal` logs. <br> - `at` jobs email sent events in local email logs. | |
+| `cron` jobs (`cron` daemon) | Persistence | Scheduled jobs that, unlike `at` jobs, are executed repeatedly at a given frequency. `cron` jobs are executed at a pre-determined time (such as five minutes after midnight every day or at 2:15pm on the first of every month). The jobs are executed as shell (bash, zsh, etc.) scripts. <br><br> If the system is not running when a `cron` job is planned, the job will not be executed following the system boot. <br><br> By default, only root can define system-wide `cron` jobs (in `/etc/crontab` or under `/etc/cron.d`). But users can be allowed to use the `crontab` command, and will have their respective jobs created in the `/var/spool/cron/crontabs/<USERNAME>` file. <br><br> Usage rights of `cron` are defined by the `/etc/cron.allow` and `/etc/cron.deny` files: <br> - If `cron.allow` exists, only root and users listed in this file can use `cron` (and `cron.deny` is ignored). <br> - If only `cron.deny` exists, all users except the ones listed in this file can use `cron`. <br> - If neither of the files exist, only root can use cron (default state). | Each `cron` job is represented by a line in a `crontab` file. <br><br> The line format is a follow: <br> `<MINUTE (0 - 59)> <HOUR (0 - 23)> <DAY (1 - 31)> <MONTH (1 - 12 / jan, feb, ...)> <DAY_WEEK (0 - 6 / mon, tue, ...)> <COMMAND>`. <br><br> The specifiers can be replaced by a wildcard `*`, that represents "all". For example, a line with only wildcards (`* * * * * <COMMAND>`) means that the command will be executed every minute of every hour of every day of every month. | System-wide `cron` jobs: <br> `/etc/crontab` file. <br> `crontab` files under `/etc/cron.d/`. <br><br> User specific `cron` jobs, with one `crontab` file per user (that has configured jobs): <br> `/var/spool/cron/crontabs/<USERNAME>`. <br><br> Usage rights of `cron`: <br> `/etc/cron.allow` <br> `/etc/cron.deny`| |
+| `anacron` jobs | Persistence | Scheduled jobs that are executed with a frequency specified in days or in a time interval (daily, weekly, monthly, or annually). Unlike `cron` jobs, `anacron` jobs are executed after a system boot if the system was not running during the last scheduled execution. <br><br> Depending on the Linux distribution, `anacron` itself may be run as a `systemd` timer (`/lib/systemd/system/anacron.timer`), a system cron job (`/etc/cron.d/anacron`), and / or at boot (`/etc/init.d/anacron`). <br><br> By default, `cron` "dot" directories (`/etc/cron.{daily,weekly,monthly}`) are often run by `anacron`. | Each `anacron` job is represented by a line in an `anacrontab` file. <br><br> The line format is a follow: `<PERIOD_IN_DAYS> <DELAY_IN_MINUTES> <JOB_IDENTIFIER_STRING> <COMMAND>` | System-wide `anacron` jobs: `/etc/anacrontab` <br><br> `cron` "dot" directories, that contain shell scripts directly: <br> `/etc/cron.daily/` <br> `/etc/cron.hourly/` <br> `/etc/cron.monthly/` <br> `/etc/cron.weekly/` | |
 | `Run Control (RC)` scripts | Persistence | Deprecated mechanism, in favor of `Systemd` / `init.d`, to define and start services as shell scripts at the system startup. <br><br> Scripts are configured to be executed at different run levels, from `0` (stop) to `6` (reboot) through `1` (maintenance mode) and `2-5` (multi-users mode, such as desktop startup, etc.). | | `RC` scripts locations: <br> `/etc/rc.local` <br><br> `/etc/rc.common` <br><br> `/etc/rc<0-6>.d/*` <br> `/etc/rcS.d/*` | |
 | Shell initialization scripts | Persistence | System-wide or user scoped scripts that are executed by shells during their different stages of their initialization. | | User scoped initialization script: <br> `<USER_HOME_DIR>/.profile` <br> `<USER_HOME_DIR>/.bash_profile` <br> `<USER_HOME_DIR>/.zprofile` <br> `<USER_HOME_DIR>/.bash_login` <br> `<USER_HOME_DIR>/.zlogin` <br><br> System-wide initialization scripts: <br> `/etc/profile` <br> `/etc/profile.d/*` <br> `/etc/skel/.profile` (Not used if `<USER_HOME_DIR>/.bash_profile` or `<USER_HOME_DIR>/.bash_login` exist). <br><br> Executed if an interactive shell is opened: <br> `<USER_HOME_DIR>/.bashrc` <br> `<USER_HOME_DIR>/.zshrc` <br><br> Executed at the end of the session: <br> `<USER_HOME_DIR>/.bash_logout` <br> `/etc/zlogout` <br> `<USER_HOME_DIR>/.zlogout` | |
 | `SSH` authorization keys | Persistence | Specifies the `SSH` keys that can be used for logging into the user account for which the file is configured, thus allowing permanent access as that user. | | Configuration of the `SSH` authorization keys: <br> `/etc/ssh/sshd_config` `AuthorizedKeysFile`directive. <br><br> Default `SSH` authorization keys location: <br> `<USER_HOME_DIR>/.ssh/authorized_keys` <br> `<USER_HOME_DIR>/.ssh/authorized_keys2` | |
@@ -105,36 +107,6 @@ find <DIRECTORY> -xdev -print0 | xargs -0 stat -c 'crtime="%w" crtime_epoch="%W"
 | `Apache` webserver logs | Web servers logs | Logs of the `Apache` webserver. | | Debian / Ubuntu: <br> ` /var/log/apache2/access.log` <br> `/var/log/apache2/error.log` <br><br> RHEL / Red Hat / CentOS / Fedora : <br> `/var/log/httpd/access_log` <br> `/var/log/httpd/error_log` <br><br> FreeBSD: <br> `/var/log/httpd-access.log` <br> `/var/log/httpd-error.log` <br><br> Custom definition for access (`CustomLog ` section) or error (`ErrorLog` section) logs: <br> `/etc/httpd/conf/httpd.conf` <br> `/etc/apache2/apache2.conf` <br> `/usr/local/etc/apache22/httpd.conf` | |
 
 ### TODO
-
----
-
-cron / anacron jobs
-
-The cron and anacron programs allow you to schedule the execution of tasks. Unlike at, they allow you to create tasks that are executed repeatedly at a given frequency. There are two differences between cron and anacron:
-
-If the system is not running when a cron job is planned, it is not executed until the next planned execution whereas missed anacron jobs are run as soon as the system boots;
-Anacron jobs cannot be run more than once a day.
-
-Only root can modify /etc/crontab or add files to /etc/cron.d. But, if some users are allowed to use the crontab command, their cron jobs are added to /var/spool/cron. Usage rights of cron are defined by /etc/cron.allow and /etc/cron.deny files. There are three possible cases:
-
-If cron.allow exists, only root and users listed in this file can use cron. cron.deny is ignored;
-If only cron.deny exists, all users except ones listed in this file can use cron;
-If none of these files exists, only root can use cron.
-
-/etc/crontab
-/etc/anacrontab
-
-/etc/cron.d/
-/etc/cron.daily/
-/etc/cron.hourly/
-/etc/cron.monthly/
-/etc/cron.weekly/
-/var/spool/cron/<USERNAME>/
-
-/etc/cron.allow
-/etc/cron.deny
-
-Logs in:
 
 ---
 
@@ -290,3 +262,13 @@ https://en.wikipedia.org/wiki/Utmp
 https://pberba.github.io/security/2022/02/06/linux-threat-hunting-for-persistence-initialization-scripts-and-shell-configuration/
 
 https://attack.mitre.org/techniques/T1547/013/
+
+https://unix.stackexchange.com/questions/411051/how-does-anacron-work-if-its-not-a-daemon
+
+https://linux.die.net/man/8/cron
+
+https://linux.die.net/man/5/crontab
+
+https://linux.die.net/man/8/anacron
+
+https://linux.die.net/man/5/anacrontab
