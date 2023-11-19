@@ -16,6 +16,11 @@ Yield information related to the system usage, including **programs execution**
 and **executed programs' network usage**. **Historical data only for the
 last 30 to 60 days** is stored in the `SRUM` database.
 
+Entries are not associated with their timestamp of occurrence but with the
+timestamp of insertion in the `SRUM` database. As entries are only written to
+the `SRUM` database every hour, timestamps are thus precise to the hour (with
+multiple entries usually sharing the same insertion timestamp).
+
 The `System Resource Usage Monitor (SRUM)` is a feature that records numerous
 metrics of system activities. Among the various information stored, the
 following two tables hold the most commonly valuable data for forensics
