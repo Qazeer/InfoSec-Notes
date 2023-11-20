@@ -29,7 +29,7 @@ docker run -p [<IP>:]8000:8000 -p [<IP>:]8088:8088 -e "SPLUNK_PASSWORD=<PASSWORD
 | `reverse` | Reverses the order in which events are displayed (more recent to oldest by default). | |
 | `sort [limit=<LIMIT_INT>] [+ \| -] <FIELD>` <br><br> `sort [+ \| -] <FIELD1> <FIELDN>` | Sorts results by the specified field(s). The top 10 000 events are returned by default. <br><br> The `+` (default) and `-` sign can be used to sort respectively by ascending or descending order. <br><br> Cast functions (`nums`, `str`, etc.) can be applied to each fields if necessary. | `... \| sort -num(size)` <br> Sorts results by size in descending order. |
 | `stats count by <FIELD>` <br><br> `stats count by <FIELD1> <FIELDN>` | Counts the number of events by field or for a combination of the specified fields. | |
-| `timeformat="%Y-%m-%d %H:%M:%S" earliest="<YY-MM-DD HH:MM:SS>" latest="<YY-MM-DD HH:MM:SS>"`| Filters results in the specified timeframe (with `earliest` and / or `latest`). | `timeformat="%Y-%m-%d %H:%M:%S" earliest="2023-01-13 11:12:13" latest="2023-02-01 21:00:00"` |
+| `timeformat="%Y-%m-%d %H:%M:%S" earliest="<YYYY-MM-DD HH:MM:SS>" latest="<YYYY-MM-DD HH:MM:SS>"`| Filters results in the specified timeframe (with `earliest` and / or `latest`). | `timeformat="%Y-%m-%d %H:%M:%S" earliest="2023-01-13 11:12:13" latest="2023-02-01 21:00:00"` |
 | `where <CONDITION>` | Filters results based on the specified condition(s) |
 | `<SELECTION> \| stats earliest(_time) AS Earliest, latest(_time) AS Latest \| convert ctime(Earliest) ctime(Latest)` | Displays the timestamps of first and last events from the selection |
 | `eval match=if(match(<FIELD_1>,<FIELD_2>), 1, 0) \| search match=<0 \| 1>` | Filters events if `FIELD_1` and `FIELD_2` match (`match=1`) / do not match (`match=0`). |
@@ -58,8 +58,8 @@ index=* [...]
 | eventstats sum(rcvd) as total_rcvd by user,src,dst,dstname,dstport
 | stats earliest(_time) AS earliest, latest(_time) AS latest by user,src,dst,dstname,dstport,total_sent,total_rcvd
 | sort earliest
-| eval earliest = strftime(earliest, "%y-%m-%d %H:%M:%S")
-| eval latest = strftime(latest, "%y-%m-%d %H:%M:%S")
+| eval earliest = strftime(earliest, "%Y-%m-%d %H:%M:%S")
+| eval latest = strftime(latest, "%Y-%m-%d %H:%M:%S")
 | eval message="First access to " + dstname + " (IP: " + dst + ") from " + src + " for user " + user + ".-newline-Last access: " + latest + ".-newline-Total bytes sent: " + total_sent + " and received: " + total_rcvd + "."
 | rex mode=sed field=message "s/-newline-/\n/g"
 | table earliest,latest,user,src,dst,dstname,dstport,total_sent,total_rcvd
