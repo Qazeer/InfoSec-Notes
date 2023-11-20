@@ -77,7 +77,7 @@ import exrex
 # Example regex to generate variation around the password keyword:
 # ((p|P)(a|A|@)(s|S|\$){2}(w|W)(o|O|0)(r|R)(d|D)\d{0,3}!{0,3})
 
-print '\n'.join(exrex.generate('<REGEXW'))
+print '\n'.join(exrex.generate('<REGEX>'))
 ```
 
 ### Hash types
@@ -154,8 +154,10 @@ complicated of all the passwords cracking attack modes. The rule-based attack
 is like a programming language designed for password candidate generation. It
 has functions to modify, cut or extend words and has conditional operators.
 
-The `OneRuleToRuleThemAll` rule aggregate multiples rule sets with the aim of
-maximizing efficiency (success rates versus number of total candidates).
+The [`OneRuleToRuleThemAll`](https://github.com/NotSoSecure/password_cracking_rules)
+or its newer version [`OneRuleToRuleThemStill`](https://github.com/stealthsploit/OneRuleToRuleThemStill)
+rule aggregate multiples rule sets with the aim of maximizing efficiency
+(success rates versus number of total candidates).
 
 The following attack modes can be used, specified by the `-a` / `--attack-mode`
 option:
