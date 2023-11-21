@@ -182,6 +182,41 @@ livekd.exe -hvl
 livekd.exe -hv "<VM_NAME>" -p -o "<DUMP_FILE_PATH>"
 ```
 
+### [Windows] Memory files
+
+###### pagefile.sys and swapfile.sys
+
+The `pagefile.sys` and `swapfile.sys` are files used by the Windows operating
+system for memory paging, i.e to store and retrieve memory pages from the main
+memory (RAM) to disk. It allows the system to extend the amount of total memory
+used. Less frequently used memory pages are swapped to disk and loaded back in
+the main memory on page fault events.
+
+`pagefile.sys` (`<SYSTEM_DRIVE>\pagefile.sys`) is the system-wide page file
+that stores memory pages from the whole main memory. `swapfile.sys`
+(`<SYSTEM_DRIVE>\swapfile.sys`) is used to suspend and restart
+`Universal Windows Plateform (UWP)` applications (usually from the
+`Windows Store`) and thus only stores memory pages from those applications.
+
+As `pagefile.sys` and `swapfile.sys` only store unstructured / unordered memory
+pages, the files can not be analyzed using memory tools such as `Volatility` or
+`MemProcFS`. The analysis of the `pagefile.sys` and `swapfile.sys` files is
+thus limited to carving and strings extraction. As memory pages are typically
+4KB	in size, only files of less than 4KB can be fully carved out. Note that
+scanning the `pagefile.sys` and `swapfile.sys` files for known malware
+indicators, with `yara` rules for example, may result in false-positives as
+such indicators may be incorporated in pages swapped from security products.
+
+Tools such as `strings` /
+[`bstrings`](https://f001.backblazeb2.com/file/EricZimmermanTools/net6/bstrings.zip)
+or [`bulk_extractor`](https://github.com/simsong/bulk_extractor) can be used to
+extract strings such as URL, IP addresses, email addresses, or files (for
+`bulk_extractor`).
+
+```bash
+bulk_extractor -o <OUTPUT_DIRECTORY> <FILE_TO_CARVE>
+```
+
 ### Volatility
 
 `Volatility` is a complete volatile memory analysis framework, composed of a
@@ -937,3 +972,7 @@ https://volatility3.readthedocs.io/en/develop/_modules/volatility3/plugins/windo
 http://redplait.blogspot.com/2016/06/tcpip-port-pools-in-fresh-windows-10.html
 
 https://forum.kaspersky.com/topic/how-to-get-a-memory-dump-of-a-virtual-machine-from-its-hypervisor-36407/
+
+https://openclassrooms.com/fr/courses/1750151-menez-une-investigation-d-incident-numerique-forensic/6473549-recuperez-les-informations-importantes-de-la-memoire-windows-pour-lanalyse
+
+https://www.forensicxlab.com/posts/hibernation/
