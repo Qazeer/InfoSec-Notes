@@ -207,6 +207,7 @@ scanning the `pagefile.sys` and `swapfile.sys` files for known malware
 indicators, with `yara` rules for example, may result in false-positives as
 such indicators may be incorporated in pages swapped from security products.
 
+Note that
 Tools such as `strings` /
 [`bstrings`](https://f001.backblazeb2.com/file/EricZimmermanTools/net6/bstrings.zip)
 or [`bulk_extractor`](https://github.com/simsong/bulk_extractor) can be used to
@@ -217,7 +218,78 @@ extract strings such as URL, IP addresses, email addresses, or files (for
 bulk_extractor -o <OUTPUT_DIRECTORY> <FILE_TO_CARVE>
 ```
 
-### Volatility
+###### hiberfil.sys
+
+The `hiberfil.sys` file is linked to the hibernation, hybrid sleep, and
+`Fast Boot` (Windows 8) / `Fast Startup` (Windows 10) features. Those features
+are mostly in use on Windows laptops / desktops and are generally not available
+by default on Windows virtual machines (and require the hibernation feature to
+be implemented at the hypervisor level).
+
+As the `hiberfil.sys` file is shared by three different (but similar) features,
+the file can be in different states:
+
+  - `Hybernation`: full main memory snapshot, user triggered hibernation.
+
+  - `Hybrid sleep`: full main memory snapshot,  combination of the sleep and
+    hibernation states. The main memory is written to the `hiberfil.sys` file,
+    then the system enters a sleep mode. If power is lost during sleep, the
+    system uses the `hiberfil.sys` file to boot and restore the system state.
+
+    Available since Windows Vista,
+    [`hybrid sleep` is on by default for desktop systems but off by default on laptops](https://devblogs.microsoft.com/oldnewthing/20110510-00/?p=10703)
+    and requires the support of hibernation (and is thus not generally
+    available on virtual machines).
+
+  - `Fast Boot` / `Fast Startup`: partial memory snapshot, that contains the
+    memory of the kernel and `session 0` processes (background system services
+    notably). `Fast startup` is a type of shutdown that uses a hibernation file
+    to speed up the subsequent boot, with user(s) being logged off before the
+    hibernation file is created. In this state, the `hiberfil.sys` file will
+    notably contain `MFT` file and INDX records, and registry hives
+    ([`SYSTEM` only after `Windows 10 Build 17134`](https://arsenalrecon.com/products/hibernation-recon/faqs)).
+
+    `Fast Boot` / `Fast Startup` is enabled by default, but requires support of
+    hibernation (and is thus not generally available on virtual machines).
+
+Note that the `hiberfil.sys` file is zeroed out after a system boot starting
+from Windows 8 / 8.1, and may also be zeroed out on system shutdown if the `ClearPageFileAtShutdown` registry setting is enabled (set to `0x1`). As such,
+the `hiberfil.sys` file must be retrieved from a powered off system.
+
+The structures of the `hiberfil.sys` file has evolved starting with Windows 8,
+with notable changes in the compression methods used. There is thus currently two possible formats:
+  - The "old" format, starting from Windows XP to Windows 7.
+  - The "new" format, starting from Windows 8 to Windows 11.
+
+Both formats can be processed with
+[Hibernation recon](https://arsenalrecon.com/downloads)
+and ([more recently](https://www.forensicxlab.com/posts/hibernation/))
+`volatility2` / `volatility3` to convert the hibernation file to a raw file.
+Once converted, the resulting image can be analyzed as a standard memory
+image (with potentially less information however) using tools such as
+`volatility` and `MemProcFS`.
+
+```bash
+# volatility2 for hibernation files in the old format.
+
+# Prints basic information about the hibernation file.
+volatility -f <HIBERNATION_FILE> --profile=<PROFIL> hibinfo
+
+# Converts the hibernation file to a raw file.
+volatility -f <HIBERNATION_FILE> --profile=<PROFIL> imagecopy -O <OUTPUT>
+
+# volatility3 for hibernation files in the new format.
+
+# Prints basic information about the hibernation file.
+volatility3 -f <HIBERNATION_FILE> windows.hibernation.Info
+
+# Converts the hibernation file to a raw file.
+# The version to specify depends on the Windows version targeted (Windows 8/8.1 to Windows 11 23H2).
+# Possible values can be checked using windows.hibernation.Dump -h.
+volatility3 -f <HIBERNATION_FILE> windows.hibernation.Dump --version <VERSION>
+```
+
+### Volatility (2 and 3)
 
 `Volatility` is a complete volatile memory analysis framework, composed of a
 number of different modules. `Volatility` is implemented in Python and is
@@ -281,6 +353,7 @@ a good first step.
 
 The general, context-independent, steps below can be followed for investigating
 the memory of a system:
+
   - Suspicious process hierarchy, such as `outlook.exe` or `iexplorer.exe`
     executing `cmd.exe` or `powershell.exe` process.
 
@@ -294,7 +367,7 @@ the memory of a system:
     - non-web ports connections established by web browsers.
     - connections to known malicious IP addresses.
 
-  - scan of memory for known pattern / strings using `Yara` rules
+  - Scan of memory for known pattern / strings using `Yara` rules.
 
   - ...
 
@@ -314,7 +387,7 @@ export VOLATILITY_PROFILE=<PROFILE>
 volatility <PLUGIN>
 ```
 
-### Volatility - Windows memory dump analysis
+#### [Volatility] Windows memory dump analysis
 
 ###### Windows plugins overview
 
@@ -866,7 +939,7 @@ volatility --plugins <VOLATILITY_AUTORUNS_FOLDER_PATH> -f <MEMORY_DUMP_FILE> --p
 volatility --plugins <VOLATILITY_AUTORUNS_FOLDER_PATH> -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> autoruns
 ```
 
-### Volatility - Linux memory dump analysis
+#### [Volatility] Linux memory dump analysis
 
 ###### Linux plugins overview
 
@@ -976,3 +1049,5 @@ https://forum.kaspersky.com/topic/how-to-get-a-memory-dump-of-a-virtual-machine-
 https://openclassrooms.com/fr/courses/1750151-menez-une-investigation-d-incident-numerique-forensic/6473549-recuperez-les-informations-importantes-de-la-memoire-windows-pour-lanalyse
 
 https://www.forensicxlab.com/posts/hibernation/
+
+https://arsenalrecon.com/products/hibernation-recon/faqs
