@@ -289,6 +289,34 @@ volatility3 -f <HIBERNATION_FILE> windows.hibernation.Info
 volatility3 -f <HIBERNATION_FILE> windows.hibernation.Dump --version <VERSION>
 ```
 
+###### General analysis steps
+
+The memory analysis of a compromised system is dependent of the investigations
+context. For example, if a workstation is suspected to have been compromised
+from a phishing attack, extracting the `.pst` / `.ost` files, associated with
+`Outlook`, using the `filescan` and `dumpfiles` modules, for analysis may be
+a good first step.
+
+The general, context-independent, steps below can be followed for investigating
+the memory of a system:
+
+  - Suspicious process hierarchy, such as `outlook.exe` or `iexplorer.exe`
+    executing `cmd.exe` or `powershell.exe` process.
+
+  - Identification of rogue / unlinked processes and process injection using
+    `malfind`
+
+  - Review of network connections and artifacts, looking notably for suspicious
+    pattern for example:
+    - network traffic for process that do not normally interact over the
+      network.
+    - non-web ports connections established by web browsers.
+    - connections to known malicious IP addresses.
+
+  - Scan of memory for known pattern / strings using `Yara` rules.
+
+  - ...
+
 ### Volatility (2 and 3)
 
 `Volatility` is a complete volatile memory analysis framework, composed of a
@@ -343,48 +371,41 @@ can be consulted:
 https://github.com/volatilityfoundation/volatility/wiki/Command-Reference
 ```
 
-###### Analysis steps
+######  Basic usage
 
-The memory analysis of a compromised system is dependent of the investigations
-context. For example, if a workstation is suspected to have been compromised
-from a phishing attack, extracting the `.pst` / `.ost` files, associated with
-`Outlook`, using the `filescan` and `dumpfiles` modules, for analysis may be
-a good first step.
+`Volatility` works using modules / plugins, executed individually.
 
-The general, context-independent, steps below can be followed for investigating
-the memory of a system:
-
-  - Suspicious process hierarchy, such as `outlook.exe` or `iexplorer.exe`
-    executing `cmd.exe` or `powershell.exe` process.
-
-  - Identification of rogue / unlinked processes and process injection using
-    `malfind`
-
-  - Review of network connections and artifacts, looking notably for suspicious
-    pattern for example:
-    - network traffic for process that do not normally interact over the
-      network.
-    - non-web ports connections established by web browsers.
-    - connections to known malicious IP addresses.
-
-  - Scan of memory for known pattern / strings using `Yara` rules.
-
-  - ...
-
-######  Usage
-
-`Volatility` works using modules / plugins, executed individually as follow:
+*Volatility2*
 
 ```bash
+# Volatility2.
+
 volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> <PLUGIN>
 
 # If a custom profile is needed, for example for Linux memory image analysis (collected as a ZIP file).
- python vol.py -f <MEMORY_DUMP_FILE> --plugins=<FOLDER_WITH_PROFILE.ZIP> --profile=<MEMORY_DUMP_PROFILE> <PLUGIN>
+volatility -f <MEMORY_DUMP_FILE> --plugins=<FOLDER_WITH_PROFILE.ZIP> --profile=<MEMORY_DUMP_PROFILE> <PLUGIN>
 
 # The Linux environments variables VOLATILITY_LOCATION and VOLATILITY_PROFILE may be used in place of command line options to specify the memory dump file path and the volatility profile to use
 export VOLATILITY_LOCATION=file://<MEMORY_DUMP_FILE_PATH>
 export VOLATILITY_PROFILE=<PROFILE>
 volatility <PLUGIN>
+```
+
+*Volatility3*
+
+The profile is no longer needed for `volatility3`, as offsets are retrieved
+using Windows public symbols (from Microsoft server, with the correct PDB
+determined directly from the memory image).
+
+For `volatility3`, in order to speed up subsequent executions, metadata
+information about the memory dump (such as the kernel offset) can be stored
+and used using the `--save-config <CONFIG_FILE>` and `-c <CONFIG_FILE>` options
+respectively.
+
+The `-r pretty` can be used to improve the output formatting.
+
+```
+volatility [--save-config <CONFIG_FILE> | -c <CONFIG_FILE>] -r pretty -f <MEMORY_DUMP_FILE> <PLUGIN>
 ```
 
 #### [Volatility] Windows memory dump analysis
