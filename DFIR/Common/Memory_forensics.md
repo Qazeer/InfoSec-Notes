@@ -542,12 +542,18 @@ threads, number of handles, and date/time when the process started and exited.
 Both `pslist` and `pstree` modules can not detect rogue unlinked processes.
 
 ```bash
+# Volatility2.
+
 volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> pslist
 
 volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> pstree
 
 # Graphical graph output format that can be opened using xdot
 volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> pstree --output=dot --output-file=<OUTPUT_DOT_FILE>
+
+# Volatility3.
+
+volatility3 [-c <CONFIG>] -f <MEMORY_DUMP_FILE> windows.pslist.PsList
 ```
 
 The `psscan` module attempt to list the processes by scanning the entirety of
@@ -691,13 +697,28 @@ pages from the process page table, retrieved from the process' `_EPROCESS`
 object `Process control block (Pcb)` (`_KPROCESS` structure)
 `DirectoryTableBase`.
 
+`Volatility3` does not include dedicated dump plugins. The
+`windows.pslist.PsList` and `windows.psscan.PsScan` plugins can be used to
+dump the binary associated with a process. The `windows.memmap.Memmap` plugin
+can be used to dump the full memory space of a process.
+
 ```bash
+# Volatility2.
+
 volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> procdump -D <OUTPUT_DIR> -p <PID>
 
 # Disable sanity checks on PE header, which may be exploited by malware to prevent the dumping
 volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> procdump --unsafe -D <OUTPUT_DIR> -p <PID>
 
 volatility -f <MEMORY_DUMP_FILE> --profile <MEMORY_DUMP_PROFILE> memdump -D <OUTPUT_DIR> -p <PID>
+
+# Volatility3.
+
+volatility3 [-c <CONFIG>] -f <MEMORY_DUMP_FILE> windows.pslist.PsList --dump [--pid <PID>]
+
+volatility3 [-c <CONFIG>] -f <MEMORY_DUMP_FILE> windows.psscan.PsScan --dump [--pid <PID>]
+
+volatility3 [-c <CONFIG>] -f <MEMORY_DUMP_FILE> windows.memmap.Memmap --dump [--pid <PID>]
 ```
 
 The `dlldump` module reconstructs the DLL(s) from memory for all processes, a
