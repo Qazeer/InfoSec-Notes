@@ -1,5 +1,7 @@
 # DFIR - Windows - shortcut files (.LNK)
 
+**Windows DFIR notes are no longer maintained on InfoSec-Notes. Updated versions can be found on: [artefacts.help](https://artefacts.help/).**
+
 ### Overview
 
 Location:

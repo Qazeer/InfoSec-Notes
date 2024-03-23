@@ -1,5 +1,7 @@
 # DFIR Windows - Windows event logs
 
+**Windows DFIR notes are no longer maintained on InfoSec-Notes. Updated versions can be found on: [artefacts.help](https://artefacts.help/).**
+
 ### Export Windows event logs
 
 The entirety of the `C:\Windows\System32\winevt\Logs` directory can be copied

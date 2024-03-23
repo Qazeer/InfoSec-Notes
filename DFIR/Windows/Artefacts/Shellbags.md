@@ -1,5 +1,7 @@
 # DFIR - Windows - Shellbags
 
+**Windows DFIR notes are no longer maintained on InfoSec-Notes. Updated versions can be found on: [artefacts.help](https://artefacts.help/).**
+
 ### Overview
 
 Location (starting from `Windows 7`):

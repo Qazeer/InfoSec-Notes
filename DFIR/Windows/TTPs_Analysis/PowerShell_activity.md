@@ -1,5 +1,7 @@
 # DFIR - Windows - PowerShell activity
 
+**Windows DFIR notes are no longer maintained on InfoSec-Notes. Updated versions can be found on: [artefacts.help](https://artefacts.help/).**
+
 ### Overview
 
 Windows PowerShell version 2.0, and prior versions, provide few useful audit

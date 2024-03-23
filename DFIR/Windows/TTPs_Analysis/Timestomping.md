@@ -1,5 +1,7 @@
 # DFIR - Windows - Timestomping
 
+**Windows DFIR notes are no longer maintained on InfoSec-Notes. Updated versions can be found on: [artefacts.help](https://artefacts.help/).**
+
 ### Overview
 
 Timestomping is the action of modifying the timestamps of a file (on Windows

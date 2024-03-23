@@ -1,5 +1,7 @@
 ###### Logs integrity
 
+**Windows DFIR notes are no longer maintained on InfoSec-Notes. Updated versions can be found on: [artefacts.help](https://artefacts.help/).**
+
 The following events occurs whenever the associated logs are cleared:
 
   - Event: `1102: The audit log was cleared`. <br/>

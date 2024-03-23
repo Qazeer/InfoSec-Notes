@@ -1,5 +1,7 @@
 # DFIR - Windows - MISC
 
+**Windows DFIR notes are no longer maintained on InfoSec-Notes. Updated versions can be found on: [artefacts.help](https://artefacts.help/).**
+
 ### NTFS file attributes
 
 A number of forensic artefact files, such as the `$MFT` or the `$UsnJrnl`

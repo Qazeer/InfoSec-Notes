@@ -1,5 +1,7 @@
 # DFIR - Windows - Program execution
 
+**Windows DFIR notes are no longer maintained on InfoSec-Notes. Updated versions can be found on: [artefacts.help](https://artefacts.help/).**
+
 ### Security.evtx - 4688: A new process has been created
 
 Event: `4688: A new process has been created`.<br/>

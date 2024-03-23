@@ -1,5 +1,7 @@
 # DFIR - Windows - Master File Table (MFT)
 
+**Windows DFIR notes are no longer maintained on InfoSec-Notes. Updated versions can be found on: [artefacts.help](https://artefacts.help/).**
+
 ### Overview
 
 The `Master File Table (MFT)`, filename `$MFT`, is the main element of any

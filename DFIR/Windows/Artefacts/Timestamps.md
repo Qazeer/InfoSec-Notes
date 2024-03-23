@@ -1,5 +1,7 @@
 # DFIR - Windows timestamps
 
+**Windows DFIR notes are no longer maintained on InfoSec-Notes. Updated versions can be found on: [artefacts.help](https://artefacts.help/).**
+
 ### NTFS $STANDARD_INFORMATION & $FILENAME MACB timestamps
 
 On `NTFS` filesystems, each file posses (at least) two attributes that hold

@@ -1,5 +1,7 @@
 # DFIR Windows - Local persistence & AutoStart Extensibility Point (ASEP)
 
+**Windows DFIR notes are no longer maintained on InfoSec-Notes. Updated versions can be found on: [artefacts.help](https://artefacts.help/).**
+
 ### Sysinternals' Autoruns
 
 The `Autoruns` utility of the `Sysinternals` suite has the most comprehensive

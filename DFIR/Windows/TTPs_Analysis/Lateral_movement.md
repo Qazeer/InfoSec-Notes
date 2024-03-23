@@ -1,5 +1,7 @@
 # DFIR - Windows lateral movements analysis
 
+**Windows DFIR notes are no longer maintained on InfoSec-Notes. Updated versions can be found on: [artefacts.help](https://artefacts.help/).**
+
 **The artefacts generated independently of the lateral movement technics used
 are introduced in the `[DFIR] Windows - Account Usage` note. The artefacts
 presented below are associated with a given lateral movement technique.**

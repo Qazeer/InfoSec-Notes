@@ -1,5 +1,7 @@
 # DFIR - Active Directory persistence
 
+**Windows DFIR notes are no longer maintained on InfoSec-Notes. Updated versions can be found on: [artefacts.help](https://artefacts.help/). This note is however not presently integrated to `artefacts.help`.**
+
 ### Active Directory persistence detection through events logs
 
 TODO

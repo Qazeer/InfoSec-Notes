@@ -1,5 +1,7 @@
 # DFIR - Windows - System Resource Usage Monitor (SRUM)
 
+**Windows DFIR notes are no longer maintained on InfoSec-Notes. Updated versions can be found on: [artefacts.help](https://artefacts.help/).**
+
 ### Overview
 
 Introduced in Windows 8.
